@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "1.0",
+  "phase": "repository-and-contract-bootstrap",
+  "generatedAt": "2026-07-19T11:20:33Z",
+  "productionMutationPerformed": false,
+  "unify": {
+    "repository": "BartSchuster22/UNIFY",
+    "checkout": "/srv/unify",
+    "branch": "main",
+    "baseCommit": "dea431cd1db2dc00949576ae85f71e5ec87976ad"
+  },
+  "sources": [
+    {
+      "domain": "agency",
+      "path": "/srv/agency",
+      "commit": "c2a4e07d197391de60183177948a20ec54197b2e",
+      "worktree": "clean",
+      "containerHealth": "healthy"
+    },
+    {
+      "domain": "dmm",
+      "path": "/srv/dmm",
+      "commit": "8059aeda66b57652fb0607717d892c0e3f82714e",
+      "worktree": "clean",
+      "containerHealth": "healthy"
+    },
+    {
+      "domain": "worker-v3",
+      "path": "/srv/worker-v3",
+      "commit": "b10678be35767dc0b9ff396e84cc9ec376bfd9b2",
+      "worktree": "pre-existing modified and untracked files; branch ahead",
+      "containerHealth": "healthy"
+    },
+    {
+      "domain": "chat",
+      "path": "/srv/chat",
+      "commit": "39531fe6d2a7a9e0473d88b6b76d7cec35c752b8",
+      "worktree": "pre-existing modified and untracked files",
+      "containerHealth": "healthy"
+    },
+    {
+      "domain": "memory-v4",
+      "path": "/srv/memory-v4",
+      "commit": "24967c5943908616c20419d56a37296fe5c6ffee",
+      "worktree": "foundation branch",
+      "containerHealth": "not deployed"
+    }
+  ],
+  "readOnlyPublicProbes": [
+    { "service": "agency", "routeClass": "health", "status": 200 },
+    { "service": "dmm", "routeClass": "health", "status": 200 },
+    { "service": "worker", "routeClass": "health", "status": 200 },
+    { "service": "chat", "routeClass": "health", "status": 200 },
+    { "service": "chat", "routeClass": "readiness", "status": 200 },
+    { "service": "chat", "routeClass": "anonymous-protected-session-list", "status": 401 }
+  ],
+  "knownBlockingRisks": [
+    "worker mutation authentication is fail-open when optional token configuration is absent",
+    "worker source and deployed behavior are not an immutable matched release",
+    "chat source image and schema drift plus one red route-contract smoke",
+    "memory-v4 is not live, cutover-ready or QA10 complete"
+  ],
+  "sensitiveDataIncluded": false
+}
