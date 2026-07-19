@@ -34,6 +34,17 @@ export class GatewayClient {
       body: JSON.stringify(body),
     });
   }
+  async acknowledgeNotification(id: string): Promise<Response> {
+    if (!id.trim()) throw new TypeError('notification id is required');
+    const headers = new Headers({ accept: 'application/json' });
+    const csrf = this.#csrf?.();
+    if (csrf) headers.set('x-csrf-token', csrf);
+    return this.#fetch(`${this.#baseUrl}/notifications/${encodeURIComponent(id)}/acknowledge`, {
+      method: 'POST',
+      headers,
+      credentials: 'include',
+    });
+  }
   async downloadChatUpload(path: string): Promise<Response> {
     if (!/^\/uploads\/[a-zA-Z0-9._-]+$/.test(path)) throw new TypeError('Invalid Chat upload path');
     const headers = new Headers({ accept: 'application/octet-stream' });

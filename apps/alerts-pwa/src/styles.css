@@ -1,0 +1,36 @@
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+  background: #fff8f2;
+}
+.focused-skip-link {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  z-index: 9999;
+  background: #fff;
+  padding: 0.75rem;
+}
+.focused-skip-link:focus {
+  left: 1rem;
+}
+@media (max-width: 48rem) {
+  .mantine-AppShell-header {
+    height: 72px !important;
+  }
+  .mantine-AppShell-main {
+    padding-inline: 0.75rem !important;
+    padding-top: 5.5rem !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

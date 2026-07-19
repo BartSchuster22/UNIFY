@@ -4,9 +4,28 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "vite build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run",
     "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@aquiero/auth-client": "workspace:*",
+    "@aquiero/design-system": "workspace:*",
+    "@aquiero/notification-components": "workspace:*",
+    "@mantine/core": "9.4.1",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.2",
+    "@testing-library/user-event": "14.6.1",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "axe-core": "4.12.1",
+    "jsdom": "29.1.1",
+    "@vitejs/plugin-react": "6.0.3",
+    "vite": "8.1.5"
   }
 }

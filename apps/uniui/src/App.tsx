@@ -39,6 +39,8 @@ import {
   createTheme,
 } from '@mantine/core';
 import { useDisclosure, useHotkeys, useMediaQuery } from '@mantine/hooks';
+import { ChatWorkspace } from '@aquiero/chat-components';
+import { NotificationInbox } from '@aquiero/notification-components';
 import {
   IconActivity,
   IconBell,
@@ -62,7 +64,7 @@ import {
   IconUserCircle,
   IconUsers,
 } from '@tabler/icons-react';
-import { useVirtualizer } from '@tanstack/react-virtual';
+
 import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { ApiError, api, gateway } from './api';
 import type {
@@ -139,7 +141,10 @@ const theme = createTheme({
 export function App() {
   const [principal, setPrincipal] = useState<Principal | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [view, setView] = useState<ViewId>('overview');
+  const [view, setView] = useState<ViewId>(() => {
+    const requested = new URLSearchParams(window.location.search).get('view');
+    return NAV.some((item) => item.id === requested) ? (requested as ViewId) : 'overview';
+  });
   const [query, setQuery] = useState('');
   const [dark, setDark] = useState(() => localStorage.getItem('unify-color-scheme') === 'dark');
   const [opened, { toggle, close }] = useDisclosure(false);
@@ -157,6 +162,9 @@ export function App() {
   }, []);
   const changeView = (next: ViewId) => {
     setView(next);
+    const url = new URL(window.location.href);
+    url.searchParams.set('view', next);
+    window.history.replaceState(null, '', url);
     close();
   };
   const search = (event: FormEvent) => {
@@ -180,6 +188,7 @@ export function App() {
       ? ACTION_PRESETS.some((preset) => principal.permissions.includes(preset.permission))
       : !item.permission || principal.permissions.includes(item.permission),
   );
+  const activeView = visible.some((item) => item.id === view) ? view : 'overview';
   return (
     <MantineProvider theme={theme} forceColorScheme={dark ? 'dark' : 'light'}>
       <a className="skip-link" href="#main-content">
@@ -278,11 +287,11 @@ export function App() {
               {visible.map((item) => (
                 <NavLink
                   key={item.id}
-                  active={view === item.id}
+                  active={activeView === item.id}
                   label={item.label}
                   leftSection={<item.icon size={18} />}
                   onClick={() => changeView(item.id)}
-                  aria-current={view === item.id ? 'page' : undefined}
+                  aria-current={activeView === item.id ? 'page' : undefined}
                 />
               ))}
             </Stack>
@@ -305,7 +314,7 @@ export function App() {
           </AppShell.Section>
         </AppShell.Navbar>
         <AppShell.Main id="main-content" tabIndex={-1}>
-          <View view={view} principal={principal} searchQuery={query} />
+          <View view={activeView} principal={principal} searchQuery={query} />
         </AppShell.Main>
       </AppShell>
     </MantineProvider>
@@ -1390,93 +1399,33 @@ function ChatView() {
   const messages = useData<Collection<UnifiedResource>>(
     '/resources?owner=chat&kind=chat-message&limit=500',
   );
-  const shown = (messages.data?.items ?? []).filter(
-    (item) =>
-      session === 'all' || String(item.data.session_id ?? item.data.sessionId ?? '') === session,
-  );
-  const parent = useRef<HTMLDivElement>(null);
-  const virtual = useVirtualizer({
-    count: shown.length,
-    getScrollElement: () => parent.current,
-    estimateSize: () => 92,
-    overscan: 8,
-  });
   return (
     <>
       <PageHeading
         title="Chat"
-        description="Virtualized, read-only message history from the authoritative Chat service."
+        description="Bounded, virtualized message history from the authoritative Chat service."
       />
-      <SimpleGrid cols={{ base: 1, md: 4 }}>
-        <Paper withBorder p="sm">
-          <Text fw={700} mb="sm">
-            Sessions
-          </Text>
-          <ScrollArea h={{ base: 180, md: 560 }}>
-            <NavLink
-              active={session === 'all'}
-              label="All sessions"
-              onClick={() => setSession('all')}
-            />
-            {sessions.data?.items.map((item) => (
-              <NavLink
-                key={item.resource.canonicalId}
-                active={session === item.resource.nativeId}
-                label={item.title}
-                description={item.resource.nativeId}
-                onClick={() => setSession(item.resource.nativeId)}
-              />
-            ))}
-          </ScrollArea>
-        </Paper>
-        <Box style={{ gridColumn: 'span 3' }}>
-          <TruthPanel
-            meta={messages.data?.meta}
-            loading={messages.loading}
-            failure={messages.failure}
-            empty={Boolean(messages.data && shown.length === 0)}
-            onRetry={messages.reload}
-          >
-            <div
-              ref={parent}
-              className="virtual-list"
-              aria-label="Virtualized Chat messages"
-              role="log"
-            >
-              <div style={{ height: virtual.getTotalSize(), width: '100%', position: 'relative' }}>
-                {virtual.getVirtualItems().map((row) => {
-                  const item = shown[row.index];
-                  if (!item) return null;
-                  return (
-                    <div
-                      key={item.resource.canonicalId}
-                      ref={virtual.measureElement}
-                      data-index={row.index}
-                      className="virtual-row"
-                      style={{ transform: `translateY(${row.start}px)` }}
-                    >
-                      <Paper withBorder p="sm">
-                        <Group justify="space-between">
-                          <Text fw={700}>
-                            {stringField(item.data, ['role', 'sender', 'author']) || item.title}
-                          </Text>
-                          <Text size="xs" c="dimmed">
-                            {formatDate(item.resource.observedAt)}
-                          </Text>
-                        </Group>
-                        <Text size="sm" lineClamp={5}>
-                          {stringField(item.data, ['content', 'text', 'message']) ||
-                            item.searchableText}
-                        </Text>
-                      </Paper>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </TruthPanel>
-        </Box>
-      </SimpleGrid>
+      <TruthPanel
+        meta={messages.data?.meta}
+        loading={messages.loading || sessions.loading}
+        failure={messages.failure || sessions.failure}
+        empty={Boolean(messages.data && sessions.data && messages.data.items.length === 0)}
+        onRetry={() => {
+          sessions.reload();
+          messages.reload();
+        }}
+      >
+        <ChatWorkspace
+          sessions={sessions.data?.items ?? []}
+          messages={messages.data?.items ?? []}
+          selectedSession={session}
+          onSelectSession={setSession}
+          onRefresh={() => {
+            sessions.reload();
+            messages.reload();
+          }}
+        />
+      </TruthPanel>
     </>
   );
 }
@@ -1685,18 +1634,39 @@ interface Notification {
   title: string;
   body: string;
   source: string;
-  state: string;
+  state: 'unread' | 'read' | 'acknowledged';
   createdAt: string;
+  deepLink?: string;
 }
 function NotificationsView() {
   const result = useData<Collection<Notification>>('/notifications?limit=200');
-  const color = { info: 'blue', warning: 'orange', error: 'red', critical: 'red' } as const;
+  const [acknowledging, setAcknowledging] = useState('');
+  const [actionFailure, setActionFailure] = useState('');
+  const acknowledge = async (id: string) => {
+    setAcknowledging(id);
+    setActionFailure('');
+    try {
+      await api<void>(`/notifications/${encodeURIComponent(id)}/acknowledge`, { method: 'POST' });
+      result.reload();
+    } catch (error) {
+      setActionFailure(
+        error instanceof ApiError ? error.failure.message : 'Acknowledgement failed',
+      );
+    } finally {
+      setAcknowledging('');
+    }
+  };
   return (
     <>
       <PageHeading
         title="Notifications"
-        description="Unified owner notices and truthful integration failures."
+        description="Unified owner notices, grouping, acknowledgement, and authoritative deep links."
       />
+      {actionFailure && (
+        <Alert color="red" title="Notification action failed">
+          {actionFailure}
+        </Alert>
+      )}
       <TruthPanel
         meta={result.data?.meta}
         loading={result.loading}
@@ -1704,29 +1674,16 @@ function NotificationsView() {
         empty={Boolean(result.data && result.data.items.length === 0)}
         onRetry={result.reload}
       >
-        <Stack>
-          {result.data?.items.map((item) => (
-            <Alert
-              key={item.id}
-              color={color[item.severity]}
-              title={
-                <Group gap="xs">
-                  <Text fw={700}>{item.title}</Text>
-                  <Badge>{item.source}</Badge>
-                </Group>
-              }
-            >
-              <Text>{item.body}</Text>
-              <Text size="xs" mt="xs">
-                {formatDate(item.createdAt)} · {item.state}
-              </Text>
-            </Alert>
-          ))}
-        </Stack>
+        <NotificationInbox
+          notifications={result.data?.items ?? []}
+          acknowledgingId={acknowledging}
+          onAcknowledge={(id: string) => void acknowledge(id)}
+        />
       </TruthPanel>
     </>
   );
 }
+
 function Settings({ principal }: { principal: Principal }) {
   const sessions = useData<{ items: SessionSummary[] }>('/sessions');
   const revoke = async (id: string) => {

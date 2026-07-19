@@ -992,6 +992,77 @@
         }
       }
     },
+    "/notifications/{id}/acknowledge": {
+      "post": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "acknowledgeNotification",
+        "security": [
+          {
+            "cookieSession": [],
+            "csrfToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Notification acknowledged"
+          },
+          "401": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/shadow": {
       "get": {
         "tags": [
@@ -5625,6 +5696,10 @@
             "format": "date-time",
             "type": "string"
           },
+          "deepLink": {
+            "pattern": "^/\\?",
+            "type": "string"
+          },
           "resource": {
             "$id": "ResourceRef",
             "additionalProperties": false,
@@ -5893,6 +5968,10 @@
                 },
                 "createdAt": {
                   "format": "date-time",
+                  "type": "string"
+                },
+                "deepLink": {
+                  "pattern": "^/\\?",
                   "type": "string"
                 },
                 "resource": {

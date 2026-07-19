@@ -103,6 +103,7 @@ function authenticatedFetch(input: RequestInfo | URL): Promise<Response> {
 }
 
 beforeEach(() => {
+  window.history.replaceState({}, '', '/');
   localStorage.clear();
   vi.restoreAllMocks();
 });

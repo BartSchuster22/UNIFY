@@ -1,0 +1,14 @@
+{
+  "name": "Aquiero Chat",
+  "short_name": "Chat",
+  "description": "Focused authenticated Aquiero conversations",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f7fa",
+  "theme_color": "#0876ad",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

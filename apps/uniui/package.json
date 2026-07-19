@@ -11,6 +11,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@aquiero/chat-components": "workspace:*",
+    "@aquiero/notification-components": "workspace:*",
     "@mantine/core": "9.4.1",
     "@mantine/hooks": "9.4.1",
     "@tabler/icons-react": "3.45.0",

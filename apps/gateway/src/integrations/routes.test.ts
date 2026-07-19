@@ -14,6 +14,22 @@ import { IntegrationService } from './service.js';
 import type { IntegrationSnapshot, SourceAdapter } from './types.js';
 import type { GovernanceStore } from '../governance/types.js';
 import { MutationOwnerClient } from '../mutations/owner-client.js';
+import type { NotificationDraft, NotificationStore } from '../notifications/postgres-store.js';
+
+class Notifications implements NotificationStore {
+  state: NotificationDraft['state'] = 'unread';
+  async ready() {
+    return true;
+  }
+  async sync(_userId: string, notifications: NotificationDraft[]) {
+    return new Map(notifications.map((item) => [item.id, this.state]));
+  }
+  async acknowledge(_userId: string, _notificationId: string, allowedOwners: string[]) {
+    if (!allowedOwners.includes('agency')) return null;
+    this.state = 'acknowledged';
+    return 'agency';
+  }
+}
 
 class Store implements AuthStore {
   user!: UserRecord;
@@ -67,7 +83,7 @@ class AgencyAdapter implements SourceAdapter {
       owners: this.owners,
       status: 'current',
       observedAt: at,
-      warnings: [],
+      warnings: [{ code: 'AGENCY_ATTENTION', message: 'Agency needs attention' }],
       resources: [
         {
           resource: {
@@ -116,6 +132,7 @@ async function authenticated(
   permissions: string[],
   governanceStore?: GovernanceStore,
   mutationOwners?: MutationOwnerClient,
+  notificationStore?: NotificationStore,
 ) {
   const store = new Store();
   store.user = {
@@ -139,6 +156,7 @@ async function authenticated(
     integrations: new IntegrationService([new AgencyAdapter()]),
     ...(governanceStore ? { governanceStore } : {}),
     ...(mutationOwners ? { mutationOwners } : {}),
+    ...(notificationStore ? { notificationStore } : {}),
   });
   const login = await app.inject({
     method: 'POST',
@@ -257,6 +275,44 @@ describe('read-only integration routes', () => {
     expect(
       (await app.inject({ method: 'GET', url: '/api/v1/shadow', headers: { cookie } })).statusCode,
     ).toBe(403);
+    await app.close();
+  });
+
+  it('persists notification acknowledgement behind CSRF and owner RBAC', async () => {
+    const notifications = new Notifications();
+    const { app, cookie, csrf } = await authenticated(
+      ['frameworks.read'],
+      undefined,
+      undefined,
+      notifications,
+    );
+    const inbox = await app.inject({
+      method: 'GET',
+      url: '/api/v1/notifications',
+      headers: { cookie },
+    });
+    expect(inbox.statusCode).toBe(200);
+    expect(inbox.json()).toMatchObject({
+      items: [{ source: 'agency', state: 'unread', deepLink: '/?view=notifications' }],
+    });
+    const id = String(inbox.json().items[0].id);
+    const url = `/api/v1/notifications/${encodeURIComponent(id)}/acknowledge`;
+    expect((await app.inject({ method: 'POST', url, headers: { cookie } })).statusCode).toBe(403);
+    expect(
+      (
+        await app.inject({
+          method: 'POST',
+          url,
+          headers: { cookie, 'x-csrf-token': csrf },
+        })
+      ).statusCode,
+    ).toBe(204);
+    const refreshed = await app.inject({
+      method: 'GET',
+      url: '/api/v1/notifications',
+      headers: { cookie },
+    });
+    expect(refreshed.json()).toMatchObject({ items: [{ state: 'acknowledged' }] });
     await app.close();
   });
 

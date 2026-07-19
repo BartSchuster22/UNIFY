@@ -10,6 +10,7 @@ import type { IntegrationService } from './integrations/service.js';
 import type { IntegrationKind, IntegrationOwner } from './integrations/types.js';
 import { MutationService } from './mutations/service.js';
 import type { MutationOwnerClient } from './mutations/owner-client.js';
+import type { NotificationStore } from './notifications/postgres-store.js';
 export interface AppOptions {
   authStore: AuthStore;
   authPepper: string;
@@ -20,6 +21,7 @@ export interface AppOptions {
   allowedOrigins?: readonly string[];
   integrations?: IntegrationService;
   mutationOwners?: MutationOwnerClient;
+  notificationStore?: NotificationStore;
 }
 const SESSION_COOKIE = 'aquiero_session';
 const CSRF_COOKIE = 'aquiero_csrf';
@@ -61,6 +63,8 @@ export function buildApp(options: AppOptions) {
     reply.header('x-content-type-options', 'nosniff');
     reply.header('x-frame-options', 'DENY');
     reply.header('referrer-policy', 'no-referrer');
+    reply.header('cache-control', 'no-store');
+    reply.header('pragma', 'no-cache');
     reply.header('content-security-policy', "default-src 'none'; frame-ancestors 'none'");
     return payload;
   });
@@ -103,7 +107,8 @@ export function buildApp(options: AppOptions) {
   app.get('/api/v1/health/ready', async (_request, reply) => {
     const ready =
       (await options.authStore.ready()) &&
-      (!options.governanceStore || (await options.governanceStore.ready()));
+      (!options.governanceStore || (await options.governanceStore.ready())) &&
+      (!options.notificationStore || (await options.notificationStore.ready()));
     return reply
       .status(ready ? 200 : 503)
       .send({ status: ready ? 'ready' : 'not_ready', release: options.release ?? 'development' });
@@ -347,11 +352,65 @@ export function buildApp(options: AppOptions) {
     '/api/v1/notifications',
     async (request) => {
       const current = await session(request);
-      const notifications = (await requireIntegrations().notifications()).filter((item) =>
-        canRead(current, item.source),
-      );
-      const page = paginate(notifications, request.query, (item) => item.id);
+      const notifications = (await requireIntegrations().notifications())
+        .filter((item) => canRead(current, item.source))
+        .map((item) => ({ ...item, deepLink: notificationDeepLink(item.resource) }));
+      const states = await options.notificationStore?.sync(current.userId, notifications);
+      const hydrated = notifications.map((item) => ({
+        ...item,
+        state: states?.get(item.id) ?? item.state,
+      }));
+      const page = paginate(hydrated, request.query, (item) => item.id);
       return { items: page.items, meta: meta(request.id, [], page.page) };
+    },
+  );
+  app.post<{ Params: { id: string } }>(
+    '/api/v1/notifications/:id/acknowledge',
+    {
+      schema: {
+        params: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['id'],
+          properties: { id: { type: 'string', minLength: 1, maxLength: 2048 } },
+        },
+      },
+    },
+    async (request, reply) => {
+      const current = await mutationSession(request);
+      if (!options.notificationStore)
+        throw new GovernanceError(
+          'NOTIFICATIONS_UNAVAILABLE',
+          503,
+          'Notification state is unavailable',
+        );
+      const ownerCandidates: IntegrationOwner[] = [
+        'hermes',
+        'agency',
+        'dmm',
+        'worker',
+        'chat',
+        'memory-v4',
+        'gateway',
+      ];
+      const allowedOwners = ownerCandidates.filter((owner) => canRead(current, owner));
+      const source = await options.notificationStore.acknowledge(
+        current.userId,
+        request.params.id,
+        allowedOwners,
+      );
+      if (!source)
+        throw new GovernanceError('NOTIFICATION_NOT_FOUND', 404, 'Notification was not found');
+      const owner = ownerValue(source)!;
+      await governance?.audit({
+        actorUserId: current.userId,
+        sessionId: current.sessionId,
+        action: 'notification.acknowledge',
+        outcome: 'success',
+        requestId: request.id,
+        target: { owner, notificationId: request.params.id },
+      });
+      return reply.status(204).send();
     },
   );
   app.get<{ Querystring: { owner?: string } }>('/api/v1/shadow', async (request) => {
@@ -477,6 +536,22 @@ export function buildApp(options: AppOptions) {
       warnings,
       ...(page ? { page } : {}),
     };
+  }
+  function notificationDeepLink(resource?: ResourceRef): string {
+    const viewByOwner: Record<ResourceRef['owner'], string> = {
+      hermes: 'profiles',
+      agency: 'frameworks',
+      dmm: 'models',
+      worker: 'work',
+      chat: 'chat',
+      'memory-v4': 'memory',
+      gateway: 'operations',
+    };
+    const query = new URLSearchParams({
+      view: resource ? viewByOwner[resource.owner] : 'notifications',
+    });
+    if (resource) query.set('resource', resource.canonicalId);
+    return `/?${query.toString()}`;
   }
   function ownerValue(value?: string): IntegrationOwner | undefined {
     if (!value) return undefined;

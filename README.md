@@ -39,8 +39,11 @@ UNIFY provides one authenticated, policy-controlled API boundary and one operato
 - [Mantine UNIUI architecture and operations](docs/ui/MANTINE-UNIUI.md)
 - [Phase 4 verification](docs/evidence/PHASE-4-REPORT.md)
 - [Phase 5 verification](docs/evidence/PHASE-5-REPORT.md)
+- [Focused Chat and Alerts PWAs](docs/ui/FOCUSED-PWAS.md)
+- [Native-shell readiness boundary](docs/mobile/NATIVE-SHELL-READINESS.md)
+- [Phase 6 verification](docs/evidence/PHASE-6-REPORT.md)
 
-## Planned deployables
+## Deployables
 
 ```text
 apps/gateway       Unified API, identity, policy, operations, audit and adapters
@@ -61,3 +64,5 @@ Phase 3 — Read-only integrations: complete. Gateway federates Agency/Hermes, D
 Phase 4 — Mantine UNIUI: complete. The authenticated responsive operator shell presents owner-scoped frameworks, providers/models, profiles, Work/Kanban, virtualized Chat, Memory, audit, operations, notifications, and settings through shared truthful-state components. Mobile, keyboard, axe accessibility, CSP, non-root container, and real Compose gates are included. The UI remains read-only with respect to authoritative owner services.
 
 Phase 5 — Governed mutations: complete. One authenticated, CSRF-protected, RBAC-checked, idempotent operation boundary delegates safety-gated writes to Agency/Hermes, DMM, Worker, Chat, and MemoryV4 while preserving owner authority. Destructive execution requires confirmation, evidence is recursively redacted, Chat files are bounded and privately proxied, Memory writes are allowlisted, and UNIUI plus the generated SDK expose the governed controls.
+
+Phase 6 — Focused applications: complete. Installable Chat and Alerts PWAs share the same authentication, truthful-state, Chat, and notification components as UNIUI. They are responsive, permission-aware, accessible, shell-only offline capable, and deployed behind same-origin Gateway proxies. Notification acknowledgement is recipient-scoped and durable. Native-shell work remains intentionally unimplemented behind a documented readiness and approval boundary.

@@ -13,11 +13,12 @@ const types = {
   '.css': 'text/css; charset=utf-8',
   '.svg': 'image/svg+xml',
   '.json': 'application/json',
+  '.webmanifest': 'application/manifest+json',
   '.map': 'application/json',
 };
 const security = {
   'content-security-policy':
-    "default-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
+    "default-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
   'x-content-type-options': 'nosniff',
   'x-frame-options': 'DENY',
   'referrer-policy': 'no-referrer',
@@ -55,7 +56,10 @@ const server = createServer(async (req, res) => {
     const extension = extname(file);
     res.writeHead(200, {
       'content-type': types[extension] ?? 'application/octet-stream',
-      'cache-control': extension === '.html' ? 'no-store' : 'public, max-age=31536000, immutable',
+      'cache-control':
+        extension === '.html' || file.endsWith('/sw.js') || extension === '.webmanifest'
+          ? 'no-store'
+          : 'public, max-age=31536000, immutable',
       ...security,
     });
     if (req.method === 'HEAD') {
@@ -104,6 +108,6 @@ async function proxy(req, res) {
   res.writeHead(upstream.status, outgoing);
   res.end(Buffer.from(await upstream.arrayBuffer()));
 }
-server.listen(port, host, () => console.log(`UNIUI listening on ${host}:${port}`));
+server.listen(port, host, () => console.log(`Focused web shell listening on ${host}:${port}`));
 for (const signal of ['SIGTERM', 'SIGINT'])
   process.once(signal, () => server.close(() => process.exit(0)));

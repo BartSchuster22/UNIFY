@@ -7,16 +7,16 @@
     "node": ">=22.22.2 <23"
   },
   "scripts": {
-    "build": "pnpm -r --if-present build",
-    "typecheck": "pnpm --filter @aquiero/contracts build && pnpm -r --if-present typecheck",
-    "test": "pnpm -r --if-present test",
+    "build": "pnpm -r --workspace-concurrency=1 --if-present build",
+    "typecheck": "pnpm --filter @aquiero/contracts build && pnpm -r --workspace-concurrency=1 --if-present typecheck",
+    "test": "pnpm -r --workspace-concurrency=1 --if-present test",
     "lint": "eslint . && node scripts/check-boundaries.mjs",
     "format:check": "prettier --check .",
     "contracts:generate": "pnpm --filter @aquiero/contracts build && node scripts/generate-contracts.mjs",
     "contracts:check": "pnpm --filter @aquiero/contracts build && node scripts/generate-contracts.mjs --check",
     "compose:secrets": "node scripts/prepare-compose-secrets.mjs",
-    "compose:build": "docker compose build gateway uniui",
-    "compose:up": "docker compose up -d --wait postgres gateway uniui",
+    "compose:build": "docker compose build gateway uniui chat-pwa alerts-pwa",
+    "compose:up": "docker compose up -d --wait postgres gateway uniui chat-pwa alerts-pwa",
     "compose:down": "docker compose down --remove-orphans",
     "qa": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm contracts:check && pnpm format:check",
     "clean": "pnpm -r --if-present clean"

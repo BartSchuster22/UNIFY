@@ -372,6 +372,7 @@ export const UnifiedNotificationSchema = Type.Object(
     source: ResourceOwnerSchema,
     state: Type.Union([Type.Literal('unread'), Type.Literal('read'), Type.Literal('acknowledged')]),
     createdAt: Type.String({ format: 'date-time' }),
+    deepLink: Type.Optional(Type.String({ pattern: '^/\\?' })),
     resource: Type.Optional(ResourceRefSchema),
   },
   { $id: 'UnifiedNotification', additionalProperties: false },
@@ -665,6 +666,28 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         'listUnifiedNotifications',
         'UnifiedNotificationList',
       ),
+      '/notifications/{id}/acknowledge': {
+        post: {
+          tags: ['notifications'],
+          operationId: 'acknowledgeNotification',
+          security: [{ cookieSession: [], csrfToken: [] }],
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              schema: { type: 'string', minLength: 1, maxLength: 2048 },
+            },
+          ],
+          responses: {
+            '204': { description: 'Notification acknowledged' },
+            '401': jsonResponse('ErrorResponse'),
+            '403': jsonResponse('ErrorResponse'),
+            '404': jsonResponse('ErrorResponse'),
+            '503': jsonResponse('ErrorResponse'),
+          },
+        },
+      },
       '/shadow': readPath('shadow', 'compareAuthoritativeOwners', 'ShadowComparisonList'),
     },
     components: {

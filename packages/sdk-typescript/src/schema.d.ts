@@ -276,6 +276,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/notifications/{id}/acknowledge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["acknowledgeNotification"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/shadow": {
         parameters: {
             query?: never;
@@ -852,6 +868,7 @@ export interface components {
             state: "unread" | "read" | "acknowledged";
             /** Format: date-time */
             createdAt: string;
+            deepLink?: string;
             resource?: {
                 canonicalId: string;
                 kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
@@ -878,6 +895,7 @@ export interface components {
                 state: "unread" | "read" | "acknowledged";
                 /** Format: date-time */
                 createdAt: string;
+                deepLink?: string;
                 resource?: {
                     canonicalId: string;
                     kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
@@ -1815,6 +1833,62 @@ export interface operations {
             };
             /** @description ErrorResponse */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    acknowledgeNotification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Notification acknowledged */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -1,0 +1,14 @@
+{
+  "name": "Aquiero Alerts",
+  "short_name": "Alerts",
+  "description": "Focused authenticated Aquiero notification inbox",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fff8f2",
+  "theme_color": "#b24b00",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

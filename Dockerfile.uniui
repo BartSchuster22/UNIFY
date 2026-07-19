@@ -5,8 +5,14 @@ ENV PATH=$PNPM_HOME:$PATH
 RUN corepack enable && corepack prepare pnpm@10.33.2 --activate
 WORKDIR /workspace
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
+COPY packages/auth-client/package.json packages/auth-client/package.json
+COPY packages/chat-components/package.json packages/chat-components/package.json
+COPY packages/notification-components/package.json packages/notification-components/package.json
 COPY apps/uniui/package.json apps/uniui/package.json
 RUN pnpm install --frozen-lockfile --filter @aquiero/uniui...
+COPY packages/auth-client packages/auth-client
+COPY packages/chat-components packages/chat-components
+COPY packages/notification-components packages/notification-components
 COPY apps/uniui apps/uniui
 RUN pnpm --filter @aquiero/uniui build
 

@@ -6,6 +6,7 @@ import { PostgresGovernanceStore } from './governance/postgres-store.js';
 import { createDefaultAdapters } from './integrations/adapters.js';
 import { IntegrationService } from './integrations/service.js';
 import { MutationOwnerClient } from './mutations/owner-client.js';
+import { PostgresNotificationStore } from './notifications/postgres-store.js';
 async function secret(name: string): Promise<string> {
   const file = process.env[`${name}_FILE`];
   const value = file ? await readFile(file, 'utf8') : process.env[name];
@@ -44,6 +45,7 @@ const app = buildApp({
     .filter(Boolean),
   integrations: new IntegrationService(createDefaultAdapters(integrationEnv)),
   mutationOwners: MutationOwnerClient.fromEnv(integrationEnv),
+  notificationStore: new PostgresNotificationStore(pool),
 });
 const close = async (signal: string) => {
   app.log.info({ signal }, 'graceful shutdown');
