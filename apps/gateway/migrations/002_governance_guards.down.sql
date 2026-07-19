@@ -1,0 +1,10 @@
+DROP INDEX IF EXISTS evidence_references_operation_idx;
+DROP INDEX IF EXISTS idempotency_records_expiry_idx;
+DROP TRIGGER IF EXISTS evidence_references_immutable ON evidence_references;
+DROP TRIGGER IF EXISTS operation_transitions_immutable ON operation_transitions;
+DROP TRIGGER IF EXISTS audit_events_immutable ON audit_events;
+DROP FUNCTION IF EXISTS reject_immutable_mutation();
+ALTER TABLE evidence_references DROP COLUMN IF EXISTS redacted_payload;
+ALTER TABLE operations DROP CONSTRAINT IF EXISTS operations_state_check;
+ALTER TABLE operations DROP COLUMN IF EXISTS error;
+ALTER TABLE operations DROP COLUMN IF EXISTS result;

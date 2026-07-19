@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import pg from 'pg';
 import { buildApp } from './app.js';
 import { PostgresAuthStore } from './auth/postgres-store.js';
+import { PostgresGovernanceStore } from './governance/postgres-store.js';
 async function secret(name: string): Promise<string> {
   const file = process.env[`${name}_FILE`];
   const value = file ? await readFile(file, 'utf8') : process.env[name];
@@ -16,6 +17,7 @@ const pool = new pg.Pool({
 });
 const app = buildApp({
   authStore: new PostgresAuthStore(pool),
+  governanceStore: new PostgresGovernanceStore(pool),
   authPepper,
   secureCookies: process.env.NODE_ENV === 'production',
   release: process.env.RELEASE_ID ?? 'development',

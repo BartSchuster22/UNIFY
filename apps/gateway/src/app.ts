@@ -3,12 +3,15 @@ import Fastify, { type FastifyReply, type FastifyRequest } from 'fastify';
 import { randomUUID } from 'node:crypto';
 import { AuthError, AuthService } from './auth/service.js';
 import type { AuthStore, SessionRecord } from './auth/types.js';
+import { GovernanceError, GovernanceService } from './governance/service.js';
+import type { GovernanceStore, OperationRecord } from './governance/types.js';
 export interface AppOptions {
   authStore: AuthStore;
   authPepper: string;
   secureCookies?: boolean;
   release?: string;
   logger?: boolean;
+  governanceStore?: GovernanceStore;
 }
 const SESSION_COOKIE = 'aquiero_session';
 const CSRF_COOKIE = 'aquiero_csrf';
@@ -19,15 +22,19 @@ export function buildApp(options: AppOptions) {
     requestIdHeader: 'x-request-id',
   });
   const auth = new AuthService({ store: options.authStore, pepper: options.authPepper });
+  const governance = options.governanceStore
+    ? new GovernanceService(options.governanceStore)
+    : null;
   void app.register(cookie);
   app.setErrorHandler((error, request, reply) => {
-    const authError = error instanceof AuthError ? error : null;
-    const status = authError?.statusCode ?? 500;
-    if (!authError) request.log.error({ err: error }, 'request failed');
+    const domainError =
+      error instanceof AuthError || error instanceof GovernanceError ? error : null;
+    const status = domainError?.statusCode ?? 500;
+    if (!domainError) request.log.error({ err: error }, 'request failed');
     void reply.status(status).send({
       error: {
-        code: authError?.code ?? 'INTERNAL_ERROR',
-        message: authError?.message ?? 'Internal server error',
+        code: domainError?.code ?? 'INTERNAL_ERROR',
+        message: domainError?.message ?? 'Internal server error',
         requestId: request.id,
         retryable: status === 429 || status >= 500,
       },
@@ -56,7 +63,9 @@ export function buildApp(options: AppOptions) {
     release: options.release ?? 'development',
   }));
   app.get('/api/v1/health/ready', async (_request, reply) => {
-    const ready = await options.authStore.ready();
+    const ready =
+      (await options.authStore.ready()) &&
+      (!options.governanceStore || (await options.governanceStore.ready()));
     return reply
       .status(ready ? 200 : 503)
       .send({ status: ready ? 'ready' : 'not_ready', release: options.release ?? 'development' });
@@ -82,6 +91,13 @@ export function buildApp(options: AppOptions) {
         ip: request.ip,
         userAgent: request.headers['user-agent'],
         deviceLabel: request.body.deviceLabel,
+      });
+      await governance?.audit({
+        actorUserId: result.principal.userId,
+        sessionId: result.sessionId,
+        action: 'auth.login',
+        outcome: 'success',
+        requestId: request.id,
       });
       reply.setCookie(SESSION_COOKIE, result.sessionToken, {
         ...cookieOptions,
@@ -110,6 +126,13 @@ export function buildApp(options: AppOptions) {
   app.post('/api/v1/auth/logout', async (request, reply) => {
     const current = await mutationSession(request);
     await auth.revokeSession(current.sessionId, 'logout');
+    await governance?.audit({
+      actorUserId: current.userId,
+      sessionId: current.sessionId,
+      action: 'auth.logout',
+      outcome: 'success',
+      requestId: request.id,
+    });
     clear(reply);
     return reply.status(204).send();
   });
@@ -135,10 +158,54 @@ export function buildApp(options: AppOptions) {
             retryable: false,
           },
         });
+      await governance?.audit({
+        actorUserId: current.userId,
+        sessionId: current.sessionId,
+        action: 'session.revoke',
+        target: { sessionId: request.params.sessionId },
+        outcome: 'success',
+        requestId: request.id,
+      });
       if (request.params.sessionId === current.sessionId) clear(reply);
       return reply.status(204).send();
     },
   );
+  app.get<{ Params: { operationId: string } }>(
+    '/api/v1/operations/:operationId',
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'operations.read');
+      if (!options.governanceStore)
+        throw new GovernanceError('GOVERNANCE_UNAVAILABLE', 503, 'Governance store unavailable');
+      const operation = await options.governanceStore.getOperation(request.params.operationId);
+      if (!operation) throw new GovernanceError('OPERATION_NOT_FOUND', 404, 'Operation not found');
+      return publicOperation(operation);
+    },
+  );
+  function publicOperation(operation: OperationRecord) {
+    if (!operation.targetFramework || !operation.targetKind || !operation.targetId)
+      throw new GovernanceError('OPERATION_TARGET_INVALID', 500, 'Operation target is invalid');
+    return {
+      operationId: operation.id,
+      operationType: operation.action,
+      actorId: operation.actorUserId,
+      target: {
+        owner: operation.targetFramework,
+        frameworkId: operation.targetFramework,
+        kind: operation.targetKind,
+        resourceId: operation.targetId,
+      },
+      payloadHash: operation.requestHash,
+      mode: operation.mode,
+      idempotencyKey: operation.idempotencyKey,
+      ...(operation.sourceVersion ? { sourceVersion: operation.sourceVersion } : {}),
+      policyDecision: operation.policyDecision,
+      state: operation.state,
+      createdAt: operation.createdAt.toISOString(),
+      updatedAt: operation.updatedAt.toISOString(),
+      evidenceIds: operation.evidenceIds,
+    };
+  }
   function clear(reply: FastifyReply) {
     reply.clearCookie(SESSION_COOKIE, cookieOptions);
     reply.clearCookie(CSRF_COOKIE, cookieOptions);
