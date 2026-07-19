@@ -1,0 +1,1958 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Aquiero Unified Gateway",
+    "version": "1.0.0",
+    "description": "Gateway-only public contract for UNIFY."
+  },
+  "servers": [
+    {
+      "url": "/api/v1"
+    }
+  ],
+  "tags": [
+    {
+      "name": "health"
+    },
+    {
+      "name": "auth"
+    },
+    {
+      "name": "operations"
+    }
+  ],
+  "paths": {
+    "/health/live": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "operationId": "getLiveness",
+        "responses": {
+          "200": {
+            "description": "Health",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "operationId": "getReadiness",
+        "responses": {
+          "200": {
+            "description": "Health",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Health",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Principal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Principal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "logout",
+        "security": [
+          {
+            "cookieSession": [],
+            "csrfToken": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Logged out"
+          },
+          "401": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "operationId": "getCurrentPrincipal",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Principal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Principal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/operations/{operationId}": {
+      "get": {
+        "tags": [
+          "operations"
+        ],
+        "operationId": "getOperation",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "operationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operation"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "cookieSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "aquiero_session"
+      },
+      "csrfToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-csrf-token"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "opaque"
+      }
+    },
+    "schemas": {
+      "TruthState": {
+        "$id": "TruthState",
+        "anyOf": [
+          {
+            "const": "current",
+            "type": "string"
+          },
+          {
+            "const": "stale",
+            "type": "string"
+          },
+          {
+            "const": "partial",
+            "type": "string"
+          },
+          {
+            "const": "empty",
+            "type": "string"
+          },
+          {
+            "const": "unavailable",
+            "type": "string"
+          },
+          {
+            "const": "unsupported",
+            "type": "string"
+          },
+          {
+            "const": "forbidden",
+            "type": "string"
+          },
+          {
+            "const": "failed",
+            "type": "string"
+          },
+          {
+            "const": "inconclusive",
+            "type": "string"
+          }
+        ]
+      },
+      "ResourceKind": {
+        "$id": "ResourceKind",
+        "anyOf": [
+          {
+            "const": "framework",
+            "type": "string"
+          },
+          {
+            "const": "profile",
+            "type": "string"
+          },
+          {
+            "const": "agent",
+            "type": "string"
+          },
+          {
+            "const": "provider",
+            "type": "string"
+          },
+          {
+            "const": "model",
+            "type": "string"
+          },
+          {
+            "const": "project",
+            "type": "string"
+          },
+          {
+            "const": "task",
+            "type": "string"
+          },
+          {
+            "const": "cronjob",
+            "type": "string"
+          },
+          {
+            "const": "chat-session",
+            "type": "string"
+          },
+          {
+            "const": "memory-record",
+            "type": "string"
+          },
+          {
+            "const": "operation",
+            "type": "string"
+          },
+          {
+            "const": "notification",
+            "type": "string"
+          }
+        ]
+      },
+      "ResourceOwner": {
+        "$id": "ResourceOwner",
+        "anyOf": [
+          {
+            "const": "hermes",
+            "type": "string"
+          },
+          {
+            "const": "agency",
+            "type": "string"
+          },
+          {
+            "const": "dmm",
+            "type": "string"
+          },
+          {
+            "const": "worker",
+            "type": "string"
+          },
+          {
+            "const": "chat",
+            "type": "string"
+          },
+          {
+            "const": "memory-v4",
+            "type": "string"
+          },
+          {
+            "const": "gateway",
+            "type": "string"
+          }
+        ]
+      },
+      "ResourceRef": {
+        "$id": "ResourceRef",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "canonicalId",
+          "kind",
+          "owner",
+          "nativeId",
+          "observedAt"
+        ],
+        "properties": {
+          "canonicalId": {
+            "minLength": 1,
+            "maxLength": 1024,
+            "type": "string"
+          },
+          "kind": {
+            "$id": "ResourceKind",
+            "anyOf": [
+              {
+                "const": "framework",
+                "type": "string"
+              },
+              {
+                "const": "profile",
+                "type": "string"
+              },
+              {
+                "const": "agent",
+                "type": "string"
+              },
+              {
+                "const": "provider",
+                "type": "string"
+              },
+              {
+                "const": "model",
+                "type": "string"
+              },
+              {
+                "const": "project",
+                "type": "string"
+              },
+              {
+                "const": "task",
+                "type": "string"
+              },
+              {
+                "const": "cronjob",
+                "type": "string"
+              },
+              {
+                "const": "chat-session",
+                "type": "string"
+              },
+              {
+                "const": "memory-record",
+                "type": "string"
+              },
+              {
+                "const": "operation",
+                "type": "string"
+              },
+              {
+                "const": "notification",
+                "type": "string"
+              }
+            ]
+          },
+          "owner": {
+            "$id": "ResourceOwner",
+            "anyOf": [
+              {
+                "const": "hermes",
+                "type": "string"
+              },
+              {
+                "const": "agency",
+                "type": "string"
+              },
+              {
+                "const": "dmm",
+                "type": "string"
+              },
+              {
+                "const": "worker",
+                "type": "string"
+              },
+              {
+                "const": "chat",
+                "type": "string"
+              },
+              {
+                "const": "memory-v4",
+                "type": "string"
+              },
+              {
+                "const": "gateway",
+                "type": "string"
+              }
+            ]
+          },
+          "frameworkId": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "nativeId": {
+            "minLength": 1,
+            "maxLength": 1024,
+            "type": "string"
+          },
+          "displayLabel": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "sourceVersion": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "relation",
+                "canonicalId"
+              ],
+              "properties": {
+                "relation": {
+                  "type": "string"
+                },
+                "canonicalId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Warning": {
+        "$id": "Warning",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "minLength": 1,
+            "maxLength": 100,
+            "type": "string"
+          },
+          "message": {
+            "minLength": 1,
+            "maxLength": 1000,
+            "type": "string"
+          }
+        }
+      },
+      "ResponseMeta": {
+        "$id": "ResponseMeta",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "requestId",
+          "correlationId",
+          "source",
+          "sourceStatus",
+          "freshness",
+          "generatedAt",
+          "warnings"
+        ],
+        "properties": {
+          "requestId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "correlationId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "source": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "owner",
+              "adapterId"
+            ],
+            "properties": {
+              "owner": {
+                "$id": "ResourceOwner",
+                "anyOf": [
+                  {
+                    "const": "hermes",
+                    "type": "string"
+                  },
+                  {
+                    "const": "agency",
+                    "type": "string"
+                  },
+                  {
+                    "const": "dmm",
+                    "type": "string"
+                  },
+                  {
+                    "const": "worker",
+                    "type": "string"
+                  },
+                  {
+                    "const": "chat",
+                    "type": "string"
+                  },
+                  {
+                    "const": "memory-v4",
+                    "type": "string"
+                  },
+                  {
+                    "const": "gateway",
+                    "type": "string"
+                  }
+                ]
+              },
+              "frameworkId": {
+                "type": "string"
+              },
+              "adapterId": {
+                "minLength": 1,
+                "type": "string"
+              }
+            }
+          },
+          "sourceStatus": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "freshness": {
+            "$id": "TruthState",
+            "anyOf": [
+              {
+                "const": "current",
+                "type": "string"
+              },
+              {
+                "const": "stale",
+                "type": "string"
+              },
+              {
+                "const": "partial",
+                "type": "string"
+              },
+              {
+                "const": "empty",
+                "type": "string"
+              },
+              {
+                "const": "unavailable",
+                "type": "string"
+              },
+              {
+                "const": "unsupported",
+                "type": "string"
+              },
+              {
+                "const": "forbidden",
+                "type": "string"
+              },
+              {
+                "const": "failed",
+                "type": "string"
+              },
+              {
+                "const": "inconclusive",
+                "type": "string"
+              }
+            ]
+          },
+          "observedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "generatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$id": "Warning",
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "code",
+                "message"
+              ],
+              "properties": {
+                "code": {
+                  "minLength": 1,
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                "message": {
+                  "minLength": 1,
+                  "maxLength": 1000,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "page": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "hasMore"
+            ],
+            "properties": {
+              "nextCursor": {
+                "type": "string"
+              },
+              "hasMore": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "ApiError": {
+        "$id": "ApiError",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "requestId",
+          "retryable"
+        ],
+        "properties": {
+          "code": {
+            "minLength": 1,
+            "maxLength": 100,
+            "type": "string"
+          },
+          "message": {
+            "minLength": 1,
+            "maxLength": 1000,
+            "type": "string"
+          },
+          "requestId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "retryable": {
+            "type": "boolean"
+          },
+          "target": {
+            "$id": "ResourceRef",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "canonicalId",
+              "kind",
+              "owner",
+              "nativeId",
+              "observedAt"
+            ],
+            "properties": {
+              "canonicalId": {
+                "minLength": 1,
+                "maxLength": 1024,
+                "type": "string"
+              },
+              "kind": {
+                "$id": "ResourceKind",
+                "anyOf": [
+                  {
+                    "const": "framework",
+                    "type": "string"
+                  },
+                  {
+                    "const": "profile",
+                    "type": "string"
+                  },
+                  {
+                    "const": "agent",
+                    "type": "string"
+                  },
+                  {
+                    "const": "provider",
+                    "type": "string"
+                  },
+                  {
+                    "const": "model",
+                    "type": "string"
+                  },
+                  {
+                    "const": "project",
+                    "type": "string"
+                  },
+                  {
+                    "const": "task",
+                    "type": "string"
+                  },
+                  {
+                    "const": "cronjob",
+                    "type": "string"
+                  },
+                  {
+                    "const": "chat-session",
+                    "type": "string"
+                  },
+                  {
+                    "const": "memory-record",
+                    "type": "string"
+                  },
+                  {
+                    "const": "operation",
+                    "type": "string"
+                  },
+                  {
+                    "const": "notification",
+                    "type": "string"
+                  }
+                ]
+              },
+              "owner": {
+                "$id": "ResourceOwner",
+                "anyOf": [
+                  {
+                    "const": "hermes",
+                    "type": "string"
+                  },
+                  {
+                    "const": "agency",
+                    "type": "string"
+                  },
+                  {
+                    "const": "dmm",
+                    "type": "string"
+                  },
+                  {
+                    "const": "worker",
+                    "type": "string"
+                  },
+                  {
+                    "const": "chat",
+                    "type": "string"
+                  },
+                  {
+                    "const": "memory-v4",
+                    "type": "string"
+                  },
+                  {
+                    "const": "gateway",
+                    "type": "string"
+                  }
+                ]
+              },
+              "frameworkId": {
+                "minLength": 1,
+                "maxLength": 200,
+                "type": "string"
+              },
+              "nativeId": {
+                "minLength": 1,
+                "maxLength": 1024,
+                "type": "string"
+              },
+              "displayLabel": {
+                "maxLength": 500,
+                "type": "string"
+              },
+              "sourceVersion": {
+                "maxLength": 500,
+                "type": "string"
+              },
+              "observedAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "links": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "relation",
+                    "canonicalId"
+                  ],
+                  "properties": {
+                    "relation": {
+                      "type": "string"
+                    },
+                    "canonicalId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "field",
+                "reason"
+              ],
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "policyReasons": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "evidenceId": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "$id": "ErrorResponse",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "$id": "ApiError",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "code",
+              "message",
+              "requestId",
+              "retryable"
+            ],
+            "properties": {
+              "code": {
+                "minLength": 1,
+                "maxLength": 100,
+                "type": "string"
+              },
+              "message": {
+                "minLength": 1,
+                "maxLength": 1000,
+                "type": "string"
+              },
+              "requestId": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "retryable": {
+                "type": "boolean"
+              },
+              "target": {
+                "$id": "ResourceRef",
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "canonicalId",
+                  "kind",
+                  "owner",
+                  "nativeId",
+                  "observedAt"
+                ],
+                "properties": {
+                  "canonicalId": {
+                    "minLength": 1,
+                    "maxLength": 1024,
+                    "type": "string"
+                  },
+                  "kind": {
+                    "$id": "ResourceKind",
+                    "anyOf": [
+                      {
+                        "const": "framework",
+                        "type": "string"
+                      },
+                      {
+                        "const": "profile",
+                        "type": "string"
+                      },
+                      {
+                        "const": "agent",
+                        "type": "string"
+                      },
+                      {
+                        "const": "provider",
+                        "type": "string"
+                      },
+                      {
+                        "const": "model",
+                        "type": "string"
+                      },
+                      {
+                        "const": "project",
+                        "type": "string"
+                      },
+                      {
+                        "const": "task",
+                        "type": "string"
+                      },
+                      {
+                        "const": "cronjob",
+                        "type": "string"
+                      },
+                      {
+                        "const": "chat-session",
+                        "type": "string"
+                      },
+                      {
+                        "const": "memory-record",
+                        "type": "string"
+                      },
+                      {
+                        "const": "operation",
+                        "type": "string"
+                      },
+                      {
+                        "const": "notification",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "owner": {
+                    "$id": "ResourceOwner",
+                    "anyOf": [
+                      {
+                        "const": "hermes",
+                        "type": "string"
+                      },
+                      {
+                        "const": "agency",
+                        "type": "string"
+                      },
+                      {
+                        "const": "dmm",
+                        "type": "string"
+                      },
+                      {
+                        "const": "worker",
+                        "type": "string"
+                      },
+                      {
+                        "const": "chat",
+                        "type": "string"
+                      },
+                      {
+                        "const": "memory-v4",
+                        "type": "string"
+                      },
+                      {
+                        "const": "gateway",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "frameworkId": {
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "type": "string"
+                  },
+                  "nativeId": {
+                    "minLength": 1,
+                    "maxLength": 1024,
+                    "type": "string"
+                  },
+                  "displayLabel": {
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  "sourceVersion": {
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  "observedAt": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "links": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "relation",
+                        "canonicalId"
+                      ],
+                      "properties": {
+                        "relation": {
+                          "type": "string"
+                        },
+                        "canonicalId": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "field",
+                    "reason"
+                  ],
+                  "properties": {
+                    "field": {
+                      "type": "string"
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "policyReasons": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "evidenceId": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "CapabilityMode": {
+        "$id": "CapabilityMode",
+        "anyOf": [
+          {
+            "const": "read",
+            "type": "string"
+          },
+          {
+            "const": "validate",
+            "type": "string"
+          },
+          {
+            "const": "dry-run",
+            "type": "string"
+          },
+          {
+            "const": "execute",
+            "type": "string"
+          },
+          {
+            "const": "verify",
+            "type": "string"
+          },
+          {
+            "const": "subscribe",
+            "type": "string"
+          }
+        ]
+      },
+      "CapabilityManifest": {
+        "$id": "CapabilityManifest",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schemaVersion",
+          "adapterId",
+          "adapterVersion",
+          "observedAt",
+          "capabilities"
+        ],
+        "properties": {
+          "schemaVersion": {
+            "const": "1.0",
+            "type": "string"
+          },
+          "adapterId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "adapterVersion": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "frameworkId": {
+            "type": "string"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "capabilities": {
+            "type": "object",
+            "patternProperties": {
+              "^(.*)$": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "supported"
+                ],
+                "properties": {
+                  "supported": {
+                    "type": "boolean"
+                  },
+                  "modes": {
+                    "uniqueItems": true,
+                    "type": "array",
+                    "items": {
+                      "$id": "CapabilityMode",
+                      "anyOf": [
+                        {
+                          "const": "read",
+                          "type": "string"
+                        },
+                        {
+                          "const": "validate",
+                          "type": "string"
+                        },
+                        {
+                          "const": "dry-run",
+                          "type": "string"
+                        },
+                        {
+                          "const": "execute",
+                          "type": "string"
+                        },
+                        {
+                          "const": "verify",
+                          "type": "string"
+                        },
+                        {
+                          "const": "subscribe",
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "constraints": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^(.*)$": {}
+                    }
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "EventEnvelope": {
+        "$id": "EventEnvelope",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "eventId",
+          "sequence",
+          "type",
+          "classification",
+          "source",
+          "eventTime",
+          "receivedTime",
+          "payload",
+          "schemaVersion"
+        ],
+        "properties": {
+          "eventId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "sequence": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "classification": {
+            "anyOf": [
+              {
+                "const": "durable",
+                "type": "string"
+              },
+              {
+                "const": "ephemeral",
+                "type": "string"
+              }
+            ]
+          },
+          "source": {
+            "type": "object",
+            "required": [
+              "owner"
+            ],
+            "properties": {
+              "owner": {
+                "$id": "ResourceOwner",
+                "anyOf": [
+                  {
+                    "const": "hermes",
+                    "type": "string"
+                  },
+                  {
+                    "const": "agency",
+                    "type": "string"
+                  },
+                  {
+                    "const": "dmm",
+                    "type": "string"
+                  },
+                  {
+                    "const": "worker",
+                    "type": "string"
+                  },
+                  {
+                    "const": "chat",
+                    "type": "string"
+                  },
+                  {
+                    "const": "memory-v4",
+                    "type": "string"
+                  },
+                  {
+                    "const": "gateway",
+                    "type": "string"
+                  }
+                ]
+              },
+              "frameworkId": {
+                "type": "string"
+              }
+            }
+          },
+          "resource": {
+            "$id": "ResourceRef",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "canonicalId",
+              "kind",
+              "owner",
+              "nativeId",
+              "observedAt"
+            ],
+            "properties": {
+              "canonicalId": {
+                "minLength": 1,
+                "maxLength": 1024,
+                "type": "string"
+              },
+              "kind": {
+                "$id": "ResourceKind",
+                "anyOf": [
+                  {
+                    "const": "framework",
+                    "type": "string"
+                  },
+                  {
+                    "const": "profile",
+                    "type": "string"
+                  },
+                  {
+                    "const": "agent",
+                    "type": "string"
+                  },
+                  {
+                    "const": "provider",
+                    "type": "string"
+                  },
+                  {
+                    "const": "model",
+                    "type": "string"
+                  },
+                  {
+                    "const": "project",
+                    "type": "string"
+                  },
+                  {
+                    "const": "task",
+                    "type": "string"
+                  },
+                  {
+                    "const": "cronjob",
+                    "type": "string"
+                  },
+                  {
+                    "const": "chat-session",
+                    "type": "string"
+                  },
+                  {
+                    "const": "memory-record",
+                    "type": "string"
+                  },
+                  {
+                    "const": "operation",
+                    "type": "string"
+                  },
+                  {
+                    "const": "notification",
+                    "type": "string"
+                  }
+                ]
+              },
+              "owner": {
+                "$id": "ResourceOwner",
+                "anyOf": [
+                  {
+                    "const": "hermes",
+                    "type": "string"
+                  },
+                  {
+                    "const": "agency",
+                    "type": "string"
+                  },
+                  {
+                    "const": "dmm",
+                    "type": "string"
+                  },
+                  {
+                    "const": "worker",
+                    "type": "string"
+                  },
+                  {
+                    "const": "chat",
+                    "type": "string"
+                  },
+                  {
+                    "const": "memory-v4",
+                    "type": "string"
+                  },
+                  {
+                    "const": "gateway",
+                    "type": "string"
+                  }
+                ]
+              },
+              "frameworkId": {
+                "minLength": 1,
+                "maxLength": 200,
+                "type": "string"
+              },
+              "nativeId": {
+                "minLength": 1,
+                "maxLength": 1024,
+                "type": "string"
+              },
+              "displayLabel": {
+                "maxLength": 500,
+                "type": "string"
+              },
+              "sourceVersion": {
+                "maxLength": 500,
+                "type": "string"
+              },
+              "observedAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "links": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "relation",
+                    "canonicalId"
+                  ],
+                  "properties": {
+                    "relation": {
+                      "type": "string"
+                    },
+                    "canonicalId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "eventTime": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "receivedTime": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "correlationId": {
+            "type": "string"
+          },
+          "operationId": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "object",
+            "patternProperties": {
+              "^(.*)$": {}
+            }
+          },
+          "schemaVersion": {
+            "const": "1.0",
+            "type": "string"
+          }
+        }
+      },
+      "OperationState": {
+        "$id": "OperationState",
+        "anyOf": [
+          {
+            "const": "pending",
+            "type": "string"
+          },
+          {
+            "const": "validated",
+            "type": "string"
+          },
+          {
+            "const": "preflighted",
+            "type": "string"
+          },
+          {
+            "const": "awaiting_confirmation",
+            "type": "string"
+          },
+          {
+            "const": "executing",
+            "type": "string"
+          },
+          {
+            "const": "applied",
+            "type": "string"
+          },
+          {
+            "const": "verifying",
+            "type": "string"
+          },
+          {
+            "const": "verified",
+            "type": "string"
+          },
+          {
+            "const": "denied",
+            "type": "string"
+          },
+          {
+            "const": "failed",
+            "type": "string"
+          },
+          {
+            "const": "inconclusive",
+            "type": "string"
+          },
+          {
+            "const": "rolling_back",
+            "type": "string"
+          },
+          {
+            "const": "rolled_back",
+            "type": "string"
+          },
+          {
+            "const": "rollback_failed",
+            "type": "string"
+          }
+        ]
+      },
+      "Operation": {
+        "$id": "Operation",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "operationId",
+          "operationType",
+          "actorId",
+          "target",
+          "payloadHash",
+          "mode",
+          "idempotencyKey",
+          "policyDecision",
+          "state",
+          "createdAt",
+          "updatedAt",
+          "evidenceIds"
+        ],
+        "properties": {
+          "operationId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "operationType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "actorId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "target": {
+            "$id": "ResourceRef",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "canonicalId",
+              "kind",
+              "owner",
+              "nativeId",
+              "observedAt"
+            ],
+            "properties": {
+              "canonicalId": {
+                "minLength": 1,
+                "maxLength": 1024,
+                "type": "string"
+              },
+              "kind": {
+                "$id": "ResourceKind",
+                "anyOf": [
+                  {
+                    "const": "framework",
+                    "type": "string"
+                  },
+                  {
+                    "const": "profile",
+                    "type": "string"
+                  },
+                  {
+                    "const": "agent",
+                    "type": "string"
+                  },
+                  {
+                    "const": "provider",
+                    "type": "string"
+                  },
+                  {
+                    "const": "model",
+                    "type": "string"
+                  },
+                  {
+                    "const": "project",
+                    "type": "string"
+                  },
+                  {
+                    "const": "task",
+                    "type": "string"
+                  },
+                  {
+                    "const": "cronjob",
+                    "type": "string"
+                  },
+                  {
+                    "const": "chat-session",
+                    "type": "string"
+                  },
+                  {
+                    "const": "memory-record",
+                    "type": "string"
+                  },
+                  {
+                    "const": "operation",
+                    "type": "string"
+                  },
+                  {
+                    "const": "notification",
+                    "type": "string"
+                  }
+                ]
+              },
+              "owner": {
+                "$id": "ResourceOwner",
+                "anyOf": [
+                  {
+                    "const": "hermes",
+                    "type": "string"
+                  },
+                  {
+                    "const": "agency",
+                    "type": "string"
+                  },
+                  {
+                    "const": "dmm",
+                    "type": "string"
+                  },
+                  {
+                    "const": "worker",
+                    "type": "string"
+                  },
+                  {
+                    "const": "chat",
+                    "type": "string"
+                  },
+                  {
+                    "const": "memory-v4",
+                    "type": "string"
+                  },
+                  {
+                    "const": "gateway",
+                    "type": "string"
+                  }
+                ]
+              },
+              "frameworkId": {
+                "minLength": 1,
+                "maxLength": 200,
+                "type": "string"
+              },
+              "nativeId": {
+                "minLength": 1,
+                "maxLength": 1024,
+                "type": "string"
+              },
+              "displayLabel": {
+                "maxLength": 500,
+                "type": "string"
+              },
+              "sourceVersion": {
+                "maxLength": 500,
+                "type": "string"
+              },
+              "observedAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "links": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "relation",
+                    "canonicalId"
+                  ],
+                  "properties": {
+                    "relation": {
+                      "type": "string"
+                    },
+                    "canonicalId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "payloadHash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "type": "string"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "const": "validate",
+                "type": "string"
+              },
+              {
+                "const": "dry-run",
+                "type": "string"
+              },
+              {
+                "const": "execute",
+                "type": "string"
+              },
+              {
+                "const": "verify",
+                "type": "string"
+              },
+              {
+                "const": "rollback",
+                "type": "string"
+              }
+            ]
+          },
+          "idempotencyKey": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "sourceVersion": {
+            "type": "string"
+          },
+          "policyDecision": {
+            "anyOf": [
+              {
+                "const": "pending",
+                "type": "string"
+              },
+              {
+                "const": "allowed",
+                "type": "string"
+              },
+              {
+                "const": "denied",
+                "type": "string"
+              }
+            ]
+          },
+          "state": {
+            "$id": "OperationState",
+            "anyOf": [
+              {
+                "const": "pending",
+                "type": "string"
+              },
+              {
+                "const": "validated",
+                "type": "string"
+              },
+              {
+                "const": "preflighted",
+                "type": "string"
+              },
+              {
+                "const": "awaiting_confirmation",
+                "type": "string"
+              },
+              {
+                "const": "executing",
+                "type": "string"
+              },
+              {
+                "const": "applied",
+                "type": "string"
+              },
+              {
+                "const": "verifying",
+                "type": "string"
+              },
+              {
+                "const": "verified",
+                "type": "string"
+              },
+              {
+                "const": "denied",
+                "type": "string"
+              },
+              {
+                "const": "failed",
+                "type": "string"
+              },
+              {
+                "const": "inconclusive",
+                "type": "string"
+              },
+              {
+                "const": "rolling_back",
+                "type": "string"
+              },
+              {
+                "const": "rolled_back",
+                "type": "string"
+              },
+              {
+                "const": "rollback_failed",
+                "type": "string"
+              }
+            ]
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "evidenceIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "LoginRequest": {
+        "$id": "LoginRequest",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "properties": {
+          "username": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "password": {
+            "minLength": 12,
+            "maxLength": 1024,
+            "type": "string"
+          }
+        }
+      },
+      "Principal": {
+        "$id": "Principal",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "userId",
+          "username",
+          "displayName",
+          "roles",
+          "permissions"
+        ],
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Health": {
+        "$id": "Health",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "release"
+        ],
+        "properties": {
+          "status": {
+            "anyOf": [
+              {
+                "const": "ok",
+                "type": "string"
+              },
+              {
+                "const": "ready",
+                "type": "string"
+              },
+              {
+                "const": "not_ready",
+                "type": "string"
+              }
+            ]
+          },
+          "release": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

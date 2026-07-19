@@ -12,7 +12,9 @@
     "test": "pnpm -r --if-present test",
     "lint": "eslint . && node scripts/check-boundaries.mjs",
     "format:check": "prettier --check .",
-    "qa": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm format:check",
+    "contracts:generate": "pnpm --filter @aquiero/contracts build && node scripts/generate-contracts.mjs",
+    "contracts:check": "pnpm --filter @aquiero/contracts build && node scripts/generate-contracts.mjs --check",
+    "qa": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm contracts:check && pnpm format:check",
     "clean": "pnpm -r --if-present clean"
   },
   "devDependencies": {
@@ -20,6 +22,7 @@
     "@types/node": "22.19.3",
     "eslint": "9.39.1",
     "globals": "16.5.0",
+    "openapi-typescript": "7.13.0",
     "prettier": "3.9.0",
     "typescript": "5.9.3",
     "typescript-eslint": "8.64.0",
