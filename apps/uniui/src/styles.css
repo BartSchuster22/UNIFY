@@ -1,0 +1,97 @@
+:root {
+  color-scheme: light dark;
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  min-width: 320px;
+}
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: -4rem;
+  z-index: 10000;
+  padding: 0.65rem 1rem;
+  border-radius: 0.4rem;
+  background: #fff;
+  color: #003f60;
+  font-weight: 700;
+  box-shadow: 0 2px 12px #0003;
+}
+.skip-link:focus {
+  top: 0.75rem;
+}
+.ui-header {
+  backdrop-filter: blur(12px);
+  background: color-mix(in srgb, var(--mantine-color-body) 90%, transparent);
+}
+.global-search {
+  width: min(36rem, 42vw);
+}
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background:
+    radial-gradient(circle at 15% 10%, #178fcf25, transparent 35%),
+    radial-gradient(circle at 85% 90%, #22b8cf20, transparent 40%), var(--mantine-color-body);
+}
+.login-card {
+  width: min(100%, 30rem);
+}
+.kanban {
+  min-width: 70rem;
+  padding-bottom: 0.75rem;
+}
+.kanban-column {
+  width: 13.5rem;
+  min-height: 25rem;
+  background: color-mix(in srgb, var(--mantine-color-body) 92%, var(--mantine-color-ocean-1));
+}
+.virtual-list {
+  height: min(68vh, 42rem);
+  overflow: auto;
+  contain: strict;
+  border-radius: var(--mantine-radius-md);
+}
+.virtual-row {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 0 0 0.5rem;
+}
+:focus-visible {
+  outline: 3px solid var(--mantine-color-ocean-5);
+  outline-offset: 3px;
+}
+@media (max-width: 48em) {
+  .global-search {
+    flex: 1;
+    width: auto;
+  }
+  .global-search code {
+    display: none;
+  }
+  .mantine-AppShell-main {
+    padding-inline: 0.75rem;
+  }
+  h1 {
+    font-size: 1.75rem !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

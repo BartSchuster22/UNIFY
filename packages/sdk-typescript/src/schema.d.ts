@@ -132,6 +132,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/operations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listOperations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listAuditEvents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/integrations": {
         parameters: {
             query?: never;
@@ -420,6 +452,127 @@ export interface components {
             /** Format: date-time */
             updatedAt: string;
             evidenceIds: string[];
+        };
+        OperationList: {
+            items: {
+                operationId: string;
+                operationType: string;
+                actorId: string;
+                target: {
+                    canonicalId: string;
+                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    frameworkId?: string;
+                    nativeId: string;
+                    displayLabel?: string;
+                    sourceVersion?: string;
+                    /** Format: date-time */
+                    observedAt: string;
+                    links?: {
+                        relation: string;
+                        canonicalId: string;
+                    }[];
+                };
+                payloadHash: string;
+                mode: "validate" | "dry-run" | "execute" | "verify" | "rollback";
+                idempotencyKey: string;
+                sourceVersion?: string;
+                policyDecision: "pending" | "allowed" | "denied";
+                state: "pending" | "validated" | "preflighted" | "awaiting_confirmation" | "executing" | "applied" | "verifying" | "verified" | "denied" | "failed" | "inconclusive" | "rolling_back" | "rolled_back" | "rollback_failed";
+                /** Format: date-time */
+                createdAt: string;
+                /** Format: date-time */
+                updatedAt: string;
+                evidenceIds: string[];
+            }[];
+            meta: {
+                requestId: string;
+                correlationId: string;
+                source: {
+                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    frameworkId?: string;
+                    adapterId: string;
+                };
+                sourceStatus: string;
+                freshness: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
+                /** Format: date-time */
+                observedAt?: string;
+                /** Format: date-time */
+                generatedAt: string;
+                warnings: {
+                    code: string;
+                    message: string;
+                }[];
+                page?: {
+                    nextCursor?: string;
+                    hasMore: boolean;
+                };
+            };
+        };
+        AuditEvent: {
+            id: string;
+            eventType: string;
+            actorId: string | null;
+            outcome: string;
+            requestId: string;
+            correlationId: string;
+            operationId: string | null;
+            frameworkId: string | null;
+            resource: {
+                [key: string]: unknown;
+            } | null;
+            safeMetadata: {
+                [key: string]: unknown;
+            };
+            previousEventHash: string | null;
+            eventHash: string;
+            /** Format: date-time */
+            occurredAt: string;
+        };
+        AuditEventList: {
+            items: {
+                id: string;
+                eventType: string;
+                actorId: string | null;
+                outcome: string;
+                requestId: string;
+                correlationId: string;
+                operationId: string | null;
+                frameworkId: string | null;
+                resource: {
+                    [key: string]: unknown;
+                } | null;
+                safeMetadata: {
+                    [key: string]: unknown;
+                };
+                previousEventHash: string | null;
+                eventHash: string;
+                /** Format: date-time */
+                occurredAt: string;
+            }[];
+            meta: {
+                requestId: string;
+                correlationId: string;
+                source: {
+                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    frameworkId?: string;
+                    adapterId: string;
+                };
+                sourceStatus: string;
+                freshness: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
+                /** Format: date-time */
+                observedAt?: string;
+                /** Format: date-time */
+                generatedAt: string;
+                warnings: {
+                    code: string;
+                    message: string;
+                }[];
+                page?: {
+                    nextCursor?: string;
+                    hasMore: boolean;
+                };
+            };
         };
         LoginRequest: {
             username: string;
@@ -1099,6 +1252,100 @@ export interface operations {
             };
             /** @description ErrorResponse */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listOperations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OperationList */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperationList"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listAuditEvents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description AuditEventList */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditEventList"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

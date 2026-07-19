@@ -220,6 +220,33 @@ export function buildApp(options: AppOptions) {
     cursor?: string;
     limit?: string | number;
   };
+  app.get<{ Querystring: Pick<ReadQuery, 'cursor' | 'limit'> }>(
+    '/api/v1/operations',
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'operations.read');
+      if (!options.governanceStore)
+        throw new GovernanceError('GOVERNANCE_UNAVAILABLE', 503, 'Governance store unavailable');
+      const operations = (await options.governanceStore.listOperations(500)).map(publicOperation);
+      const page = paginate(operations, request.query, (operation) => operation.operationId);
+      return { items: page.items, meta: meta(request.id, [], page.page) };
+    },
+  );
+  app.get<{ Querystring: Pick<ReadQuery, 'cursor' | 'limit'> }>(
+    '/api/v1/audit',
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'audit.read');
+      if (!options.governanceStore)
+        throw new GovernanceError('GOVERNANCE_UNAVAILABLE', 503, 'Governance store unavailable');
+      const records = (await options.governanceStore.listAudit(500)).map((record) => ({
+        ...record,
+        occurredAt: record.occurredAt.toISOString(),
+      }));
+      const page = paginate(records, request.query, (record) => record.id);
+      return { items: page.items, meta: meta(request.id, [], page.page) };
+    },
+  );
   app.get('/api/v1/integrations', async (request) => {
     const current = await session(request);
     const integrations = requireIntegrations();
@@ -454,10 +481,14 @@ export function buildApp(options: AppOptions) {
       operationType: operation.action,
       actorId: operation.actorUserId,
       target: {
+        canonicalId: `${operation.targetFramework}:${operation.targetKind}:${Buffer.from(
+          operation.targetId,
+        ).toString('base64url')}`,
         owner: operation.targetFramework,
         frameworkId: operation.targetFramework,
         kind: operation.targetKind,
-        resourceId: operation.targetId,
+        nativeId: operation.targetId,
+        observedAt: operation.updatedAt.toISOString(),
       },
       payloadHash: operation.requestHash,
       mode: operation.mode,

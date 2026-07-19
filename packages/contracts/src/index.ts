@@ -240,6 +240,33 @@ export const OperationSchema = Type.Object(
 );
 export type Operation = Static<typeof OperationSchema>;
 
+export const OperationListSchema = Type.Object(
+  { items: Type.Array(OperationSchema), meta: ResponseMetaSchema },
+  { $id: 'OperationList', additionalProperties: false },
+);
+export const AuditEventSchema = Type.Object(
+  {
+    id: Type.String(),
+    eventType: Type.String(),
+    actorId: Type.Union([Type.String(), Type.Null()]),
+    outcome: Type.String(),
+    requestId: Type.String(),
+    correlationId: Type.String(),
+    operationId: Type.Union([Type.String(), Type.Null()]),
+    frameworkId: Type.Union([Type.String(), Type.Null()]),
+    resource: Type.Union([Type.Record(Type.String(), Type.Unknown()), Type.Null()]),
+    safeMetadata: Type.Record(Type.String(), Type.Unknown()),
+    previousEventHash: Type.Union([Type.String(), Type.Null()]),
+    eventHash: Type.String({ pattern: '^[a-f0-9]{64}$' }),
+    occurredAt: Type.String({ format: 'date-time' }),
+  },
+  { $id: 'AuditEvent', additionalProperties: false },
+);
+export const AuditEventListSchema = Type.Object(
+  { items: Type.Array(AuditEventSchema), meta: ResponseMetaSchema },
+  { $id: 'AuditEventList', additionalProperties: false },
+);
+
 export const LoginRequestSchema = Type.Object(
   {
     username: Type.String({ minLength: 1, maxLength: 200 }),
@@ -395,6 +422,9 @@ const schemas: TSchema[] = [
   EventEnvelopeSchema,
   OperationStateSchema,
   OperationSchema,
+  OperationListSchema,
+  AuditEventSchema,
+  AuditEventListSchema,
   LoginRequestSchema,
   PrincipalSchema,
   SessionSummarySchema,
@@ -427,6 +457,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
       { name: 'auth' },
       { name: 'sessions' },
       { name: 'operations' },
+      { name: 'audit' },
       { name: 'integrations' },
       { name: 'search' },
       { name: 'events' },
@@ -514,6 +545,8 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           responses: { '200': jsonResponse('Operation'), '404': jsonResponse('ErrorResponse') },
         },
       },
+      '/operations': readPath('operations', 'listOperations', 'OperationList'),
+      '/audit': readPath('audit', 'listAuditEvents', 'AuditEventList'),
       '/integrations': readPath('integrations', 'listIntegrations', 'IntegrationStatusList'),
       '/resources': readPath(
         'integrations',

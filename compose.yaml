@@ -115,11 +115,12 @@ services:
       dockerfile: Dockerfile.uniui
     image: unify-uniui:local
     environment:
-      GATEWAY_INTERNAL_URL: http://host.docker.internal:${GATEWAY_PORT:-28081}
-    extra_hosts: ['host.docker.internal:host-gateway']
+      HOST: 127.0.0.1
+      PORT: ${UNIUI_PORT:-3000}
+      GATEWAY_INTERNAL_URL: http://127.0.0.1:${GATEWAY_PORT:-28081}
+    network_mode: host
     depends_on:
       gateway: { condition: service_healthy }
-    ports: ['127.0.0.1:${UNIUI_PORT:-3000}:3000']
     read_only: true
     tmpfs:
       - '/tmp:uid=10001,gid=10001,mode=0700'

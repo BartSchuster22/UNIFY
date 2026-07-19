@@ -52,6 +52,12 @@ class MemoryGovernanceStore implements GovernanceStore {
   async getOperation(id: string) {
     return this.operations.get(id) ?? null;
   }
+  async listOperations(limit: number) {
+    return [...this.operations.values()].slice(0, limit);
+  }
+  async listAudit() {
+    return [];
+  }
   async transition(
     id: string,
     from: OperationState,

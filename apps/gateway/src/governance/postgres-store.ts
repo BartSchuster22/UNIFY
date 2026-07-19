@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { Pool } from 'pg';
 import { canonicalHash } from './canonical.js';
 import type {
+  AuditRecord,
   AuditInput,
   ClaimResult,
   EvidenceInput,
@@ -35,6 +36,23 @@ function map(row: Record<string, unknown>): OperationRecord {
     evidenceIds: (row.evidence_ids as string[] | undefined) ?? [],
     createdAt: row.created_at as Date,
     updatedAt: row.updated_at as Date,
+  };
+}
+function mapAudit(row: Record<string, unknown>): AuditRecord {
+  return {
+    id: String(row.id),
+    eventType: String(row.event_type),
+    actorId: row.actor_id === null ? null : String(row.actor_id),
+    outcome: String(row.outcome),
+    requestId: String(row.request_id),
+    correlationId: String(row.correlation_id),
+    operationId: row.operation_id === null ? null : String(row.operation_id),
+    frameworkId: row.framework_id === null ? null : String(row.framework_id),
+    resource: (row.resource as Record<string, unknown> | null) ?? null,
+    safeMetadata: (row.safe_metadata as Record<string, unknown> | null) ?? {},
+    previousEventHash: row.previous_event_hash === null ? null : String(row.previous_event_hash),
+    eventHash: String(row.event_hash),
+    occurredAt: row.occurred_at as Date,
   };
 }
 export class PostgresGovernanceStore implements GovernanceStore {
@@ -125,6 +143,22 @@ export class PostgresGovernanceStore implements GovernanceStore {
   async getOperation(id: string) {
     const result = await this.pool.query(`${OPERATION_SELECT} WHERE o.id=$1`, [id]);
     return result.rows[0] ? map(result.rows[0]) : null;
+  }
+  async listOperations(limit: number) {
+    const result = await this.pool.query(
+      `${OPERATION_SELECT} ORDER BY o.created_at DESC,o.id DESC LIMIT $1`,
+      [limit],
+    );
+    return result.rows.map(map);
+  }
+  async listAudit(limit: number) {
+    const result = await this.pool.query(
+      `SELECT id,event_type,actor_id,outcome,request_id,correlation_id,operation_id,
+              framework_id,resource,safe_metadata,previous_event_hash,event_hash,occurred_at
+       FROM audit_events ORDER BY occurred_at DESC,id DESC LIMIT $1`,
+      [limit],
+    );
+    return result.rows.map(mapAudit);
   }
   async transition(
     id: string,

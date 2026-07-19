@@ -1,13 +1,36 @@
 import { createServer } from 'node:http';
-import { readFile } from 'node:fs/promises';
+import { createReadStream } from 'node:fs';
+import { stat } from 'node:fs/promises';
+import { extname, join, normalize } from 'node:path';
 const host = process.env.HOST ?? '0.0.0.0';
 const port = Number(process.env.PORT ?? 3000);
 const gateway = (process.env.GATEWAY_INTERNAL_URL ?? 'http://gateway:8080').replace(/\/$/, '');
-const index = await readFile(new URL('./index.html', import.meta.url));
+const publicRoot = join(process.cwd(), 'public');
+const indexPath = join(publicRoot, 'index.html');
+const types = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.json': 'application/json',
+  '.map': 'application/json',
+};
+const security = {
+  'content-security-policy':
+    "default-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
+  'x-content-type-options': 'nosniff',
+  'x-frame-options': 'DENY',
+  'referrer-policy': 'no-referrer',
+  'permissions-policy': 'camera=(), microphone=(), geolocation=()',
+};
 const server = createServer(async (req, res) => {
   try {
     if (req.url === '/healthz') {
-      res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' });
+      res.writeHead(200, {
+        'content-type': 'application/json',
+        'cache-control': 'no-store',
+        ...security,
+      });
       res.end(JSON.stringify({ status: 'ok' }));
       return;
     }
@@ -15,24 +38,34 @@ const server = createServer(async (req, res) => {
       await proxy(req, res);
       return;
     }
-    if (req.method === 'GET' && (req.url === '/' || req.url === '/index.html')) {
-      res.writeHead(200, {
-        'content-type': 'text/html; charset=utf-8',
-        'cache-control': 'no-store',
-        'content-security-policy':
-          "default-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; frame-ancestors 'none'",
-        'x-content-type-options': 'nosniff',
-        'x-frame-options': 'DENY',
-        'referrer-policy': 'no-referrer',
-      });
-      res.end(index);
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      res.writeHead(405, security);
+      res.end();
       return;
     }
-    res.writeHead(404, { 'content-type': 'text/plain' });
-    res.end('Not found');
+    const pathname = decodeURIComponent(new URL(req.url ?? '/', 'http://local').pathname);
+    const candidate = normalize(join(publicRoot, pathname));
+    const safePath = candidate.startsWith(`${publicRoot}/`) ? candidate : indexPath;
+    let file = safePath;
+    try {
+      if (!(await stat(file)).isFile()) file = indexPath;
+    } catch {
+      file = indexPath;
+    }
+    const extension = extname(file);
+    res.writeHead(200, {
+      'content-type': types[extension] ?? 'application/octet-stream',
+      'cache-control': extension === '.html' ? 'no-store' : 'public, max-age=31536000, immutable',
+      ...security,
+    });
+    if (req.method === 'HEAD') {
+      res.end();
+      return;
+    }
+    createReadStream(file).pipe(res);
   } catch (error) {
     console.error('request failed', error instanceof Error ? error.message : 'unknown');
-    if (!res.headersSent) res.writeHead(502, { 'content-type': 'application/json' });
+    if (!res.headersSent) res.writeHead(502, { 'content-type': 'application/json', ...security });
     res.end(
       JSON.stringify({ error: { code: 'UI_GATEWAY_UNAVAILABLE', message: 'Gateway unavailable' } }),
     );
@@ -42,10 +75,9 @@ async function proxy(req, res) {
   const chunks = [];
   for await (const chunk of req) chunks.push(chunk);
   const headers = new Headers();
-  for (const [key, value] of Object.entries(req.headers)) {
+  for (const [key, value] of Object.entries(req.headers))
     if (value !== undefined && !['host', 'connection', 'content-length'].includes(key))
       headers.set(key, Array.isArray(value) ? value.join(',') : value);
-  }
   const body = chunks.length ? Buffer.concat(chunks) : undefined;
   const upstream = await fetch(`${gateway}${req.url}`, {
     method: req.method,
@@ -53,7 +85,7 @@ async function proxy(req, res) {
     ...(body ? { body } : {}),
     redirect: 'manual',
   });
-  const outgoing = {};
+  const outgoing = { ...security };
   upstream.headers.forEach((value, key) => {
     if (
       ![
@@ -62,6 +94,7 @@ async function proxy(req, res) {
         'content-length',
         'transfer-encoding',
         'set-cookie',
+        'content-security-policy',
       ].includes(key)
     )
       outgoing[key] = value;
@@ -71,6 +104,6 @@ async function proxy(req, res) {
   res.writeHead(upstream.status, outgoing);
   res.end(Buffer.from(await upstream.arrayBuffer()));
 }
-server.listen(port, host, () => console.log(`UNIUI foundation listening on ${host}:${port}`));
+server.listen(port, host, () => console.log(`UNIUI listening on ${host}:${port}`));
 for (const signal of ['SIGTERM', 'SIGINT'])
   process.once(signal, () => server.close(() => process.exit(0)));

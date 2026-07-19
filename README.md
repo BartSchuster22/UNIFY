@@ -35,6 +35,8 @@ UNIFY provides one authenticated, policy-controlled API boundary and one operato
 - [Local Compose runbook](docs/runbooks/LOCAL-COMPOSE.md)
 - [Phase 2 verification](docs/evidence/PHASE-2-REPORT.md)
 - [Phase 3 verification](docs/evidence/PHASE-3-REPORT.md)
+- [Mantine UNIUI architecture and operations](docs/ui/MANTINE-UNIUI.md)
+- [Phase 4 verification](docs/evidence/PHASE-4-REPORT.md)
 
 ## Planned deployables
 
@@ -53,3 +55,5 @@ Phase 1 — Repository and contract bootstrap: complete.
 Phase 2 — Gateway foundation: complete. The repository contains reproducible workspace builds, canonical OpenAPI and generated SDK artifacts, Gateway-owned PostgreSQL migrations, named-user security, governance/idempotency/evidence foundations, a resilient adapter SDK, and hardened local containers. This is a foundation milestone; no legacy production cutover is implied.
 
 Phase 3 — Read-only integrations: complete. Gateway federates Agency/Hermes, DMM, Worker, Chat, and MemoryV4 reads with explicit provenance/truth, owner-scoped RBAC, bounded cursor pagination, unified events/notifications/search, and zero-drift owner shadow comparisons. Existing owners remain authoritative and no production cutover is implied.
+
+Phase 4 — Mantine UNIUI: complete. The authenticated responsive operator shell presents owner-scoped frameworks, providers/models, profiles, Work/Kanban, virtualized Chat, Memory, audit, operations, notifications, and settings through shared truthful-state components. Mobile, keyboard, axe accessibility, CSP, non-root container, and real Compose gates are included. The UI remains read-only with respect to authoritative owner services.

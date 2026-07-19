@@ -66,6 +66,21 @@ export interface AuditInput {
   ipHash?: string;
   details?: Record<string, unknown>;
 }
+export interface AuditRecord {
+  id: string;
+  eventType: string;
+  actorId: string | null;
+  outcome: string;
+  requestId: string;
+  correlationId: string;
+  operationId: string | null;
+  frameworkId: string | null;
+  resource: Record<string, unknown> | null;
+  safeMetadata: Record<string, unknown>;
+  previousEventHash: string | null;
+  eventHash: string;
+  occurredAt: Date;
+}
 export interface GovernanceStore {
   ready(): Promise<boolean>;
   claimOperation(
@@ -75,6 +90,8 @@ export interface GovernanceStore {
     expiresAt: Date,
   ): Promise<ClaimResult>;
   getOperation(operationId: string): Promise<OperationRecord | null>;
+  listOperations(limit: number): Promise<OperationRecord[]>;
+  listAudit(limit: number): Promise<AuditRecord[]>;
   transition(
     operationId: string,
     from: OperationState,

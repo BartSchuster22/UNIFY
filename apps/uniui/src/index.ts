@@ -1,1 +1,3 @@
-export const applicationName = '@aquiero/uniui' as const;
+export { App } from './App';
+export { api, gateway, ApiError } from './api';
+export type * from './types';

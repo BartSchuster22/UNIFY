@@ -12,6 +12,7 @@ import type {
 } from '../auth/types.js';
 import { IntegrationService } from './service.js';
 import type { IntegrationSnapshot, SourceAdapter } from './types.js';
+import type { GovernanceStore } from '../governance/types.js';
 
 class Store implements AuthStore {
   user!: UserRecord;
@@ -110,7 +111,7 @@ beforeAll(async () => {
   passwordHash = await hashPassword('correct-horse-battery', pepper);
 });
 
-async function authenticated(permissions: string[]) {
+async function authenticated(permissions: string[], governanceStore?: GovernanceStore) {
   const store = new Store();
   store.user = {
     id: 'u1',
@@ -131,6 +132,7 @@ async function authenticated(permissions: string[]) {
     authPepper: pepper,
     secureCookies: false,
     integrations: new IntegrationService([new AgencyAdapter()]),
+    ...(governanceStore ? { governanceStore } : {}),
   });
   const login = await app.inject({
     method: 'POST',
@@ -187,6 +189,78 @@ describe('read-only integration routes', () => {
     expect(
       (await app.inject({ method: 'GET', url: '/api/v1/shadow', headers: { cookie } })).statusCode,
     ).toBe(403);
+    await app.close();
+  });
+
+  it('lists operation and audit history for authorized UNIUI views', async () => {
+    const now = new Date('2026-07-19T12:00:00.000Z');
+    const governanceStore: GovernanceStore = {
+      ready: async () => true,
+      claimOperation: async () => {
+        throw new Error('not used');
+      },
+      getOperation: async () => null,
+      listOperations: async () => [
+        {
+          id: 'op-1',
+          actorUserId: 'u1',
+          action: 'framework.inspect',
+          targetFramework: 'agency',
+          targetKind: 'framework',
+          targetId: 'h',
+          state: 'verified',
+          mode: 'verify',
+          policyDecision: 'allowed',
+          sourceVersion: null,
+          requestHash: 'a'.repeat(64),
+          idempotencyKey: 'op-key',
+          result: null,
+          error: null,
+          evidenceIds: [],
+          createdAt: now,
+          updatedAt: now,
+        },
+      ],
+      listAudit: async () => [
+        {
+          id: 'audit-1',
+          eventType: 'auth.login',
+          actorId: 'u1',
+          outcome: 'success',
+          requestId: 'r1',
+          correlationId: 'r1',
+          operationId: null,
+          frameworkId: null,
+          resource: null,
+          safeMetadata: {},
+          previousEventHash: null,
+          eventHash: 'b'.repeat(64),
+          occurredAt: now,
+        },
+      ],
+      transition: async () => null,
+      addEvidence: async () => 'e1',
+      appendAudit: async () => 'a1',
+    };
+    const { app, cookie } = await authenticated(['operations.read', 'audit.read'], governanceStore);
+    const operations = await app.inject({
+      method: 'GET',
+      url: '/api/v1/operations',
+      headers: { cookie },
+    });
+    const audit = await app.inject({
+      method: 'GET',
+      url: '/api/v1/audit',
+      headers: { cookie },
+    });
+    expect(operations.statusCode).toBe(200);
+    expect(operations.json()).toMatchObject({
+      items: [{ operationId: 'op-1', state: 'verified' }],
+    });
+    expect(audit.statusCode).toBe(200);
+    expect(audit.json()).toMatchObject({
+      items: [{ id: 'audit-1', eventType: 'auth.login' }],
+    });
     await app.close();
   });
 });
