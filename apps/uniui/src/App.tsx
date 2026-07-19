@@ -9,9 +9,11 @@ import {
   Button,
   Card,
   Center,
+  Checkbox,
   Code,
   ColorSwatch,
   Divider,
+  FileInput,
   Group,
   Loader,
   MantineProvider,
@@ -22,11 +24,13 @@ import {
   Pill,
   ScrollArea,
   SegmentedControl,
+  Select,
   SimpleGrid,
   Skeleton,
   Stack,
   Table,
   Text,
+  Textarea,
   TextInput,
   ThemeIcon,
   Timeline,
@@ -38,6 +42,7 @@ import { useDisclosure, useHotkeys, useMediaQuery } from '@mantine/hooks';
 import {
   IconActivity,
   IconBell,
+  IconBolt,
   IconBooks,
   IconBrain,
   IconChevronRight,
@@ -63,6 +68,8 @@ import { ApiError, api, gateway } from './api';
 import type {
   ApiFailure,
   Collection,
+  MutationRequest,
+  MutationResponse,
   Principal,
   ResponseMeta,
   SessionSummary,
@@ -82,6 +89,7 @@ type ViewId =
   | 'memory'
   | 'audit'
   | 'operations'
+  | 'mutations'
   | 'notifications'
   | 'settings'
   | 'search';
@@ -103,6 +111,7 @@ const NAV: NavItem[] = [
   { id: 'memory', label: 'Memory', icon: IconBrain, permission: 'memory.read' },
   { id: 'audit', label: 'Audit', icon: IconShieldCheck, permission: 'audit.read' },
   { id: 'operations', label: 'Operations', icon: IconActivity, permission: 'operations.read' },
+  { id: 'mutations', label: 'Safety actions', icon: IconBolt },
   { id: 'notifications', label: 'Notifications', icon: IconBell },
   { id: 'settings', label: 'Settings', icon: IconSettings },
 ];
@@ -166,8 +175,10 @@ export function App() {
         <Login onLogin={setPrincipal} />
       </MantineProvider>
     );
-  const visible = NAV.filter(
-    (item) => !item.permission || principal.permissions.includes(item.permission),
+  const visible = NAV.filter((item) =>
+    item.id === 'mutations'
+      ? ACTION_PRESETS.some((preset) => principal.permissions.includes(preset.permission))
+      : !item.permission || principal.permissions.includes(item.permission),
   );
   return (
     <MantineProvider theme={theme} forceColorScheme={dark ? 'dark' : 'light'}>
@@ -434,6 +445,8 @@ function View({
       return <AuditView />;
     case 'operations':
       return <OperationsView />;
+    case 'mutations':
+      return <MutationConsole principal={principal} />;
     case 'notifications':
       return <NotificationsView />;
     case 'settings':
@@ -441,6 +454,510 @@ function View({
     case 'search':
       return <SearchView query={searchQuery} />;
   }
+}
+
+type ActionPreset = {
+  value: string;
+  label: string;
+  owner: MutationRequest['target']['owner'];
+  kind: string;
+  permission: string;
+  destructive?: boolean;
+  payload: Record<string, unknown>;
+};
+
+const ACTION_PRESETS: ActionPreset[] = [
+  {
+    value: 'profile.create',
+    label: 'Profile · Create',
+    owner: 'hermes',
+    kind: 'profile',
+    permission: 'profiles.manage',
+    payload: {
+      displayName: '',
+      identityFiles: [{ path: 'SOUL.md', content: '' }],
+      modelConfig: { primary: 'openai-codex/gpt-5.5', fallbacks: [] },
+      startAfterCreate: false,
+    },
+  },
+  {
+    value: 'profile.identity.update',
+    label: 'Profile · Update identity',
+    owner: 'hermes',
+    kind: 'profile',
+    permission: 'profiles.manage',
+    payload: { identityFiles: [{ path: 'SOUL.md', content: '' }] },
+  },
+  {
+    value: 'profile.model.update',
+    label: 'Profile · Update model',
+    owner: 'hermes',
+    kind: 'profile',
+    permission: 'models.manage',
+    payload: { modelConfig: { primary: 'openai-codex/gpt-5.5', fallbacks: [] } },
+  },
+  {
+    value: 'profile.runtime.start',
+    label: 'Profile · Start runtime',
+    owner: 'hermes',
+    kind: 'profile',
+    permission: 'profiles.manage',
+    payload: { reason: '' },
+  },
+  {
+    value: 'profile.runtime.stop',
+    label: 'Profile · Stop runtime',
+    owner: 'hermes',
+    kind: 'profile',
+    permission: 'profiles.manage',
+    payload: { reason: '' },
+  },
+  {
+    value: 'profile.runtime.restart',
+    label: 'Profile · Restart runtime',
+    owner: 'hermes',
+    kind: 'profile',
+    permission: 'profiles.manage',
+    payload: { reason: '' },
+  },
+  {
+    value: 'profile.delete',
+    label: 'Profile · Protected delete',
+    owner: 'hermes',
+    kind: 'profile',
+    permission: 'profiles.delete',
+    destructive: true,
+    payload: {},
+  },
+  {
+    value: 'dmm.credential.save',
+    label: 'DMM · Save credential',
+    owner: 'dmm',
+    kind: 'provider',
+    permission: 'credentials.manage',
+    payload: { secret: '' },
+  },
+  {
+    value: 'dmm.credential.validate',
+    label: 'DMM · Validate credential',
+    owner: 'dmm',
+    kind: 'provider',
+    permission: 'credentials.manage',
+    payload: {},
+  },
+  {
+    value: 'dmm.credential.delete',
+    label: 'DMM · Delete credential',
+    owner: 'dmm',
+    kind: 'provider',
+    permission: 'credentials.manage',
+    destructive: true,
+    payload: {},
+  },
+  {
+    value: 'worker.project.create',
+    label: 'Worker · Create project',
+    owner: 'worker',
+    kind: 'project',
+    permission: 'work.manage',
+    payload: { name: '', goal: '', agents: [] },
+  },
+  {
+    value: 'worker.project.update',
+    label: 'Worker · Update project',
+    owner: 'worker',
+    kind: 'project',
+    permission: 'work.manage',
+    payload: {},
+  },
+  {
+    value: 'worker.project.start',
+    label: 'Worker · Start project',
+    owner: 'worker',
+    kind: 'project',
+    permission: 'work.manage',
+    payload: {},
+  },
+  {
+    value: 'worker.project.stop',
+    label: 'Worker · Stop project',
+    owner: 'worker',
+    kind: 'project',
+    permission: 'work.manage',
+    payload: {},
+  },
+  {
+    value: 'worker.project.delete',
+    label: 'Worker · Delete project',
+    owner: 'worker',
+    kind: 'project',
+    permission: 'work.manage',
+    destructive: true,
+    payload: {},
+  },
+  {
+    value: 'worker.task.create',
+    label: 'Worker · Create task',
+    owner: 'worker',
+    kind: 'task',
+    permission: 'work.manage',
+    payload: { harness: 'hermes', title: '', description: '', board: 'default' },
+  },
+  {
+    value: 'worker.task.comment',
+    label: 'Worker · Comment on task',
+    owner: 'worker',
+    kind: 'task',
+    permission: 'work.manage',
+    payload: { note: '', board: 'default' },
+  },
+  {
+    value: 'worker.task.start',
+    label: 'Worker · Start task',
+    owner: 'worker',
+    kind: 'task',
+    permission: 'work.manage',
+    payload: { board: 'default' },
+  },
+  {
+    value: 'worker.task.move',
+    label: 'Worker · Move task',
+    owner: 'worker',
+    kind: 'task',
+    permission: 'work.manage',
+    payload: { board: 'default', lane: 'ready' },
+  },
+  {
+    value: 'worker.task.block',
+    label: 'Worker · Block task',
+    owner: 'worker',
+    kind: 'task',
+    permission: 'work.manage',
+    payload: { board: 'default', reason: '' },
+  },
+  {
+    value: 'worker.task.unblock',
+    label: 'Worker · Unblock task',
+    owner: 'worker',
+    kind: 'task',
+    permission: 'work.manage',
+    payload: { board: 'default' },
+  },
+  {
+    value: 'worker.task.complete',
+    label: 'Worker · Complete task',
+    owner: 'worker',
+    kind: 'task',
+    permission: 'work.manage',
+    payload: { board: 'default' },
+  },
+  {
+    value: 'worker.cron.create',
+    label: 'Worker · Create cron',
+    owner: 'worker',
+    kind: 'cronjob',
+    permission: 'work.manage',
+    payload: { harness: 'hermes', title: '', schedule: { kind: 'cron', expression: '0 9 * * *' } },
+  },
+  {
+    value: 'worker.cron.run',
+    label: 'Worker · Run cron now',
+    owner: 'worker',
+    kind: 'cronjob',
+    permission: 'work.manage',
+    payload: { harness: 'hermes' },
+  },
+  {
+    value: 'worker.cron.pause',
+    label: 'Worker · Pause cron',
+    owner: 'worker',
+    kind: 'cronjob',
+    permission: 'work.manage',
+    payload: { harness: 'hermes' },
+  },
+  {
+    value: 'worker.cron.resume',
+    label: 'Worker · Resume cron',
+    owner: 'worker',
+    kind: 'cronjob',
+    permission: 'work.manage',
+    payload: { harness: 'hermes' },
+  },
+  {
+    value: 'worker.cron.delete',
+    label: 'Worker · Delete cron',
+    owner: 'worker',
+    kind: 'cronjob',
+    permission: 'work.manage',
+    destructive: true,
+    payload: { harness: 'hermes' },
+  },
+  {
+    value: 'chat.message.send',
+    label: 'Chat · Send message',
+    owner: 'chat',
+    kind: 'chat-session',
+    permission: 'chat.use',
+    payload: { blocks: [{ kind: 'text', text: '' }] },
+  },
+  {
+    value: 'chat.upload',
+    label: 'Chat · Upload file',
+    owner: 'chat',
+    kind: 'chat-session',
+    permission: 'chat.use',
+    payload: { name: '', mime: 'application/octet-stream', data: '' },
+  },
+  {
+    value: 'memory.record.write',
+    label: 'MemoryV4 · Write working/evidence record',
+    owner: 'memory-v4',
+    kind: 'memory-record',
+    permission: 'memory.write',
+    payload: {
+      entityType: '',
+      entityId: '',
+      role: 'active',
+      lifecycle: 'working',
+      topic: '',
+      title: '',
+      content: '',
+      tags: [],
+    },
+  },
+];
+
+function MutationConsole({ principal }: { principal: Principal }) {
+  const available = ACTION_PRESETS.filter((item) =>
+    principal.permissions.includes(item.permission),
+  );
+  const [action, setAction] = useState(available[0]?.value ?? '');
+  const preset = available.find((item) => item.value === action) ?? available[0];
+  const [nativeId, setNativeId] = useState('');
+  const [frameworkId, setFrameworkId] = useState('hermes');
+  const [mode, setMode] = useState<MutationRequest['mode']>('validate');
+  const [confirmed, setConfirmed] = useState(false);
+  const [payload, setPayload] = useState(() =>
+    JSON.stringify(available[0]?.payload ?? {}, null, 2),
+  );
+  const [result, setResult] = useState<MutationResponse | null>(null);
+  const [failure, setFailure] = useState<ApiFailure | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [downloadPath, setDownloadPath] = useState('');
+
+  const choose = (value: string | null) => {
+    if (!value) return;
+    const next = available.find((item) => item.value === value);
+    setAction(value);
+    setPayload(JSON.stringify(next?.payload ?? {}, null, 2));
+    setConfirmed(false);
+    setResult(null);
+    setFailure(null);
+  };
+  const attach = (file: File | null) => {
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      setFailure({ code: 'UPLOAD_TOO_LARGE', message: 'Uploads are limited to 10 MB.' });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const encoded = String(reader.result ?? '').split(',', 2)[1] ?? '';
+      setPayload(
+        JSON.stringify(
+          { name: file.name, mime: file.type || 'application/octet-stream', data: encoded },
+          null,
+          2,
+        ),
+      );
+    };
+    reader.readAsDataURL(file);
+  };
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!preset) return;
+    setBusy(true);
+    setFailure(null);
+    setResult(null);
+    try {
+      const parsed = JSON.parse(payload) as unknown;
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed))
+        throw new Error('Payload must be a JSON object.');
+      const response = await gateway.mutate({
+        operationType: preset.value,
+        target: {
+          owner: preset.owner,
+          kind: preset.kind,
+          nativeId: nativeId.trim(),
+          ...(preset.owner === 'hermes' ? { frameworkId: frameworkId.trim() } : {}),
+        },
+        payload: parsed as Record<string, unknown>,
+        mode,
+        confirmed,
+      });
+      setResult(response);
+    } catch (error) {
+      setFailure(
+        error instanceof ApiError
+          ? error.failure
+          : {
+              code: 'INVALID_MUTATION',
+              message: error instanceof Error ? error.message : 'Mutation failed',
+            },
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <>
+      <PageHeading
+        title="Safety-gated actions"
+        description="Validated, permission-checked, CSRF-protected, idempotent owner mutations with audit and redacted evidence."
+      />
+      {!preset ? (
+        <Alert color="red" title="No mutation permissions">
+          Your current roles do not permit owner mutations.
+        </Alert>
+      ) : (
+        <SimpleGrid cols={{ base: 1, lg: 2 }}>
+          <Paper withBorder p="lg" component="form" onSubmit={submit}>
+            <Stack>
+              <Select
+                label="Operation"
+                data={available.map(({ value, label }) => ({ value, label }))}
+                value={action}
+                onChange={choose}
+                searchable
+              />
+              <SimpleGrid cols={{ base: 1, sm: 2 }}>
+                <TextInput
+                  label="Authoritative native ID"
+                  required
+                  value={nativeId}
+                  onChange={(event) => setNativeId(event.currentTarget.value)}
+                />
+                {preset.owner === 'hermes' && (
+                  <TextInput
+                    label="Framework ID"
+                    required
+                    value={frameworkId}
+                    onChange={(event) => setFrameworkId(event.currentTarget.value)}
+                  />
+                )}
+              </SimpleGrid>
+              <Group gap="xs">
+                <Badge>{preset.owner}</Badge>
+                <Badge variant="outline">{preset.kind}</Badge>
+                {preset.destructive && <Badge color="red">destructive</Badge>}
+              </Group>
+              {preset.value === 'chat.upload' && (
+                <FileInput
+                  label="File"
+                  description="Loaded locally as base64; maximum 10 MB."
+                  onChange={attach}
+                  clearable
+                />
+              )}
+              <Textarea
+                label="Owner payload (JSON)"
+                required
+                minRows={12}
+                autosize
+                maxRows={24}
+                value={payload}
+                onChange={(event) => setPayload(event.currentTarget.value)}
+                styles={{ input: { fontFamily: 'monospace' } }}
+              />
+              <SegmentedControl
+                fullWidth
+                value={mode}
+                onChange={(value) => setMode(value as MutationRequest['mode'])}
+                data={[
+                  { label: 'Validate', value: 'validate' },
+                  { label: 'Dry run', value: 'dry-run' },
+                  { label: 'Execute', value: 'execute' },
+                ]}
+              />
+              <Checkbox
+                checked={confirmed}
+                onChange={(event) => setConfirmed(event.currentTarget.checked)}
+                label="I explicitly confirm this destructive operation"
+                color="red"
+              />
+              {mode === 'execute' && (
+                <Alert color={preset.destructive ? 'red' : 'orange'} title="Owner write">
+                  Execute calls the authoritative owner now. Retries use an immutable idempotency
+                  record.
+                </Alert>
+              )}
+              {failure && (
+                <Alert color="red" title={failure.code}>
+                  {failure.message}
+                </Alert>
+              )}
+              <Button
+                type="submit"
+                loading={busy}
+                color={preset.destructive && mode === 'execute' ? 'red' : 'ocean'}
+                leftSection={<IconBolt size={16} />}
+              >
+                {mode === 'execute'
+                  ? 'Execute action'
+                  : mode === 'dry-run'
+                    ? 'Run owner dry-run'
+                    : 'Validate action'}
+              </Button>
+            </Stack>
+          </Paper>
+          <Stack>
+            <Paper withBorder p="lg">
+              <Stack>
+                <Title order={3}>Operation result</Title>
+                {result ? (
+                  <>
+                    <Group>
+                      <StateBadge
+                        state={result.operation.state === 'verified' ? 'current' : 'inconclusive'}
+                      />
+                      <Code>{result.operation.operationId}</Code>
+                      {result.replayed && <Badge>replayed</Badge>}
+                    </Group>
+                    <Code block>{JSON.stringify(result.result, null, 2)}</Code>
+                  </>
+                ) : (
+                  <Text c="dimmed">No action has been submitted.</Text>
+                )}
+              </Stack>
+            </Paper>
+            <Paper withBorder p="lg">
+              <Stack>
+                <Title order={3}>Authenticated Chat download</Title>
+                <Text size="sm" c="dimmed">
+                  Only canonical `/uploads/filename` paths are proxied; responses are private and
+                  never cached.
+                </Text>
+                <TextInput
+                  label="Upload path"
+                  placeholder="/uploads/example.pdf"
+                  value={downloadPath}
+                  onChange={(event) => setDownloadPath(event.currentTarget.value)}
+                />
+                <Button
+                  component="a"
+                  href={gateway.chatDownloadUrl(downloadPath)}
+                  disabled={!/^\/uploads\/[a-zA-Z0-9._-]+$/.test(downloadPath)}
+                >
+                  Download
+                </Button>
+              </Stack>
+            </Paper>
+          </Stack>
+        </SimpleGrid>
+      )}
+    </>
+  );
 }
 
 function PageHeading({

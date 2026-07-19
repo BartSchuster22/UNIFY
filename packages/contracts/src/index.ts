@@ -408,6 +408,43 @@ export const ShadowComparisonListSchema = Type.Object(
   { $id: 'ShadowComparisonList', additionalProperties: false },
 );
 
+export const MutationTargetSchema = Type.Object(
+  {
+    owner: Type.Union([
+      Type.Literal('hermes'),
+      Type.Literal('dmm'),
+      Type.Literal('worker'),
+      Type.Literal('chat'),
+      Type.Literal('memory-v4'),
+    ]),
+    kind: Type.String({ minLength: 1, maxLength: 200 }),
+    nativeId: Type.String({ minLength: 1, maxLength: 1024 }),
+    frameworkId: Type.Optional(Type.String({ minLength: 1, maxLength: 200 })),
+  },
+  { $id: 'MutationTarget', additionalProperties: false },
+);
+export const MutationRequestSchema = Type.Object(
+  {
+    operationType: Type.String({ minLength: 1, maxLength: 200 }),
+    target: MutationTargetSchema,
+    payload: Type.Record(Type.String(), Type.Unknown()),
+    mode: Type.Union([Type.Literal('validate'), Type.Literal('dry-run'), Type.Literal('execute')]),
+    confirmed: Type.Boolean(),
+  },
+  { $id: 'MutationRequest', additionalProperties: false },
+);
+export const MutationResponseSchema = Type.Object(
+  {
+    replayed: Type.Boolean(),
+    operation: OperationSchema,
+    result: Type.Unknown(),
+  },
+  { $id: 'MutationResponse', additionalProperties: false },
+);
+export type MutationTarget = Static<typeof MutationTargetSchema>;
+export type MutationRequest = Static<typeof MutationRequestSchema>;
+export type MutationResponse = Static<typeof MutationResponseSchema>;
+
 const schemas: TSchema[] = [
   TruthStateSchema,
   ResourceKindSchema,
@@ -441,6 +478,9 @@ const schemas: TSchema[] = [
   UnifiedEventListSchema,
   ShadowComparisonSchema,
   ShadowComparisonListSchema,
+  MutationTargetSchema,
+  MutationRequestSchema,
+  MutationResponseSchema,
 ];
 
 export function buildOpenApiDocument(): Record<string, unknown> {
@@ -457,6 +497,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
       { name: 'auth' },
       { name: 'sessions' },
       { name: 'operations' },
+      { name: 'mutations' },
       { name: 'audit' },
       { name: 'integrations' },
       { name: 'search' },
@@ -546,6 +587,61 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         },
       },
       '/operations': readPath('operations', 'listOperations', 'OperationList'),
+      '/mutations': {
+        post: {
+          tags: ['mutations'],
+          operationId: 'executeMutation',
+          security: [{ cookieSession: [], csrfToken: [] }],
+          parameters: [
+            {
+              name: 'Idempotency-Key',
+              in: 'header',
+              required: true,
+              schema: { type: 'string', minLength: 1, maxLength: 200 },
+            },
+          ],
+          requestBody: jsonBody('MutationRequest'),
+          responses: {
+            '200': jsonResponse('MutationResponse'),
+            '201': jsonResponse('MutationResponse'),
+            '400': jsonResponse('ErrorResponse'),
+            '401': jsonResponse('ErrorResponse'),
+            '403': jsonResponse('ErrorResponse'),
+            '409': jsonResponse('ErrorResponse'),
+            '422': jsonResponse('ErrorResponse'),
+            '502': jsonResponse('ErrorResponse'),
+            '503': jsonResponse('ErrorResponse'),
+          },
+        },
+      },
+      '/chat/download': {
+        get: {
+          tags: ['mutations'],
+          operationId: 'downloadChatUpload',
+          security: [{ cookieSession: [] }],
+          parameters: [
+            {
+              name: 'path',
+              in: 'query',
+              required: true,
+              schema: { type: 'string', pattern: '^/uploads/[a-zA-Z0-9._-]+$' },
+            },
+          ],
+          responses: {
+            '200': {
+              description: 'Authenticated chat upload download',
+              content: {
+                'application/octet-stream': {
+                  schema: { type: 'string', contentEncoding: 'binary' },
+                },
+              },
+            },
+            '401': jsonResponse('ErrorResponse'),
+            '403': jsonResponse('ErrorResponse'),
+            '422': jsonResponse('ErrorResponse'),
+          },
+        },
+      },
       '/audit': readPath('audit', 'listAuditEvents', 'AuditEventList'),
       '/integrations': readPath('integrations', 'listIntegrations', 'IntegrationStatusList'),
       '/resources': readPath(

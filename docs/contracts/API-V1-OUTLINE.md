@@ -66,6 +66,8 @@
 
 /api/v1/operations
 /api/v1/operations/{operationId}
+/api/v1/mutations
+/api/v1/chat/download?path=/uploads/{safeName}
 /api/v1/audit
 /api/v1/notifications
 /api/v1/search

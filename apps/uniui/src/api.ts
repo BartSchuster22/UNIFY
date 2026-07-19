@@ -1,4 +1,11 @@
-import type { ApiFailure, Collection, Principal, UnifiedResource } from './types';
+import type {
+  ApiFailure,
+  Collection,
+  MutationRequest,
+  MutationResponse,
+  Principal,
+  UnifiedResource,
+} from './types';
 
 export class ApiError extends Error {
   constructor(
@@ -45,4 +52,11 @@ export const gateway = {
     }),
   logout: () => api<void>('/auth/logout', { method: 'POST' }),
   resources: (query: URLSearchParams) => api<Collection<UnifiedResource>>(`/resources?${query}`),
+  mutate: (request: MutationRequest, idempotencyKey = crypto.randomUUID()) =>
+    api<MutationResponse>('/mutations', {
+      method: 'POST',
+      headers: { 'idempotency-key': idempotencyKey },
+      body: JSON.stringify(request),
+    }),
+  chatDownloadUrl: (path: string) => `/api/v1/chat/download?path=${encodeURIComponent(path)}`,
 };

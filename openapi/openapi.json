@@ -24,6 +24,9 @@
       "name": "operations"
     },
     {
+      "name": "mutations"
+    },
+    {
       "name": "audit"
     },
     {
@@ -390,6 +393,201 @@
             }
           },
           "503": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mutations": {
+      "post": {
+        "tags": [
+          "mutations"
+        ],
+        "operationId": "executeMutation",
+        "security": [
+          {
+            "cookieSession": [],
+            "csrfToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MutationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MutationResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MutationResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "MutationResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MutationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chat/download": {
+      "get": {
+        "tags": [
+          "mutations"
+        ],
+        "operationId": "downloadChatUpload",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "path",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^/uploads/[a-zA-Z0-9._-]+$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authenticated chat upload download",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "contentEncoding": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
             "description": "ErrorResponse",
             "content": {
               "application/json": {
@@ -6869,6 +7067,489 @@
               }
             }
           }
+        }
+      },
+      "MutationTarget": {
+        "$id": "MutationTarget",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "owner",
+          "kind",
+          "nativeId"
+        ],
+        "properties": {
+          "owner": {
+            "anyOf": [
+              {
+                "const": "hermes",
+                "type": "string"
+              },
+              {
+                "const": "dmm",
+                "type": "string"
+              },
+              {
+                "const": "worker",
+                "type": "string"
+              },
+              {
+                "const": "chat",
+                "type": "string"
+              },
+              {
+                "const": "memory-v4",
+                "type": "string"
+              }
+            ]
+          },
+          "kind": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "nativeId": {
+            "minLength": 1,
+            "maxLength": 1024,
+            "type": "string"
+          },
+          "frameworkId": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          }
+        }
+      },
+      "MutationRequest": {
+        "$id": "MutationRequest",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "operationType",
+          "target",
+          "payload",
+          "mode",
+          "confirmed"
+        ],
+        "properties": {
+          "operationType": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "target": {
+            "$id": "MutationTarget",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "owner",
+              "kind",
+              "nativeId"
+            ],
+            "properties": {
+              "owner": {
+                "anyOf": [
+                  {
+                    "const": "hermes",
+                    "type": "string"
+                  },
+                  {
+                    "const": "dmm",
+                    "type": "string"
+                  },
+                  {
+                    "const": "worker",
+                    "type": "string"
+                  },
+                  {
+                    "const": "chat",
+                    "type": "string"
+                  },
+                  {
+                    "const": "memory-v4",
+                    "type": "string"
+                  }
+                ]
+              },
+              "kind": {
+                "minLength": 1,
+                "maxLength": 200,
+                "type": "string"
+              },
+              "nativeId": {
+                "minLength": 1,
+                "maxLength": 1024,
+                "type": "string"
+              },
+              "frameworkId": {
+                "minLength": 1,
+                "maxLength": 200,
+                "type": "string"
+              }
+            }
+          },
+          "payload": {
+            "type": "object",
+            "patternProperties": {
+              "^(.*)$": {}
+            }
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "const": "validate",
+                "type": "string"
+              },
+              {
+                "const": "dry-run",
+                "type": "string"
+              },
+              {
+                "const": "execute",
+                "type": "string"
+              }
+            ]
+          },
+          "confirmed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "MutationResponse": {
+        "$id": "MutationResponse",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "replayed",
+          "operation",
+          "result"
+        ],
+        "properties": {
+          "replayed": {
+            "type": "boolean"
+          },
+          "operation": {
+            "$id": "Operation",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "operationId",
+              "operationType",
+              "actorId",
+              "target",
+              "payloadHash",
+              "mode",
+              "idempotencyKey",
+              "policyDecision",
+              "state",
+              "createdAt",
+              "updatedAt",
+              "evidenceIds"
+            ],
+            "properties": {
+              "operationId": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "operationType": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "actorId": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "target": {
+                "$id": "ResourceRef",
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "canonicalId",
+                  "kind",
+                  "owner",
+                  "nativeId",
+                  "observedAt"
+                ],
+                "properties": {
+                  "canonicalId": {
+                    "minLength": 1,
+                    "maxLength": 1024,
+                    "type": "string"
+                  },
+                  "kind": {
+                    "$id": "ResourceKind",
+                    "anyOf": [
+                      {
+                        "const": "framework",
+                        "type": "string"
+                      },
+                      {
+                        "const": "profile",
+                        "type": "string"
+                      },
+                      {
+                        "const": "agent",
+                        "type": "string"
+                      },
+                      {
+                        "const": "provider",
+                        "type": "string"
+                      },
+                      {
+                        "const": "model",
+                        "type": "string"
+                      },
+                      {
+                        "const": "project",
+                        "type": "string"
+                      },
+                      {
+                        "const": "task",
+                        "type": "string"
+                      },
+                      {
+                        "const": "kanban-board",
+                        "type": "string"
+                      },
+                      {
+                        "const": "cronjob",
+                        "type": "string"
+                      },
+                      {
+                        "const": "chat-session",
+                        "type": "string"
+                      },
+                      {
+                        "const": "chat-message",
+                        "type": "string"
+                      },
+                      {
+                        "const": "chat-route",
+                        "type": "string"
+                      },
+                      {
+                        "const": "memory-record",
+                        "type": "string"
+                      },
+                      {
+                        "const": "catalog-snapshot",
+                        "type": "string"
+                      },
+                      {
+                        "const": "operation",
+                        "type": "string"
+                      },
+                      {
+                        "const": "notification",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "owner": {
+                    "$id": "ResourceOwner",
+                    "anyOf": [
+                      {
+                        "const": "hermes",
+                        "type": "string"
+                      },
+                      {
+                        "const": "agency",
+                        "type": "string"
+                      },
+                      {
+                        "const": "dmm",
+                        "type": "string"
+                      },
+                      {
+                        "const": "worker",
+                        "type": "string"
+                      },
+                      {
+                        "const": "chat",
+                        "type": "string"
+                      },
+                      {
+                        "const": "memory-v4",
+                        "type": "string"
+                      },
+                      {
+                        "const": "gateway",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "frameworkId": {
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "type": "string"
+                  },
+                  "nativeId": {
+                    "minLength": 1,
+                    "maxLength": 1024,
+                    "type": "string"
+                  },
+                  "displayLabel": {
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  "sourceVersion": {
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  "observedAt": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "links": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "relation",
+                        "canonicalId"
+                      ],
+                      "properties": {
+                        "relation": {
+                          "type": "string"
+                        },
+                        "canonicalId": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "payloadHash": {
+                "pattern": "^[a-f0-9]{64}$",
+                "type": "string"
+              },
+              "mode": {
+                "anyOf": [
+                  {
+                    "const": "validate",
+                    "type": "string"
+                  },
+                  {
+                    "const": "dry-run",
+                    "type": "string"
+                  },
+                  {
+                    "const": "execute",
+                    "type": "string"
+                  },
+                  {
+                    "const": "verify",
+                    "type": "string"
+                  },
+                  {
+                    "const": "rollback",
+                    "type": "string"
+                  }
+                ]
+              },
+              "idempotencyKey": {
+                "minLength": 1,
+                "maxLength": 200,
+                "type": "string"
+              },
+              "sourceVersion": {
+                "type": "string"
+              },
+              "policyDecision": {
+                "anyOf": [
+                  {
+                    "const": "pending",
+                    "type": "string"
+                  },
+                  {
+                    "const": "allowed",
+                    "type": "string"
+                  },
+                  {
+                    "const": "denied",
+                    "type": "string"
+                  }
+                ]
+              },
+              "state": {
+                "$id": "OperationState",
+                "anyOf": [
+                  {
+                    "const": "pending",
+                    "type": "string"
+                  },
+                  {
+                    "const": "validated",
+                    "type": "string"
+                  },
+                  {
+                    "const": "preflighted",
+                    "type": "string"
+                  },
+                  {
+                    "const": "awaiting_confirmation",
+                    "type": "string"
+                  },
+                  {
+                    "const": "executing",
+                    "type": "string"
+                  },
+                  {
+                    "const": "applied",
+                    "type": "string"
+                  },
+                  {
+                    "const": "verifying",
+                    "type": "string"
+                  },
+                  {
+                    "const": "verified",
+                    "type": "string"
+                  },
+                  {
+                    "const": "denied",
+                    "type": "string"
+                  },
+                  {
+                    "const": "failed",
+                    "type": "string"
+                  },
+                  {
+                    "const": "inconclusive",
+                    "type": "string"
+                  },
+                  {
+                    "const": "rolling_back",
+                    "type": "string"
+                  },
+                  {
+                    "const": "rolled_back",
+                    "type": "string"
+                  },
+                  {
+                    "const": "rollback_failed",
+                    "type": "string"
+                  }
+                ]
+              },
+              "createdAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "updatedAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "result": {}
         }
       }
     }

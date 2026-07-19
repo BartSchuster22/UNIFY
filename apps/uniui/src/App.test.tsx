@@ -131,11 +131,26 @@ describe('Mantine UNIUI gates', () => {
       await screen.findByRole('heading', { name: 'Operational overview' }),
     ).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'Primary navigation' })).toBeInTheDocument();
+    expect(screen.queryByText('Safety actions')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Toggle navigation' })).toBeInTheDocument();
     await userEvent.keyboard('{Control>}k{/Control}');
     expect(screen.getByLabelText('Global search')).toHaveFocus();
     const results = await axe.run(container, { rules: { 'color-contrast': { enabled: false } } });
     expect(results.violations).toEqual([]);
+  });
+
+  it('shows Safety actions for an operation-specific mutation grant', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL) =>
+        String(input).endsWith('/auth/me')
+          ? response({ ...principal, permissions: [...principal.permissions, 'work.manage'] })
+          : authenticatedFetch(input),
+      ),
+    );
+    render(<App />);
+    await screen.findByRole('heading', { name: 'Operational overview' });
+    expect(screen.getByText('Safety actions')).toBeInTheDocument();
   });
 
   it('announces a truthful empty owner state instead of hiding it', async () => {

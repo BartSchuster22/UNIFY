@@ -74,6 +74,9 @@ export class GovernanceService {
       );
     return result;
   }
+  getOperation(operationId: string) {
+    return this.store.getOperation(operationId);
+  }
   async transition(
     operationId: string,
     to: OperationState,

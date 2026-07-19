@@ -23,6 +23,16 @@ node scripts/prepare-compose-secrets.mjs --force
 
 After rotation, remove the local database volume or rotate the database credential consistently. Never commit `.secrets/`.
 
+Phase 5 owner mutations also require non-empty Agency, DMM, Worker, Chat, and Memory credentials in the corresponding `.secrets/*` files created by the script. Provision those values from the approved secret source, then restore the Gateway container ACL without exposing values:
+
+```bash
+setfacl -m u:10001:r-- .secrets/agency_username .secrets/agency_password \
+  .secrets/dmm_username .secrets/dmm_password .secrets/worker_token \
+  .secrets/chat_password .secrets/memory_v4_token
+```
+
+The Gateway fails closed at startup when any mutation-owner setting is absent or empty. `MEMORY_V4_URL` must point to the approved current Memory API; configuring it does not authorize a Memory cutover.
+
 ## Start and verify
 
 ```bash

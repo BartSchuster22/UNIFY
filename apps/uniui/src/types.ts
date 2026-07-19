@@ -57,6 +57,30 @@ export interface ApiFailure {
   requestId?: string;
   retryable?: boolean;
 }
+export interface MutationRequest {
+  operationType: string;
+  target: {
+    owner: 'hermes' | 'dmm' | 'worker' | 'chat' | 'memory-v4';
+    kind: string;
+    nativeId: string;
+    frameworkId?: string;
+  };
+  payload: Record<string, unknown>;
+  mode: 'validate' | 'dry-run' | 'execute';
+  confirmed: boolean;
+}
+export interface MutationResponse {
+  replayed: boolean;
+  operation: {
+    operationId: string;
+    operationType: string;
+    state: string;
+    mode: string;
+    updatedAt: string;
+  };
+  result: unknown;
+}
+
 export interface SessionSummary {
   id: string;
   deviceLabel: string | null;

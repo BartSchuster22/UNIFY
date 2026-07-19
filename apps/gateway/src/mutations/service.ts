@@ -1,0 +1,159 @@
+import { redactEvidence } from '../governance/canonical.js';
+import { GovernanceError } from '../governance/service.js';
+import type { GovernanceService } from '../governance/service.js';
+import type { OperationRecord } from '../governance/types.js';
+import type { MutationInput, MutationTarget, MutationOwnerClient } from './owner-client.js';
+
+export type MutationResult = {
+  replayed: boolean;
+  operation: OperationRecord;
+  result: unknown;
+};
+
+export class MutationService {
+  constructor(
+    private readonly governance: GovernanceService,
+    readonly owners: MutationOwnerClient,
+  ) {}
+
+  parse(value: unknown): MutationInput {
+    if (!value || typeof value !== 'object' || Array.isArray(value))
+      throw new GovernanceError('MUTATION_INVALID', 400, 'Mutation body must be an object');
+    const raw = value as Record<string, unknown>;
+    const operationType = requiredString(raw.operationType, 'operationType');
+    const target = this.parseTarget(raw.target);
+    const payload = raw.payload === undefined ? {} : record(raw.payload, 'payload');
+    const mode = raw.mode === undefined ? 'execute' : raw.mode;
+    if (mode !== 'validate' && mode !== 'dry-run' && mode !== 'execute')
+      throw new GovernanceError(
+        'MUTATION_MODE_INVALID',
+        422,
+        'mode must be validate, dry-run, or execute',
+      );
+    const input: MutationInput = {
+      operationType,
+      target,
+      payload,
+      mode,
+      confirmed: raw.confirmed === true,
+    };
+    this.owners.validate(input);
+    return input;
+  }
+
+  permission(input: MutationInput): string {
+    return this.owners.definition(input.operationType).permission;
+  }
+
+  async run(
+    actorUserId: string,
+    idempotencyKey: string | undefined,
+    input: MutationInput,
+  ): Promise<MutationResult> {
+    const claim = await this.governance.begin({
+      actorUserId,
+      action: input.operationType,
+      targetFramework: input.target.frameworkId ?? input.target.owner,
+      targetKind: input.target.kind,
+      targetId: input.target.nativeId,
+      ...(idempotencyKey ? { idempotencyKey } : {}),
+      mode: input.mode,
+      policyDecision: 'allowed',
+      payload: input,
+    });
+    if (claim.kind === 'replayed') {
+      return { replayed: true, operation: claim.operation, result: claim.operation.result };
+    }
+
+    const operationId = claim.operation.id;
+    try {
+      await this.governance.transition(operationId, 'validated');
+      await this.governance.transition(operationId, 'preflighted');
+      await this.governance.evidence(operationId, 'mutation.preflight', {
+        operationType: input.operationType,
+        target: input.target,
+        mode: input.mode,
+        confirmed: input.confirmed,
+      });
+      await this.governance.transition(operationId, 'executing');
+      const ownerResult = await this.owners.execute(input);
+      const safeResult = redactEvidence(ownerResult);
+      await this.governance.transition(operationId, 'applied', safeResult);
+      await this.governance.transition(operationId, 'verifying');
+      const verified = await this.governance.transition(operationId, 'verified', safeResult);
+      await this.governance.evidence(operationId, 'mutation.owner-result', safeResult);
+      await this.governance.audit({
+        actorUserId,
+        action: input.operationType,
+        target: input.target,
+        outcome: 'success',
+        details: { operationId, mode: input.mode },
+      });
+      return { replayed: false, operation: verified, result: safeResult };
+    } catch (error) {
+      const current = await this.current(operationId);
+      if (
+        current &&
+        [
+          'pending',
+          'validated',
+          'preflighted',
+          'awaiting_confirmation',
+          'executing',
+          'applied',
+          'verifying',
+          'inconclusive',
+        ].includes(current.state)
+      ) {
+        try {
+          await this.governance.transition(operationId, 'failed', undefined, {
+            code: error instanceof GovernanceError ? error.code : 'MUTATION_FAILED',
+          });
+        } catch {
+          // The original error and immutable audit event remain authoritative.
+        }
+      }
+      await this.governance.audit({
+        actorUserId,
+        action: input.operationType,
+        target: input.target,
+        outcome: 'failure',
+        details: {
+          operationId,
+          code: error instanceof GovernanceError ? error.code : 'MUTATION_FAILED',
+        },
+      });
+      throw error;
+    }
+  }
+
+  private current(operationId: string): Promise<OperationRecord | null> {
+    return this.governance.getOperation(operationId);
+  }
+
+  private parseTarget(value: unknown): MutationTarget {
+    const raw = record(value, 'target');
+    const owner = requiredString(raw.owner, 'target.owner');
+    if (!['hermes', 'dmm', 'worker', 'chat', 'memory-v4'].includes(owner))
+      throw new GovernanceError('MUTATION_OWNER_INVALID', 422, 'target.owner is not supported');
+    const target: MutationTarget = {
+      owner: owner as MutationTarget['owner'],
+      kind: requiredString(raw.kind, 'target.kind'),
+      nativeId: requiredString(raw.nativeId, 'target.nativeId'),
+    };
+    if (raw.frameworkId !== undefined)
+      target.frameworkId = requiredString(raw.frameworkId, 'target.frameworkId');
+    return target;
+  }
+}
+
+function requiredString(value: unknown, field: string): string {
+  if (typeof value !== 'string' || !value.trim() || value.length > 1024)
+    throw new GovernanceError('MUTATION_INVALID', 400, `${field} must be a non-empty string`);
+  return value.trim();
+}
+function record(value: unknown, field: string): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value))
+    throw new GovernanceError('MUTATION_INVALID', 400, `${field} must be an object`);
+  return value as Record<string, unknown>;
+}

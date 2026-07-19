@@ -148,6 +148,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/mutations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["executeMutation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chat/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["downloadChatUpload"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/audit": {
         parameters: {
             query?: never;
@@ -998,6 +1030,61 @@ export interface components {
                 };
             };
         };
+        MutationTarget: {
+            owner: "hermes" | "dmm" | "worker" | "chat" | "memory-v4";
+            kind: string;
+            nativeId: string;
+            frameworkId?: string;
+        };
+        MutationRequest: {
+            operationType: string;
+            target: {
+                owner: "hermes" | "dmm" | "worker" | "chat" | "memory-v4";
+                kind: string;
+                nativeId: string;
+                frameworkId?: string;
+            };
+            payload: {
+                [key: string]: unknown;
+            };
+            mode: "validate" | "dry-run" | "execute";
+            confirmed: boolean;
+        };
+        MutationResponse: {
+            replayed: boolean;
+            operation: {
+                operationId: string;
+                operationType: string;
+                actorId: string;
+                target: {
+                    canonicalId: string;
+                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    frameworkId?: string;
+                    nativeId: string;
+                    displayLabel?: string;
+                    sourceVersion?: string;
+                    /** Format: date-time */
+                    observedAt: string;
+                    links?: {
+                        relation: string;
+                        canonicalId: string;
+                    }[];
+                };
+                payloadHash: string;
+                mode: "validate" | "dry-run" | "execute" | "verify" | "rollback";
+                idempotencyKey: string;
+                sourceVersion?: string;
+                policyDecision: "pending" | "allowed" | "denied";
+                state: "pending" | "validated" | "preflighted" | "awaiting_confirmation" | "executing" | "applied" | "verifying" | "verified" | "denied" | "failed" | "inconclusive" | "rolling_back" | "rolled_back" | "rollback_failed";
+                /** Format: date-time */
+                createdAt: string;
+                /** Format: date-time */
+                updatedAt: string;
+                evidenceIds: string[];
+            };
+            result: unknown;
+        };
     };
     responses: never;
     parameters: never;
@@ -1299,6 +1386,153 @@ export interface operations {
             };
             /** @description ErrorResponse */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    executeMutation: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MutationRequest"];
+            };
+        };
+        responses: {
+            /** @description MutationResponse */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MutationResponse"];
+                };
+            };
+            /** @description MutationResponse */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MutationResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    downloadChatUpload: {
+        parameters: {
+            query: {
+                path: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Authenticated chat upload download */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

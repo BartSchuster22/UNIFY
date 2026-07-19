@@ -8,6 +8,8 @@ import type { GovernanceStore, OperationRecord } from './governance/types.js';
 import type { ResourceRef } from '@aquiero/contracts';
 import type { IntegrationService } from './integrations/service.js';
 import type { IntegrationKind, IntegrationOwner } from './integrations/types.js';
+import { MutationService } from './mutations/service.js';
+import type { MutationOwnerClient } from './mutations/owner-client.js';
 export interface AppOptions {
   authStore: AuthStore;
   authPepper: string;
@@ -17,6 +19,7 @@ export interface AppOptions {
   governanceStore?: GovernanceStore;
   allowedOrigins?: readonly string[];
   integrations?: IntegrationService;
+  mutationOwners?: MutationOwnerClient;
 }
 const SESSION_COOKIE = 'aquiero_session';
 const CSRF_COOKIE = 'aquiero_csrf';
@@ -43,6 +46,10 @@ export function buildApp(options: AppOptions) {
   const governance = options.governanceStore
     ? new GovernanceService(options.governanceStore)
     : null;
+  const mutations =
+    governance && options.mutationOwners
+      ? new MutationService(governance, options.mutationOwners)
+      : null;
   void app.register(cookie);
   app.addHook('onRequest', async (request) => {
     const origin = request.headers.origin;
@@ -247,6 +254,43 @@ export function buildApp(options: AppOptions) {
       return { items: page.items, meta: meta(request.id, [], page.page) };
     },
   );
+  app.post<{ Body: unknown }>(
+    '/api/v1/mutations',
+    { bodyLimit: 15 * 1024 * 1024 },
+    async (request, reply) => {
+      const current = await mutationSession(request);
+      if (!mutations)
+        throw new GovernanceError(
+          'MUTATIONS_UNAVAILABLE',
+          503,
+          'Mutation execution is unavailable',
+        );
+      const input = mutations.parse(request.body);
+      auth.requirePermission(current, mutations.permission(input));
+      const rawKey = request.headers['idempotency-key'];
+      const idempotencyKey = Array.isArray(rawKey) ? rawKey[0] : rawKey;
+      const result = await mutations.run(current.userId, idempotencyKey, input);
+      return reply.status(result.replayed ? 200 : 201).send({
+        replayed: result.replayed,
+        operation: publicOperation(result.operation),
+        result: result.result,
+      });
+    },
+  );
+  app.get<{ Querystring: { path?: string } }>('/api/v1/chat/download', async (request, reply) => {
+    const current = await session(request);
+    auth.requirePermission(current, 'chat.read');
+    if (!mutations)
+      throw new GovernanceError('MUTATIONS_UNAVAILABLE', 503, 'Chat download is unavailable');
+    const file = await mutations.owners.download(request.query.path ?? '');
+    reply.header('content-type', file.contentType);
+    reply.header(
+      'content-disposition',
+      `attachment; filename="${file.filename.replace(/["\\]/g, '_')}"`,
+    );
+    reply.header('cache-control', 'private, no-store');
+    return reply.send(file.body);
+  });
   app.get('/api/v1/integrations', async (request) => {
     const current = await session(request);
     const integrations = requireIntegrations();

@@ -30,6 +30,7 @@ UNIFY provides one authenticated, policy-controlled API boundary and one operato
 - [Identity, sessions, RBAC, and CSRF](docs/security/AUTHENTICATION.md)
 - [Database migrations](docs/database/MIGRATIONS.md)
 - [Operation governance](docs/operations/GOVERNANCE.md)
+- [Governed owner mutations](docs/operations/MUTATIONS.md)
 - [Adapter SDK contract](docs/adapters/SDK-CONTRACT.md)
 - [Read-only integration operations](docs/adapters/READ-ONLY-INTEGRATIONS.md)
 - [Local Compose runbook](docs/runbooks/LOCAL-COMPOSE.md)
@@ -37,6 +38,7 @@ UNIFY provides one authenticated, policy-controlled API boundary and one operato
 - [Phase 3 verification](docs/evidence/PHASE-3-REPORT.md)
 - [Mantine UNIUI architecture and operations](docs/ui/MANTINE-UNIUI.md)
 - [Phase 4 verification](docs/evidence/PHASE-4-REPORT.md)
+- [Phase 5 verification](docs/evidence/PHASE-5-REPORT.md)
 
 ## Planned deployables
 
@@ -57,3 +59,5 @@ Phase 2 — Gateway foundation: complete. The repository contains reproducible w
 Phase 3 — Read-only integrations: complete. Gateway federates Agency/Hermes, DMM, Worker, Chat, and MemoryV4 reads with explicit provenance/truth, owner-scoped RBAC, bounded cursor pagination, unified events/notifications/search, and zero-drift owner shadow comparisons. Existing owners remain authoritative and no production cutover is implied.
 
 Phase 4 — Mantine UNIUI: complete. The authenticated responsive operator shell presents owner-scoped frameworks, providers/models, profiles, Work/Kanban, virtualized Chat, Memory, audit, operations, notifications, and settings through shared truthful-state components. Mobile, keyboard, axe accessibility, CSP, non-root container, and real Compose gates are included. The UI remains read-only with respect to authoritative owner services.
+
+Phase 5 — Governed mutations: complete. One authenticated, CSRF-protected, RBAC-checked, idempotent operation boundary delegates safety-gated writes to Agency/Hermes, DMM, Worker, Chat, and MemoryV4 while preserving owner authority. Destructive execution requires confirmation, evidence is recursively redacted, Chat files are bounded and privately proxied, Memory writes are allowlisted, and UNIUI plus the generated SDK expose the governed controls.

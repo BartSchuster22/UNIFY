@@ -5,6 +5,7 @@ import { PostgresAuthStore } from './auth/postgres-store.js';
 import { PostgresGovernanceStore } from './governance/postgres-store.js';
 import { createDefaultAdapters } from './integrations/adapters.js';
 import { IntegrationService } from './integrations/service.js';
+import { MutationOwnerClient } from './mutations/owner-client.js';
 async function secret(name: string): Promise<string> {
   const file = process.env[`${name}_FILE`];
   const value = file ? await readFile(file, 'utf8') : process.env[name];
@@ -42,6 +43,7 @@ const app = buildApp({
     .map((origin) => origin.trim())
     .filter(Boolean),
   integrations: new IntegrationService(createDefaultAdapters(integrationEnv)),
+  mutationOwners: MutationOwnerClient.fromEnv(integrationEnv),
 });
 const close = async (signal: string) => {
   app.log.info({ signal }, 'graceful shutdown');

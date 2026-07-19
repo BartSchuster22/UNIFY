@@ -13,6 +13,7 @@ import type {
 import { IntegrationService } from './service.js';
 import type { IntegrationSnapshot, SourceAdapter } from './types.js';
 import type { GovernanceStore } from '../governance/types.js';
+import { MutationOwnerClient } from '../mutations/owner-client.js';
 
 class Store implements AuthStore {
   user!: UserRecord;
@@ -111,7 +112,11 @@ beforeAll(async () => {
   passwordHash = await hashPassword('correct-horse-battery', pepper);
 });
 
-async function authenticated(permissions: string[], governanceStore?: GovernanceStore) {
+async function authenticated(
+  permissions: string[],
+  governanceStore?: GovernanceStore,
+  mutationOwners?: MutationOwnerClient,
+) {
   const store = new Store();
   store.user = {
     id: 'u1',
@@ -133,20 +138,83 @@ async function authenticated(permissions: string[], governanceStore?: Governance
     secureCookies: false,
     integrations: new IntegrationService([new AgencyAdapter()]),
     ...(governanceStore ? { governanceStore } : {}),
+    ...(mutationOwners ? { mutationOwners } : {}),
   });
   const login = await app.inject({
     method: 'POST',
     url: '/api/v1/auth/login',
     payload: { username: 'reader', password: 'correct-horse-battery' },
   });
-  const cookies = login.headers['set-cookie'];
-  const cookie = (Array.isArray(cookies) ? cookies : [cookies ?? ''])
-    .map((item) => item.split(';', 1)[0])
-    .join('; ');
-  return { app, cookie };
+  const csrf = String(login.headers['x-csrf-token'] ?? '');
+  const sessionToken = login.cookies.find((item) => item.name === 'aquiero_session')?.value ?? '';
+  const cookie = `aquiero_session=${sessionToken}; aquiero_csrf=${csrf}`;
+  return { app, cookie, csrf };
+}
+
+function mutationFixture(): { governance: GovernanceStore; owners: MutationOwnerClient } {
+  const unused = async (): Promise<never> => {
+    throw new Error('mutation execution must not be reached');
+  };
+  const governance: GovernanceStore = {
+    ready: async () => true,
+    claimOperation: unused,
+    getOperation: async () => null,
+    listOperations: async () => [],
+    listAudit: async () => [],
+    transition: unused,
+    addEvidence: unused,
+    appendAudit: async () => 'audit-login',
+  };
+  const owners = new MutationOwnerClient({
+    agencyUrl: 'http://agency.invalid',
+    agencyUsername: 'u',
+    agencyPassword: 'p',
+    dmmUrl: 'http://dmm.invalid',
+    dmmUsername: 'u',
+    dmmPassword: 'p',
+    workerUrl: 'http://worker.invalid',
+    workerToken: 'token',
+    chatUrl: 'http://chat.invalid',
+    chatPassword: 'p',
+    memoryUrl: 'http://memory.invalid',
+    memoryToken: 'token',
+  });
+  return { governance, owners };
 }
 
 describe('read-only integration routes', () => {
+  it('enforces mutation CSRF before operation-specific RBAC', async () => {
+    const fixture = mutationFixture();
+    const { app, cookie, csrf } = await authenticated([], fixture.governance, fixture.owners);
+    expect(
+      (await app.inject({ method: 'GET', url: '/api/v1/chat/download?path=/uploads/file.txt' }))
+        .statusCode,
+    ).toBe(401);
+    const request = {
+      method: 'POST' as const,
+      url: '/api/v1/mutations',
+      headers: { cookie, 'idempotency-key': 'route-policy-test' },
+      payload: {
+        operationType: 'dmm.credential.validate',
+        target: { owner: 'dmm', kind: 'provider', nativeId: 'missing' },
+        payload: {},
+        mode: 'validate',
+        confirmed: false,
+      },
+    };
+    expect(csrf).not.toBe('');
+    const csrfRejected = await app.inject(request);
+    expect(csrfRejected.statusCode).toBe(403);
+    expect(csrfRejected.json()).toMatchObject({ error: { code: 'CSRF_INVALID' } });
+    const rbacRejected = await app.inject({
+      ...request,
+      headers: { ...request.headers, 'x-csrf-token': csrf },
+    });
+    expect(rbacRejected.statusCode).toBe(403);
+    expect(rbacRejected.json()).toMatchObject({ error: { code: 'AUTH_FORBIDDEN' } });
+    await app.close();
+  });
+
   it('returns provenance-rich resources and unified search to an authorized named user', async () => {
     const { app, cookie } = await authenticated(['frameworks.read']);
     const resources = await app.inject({
