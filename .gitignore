@@ -9,5 +9,6 @@ coverage/
 .vitest/
 *.tsbuildinfo
 .tmp/
+.secrets/
 secrets/*
 !secrets/README.md

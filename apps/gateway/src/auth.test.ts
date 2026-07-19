@@ -217,6 +217,32 @@ describe('named-user session security', () => {
     await app.close();
   });
 
+  it('sets defensive headers and rejects unapproved browser origins', async () => {
+    const app = buildApp({
+      authStore: fixtureStore(),
+      authPepper: pepper,
+      secureCookies: false,
+      allowedOrigins: ['https://ui.example'],
+    });
+    const allowed = await app.inject({
+      method: 'GET',
+      url: '/api/v1/health/live',
+      headers: { origin: 'https://ui.example' },
+    });
+    expect(allowed.statusCode).toBe(200);
+    expect(allowed.headers['x-content-type-options']).toBe('nosniff');
+    expect(allowed.headers['x-frame-options']).toBe('DENY');
+    expect(allowed.headers['x-request-id']).toBeTruthy();
+    const denied = await app.inject({
+      method: 'GET',
+      url: '/api/v1/health/live',
+      headers: { origin: 'https://evil.example' },
+    });
+    expect(denied.statusCode).toBe(403);
+    expect(denied.json().error.code).toBe('ORIGIN_DENIED');
+    await app.close();
+  });
+
   it('stores only hashes of session and CSRF tokens', async () => {
     const store = fixtureStore();
     const app = buildApp({ authStore: store, authPepper: pepper, secureCookies: false });

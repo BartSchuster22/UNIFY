@@ -1,0 +1,108 @@
+name: unify
+services:
+  postgres:
+    image: postgres:16.6-alpine
+    user: '70:70'
+    environment:
+      POSTGRES_DB: unify
+      POSTGRES_USER: unify
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    secrets: [postgres_password]
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    tmpfs:
+      - /tmp:uid=70,gid=70,mode=1770
+      - /var/run/postgresql:uid=70,gid=70,mode=0770
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U unify -d unify -h 127.0.0.1']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    image: unify-gateway:local
+    command: [node, scripts/migrate.mjs, up]
+    environment:
+      DATABASE_URL_FILE: /run/secrets/gateway_database_url
+    secrets: [gateway_database_url]
+    depends_on:
+      postgres: { condition: service_healthy }
+    read_only: true
+    tmpfs:
+      - '/tmp:uid=10001,gid=10001,mode=0700'
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: 'no'
+
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    image: unify-gateway:local
+    environment:
+      DATABASE_URL_FILE: /run/secrets/gateway_database_url
+      AUTH_PEPPER_FILE: /run/secrets/gateway_auth_pepper
+      NODE_ENV: development
+      RELEASE_ID: local-compose
+      ALLOWED_ORIGINS: http://127.0.0.1:${UNIUI_PORT:-3000},http://localhost:${UNIUI_PORT:-3000}
+    secrets: [gateway_database_url, gateway_auth_pepper]
+    depends_on:
+      postgres: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+    ports: ['127.0.0.1:${GATEWAY_PORT:-8080}:8080']
+    read_only: true
+    tmpfs:
+      - '/tmp:uid=10001,gid=10001,mode=0700'
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    init: true
+    restart: unless-stopped
+
+  bootstrap-admin:
+    profiles: [bootstrap]
+    image: unify-gateway:local
+    command: [node, dist/cli/bootstrap-admin.js]
+    environment:
+      DATABASE_URL_FILE: /run/secrets/gateway_database_url
+      AUTH_PEPPER_FILE: /run/secrets/gateway_auth_pepper
+      BOOTSTRAP_ADMIN_PASSWORD_FILE: /run/secrets/bootstrap_admin_password
+      BOOTSTRAP_ADMIN_USERNAME: admin
+      BOOTSTRAP_ADMIN_DISPLAY_NAME: Administrator
+    secrets: [gateway_database_url, gateway_auth_pepper, bootstrap_admin_password]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    read_only: true
+    tmpfs:
+      - '/tmp:uid=10001,gid=10001,mode=0700'
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: 'no'
+
+  uniui:
+    build:
+      context: .
+      dockerfile: Dockerfile.uniui
+    image: unify-uniui:local
+    environment:
+      GATEWAY_INTERNAL_URL: http://gateway:8080
+    depends_on:
+      gateway: { condition: service_healthy }
+    ports: ['127.0.0.1:${UNIUI_PORT:-3000}:3000']
+    read_only: true
+    tmpfs:
+      - '/tmp:uid=10001,gid=10001,mode=0700'
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    init: true
+    restart: unless-stopped
+
+secrets:
+  postgres_password: { file: .secrets/postgres_password }
+  gateway_database_url: { file: .secrets/gateway_database_url }
+  gateway_auth_pepper: { file: .secrets/gateway_auth_pepper }
+  bootstrap_admin_password: { file: .secrets/bootstrap_admin_password }
+volumes:
+  postgres_data: {}

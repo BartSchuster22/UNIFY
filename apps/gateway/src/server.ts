@@ -22,6 +22,10 @@ const app = buildApp({
   secureCookies: process.env.NODE_ENV === 'production',
   release: process.env.RELEASE_ID ?? 'development',
   logger: true,
+  allowedOrigins: (process.env.ALLOWED_ORIGINS ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
 });
 const close = async (signal: string) => {
   app.log.info({ signal }, 'graceful shutdown');

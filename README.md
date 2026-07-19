@@ -15,7 +15,7 @@ UNIFY provides one authenticated, policy-controlled API boundary and one operato
 - UNIFY does not introduce a second Kanban writer, scheduler, dispatcher, webhook owner, or chat responder.
 - Existing production resources are not mutated during discovery or ordinary verification.
 
-## Phase 1 documentation
+## Documentation
 
 - [Discovery and contract-bootstrap report](docs/discovery/PHASE-1-REPORT.md)
 - [Complete building plan](docs/plans/BUILDING-PLAN.md)
@@ -27,6 +27,12 @@ UNIFY provides one authenticated, policy-controlled API boundary and one operato
 - [Baseline authorization matrix](docs/security/AUTHORIZATION-MATRIX.md)
 - [Architecture decisions](docs/adr/)
 - [Sanitized discovery evidence](docs/evidence/discovery-manifest.json)
+- [Identity, sessions, RBAC, and CSRF](docs/security/AUTHENTICATION.md)
+- [Database migrations](docs/database/MIGRATIONS.md)
+- [Operation governance](docs/operations/GOVERNANCE.md)
+- [Adapter SDK contract](docs/adapters/SDK-CONTRACT.md)
+- [Local Compose runbook](docs/runbooks/LOCAL-COMPOSE.md)
+- [Phase 2 verification](docs/evidence/PHASE-2-REPORT.md)
 
 ## Planned deployables
 
@@ -40,4 +46,6 @@ packages/*         Contracts, generated SDK, auth/events/resource refs and UI co
 
 ## Status
 
-Phase 1 — Repository and contract bootstrap: documentation baseline committed. No product implementation or production cutover is implied by this status.
+Phase 1 — Repository and contract bootstrap: complete.
+
+Phase 2 — Gateway foundation: complete. The repository contains reproducible workspace builds, canonical OpenAPI and generated SDK artifacts, Gateway-owned PostgreSQL migrations, named-user security, governance/idempotency/evidence foundations, a resilient adapter SDK, and hardened local containers. This is a foundation milestone; no legacy production cutover is implied.

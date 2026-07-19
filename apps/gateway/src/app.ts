@@ -12,20 +12,47 @@ export interface AppOptions {
   release?: string;
   logger?: boolean;
   governanceStore?: GovernanceStore;
+  allowedOrigins?: readonly string[];
 }
 const SESSION_COOKIE = 'aquiero_session';
 const CSRF_COOKIE = 'aquiero_csrf';
 export function buildApp(options: AppOptions) {
   const app = Fastify({
-    logger: options.logger ?? false,
+    logger: options.logger
+      ? {
+          redact: {
+            paths: [
+              'req.headers.authorization',
+              'req.headers.cookie',
+              'req.headers.x-csrf-token',
+              'res.headers.set-cookie',
+            ],
+            censor: '[REDACTED]',
+          },
+        }
+      : false,
     genReqId: () => randomUUID(),
     requestIdHeader: 'x-request-id',
+    bodyLimit: 1024 * 1024,
   });
   const auth = new AuthService({ store: options.authStore, pepper: options.authPepper });
   const governance = options.governanceStore
     ? new GovernanceService(options.governanceStore)
     : null;
   void app.register(cookie);
+  app.addHook('onRequest', async (request) => {
+    const origin = request.headers.origin;
+    if (origin && !(options.allowedOrigins ?? []).includes(origin))
+      throw new AuthError('ORIGIN_DENIED', 403, 'Origin is not allowed');
+  });
+  app.addHook('onSend', async (request, reply, payload) => {
+    reply.header('x-request-id', request.id);
+    reply.header('x-content-type-options', 'nosniff');
+    reply.header('x-frame-options', 'DENY');
+    reply.header('referrer-policy', 'no-referrer');
+    reply.header('content-security-policy', "default-src 'none'; frame-ancestors 'none'");
+    return payload;
+  });
   app.setErrorHandler((error, request, reply) => {
     const domainError =
       error instanceof AuthError || error instanceof GovernanceError ? error : null;
