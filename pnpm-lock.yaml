@@ -61,7 +61,11 @@ importers:
 
   apps/uniui: {}
 
-  packages/adapter-sdk: {}
+  packages/adapter-sdk:
+    dependencies:
+      '@aquiero/contracts':
+        specifier: workspace:*
+        version: link:../contracts
 
   packages/contracts:
     dependencies:

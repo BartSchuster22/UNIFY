@@ -14,5 +14,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --passWithNoTests",
     "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@aquiero/contracts": "workspace:*"
   }
 }
