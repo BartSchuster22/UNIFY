@@ -256,6 +256,23 @@ export const PrincipalSchema = Type.Object(
 );
 export type Principal = Static<typeof PrincipalSchema>;
 
+export const SessionSummarySchema = Type.Object(
+  {
+    id: Type.String(),
+    userId: Type.String(),
+    deviceLabel: Type.Union([Type.String(), Type.Null()]),
+    createdAt: Type.String({ format: 'date-time' }),
+    lastSeenAt: Type.String({ format: 'date-time' }),
+    expiresAt: Type.String({ format: 'date-time' }),
+    revokedAt: Type.Union([Type.String({ format: 'date-time' }), Type.Null()]),
+  },
+  { $id: 'SessionSummary', additionalProperties: false },
+);
+export const SessionListSchema = Type.Object(
+  { items: Type.Array(SessionSummarySchema) },
+  { $id: 'SessionList', additionalProperties: false },
+);
+
 export const HealthSchema = Type.Object(
   {
     status: Type.Union([Type.Literal('ok'), Type.Literal('ready'), Type.Literal('not_ready')]),
@@ -280,6 +297,8 @@ const schemas: TSchema[] = [
   OperationSchema,
   LoginRequestSchema,
   PrincipalSchema,
+  SessionSummarySchema,
+  SessionListSchema,
   HealthSchema,
 ];
 
@@ -292,7 +311,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
       description: 'Gateway-only public contract for UNIFY.',
     },
     servers: [{ url: '/api/v1' }],
-    tags: [{ name: 'health' }, { name: 'auth' }, { name: 'operations' }],
+    tags: [{ name: 'health' }, { name: 'auth' }, { name: 'sessions' }, { name: 'operations' }],
     paths: {
       '/health/live': {
         get: {
@@ -334,6 +353,33 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           operationId: 'getCurrentPrincipal',
           security: [{ cookieSession: [] }],
           responses: { '200': jsonResponse('Principal'), '401': jsonResponse('ErrorResponse') },
+        },
+      },
+      '/sessions': {
+        get: {
+          tags: ['sessions'],
+          operationId: 'listSessions',
+          security: [{ cookieSession: [] }],
+          responses: {
+            '200': jsonResponse('SessionList'),
+            '401': jsonResponse('ErrorResponse'),
+          },
+        },
+      },
+      '/sessions/{sessionId}': {
+        delete: {
+          tags: ['sessions'],
+          operationId: 'revokeSession',
+          security: [{ cookieSession: [], csrfToken: [] }],
+          parameters: [
+            { name: 'sessionId', in: 'path', required: true, schema: { type: 'string' } },
+          ],
+          responses: {
+            '204': { description: 'Revoked' },
+            '401': jsonResponse('ErrorResponse'),
+            '403': jsonResponse('ErrorResponse'),
+            '404': jsonResponse('ErrorResponse'),
+          },
         },
       },
       '/operations/{operationId}': {

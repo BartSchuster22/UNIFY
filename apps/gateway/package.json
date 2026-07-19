@@ -10,9 +10,14 @@
     "db:migrate": "node scripts/migrate.mjs up",
     "db:rollback": "node scripts/migrate.mjs down",
     "db:status": "node scripts/migrate.mjs status",
+    "bootstrap-admin": "node dist/cli/bootstrap-admin.js",
+    "start": "node dist/server.js",
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@aquiero/contracts": "workspace:*",
+    "@fastify/cookie": "11.1.2",
+    "fastify": "5.10.0",
     "pg": "8.22.0"
   },
   "devDependencies": {

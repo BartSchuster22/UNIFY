@@ -1,0 +1,230 @@
+import { beforeAll, describe, expect, it } from 'vitest';
+import { buildApp } from './app.js';
+import { hashPassword, sha256 } from './auth/crypto.js';
+import type {
+  AuthStore,
+  LoginThrottle,
+  NewSession,
+  PrincipalRecord,
+  SessionRecord,
+  SessionSummary,
+  UserRecord,
+} from './auth/types.js';
+
+class MemoryAuthStore implements AuthStore {
+  readonly users = new Map<string, UserRecord>();
+  readonly principals = new Map<string, PrincipalRecord>();
+  readonly throttles = new Map<string, LoginThrottle>();
+  readonly sessions = new Map<
+    string,
+    NewSession & { id: string; createdAt: Date; lastSeenAt: Date; revokedAt: Date | null }
+  >();
+  async ready() {
+    return true;
+  }
+  async findUserByUsername(username: string) {
+    return (
+      [...this.users.values()].find((user) => user.username.toLowerCase() === username) ?? null
+    );
+  }
+  async getPrincipal(userId: string) {
+    return this.principals.get(userId) ?? null;
+  }
+  async getLoginThrottle(subjectHash: string) {
+    return this.throttles.get(subjectHash) ?? null;
+  }
+  async recordLoginFailure(subjectHash: string, blockedUntil: Date | null) {
+    const old = this.throttles.get(subjectHash);
+    this.throttles.set(subjectHash, { failedCount: (old?.failedCount ?? 0) + 1, blockedUntil });
+  }
+  async clearLoginFailures(subjectHash: string) {
+    this.throttles.delete(subjectHash);
+  }
+  async createSession(session: NewSession) {
+    const id = `session-${this.sessions.size + 1}`;
+    const now = new Date();
+    this.sessions.set(id, { ...session, id, createdAt: now, lastSeenAt: now, revokedAt: null });
+    return id;
+  }
+  async findActiveSession(tokenHash: string, now: Date): Promise<SessionRecord | null> {
+    const found = [...this.sessions.values()].find(
+      (item) => item.tokenHash === tokenHash && !item.revokedAt && item.expiresAt > now,
+    );
+    if (!found) return null;
+    const principal = this.principals.get(found.userId);
+    return principal
+      ? { ...principal, sessionId: found.id, csrfHash: found.csrfHash, expiresAt: found.expiresAt }
+      : null;
+  }
+  async listSessions(userId: string): Promise<SessionSummary[]> {
+    return [...this.sessions.values()]
+      .filter((item) => item.userId === userId)
+      .map((item) => ({
+        id: item.id,
+        userId: item.userId,
+        deviceLabel: item.deviceLabel,
+        createdAt: item.createdAt,
+        lastSeenAt: item.lastSeenAt,
+        expiresAt: item.expiresAt,
+        revokedAt: item.revokedAt,
+      }));
+  }
+  async revokeSession(sessionId: string, _reason: string, now: Date) {
+    const found = this.sessions.get(sessionId);
+    if (!found || found.revokedAt) return false;
+    found.revokedAt = now;
+    return true;
+  }
+  async touchSession(sessionId: string, now: Date) {
+    const found = this.sessions.get(sessionId);
+    if (found) found.lastSeenAt = now;
+  }
+}
+
+const pepper = 'test-only-pepper';
+let passwordHash: string;
+beforeAll(async () => {
+  passwordHash = await hashPassword('correct-horse-battery', pepper);
+});
+
+function fixtureStore() {
+  const store = new MemoryAuthStore();
+  store.users.set('viewer', {
+    id: 'viewer',
+    username: 'viewer',
+    displayName: 'Viewer',
+    passwordHash,
+    status: 'active',
+  });
+  store.principals.set('viewer', {
+    userId: 'viewer',
+    username: 'viewer',
+    displayName: 'Viewer',
+    roles: ['Viewer'],
+    permissions: ['frameworks.read'],
+  });
+  store.users.set('admin', {
+    id: 'admin',
+    username: 'admin',
+    displayName: 'Administrator',
+    passwordHash,
+    status: 'active',
+  });
+  store.principals.set('admin', {
+    userId: 'admin',
+    username: 'admin',
+    displayName: 'Administrator',
+    roles: ['Administrator'],
+    permissions: ['users.manage'],
+  });
+  return store;
+}
+
+function cookieValue(setCookies: string[], name: string) {
+  const entry = setCookies.find((value) => value.startsWith(`${name}=`));
+  return entry?.split(';', 1)[0]?.split('=', 2)[1];
+}
+async function login(app: ReturnType<typeof buildApp>, username = 'viewer') {
+  const response = await app.inject({
+    method: 'POST',
+    url: '/api/v1/auth/login',
+    payload: { username, password: 'correct-horse-battery' },
+  });
+  const cookies = response.headers['set-cookie'];
+  const list = Array.isArray(cookies) ? cookies : cookies ? [cookies] : [];
+  return {
+    response,
+    session: cookieValue(list, 'aquiero_session') ?? '',
+    csrf: response.headers['x-csrf-token'] as string,
+  };
+}
+
+describe('named-user session security', () => {
+  it('authenticates a named user and does not return session tokens in JSON', async () => {
+    const app = buildApp({ authStore: fixtureStore(), authPepper: pepper, secureCookies: false });
+    const result = await login(app);
+    expect(result.response.statusCode).toBe(200);
+    expect(result.response.json()).toMatchObject({ userId: 'viewer', roles: ['Viewer'] });
+    expect(result.response.body).not.toContain(result.session);
+    expect(result.session).not.toBe('');
+    await app.close();
+  });
+
+  it('requires matching cookie/header CSRF and revokes logout immediately', async () => {
+    const app = buildApp({ authStore: fixtureStore(), authPepper: pepper, secureCookies: false });
+    const result = await login(app);
+    const cookie = `aquiero_session=${result.session}; aquiero_csrf=${result.csrf}`;
+    const rejected = await app.inject({
+      method: 'POST',
+      url: '/api/v1/auth/logout',
+      headers: { cookie },
+    });
+    expect(rejected.statusCode).toBe(403);
+    const logout = await app.inject({
+      method: 'POST',
+      url: '/api/v1/auth/logout',
+      headers: { cookie, 'x-csrf-token': result.csrf },
+    });
+    expect(logout.statusCode).toBe(204);
+    const me = await app.inject({ method: 'GET', url: '/api/v1/auth/me', headers: { cookie } });
+    expect(me.statusCode).toBe(401);
+    await app.close();
+  });
+
+  it('enforces RBAC on revoking another user session', async () => {
+    const store = fixtureStore();
+    const app = buildApp({ authStore: store, authPepper: pepper, secureCookies: false });
+    const viewer = await login(app, 'viewer');
+    const admin = await login(app, 'admin');
+    const adminSessionId =
+      [...store.sessions.values()].find((item) => item.userId === 'admin')?.id ?? '';
+    const viewerCookie = `aquiero_session=${viewer.session}; aquiero_csrf=${viewer.csrf}`;
+    const denied = await app.inject({
+      method: 'DELETE',
+      url: `/api/v1/sessions/${adminSessionId}`,
+      headers: { cookie: viewerCookie, 'x-csrf-token': viewer.csrf },
+    });
+    expect(denied.statusCode).toBe(403);
+    const viewerSessionId =
+      [...store.sessions.values()].find((item) => item.userId === 'viewer')?.id ?? '';
+    const adminCookie = `aquiero_session=${admin.session}; aquiero_csrf=${admin.csrf}`;
+    const allowed = await app.inject({
+      method: 'DELETE',
+      url: `/api/v1/sessions/${viewerSessionId}`,
+      headers: { cookie: adminCookie, 'x-csrf-token': admin.csrf },
+    });
+    expect(allowed.statusCode).toBe(204);
+    await app.close();
+  });
+
+  it('throttles repeated invalid credentials without revealing usernames', async () => {
+    const app = buildApp({ authStore: fixtureStore(), authPepper: pepper, secureCookies: false });
+    for (let index = 0; index < 5; index += 1) {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/login',
+        payload: { username: 'viewer', password: 'definitely-wrong' },
+      });
+      expect(response.statusCode).toBe(401);
+      expect(response.json().error.message).toBe('Invalid username or password');
+    }
+    const blocked = await app.inject({
+      method: 'POST',
+      url: '/api/v1/auth/login',
+      payload: { username: 'viewer', password: 'correct-horse-battery' },
+    });
+    expect(blocked.statusCode).toBe(429);
+    await app.close();
+  });
+
+  it('stores only hashes of session and CSRF tokens', async () => {
+    const store = fixtureStore();
+    const app = buildApp({ authStore: store, authPepper: pepper, secureCookies: false });
+    const result = await login(app);
+    const stored = [...store.sessions.values()][0];
+    expect(stored?.tokenHash).toBe(sha256(result.session));
+    expect(stored?.csrfHash).toBe(sha256(result.csrf));
+    expect(stored?.tokenHash).not.toBe(result.session);
+    await app.close();
+  });
+});

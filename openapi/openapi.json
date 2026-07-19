@@ -18,6 +18,9 @@
       "name": "auth"
     },
     {
+      "name": "sessions"
+    },
+    {
       "name": "operations"
     }
   ],
@@ -174,6 +177,100 @@
             }
           },
           "401": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sessions": {
+      "get": {
+        "tags": [
+          "sessions"
+        ],
+        "operationId": "listSessions",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SessionList",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sessions/{sessionId}": {
+      "delete": {
+        "tags": [
+          "sessions"
+        ],
+        "operationId": "revokeSession",
+        "security": [
+          {
+            "cookieSession": [],
+            "csrfToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Revoked"
+          },
+          "401": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
             "description": "ErrorResponse",
             "content": {
               "application/json": {
@@ -1919,6 +2016,129 @@
             "type": "array",
             "items": {
               "type": "string"
+            }
+          }
+        }
+      },
+      "SessionSummary": {
+        "$id": "SessionSummary",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "userId",
+          "deviceLabel",
+          "createdAt",
+          "lastSeenAt",
+          "expiresAt",
+          "revokedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "deviceLabel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "lastSeenAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "revokedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "SessionList": {
+        "$id": "SessionList",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$id": "SessionSummary",
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "id",
+                "userId",
+                "deviceLabel",
+                "createdAt",
+                "lastSeenAt",
+                "expiresAt",
+                "revokedAt"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "userId": {
+                  "type": "string"
+                },
+                "deviceLabel": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "createdAt": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "lastSeenAt": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "expiresAt": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "revokedAt": {
+                  "anyOf": [
+                    {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
             }
           }
         }
