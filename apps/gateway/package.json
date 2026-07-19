@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@aquiero/contracts": "workspace:*",
+    "@aquiero/adapter-sdk": "workspace:*",
     "@fastify/cookie": "11.1.2",
     "fastify": "5.10.0",
     "pg": "8.22.0"

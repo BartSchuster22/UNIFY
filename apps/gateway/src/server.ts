@@ -3,6 +3,8 @@ import pg from 'pg';
 import { buildApp } from './app.js';
 import { PostgresAuthStore } from './auth/postgres-store.js';
 import { PostgresGovernanceStore } from './governance/postgres-store.js';
+import { createDefaultAdapters } from './integrations/adapters.js';
+import { IntegrationService } from './integrations/service.js';
 async function secret(name: string): Promise<string> {
   const file = process.env[`${name}_FILE`];
   const value = file ? await readFile(file, 'utf8') : process.env[name];
@@ -11,6 +13,19 @@ async function secret(name: string): Promise<string> {
 }
 const databaseUrl = await secret('DATABASE_URL');
 const authPepper = await secret('AUTH_PEPPER');
+const integrationEnv = { ...process.env };
+for (const name of [
+  'AGENCY_USERNAME',
+  'AGENCY_PASSWORD',
+  'DMM_USERNAME',
+  'DMM_PASSWORD',
+  'CHAT_PASSWORD',
+  'WORKER_TOKEN',
+  'MEMORY_V4_TOKEN',
+]) {
+  const file = process.env[`${name}_FILE`];
+  if (file) integrationEnv[name] = (await readFile(file, 'utf8')).trim();
+}
 const pool = new pg.Pool({
   connectionString: databaseUrl,
   max: Number(process.env.DB_POOL_SIZE ?? 10),
@@ -26,6 +41,7 @@ const app = buildApp({
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean),
+  integrations: new IntegrationService(createDefaultAdapters(integrationEnv)),
 });
 const close = async (signal: string) => {
   app.log.info({ signal }, 'graceful shutdown');

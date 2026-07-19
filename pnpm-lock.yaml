@@ -42,6 +42,9 @@ importers:
 
   apps/gateway:
     dependencies:
+      '@aquiero/adapter-sdk':
+        specifier: workspace:*
+        version: link:../../packages/adapter-sdk
       '@aquiero/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts

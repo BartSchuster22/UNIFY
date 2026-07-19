@@ -29,9 +29,13 @@ export const ResourceKindSchema = Type.Union(
     Type.Literal('model'),
     Type.Literal('project'),
     Type.Literal('task'),
+    Type.Literal('kanban-board'),
     Type.Literal('cronjob'),
     Type.Literal('chat-session'),
+    Type.Literal('chat-message'),
+    Type.Literal('chat-route'),
     Type.Literal('memory-record'),
+    Type.Literal('catalog-snapshot'),
     Type.Literal('operation'),
     Type.Literal('notification'),
   ],
@@ -281,6 +285,102 @@ export const HealthSchema = Type.Object(
   { $id: 'Health', additionalProperties: false },
 );
 
+export const UnifiedResourceSchema = Type.Object(
+  {
+    resource: ResourceRefSchema,
+    truth: TruthStateSchema,
+    authoritative: Type.Literal(true),
+    adapterId: Type.String({ minLength: 1 }),
+    fetchedAt: Type.String({ format: 'date-time' }),
+    title: Type.String({ minLength: 1, maxLength: 500 }),
+    searchableText: Type.String({ maxLength: 10000 }),
+    data: Type.Record(Type.String(), Type.Unknown()),
+  },
+  { $id: 'UnifiedResource', additionalProperties: false },
+);
+export type UnifiedResource = Static<typeof UnifiedResourceSchema>;
+
+export const IntegrationStatusSchema = Type.Object(
+  {
+    adapterId: Type.String(),
+    owners: Type.Array(ResourceOwnerSchema),
+    status: TruthStateSchema,
+    observedAt: Type.Optional(Type.String({ format: 'date-time' })),
+    resourceCount: Type.Integer({ minimum: 0 }),
+    warnings: Type.Array(WarningSchema),
+  },
+  { $id: 'IntegrationStatus', additionalProperties: false },
+);
+export const IntegrationStatusListSchema = Type.Object(
+  { items: Type.Array(IntegrationStatusSchema) },
+  { $id: 'IntegrationStatusList', additionalProperties: false },
+);
+export const UnifiedResourceListSchema = Type.Object(
+  { items: Type.Array(UnifiedResourceSchema), meta: ResponseMetaSchema },
+  { $id: 'UnifiedResourceList', additionalProperties: false },
+);
+export const UnifiedSearchHitSchema = Type.Object(
+  {
+    resource: UnifiedResourceSchema,
+    score: Type.Number(),
+    matchedFields: Type.Array(Type.String()),
+  },
+  { $id: 'UnifiedSearchHit', additionalProperties: false },
+);
+export const UnifiedSearchResultsSchema = Type.Object(
+  { items: Type.Array(UnifiedSearchHitSchema), meta: ResponseMetaSchema },
+  { $id: 'UnifiedSearchResults', additionalProperties: false },
+);
+export const UnifiedNotificationSchema = Type.Object(
+  {
+    id: Type.String(),
+    severity: Type.Union([
+      Type.Literal('info'),
+      Type.Literal('warning'),
+      Type.Literal('error'),
+      Type.Literal('critical'),
+    ]),
+    title: Type.String(),
+    body: Type.String(),
+    source: ResourceOwnerSchema,
+    state: Type.Union([Type.Literal('unread'), Type.Literal('read'), Type.Literal('acknowledged')]),
+    createdAt: Type.String({ format: 'date-time' }),
+    resource: Type.Optional(ResourceRefSchema),
+  },
+  { $id: 'UnifiedNotification', additionalProperties: false },
+);
+export const UnifiedNotificationListSchema = Type.Object(
+  { items: Type.Array(UnifiedNotificationSchema), meta: ResponseMetaSchema },
+  { $id: 'UnifiedNotificationList', additionalProperties: false },
+);
+export const UnifiedEventListSchema = Type.Object(
+  { items: Type.Array(EventEnvelopeSchema), meta: ResponseMetaSchema },
+  { $id: 'UnifiedEventList', additionalProperties: false },
+);
+export const ShadowComparisonSchema = Type.Object(
+  {
+    adapterId: Type.String(),
+    owner: ResourceOwnerSchema,
+    status: Type.Union([
+      Type.Literal('match'),
+      Type.Literal('mismatch'),
+      Type.Literal('unavailable'),
+    ]),
+    comparedAt: Type.String({ format: 'date-time' }),
+    expectedCount: Type.Integer({ minimum: 0 }),
+    actualCount: Type.Integer({ minimum: 0 }),
+    missing: Type.Array(Type.String()),
+    unexpected: Type.Array(Type.String()),
+    changed: Type.Array(Type.String()),
+    evidenceHash: Type.String({ pattern: '^[a-f0-9]{64}$' }),
+  },
+  { $id: 'ShadowComparison', additionalProperties: false },
+);
+export const ShadowComparisonListSchema = Type.Object(
+  { items: Type.Array(ShadowComparisonSchema), meta: ResponseMetaSchema },
+  { $id: 'ShadowComparisonList', additionalProperties: false },
+);
+
 const schemas: TSchema[] = [
   TruthStateSchema,
   ResourceKindSchema,
@@ -300,6 +400,17 @@ const schemas: TSchema[] = [
   SessionSummarySchema,
   SessionListSchema,
   HealthSchema,
+  UnifiedResourceSchema,
+  IntegrationStatusSchema,
+  IntegrationStatusListSchema,
+  UnifiedResourceListSchema,
+  UnifiedSearchHitSchema,
+  UnifiedSearchResultsSchema,
+  UnifiedNotificationSchema,
+  UnifiedNotificationListSchema,
+  UnifiedEventListSchema,
+  ShadowComparisonSchema,
+  ShadowComparisonListSchema,
 ];
 
 export function buildOpenApiDocument(): Record<string, unknown> {
@@ -311,7 +422,17 @@ export function buildOpenApiDocument(): Record<string, unknown> {
       description: 'Gateway-only public contract for UNIFY.',
     },
     servers: [{ url: '/api/v1' }],
-    tags: [{ name: 'health' }, { name: 'auth' }, { name: 'sessions' }, { name: 'operations' }],
+    tags: [
+      { name: 'health' },
+      { name: 'auth' },
+      { name: 'sessions' },
+      { name: 'operations' },
+      { name: 'integrations' },
+      { name: 'search' },
+      { name: 'events' },
+      { name: 'notifications' },
+      { name: 'shadow' },
+    ],
     paths: {
       '/health/live': {
         get: {
@@ -393,6 +514,29 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           responses: { '200': jsonResponse('Operation'), '404': jsonResponse('ErrorResponse') },
         },
       },
+      '/integrations': readPath('integrations', 'listIntegrations', 'IntegrationStatusList'),
+      '/resources': readPath(
+        'integrations',
+        'listUnifiedResources',
+        'UnifiedResourceList',
+        resourceQueryParameters(),
+      ),
+      '/search': readPath('search', 'searchUnifiedResources', 'UnifiedSearchResults', [
+        {
+          name: 'q',
+          in: 'query',
+          required: true,
+          schema: { type: 'string', minLength: 1, maxLength: 500 },
+        },
+        ...resourceQueryParameters(),
+      ]),
+      '/events': readPath('events', 'listUnifiedEvents', 'UnifiedEventList'),
+      '/notifications': readPath(
+        'notifications',
+        'listUnifiedNotifications',
+        'UnifiedNotificationList',
+      ),
+      '/shadow': readPath('shadow', 'compareAuthoritativeOwners', 'ShadowComparisonList'),
     },
     components: {
       securitySchemes: {
@@ -415,4 +559,32 @@ function jsonBody(schema: string): Record<string, unknown> {
     required: true,
     content: { 'application/json': { schema: { $ref: `#/components/schemas/${schema}` } } },
   };
+}
+function readPath(
+  tag: string,
+  operationId: string,
+  schema: string,
+  parameters: unknown[] = [],
+): Record<string, unknown> {
+  return {
+    get: {
+      tags: [tag],
+      operationId,
+      security: [{ cookieSession: [] }],
+      parameters,
+      responses: {
+        '200': jsonResponse(schema),
+        '401': jsonResponse('ErrorResponse'),
+        '403': jsonResponse('ErrorResponse'),
+        '503': jsonResponse('ErrorResponse'),
+      },
+    },
+  };
+}
+function resourceQueryParameters(): unknown[] {
+  return [
+    { name: 'owner', in: 'query', schema: { $ref: '#/components/schemas/ResourceOwner' } },
+    { name: 'kind', in: 'query', schema: { $ref: '#/components/schemas/ResourceKind' } },
+    { name: 'refresh', in: 'query', schema: { type: 'boolean', default: false } },
+  ];
 }

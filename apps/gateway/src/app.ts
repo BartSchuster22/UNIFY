@@ -5,6 +5,9 @@ import { AuthError, AuthService } from './auth/service.js';
 import type { AuthStore, SessionRecord } from './auth/types.js';
 import { GovernanceError, GovernanceService } from './governance/service.js';
 import type { GovernanceStore, OperationRecord } from './governance/types.js';
+import type { ResourceRef } from '@aquiero/contracts';
+import type { IntegrationService } from './integrations/service.js';
+import type { IntegrationKind, IntegrationOwner } from './integrations/types.js';
 export interface AppOptions {
   authStore: AuthStore;
   authPepper: string;
@@ -13,6 +16,7 @@ export interface AppOptions {
   logger?: boolean;
   governanceStore?: GovernanceStore;
   allowedOrigins?: readonly string[];
+  integrations?: IntegrationService;
 }
 const SESSION_COOKIE = 'aquiero_session';
 const CSRF_COOKIE = 'aquiero_csrf';
@@ -209,6 +213,239 @@ export function buildApp(options: AppOptions) {
       return publicOperation(operation);
     },
   );
+  type ReadQuery = {
+    owner?: string;
+    kind?: string;
+    refresh?: string | boolean;
+    cursor?: string;
+    limit?: string | number;
+  };
+  app.get('/api/v1/integrations', async (request) => {
+    const current = await session(request);
+    const integrations = requireIntegrations();
+    return {
+      items: integrations
+        .statuses()
+        .filter((status) => status.owners.some((owner) => canRead(current, owner))),
+    };
+  });
+  app.get<{ Querystring: ReadQuery }>('/api/v1/resources', async (request) => {
+    const current = await session(request);
+    const query = integrationQuery(request.query);
+    assertCanRead(current, query.owner);
+    const result = await requireIntegrations().read(query);
+    const page = paginate(
+      result.resources.filter((item) => canRead(current, item.resource.owner)),
+      request.query,
+      (item) => item.resource.canonicalId,
+    );
+    return { items: page.items, meta: meta(request.id, result.snapshots, page.page) };
+  });
+  app.get<{ Querystring: ReadQuery & { q?: string } }>('/api/v1/search', async (request) => {
+    const current = await session(request);
+    const q = request.query.q?.trim() ?? '';
+    if (!q || q.length > 500)
+      throw new AuthError(
+        'INVALID_SEARCH_QUERY',
+        400,
+        'Search query must contain 1 to 500 characters',
+      );
+    const query = integrationQuery(request.query);
+    assertCanRead(current, query.owner);
+    const hits = (await requireIntegrations().search(q, query)).filter((item) =>
+      canRead(current, item.resource.resource.owner),
+    );
+    const page = paginate(hits, request.query, (item) => item.resource.resource.canonicalId);
+    return { items: page.items, meta: meta(request.id, [], page.page) };
+  });
+  app.get<{ Querystring: Pick<ReadQuery, 'cursor' | 'limit'> }>(
+    '/api/v1/events',
+    async (request) => {
+      const current = await session(request);
+      const integrations = requireIntegrations();
+      await integrations.read({});
+      const page = paginate(
+        integrations.events().filter((event) => canRead(current, event.source.owner)),
+        request.query,
+        (event) => event.eventId,
+      );
+      return { items: page.items, meta: meta(request.id, [], page.page) };
+    },
+  );
+  app.get<{ Querystring: Pick<ReadQuery, 'cursor' | 'limit'> }>(
+    '/api/v1/notifications',
+    async (request) => {
+      const current = await session(request);
+      const notifications = (await requireIntegrations().notifications()).filter((item) =>
+        canRead(current, item.source),
+      );
+      const page = paginate(notifications, request.query, (item) => item.id);
+      return { items: page.items, meta: meta(request.id, [], page.page) };
+    },
+  );
+  app.get<{ Querystring: { owner?: string } }>('/api/v1/shadow', async (request) => {
+    const current = await session(request);
+    if (
+      !current.permissions.includes('audit.read') &&
+      !current.permissions.includes('operations.read')
+    )
+      throw new AuthError(
+        'PERMISSION_DENIED',
+        403,
+        'Shadow comparison requires audit or operation access',
+      );
+    const owner = ownerValue(request.query.owner);
+    assertCanRead(current, owner);
+    return { items: await requireIntegrations().shadow(owner), meta: meta(request.id) };
+  });
+  function requireIntegrations(): IntegrationService {
+    if (!options.integrations)
+      throw new GovernanceError(
+        'INTEGRATIONS_UNAVAILABLE',
+        503,
+        'Read-only integrations are unavailable',
+      );
+    return options.integrations;
+  }
+  function integrationQuery(query: ReadQuery): {
+    owner?: IntegrationOwner;
+    kind?: IntegrationKind;
+    refresh?: boolean;
+  } {
+    const owner = ownerValue(query.owner);
+    const kind = kindValue(query.kind);
+    return {
+      ...(owner ? { owner } : {}),
+      ...(kind ? { kind } : {}),
+      ...(query.refresh === true || query.refresh === 'true' ? { refresh: true } : {}),
+    };
+  }
+  function assertCanRead(current: SessionRecord, owner?: IntegrationOwner): void {
+    if (owner && !canRead(current, owner))
+      throw new AuthError('PERMISSION_DENIED', 403, `Read access to ${owner} is denied`);
+  }
+  function canRead(current: SessionRecord, owner: ResourceRef['owner']): boolean {
+    const permission: Record<ResourceRef['owner'], string> = {
+      hermes: 'profiles.read',
+      agency: 'frameworks.read',
+      dmm: 'models.read',
+      worker: 'work.read',
+      chat: 'chat.read',
+      'memory-v4': 'memory.read',
+      gateway: 'operations.read',
+    };
+    return current.permissions.includes(permission[owner]);
+  }
+  function paginate<T>(
+    items: T[],
+    query: { cursor?: string; limit?: string | number },
+    key: (item: T) => string,
+  ): { items: T[]; page: { nextCursor?: string; hasMore: boolean } } {
+    const requested = Number(query.limit ?? 100);
+    if (!Number.isInteger(requested) || requested < 1 || requested > 500)
+      throw new AuthError('INVALID_PAGE_LIMIT', 400, 'Page limit must be an integer from 1 to 500');
+    let start = 0;
+    if (query.cursor) {
+      let cursorKey = '';
+      try {
+        const decoded = Buffer.from(query.cursor, 'base64url').toString('utf8');
+        if (!decoded.startsWith('v1:')) throw new Error('version');
+        cursorKey = decoded.slice(3);
+      } catch {
+        throw new AuthError('INVALID_CURSOR', 400, 'Pagination cursor is invalid');
+      }
+      const index = items.findIndex((item) => key(item) === cursorKey);
+      if (index < 0)
+        throw new AuthError('INVALID_CURSOR', 400, 'Pagination cursor is no longer valid');
+      start = index + 1;
+    }
+    const selected = items.slice(start, start + requested);
+    const hasMore = start + selected.length < items.length;
+    const last = selected.at(-1);
+    return {
+      items: selected,
+      page: {
+        hasMore,
+        ...(hasMore && last
+          ? { nextCursor: Buffer.from(`v1:${key(last)}`).toString('base64url') }
+          : {}),
+      },
+    };
+  }
+  function meta(
+    requestId: string,
+    snapshots: Array<{
+      observedAt: string;
+      status: string;
+      warnings: Array<{ code: string; message: string }>;
+    }> = [],
+    page?: { nextCursor?: string; hasMore: boolean },
+  ) {
+    const warnings = snapshots.flatMap((snapshot) => snapshot.warnings);
+    const observedAt = snapshots
+      .map((snapshot) => snapshot.observedAt)
+      .sort()
+      .at(0);
+    const freshness = snapshots.some(
+      (snapshot) => snapshot.status === 'unavailable' || snapshot.status === 'failed',
+    )
+      ? snapshots.some((snapshot) => snapshot.status === 'current' || snapshot.status === 'partial')
+        ? 'partial'
+        : 'unavailable'
+      : snapshots.some((snapshot) => snapshot.status === 'partial')
+        ? 'partial'
+        : 'current';
+    return {
+      requestId,
+      correlationId: requestId,
+      source: { owner: 'gateway' as const, adapterId: 'unify-read-federation-v1' },
+      sourceStatus: snapshots.length ? 'observed' : 'cached',
+      freshness,
+      ...(observedAt ? { observedAt } : {}),
+      generatedAt: new Date().toISOString(),
+      warnings,
+      ...(page ? { page } : {}),
+    };
+  }
+  function ownerValue(value?: string): IntegrationOwner | undefined {
+    if (!value) return undefined;
+    const owners: IntegrationOwner[] = [
+      'hermes',
+      'agency',
+      'dmm',
+      'worker',
+      'chat',
+      'memory-v4',
+      'gateway',
+    ];
+    if (!owners.includes(value as IntegrationOwner))
+      throw new AuthError('INVALID_OWNER', 400, 'Unknown integration owner');
+    return value as IntegrationOwner;
+  }
+  function kindValue(value?: string): IntegrationKind | undefined {
+    if (!value) return undefined;
+    const kinds: IntegrationKind[] = [
+      'framework',
+      'profile',
+      'agent',
+      'provider',
+      'model',
+      'project',
+      'task',
+      'kanban-board',
+      'cronjob',
+      'chat-session',
+      'chat-message',
+      'chat-route',
+      'memory-record',
+      'catalog-snapshot',
+      'operation',
+      'notification',
+    ];
+    if (!kinds.includes(value as IntegrationKind))
+      throw new AuthError('INVALID_KIND', 400, 'Unknown resource kind');
+    return value as IntegrationKind;
+  }
   function publicOperation(operation: OperationRecord) {
     if (!operation.targetFramework || !operation.targetKind || !operation.targetId)
       throw new GovernanceError('OPERATION_TARGET_INVALID', 500, 'Operation target is invalid');

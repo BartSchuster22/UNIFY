@@ -13,9 +13,19 @@ await mkdir(directory, { recursive: true, mode: 0o700 });
 const postgresPassword = secret();
 const values = new Map([
   ['postgres_password', postgresPassword],
-  ['gateway_database_url', `postgresql://unify:${postgresPassword}@postgres:5432/unify`],
+  [
+    'gateway_database_url',
+    `postgresql://unify:${postgresPassword}@127.0.0.1:${process.env.UNIFY_DB_PORT ?? '25432'}/unify`,
+  ],
   ['gateway_auth_pepper', secret()],
   ['bootstrap_admin_password', secret()],
+  ['agency_username', ''],
+  ['agency_password', ''],
+  ['dmm_username', ''],
+  ['dmm_password', ''],
+  ['worker_token', ''],
+  ['chat_password', ''],
+  ['memory_v4_token', ''],
 ]);
 for (const [name, value] of values) {
   const path = resolve(directory, name);
@@ -29,7 +39,21 @@ if (acl.status !== 0) {
 }
 for (const [uid, names] of [
   ['70', ['postgres_password']],
-  ['10001', ['gateway_database_url', 'gateway_auth_pepper', 'bootstrap_admin_password']],
+  [
+    '10001',
+    [
+      'gateway_database_url',
+      'gateway_auth_pepper',
+      'bootstrap_admin_password',
+      'agency_username',
+      'agency_password',
+      'dmm_username',
+      'dmm_password',
+      'worker_token',
+      'chat_password',
+      'memory_v4_token',
+    ],
+  ],
 ]) {
   const result = spawnSync(
     'setfacl',

@@ -132,16 +132,112 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/integrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listIntegrations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/resources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listUnifiedResources"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["searchUnifiedResources"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listUnifiedEvents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listUnifiedNotifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/shadow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["compareAuthoritativeOwners"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         TruthState: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
-        ResourceKind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "cronjob" | "chat-session" | "memory-record" | "operation" | "notification";
+        ResourceKind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
         ResourceOwner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
         ResourceRef: {
             canonicalId: string;
-            kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "cronjob" | "chat-session" | "memory-record" | "operation" | "notification";
+            kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
             owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
             frameworkId?: string;
             nativeId: string;
@@ -188,7 +284,7 @@ export interface components {
             retryable: boolean;
             target?: {
                 canonicalId: string;
-                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "cronjob" | "chat-session" | "memory-record" | "operation" | "notification";
+                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
                 owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
                 frameworkId?: string;
                 nativeId: string;
@@ -216,7 +312,7 @@ export interface components {
                 retryable: boolean;
                 target?: {
                     canonicalId: string;
-                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "cronjob" | "chat-session" | "memory-record" | "operation" | "notification";
+                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
                     owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     nativeId: string;
@@ -268,7 +364,7 @@ export interface components {
             };
             resource?: {
                 canonicalId: string;
-                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "cronjob" | "chat-session" | "memory-record" | "operation" | "notification";
+                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
                 owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
                 frameworkId?: string;
                 nativeId: string;
@@ -300,7 +396,7 @@ export interface components {
             actorId: string;
             target: {
                 canonicalId: string;
-                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "cronjob" | "chat-session" | "memory-record" | "operation" | "notification";
+                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
                 owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
                 frameworkId?: string;
                 nativeId: string;
@@ -365,6 +461,389 @@ export interface components {
         Health: {
             status: "ok" | "ready" | "not_ready";
             release: string;
+        };
+        UnifiedResource: {
+            resource: {
+                canonicalId: string;
+                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                frameworkId?: string;
+                nativeId: string;
+                displayLabel?: string;
+                sourceVersion?: string;
+                /** Format: date-time */
+                observedAt: string;
+                links?: {
+                    relation: string;
+                    canonicalId: string;
+                }[];
+            };
+            truth: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
+            /** @constant */
+            authoritative: true;
+            adapterId: string;
+            /** Format: date-time */
+            fetchedAt: string;
+            title: string;
+            searchableText: string;
+            data: {
+                [key: string]: unknown;
+            };
+        };
+        IntegrationStatus: {
+            adapterId: string;
+            owners: ("hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway")[];
+            status: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
+            /** Format: date-time */
+            observedAt?: string;
+            resourceCount: number;
+            warnings: {
+                code: string;
+                message: string;
+            }[];
+        };
+        IntegrationStatusList: {
+            items: {
+                adapterId: string;
+                owners: ("hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway")[];
+                status: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
+                /** Format: date-time */
+                observedAt?: string;
+                resourceCount: number;
+                warnings: {
+                    code: string;
+                    message: string;
+                }[];
+            }[];
+        };
+        UnifiedResourceList: {
+            items: {
+                resource: {
+                    canonicalId: string;
+                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    frameworkId?: string;
+                    nativeId: string;
+                    displayLabel?: string;
+                    sourceVersion?: string;
+                    /** Format: date-time */
+                    observedAt: string;
+                    links?: {
+                        relation: string;
+                        canonicalId: string;
+                    }[];
+                };
+                truth: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
+                /** @constant */
+                authoritative: true;
+                adapterId: string;
+                /** Format: date-time */
+                fetchedAt: string;
+                title: string;
+                searchableText: string;
+                data: {
+                    [key: string]: unknown;
+                };
+            }[];
+            meta: {
+                requestId: string;
+                correlationId: string;
+                source: {
+                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    frameworkId?: string;
+                    adapterId: string;
+                };
+                sourceStatus: string;
+                freshness: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
+                /** Format: date-time */
+                observedAt?: string;
+                /** Format: date-time */
+                generatedAt: string;
+                warnings: {
+                    code: string;
+                    message: string;
+                }[];
+                page?: {
+                    nextCursor?: string;
+                    hasMore: boolean;
+                };
+            };
+        };
+        UnifiedSearchHit: {
+            resource: {
+                resource: {
+                    canonicalId: string;
+                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    frameworkId?: string;
+                    nativeId: string;
+                    displayLabel?: string;
+                    sourceVersion?: string;
+                    /** Format: date-time */
+                    observedAt: string;
+                    links?: {
+                        relation: string;
+                        canonicalId: string;
+                    }[];
+                };
+                truth: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
+                /** @constant */
+                authoritative: true;
+                adapterId: string;
+                /** Format: date-time */
+                fetchedAt: string;
+                title: string;
+                searchableText: string;
+                data: {
+                    [key: string]: unknown;
+                };
+            };
+            score: number;
+            matchedFields: string[];
+        };
+        UnifiedSearchResults: {
+            items: {
+                resource: {
+                    resource: {
+                        canonicalId: string;
+                        kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                        owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                        frameworkId?: string;
+                        nativeId: string;
+                        displayLabel?: string;
+                        sourceVersion?: string;
+                        /** Format: date-time */
+                        observedAt: string;
+                        links?: {
+                            relation: string;
+                            canonicalId: string;
+                        }[];
+                    };
+                    truth: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
+                    /** @constant */
+                    authoritative: true;
+                    adapterId: string;
+                    /** Format: date-time */
+                    fetchedAt: string;
+                    title: string;
+                    searchableText: string;
+                    data: {
+                        [key: string]: unknown;
+                    };
+                };
+                score: number;
+                matchedFields: string[];
+            }[];
+            meta: {
+                requestId: string;
+                correlationId: string;
+                source: {
+                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    frameworkId?: string;
+                    adapterId: string;
+                };
+                sourceStatus: string;
+                freshness: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
+                /** Format: date-time */
+                observedAt?: string;
+                /** Format: date-time */
+                generatedAt: string;
+                warnings: {
+                    code: string;
+                    message: string;
+                }[];
+                page?: {
+                    nextCursor?: string;
+                    hasMore: boolean;
+                };
+            };
+        };
+        UnifiedNotification: {
+            id: string;
+            severity: "info" | "warning" | "error" | "critical";
+            title: string;
+            body: string;
+            source: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+            state: "unread" | "read" | "acknowledged";
+            /** Format: date-time */
+            createdAt: string;
+            resource?: {
+                canonicalId: string;
+                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                frameworkId?: string;
+                nativeId: string;
+                displayLabel?: string;
+                sourceVersion?: string;
+                /** Format: date-time */
+                observedAt: string;
+                links?: {
+                    relation: string;
+                    canonicalId: string;
+                }[];
+            };
+        };
+        UnifiedNotificationList: {
+            items: {
+                id: string;
+                severity: "info" | "warning" | "error" | "critical";
+                title: string;
+                body: string;
+                source: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                state: "unread" | "read" | "acknowledged";
+                /** Format: date-time */
+                createdAt: string;
+                resource?: {
+                    canonicalId: string;
+                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    frameworkId?: string;
+                    nativeId: string;
+                    displayLabel?: string;
+                    sourceVersion?: string;
+                    /** Format: date-time */
+                    observedAt: string;
+                    links?: {
+                        relation: string;
+                        canonicalId: string;
+                    }[];
+                };
+            }[];
+            meta: {
+                requestId: string;
+                correlationId: string;
+                source: {
+                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    frameworkId?: string;
+                    adapterId: string;
+                };
+                sourceStatus: string;
+                freshness: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
+                /** Format: date-time */
+                observedAt?: string;
+                /** Format: date-time */
+                generatedAt: string;
+                warnings: {
+                    code: string;
+                    message: string;
+                }[];
+                page?: {
+                    nextCursor?: string;
+                    hasMore: boolean;
+                };
+            };
+        };
+        UnifiedEventList: {
+            items: {
+                eventId: string;
+                sequence: string;
+                type: string;
+                classification: "durable" | "ephemeral";
+                source: {
+                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    frameworkId?: string;
+                };
+                resource?: {
+                    canonicalId: string;
+                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    frameworkId?: string;
+                    nativeId: string;
+                    displayLabel?: string;
+                    sourceVersion?: string;
+                    /** Format: date-time */
+                    observedAt: string;
+                    links?: {
+                        relation: string;
+                        canonicalId: string;
+                    }[];
+                };
+                /** Format: date-time */
+                eventTime: string;
+                /** Format: date-time */
+                receivedTime: string;
+                correlationId?: string;
+                operationId?: string;
+                payload: {
+                    [key: string]: unknown;
+                };
+                /** @constant */
+                schemaVersion: "1.0";
+            }[];
+            meta: {
+                requestId: string;
+                correlationId: string;
+                source: {
+                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    frameworkId?: string;
+                    adapterId: string;
+                };
+                sourceStatus: string;
+                freshness: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
+                /** Format: date-time */
+                observedAt?: string;
+                /** Format: date-time */
+                generatedAt: string;
+                warnings: {
+                    code: string;
+                    message: string;
+                }[];
+                page?: {
+                    nextCursor?: string;
+                    hasMore: boolean;
+                };
+            };
+        };
+        ShadowComparison: {
+            adapterId: string;
+            owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+            status: "match" | "mismatch" | "unavailable";
+            /** Format: date-time */
+            comparedAt: string;
+            expectedCount: number;
+            actualCount: number;
+            missing: string[];
+            unexpected: string[];
+            changed: string[];
+            evidenceHash: string;
+        };
+        ShadowComparisonList: {
+            items: {
+                adapterId: string;
+                owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                status: "match" | "mismatch" | "unavailable";
+                /** Format: date-time */
+                comparedAt: string;
+                expectedCount: number;
+                actualCount: number;
+                missing: string[];
+                unexpected: string[];
+                changed: string[];
+                evidenceHash: string;
+            }[];
+            meta: {
+                requestId: string;
+                correlationId: string;
+                source: {
+                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    frameworkId?: string;
+                    adapterId: string;
+                };
+                sourceStatus: string;
+                freshness: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
+                /** Format: date-time */
+                observedAt?: string;
+                /** Format: date-time */
+                generatedAt: string;
+                warnings: {
+                    code: string;
+                    message: string;
+                }[];
+                page?: {
+                    nextCursor?: string;
+                    hasMore: boolean;
+                };
+            };
         };
     };
     responses: never;
@@ -620,6 +1099,297 @@ export interface operations {
             };
             /** @description ErrorResponse */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listIntegrations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description IntegrationStatusList */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IntegrationStatusList"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listUnifiedResources: {
+        parameters: {
+            query?: {
+                owner?: components["schemas"]["ResourceOwner"];
+                kind?: components["schemas"]["ResourceKind"];
+                refresh?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description UnifiedResourceList */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnifiedResourceList"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    searchUnifiedResources: {
+        parameters: {
+            query: {
+                q: string;
+                owner?: components["schemas"]["ResourceOwner"];
+                kind?: components["schemas"]["ResourceKind"];
+                refresh?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description UnifiedSearchResults */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnifiedSearchResults"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listUnifiedEvents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description UnifiedEventList */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnifiedEventList"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listUnifiedNotifications: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description UnifiedNotificationList */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnifiedNotificationList"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    compareAuthoritativeOwners: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description ShadowComparisonList */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShadowComparisonList"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

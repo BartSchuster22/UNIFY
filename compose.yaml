@@ -10,6 +10,7 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     secrets: [postgres_password]
     volumes: [postgres_data:/var/lib/postgresql/data]
+    ports: ['127.0.0.1:${UNIFY_DB_PORT:-25432}:5432']
     tmpfs:
       - /tmp:uid=70,gid=70,mode=1770
       - /var/run/postgresql:uid=70,gid=70,mode=0770
@@ -24,6 +25,7 @@ services:
 
   migrate:
     image: unify-gateway:local
+    network_mode: host
     command: [node, scripts/migrate.mjs, up]
     environment:
       DATABASE_URL_FILE: /run/secrets/gateway_database_url
@@ -46,13 +48,38 @@ services:
       DATABASE_URL_FILE: /run/secrets/gateway_database_url
       AUTH_PEPPER_FILE: /run/secrets/gateway_auth_pepper
       NODE_ENV: development
+      HOST: 127.0.0.1
+      PORT: ${GATEWAY_PORT:-28081}
       RELEASE_ID: local-compose
       ALLOWED_ORIGINS: http://127.0.0.1:${UNIUI_PORT:-3000},http://localhost:${UNIUI_PORT:-3000}
-    secrets: [gateway_database_url, gateway_auth_pepper]
+      AGENCY_URL: ${AGENCY_URL:-http://127.0.0.1:18082}
+      AGENCY_USERNAME_FILE: /run/secrets/agency_username
+      AGENCY_PASSWORD_FILE: /run/secrets/agency_password
+      DMM_URL: ${DMM_URL:-http://127.0.0.1:4100}
+      DMM_USERNAME_FILE: /run/secrets/dmm_username
+      DMM_PASSWORD_FILE: /run/secrets/dmm_password
+      WORKER_URL: ${WORKER_URL:-http://127.0.0.1:8891}
+      WORKER_TOKEN_FILE: /run/secrets/worker_token
+      CHAT_URL: ${CHAT_URL:-http://127.0.0.1:8787}
+      CHAT_PASSWORD_FILE: /run/secrets/chat_password
+      MEMORY_V4_URL: ${MEMORY_V4_URL:-http://127.0.0.1:18804}
+      MEMORY_V4_TOKEN_FILE: /run/secrets/memory_v4_token
+    secrets:
+      [
+        gateway_database_url,
+        gateway_auth_pepper,
+        agency_username,
+        agency_password,
+        dmm_username,
+        dmm_password,
+        worker_token,
+        chat_password,
+        memory_v4_token,
+      ]
+    network_mode: host
     depends_on:
       postgres: { condition: service_healthy }
       migrate: { condition: service_completed_successfully }
-    ports: ['127.0.0.1:${GATEWAY_PORT:-8080}:8080']
     read_only: true
     tmpfs:
       - '/tmp:uid=10001,gid=10001,mode=0700'
@@ -64,6 +91,7 @@ services:
   bootstrap-admin:
     profiles: [bootstrap]
     image: unify-gateway:local
+    network_mode: host
     command: [node, dist/cli/bootstrap-admin.js]
     environment:
       DATABASE_URL_FILE: /run/secrets/gateway_database_url
@@ -87,7 +115,8 @@ services:
       dockerfile: Dockerfile.uniui
     image: unify-uniui:local
     environment:
-      GATEWAY_INTERNAL_URL: http://gateway:8080
+      GATEWAY_INTERNAL_URL: http://host.docker.internal:${GATEWAY_PORT:-28081}
+    extra_hosts: ['host.docker.internal:host-gateway']
     depends_on:
       gateway: { condition: service_healthy }
     ports: ['127.0.0.1:${UNIUI_PORT:-3000}:3000']
@@ -104,5 +133,12 @@ secrets:
   gateway_database_url: { file: .secrets/gateway_database_url }
   gateway_auth_pepper: { file: .secrets/gateway_auth_pepper }
   bootstrap_admin_password: { file: .secrets/bootstrap_admin_password }
+  agency_username: { file: .secrets/agency_username }
+  agency_password: { file: .secrets/agency_password }
+  dmm_username: { file: .secrets/dmm_username }
+  dmm_password: { file: .secrets/dmm_password }
+  worker_token: { file: .secrets/worker_token }
+  chat_password: { file: .secrets/chat_password }
+  memory_v4_token: { file: .secrets/memory_v4_token }
 volumes:
   postgres_data: {}
