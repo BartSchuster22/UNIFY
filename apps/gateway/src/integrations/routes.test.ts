@@ -15,6 +15,7 @@ import type { IntegrationSnapshot, SourceAdapter } from './types.js';
 import type { GovernanceStore } from '../governance/types.js';
 import { MutationOwnerClient } from '../mutations/owner-client.js';
 import type { NotificationDraft, NotificationStore } from '../notifications/postgres-store.js';
+import { CutoverPolicy } from '../cutover/policy.js';
 
 class Notifications implements NotificationStore {
   state: NotificationDraft['state'] = 'unread';
@@ -122,6 +123,37 @@ class AgencyAdapter implements SourceAdapter {
   }
 }
 
+class LargeAgencyAdapter implements SourceAdapter {
+  readonly id = 'agency-large-fixture';
+  readonly owners: Array<'agency'> = ['agency'];
+  async snapshot(): Promise<IntegrationSnapshot> {
+    const at = new Date().toISOString();
+    return {
+      adapterId: this.id,
+      owners: this.owners,
+      status: 'current',
+      observedAt: at,
+      warnings: [],
+      resources: Array.from({ length: 10_000 }, (_, index) => ({
+        resource: {
+          canonicalId: `agency:framework:${String(index).padStart(5, '0')}`,
+          kind: 'framework',
+          owner: 'agency' as const,
+          nativeId: String(index),
+          observedAt: at,
+        },
+        truth: 'current' as const,
+        authoritative: true,
+        adapterId: this.id,
+        fetchedAt: at,
+        title: `Framework ${index}`,
+        searchableText: `Framework fixture ${index}`,
+        data: { id: index },
+      })),
+    };
+  }
+}
+
 const pepper = 'integration-route-test-pepper';
 let passwordHash = '';
 beforeAll(async () => {
@@ -133,6 +165,13 @@ async function authenticated(
   governanceStore?: GovernanceStore,
   mutationOwners?: MutationOwnerClient,
   notificationStore?: NotificationStore,
+  cutoverPolicy = CutoverPolicy.fromEnv({
+    DEPLOYMENT_MODE: 'mutation-canary',
+    MUTATION_DOMAINS: 'profiles,dmm,worker,chat,memory-v4',
+    MUTATION_ACCEPTANCE_REFS:
+      'profiles=test/PROFILES,dmm=test/DMM,worker=test/WORKER,chat=test/CHAT,memory-v4=test/MEMORY',
+  }),
+  adapter: SourceAdapter = new AgencyAdapter(),
 ) {
   const store = new Store();
   store.user = {
@@ -153,10 +192,11 @@ async function authenticated(
     authStore: store,
     authPepper: pepper,
     secureCookies: false,
-    integrations: new IntegrationService([new AgencyAdapter()]),
+    integrations: new IntegrationService([adapter]),
     ...(governanceStore ? { governanceStore } : {}),
     ...(mutationOwners ? { mutationOwners } : {}),
     ...(notificationStore ? { notificationStore } : {}),
+    cutoverPolicy,
   });
   const login = await app.inject({
     method: 'POST',
@@ -233,6 +273,50 @@ describe('read-only integration routes', () => {
     await app.close();
   });
 
+  it('enforces fail-closed read-only rollout and reports per-domain cutover state', async () => {
+    const fixture = mutationFixture();
+    const readOnly = CutoverPolicy.fromEnv({ DEPLOYMENT_MODE: 'read-only' });
+    const { app, cookie, csrf } = await authenticated(
+      ['chat.use', 'audit.read'],
+      fixture.governance,
+      fixture.owners,
+      undefined,
+      readOnly,
+    );
+    const status = await app.inject({
+      method: 'GET',
+      url: '/api/v1/cutover/status',
+      headers: { cookie },
+    });
+    expect(status.statusCode).toBe(200);
+    expect(status.json()).toMatchObject({
+      mode: 'read-only',
+      legacyServicesRetained: true,
+      domains: expect.arrayContaining([
+        expect.objectContaining({ domain: 'chat', executeEnabled: false }),
+      ]),
+    });
+    const execution = await app.inject({
+      method: 'POST',
+      url: '/api/v1/mutations',
+      headers: {
+        cookie,
+        'x-csrf-token': csrf,
+        'idempotency-key': 'read-only-rejection',
+      },
+      payload: {
+        operationType: 'chat.message.send',
+        target: { owner: 'chat', kind: 'chat-session', nativeId: 'session-1' },
+        payload: { blocks: [{ type: 'text', text: 'must not execute' }] },
+        mode: 'execute',
+        confirmed: false,
+      },
+    });
+    expect(execution.statusCode).toBe(403);
+    expect(execution.json()).toMatchObject({ error: { code: 'DEPLOYMENT_READ_ONLY' } });
+    await app.close();
+  });
+
   it('returns provenance-rich resources and unified search to an authorized named user', async () => {
     const { app, cookie } = await authenticated(['frameworks.read']);
     const resources = await app.inject({
@@ -264,7 +348,28 @@ describe('read-only integration routes', () => {
     expect(search.statusCode).toBe(200);
     expect(search.json().items).toHaveLength(1);
     await app.close();
-  });
+  }, 30_000);
+
+  it('bounds a 10,000-resource owner snapshot at the API pagination boundary', async () => {
+    const { app, cookie } = await authenticated(
+      ['frameworks.read'],
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      new LargeAgencyAdapter(),
+    );
+    const response = await app.inject({
+      method: 'GET',
+      url: '/api/v1/resources?owner=agency&refresh=true&limit=500',
+      headers: { cookie },
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().items).toHaveLength(500);
+    expect(response.json().meta.page).toMatchObject({ hasMore: true });
+    expect(response.payload.length).toBeLessThan(1_000_000);
+    await app.close();
+  }, 30_000);
 
   it('enforces owner-specific RBAC and shadow-comparison permission', async () => {
     const { app, cookie } = await authenticated(['frameworks.read']);

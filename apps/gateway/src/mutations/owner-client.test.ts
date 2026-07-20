@@ -156,6 +156,22 @@ describe('MutationOwnerClient', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it('rejects traversal names and active-content Chat uploads before contacting Chat', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    const owners = new MutationOwnerClient(config);
+    for (const payload of [
+      { name: '../payload.txt', mime: 'text/plain', data: 'YQ==' },
+      { name: 'payload.svg', mime: 'image/svg+xml', data: 'YQ==' },
+      { name: 'payload.html', mime: 'text/html', data: 'YQ==' },
+    ]) {
+      await expect(
+        owners.execute(input('chat.upload', 'chat', 'chat-session', 'upload', payload)),
+      ).rejects.toMatchObject({ statusCode: expect.any(Number) });
+    }
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it('rejects unsafe or oversized Chat downloads', async () => {
     const fetchMock = vi.fn(async (request: string | URL | Request) => {
       if (String(request).endsWith('/auth/login'))

@@ -190,8 +190,25 @@ export class MutationOwnerClient {
     }
     if (action === 'chat.message.send') nonEmptyArray(payload.blocks, 'blocks');
     if (action === 'chat.upload') {
-      string(payload.name, 'name');
-      string(payload.mime, 'mime');
+      const name = string(payload.name, 'name');
+      const mime = string(payload.mime, 'mime').toLowerCase();
+      if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,199}$/.test(name) || name.includes('..'))
+        throw new GovernanceError('CHAT_UPLOAD_NAME_INVALID', 422, 'Upload filename is invalid');
+      const allowedMime = new Set([
+        'application/octet-stream',
+        'application/pdf',
+        'image/gif',
+        'image/jpeg',
+        'image/png',
+        'image/webp',
+        'text/plain',
+      ]);
+      if (!allowedMime.has(mime))
+        throw new GovernanceError(
+          'CHAT_UPLOAD_TYPE_DENIED',
+          415,
+          'Upload media type is not allowed',
+        );
       const data = string(payload.data, 'data');
       if (!/^[A-Za-z0-9+/]*={0,2}$/.test(data) || data.length % 4 !== 0)
         throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'data must be valid base64');

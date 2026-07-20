@@ -11,6 +11,8 @@ import type { IntegrationKind, IntegrationOwner } from './integrations/types.js'
 import { MutationService } from './mutations/service.js';
 import type { MutationOwnerClient } from './mutations/owner-client.js';
 import type { NotificationStore } from './notifications/postgres-store.js';
+import { CutoverPolicy } from './cutover/policy.js';
+import { FixedWindowRateLimiter } from './security/rate-limiter.js';
 export interface AppOptions {
   authStore: AuthStore;
   authPepper: string;
@@ -22,6 +24,8 @@ export interface AppOptions {
   integrations?: IntegrationService;
   mutationOwners?: MutationOwnerClient;
   notificationStore?: NotificationStore;
+  cutoverPolicy?: CutoverPolicy;
+  requestRateLimit?: number;
 }
 const SESSION_COOKIE = 'aquiero_session';
 const CSRF_COOKIE = 'aquiero_csrf';
@@ -52,8 +56,19 @@ export function buildApp(options: AppOptions) {
     governance && options.mutationOwners
       ? new MutationService(governance, options.mutationOwners)
       : null;
+  const cutover = options.cutoverPolicy ?? CutoverPolicy.fromEnv({});
+  const requestLimiter = new FixedWindowRateLimiter(options.requestRateLimit ?? 600, 60_000);
   void app.register(cookie);
-  app.addHook('onRequest', async (request) => {
+  app.addHook('onRequest', async (request, reply) => {
+    const isHealth =
+      request.url === '/api/v1/health/live' || request.url === '/api/v1/health/ready';
+    const rate = isHealth
+      ? { allowed: true, retryAfterSeconds: 0 }
+      : requestLimiter.consume(request.ip);
+    if (!rate.allowed) {
+      reply.header('retry-after', String(rate.retryAfterSeconds));
+      throw new AuthError('RATE_LIMITED', 429, 'Request rate limit exceeded');
+    }
     const origin = request.headers.origin;
     if (origin && !(options.allowedOrigins ?? []).includes(origin))
       throw new AuthError('ORIGIN_DENIED', 403, 'Origin is not allowed');
@@ -65,6 +80,7 @@ export function buildApp(options: AppOptions) {
     reply.header('referrer-policy', 'no-referrer');
     reply.header('cache-control', 'no-store');
     reply.header('pragma', 'no-cache');
+    reply.header('strict-transport-security', 'max-age=31536000; includeSubDomains');
     reply.header('content-security-policy', "default-src 'none'; frame-ancestors 'none'");
     return payload;
   });
@@ -259,6 +275,15 @@ export function buildApp(options: AppOptions) {
       return { items: page.items, meta: meta(request.id, [], page.page) };
     },
   );
+  app.get('/api/v1/cutover/status', async (request) => {
+    const current = await session(request);
+    if (
+      !current.permissions.includes('audit.read') &&
+      !current.permissions.includes('settings.manage')
+    )
+      throw new AuthError('PERMISSION_DENIED', 403, 'Cutover status access is denied');
+    return cutover.status();
+  });
   app.post<{ Body: unknown }>(
     '/api/v1/mutations',
     { bodyLimit: 15 * 1024 * 1024 },
@@ -272,6 +297,7 @@ export function buildApp(options: AppOptions) {
         );
       const input = mutations.parse(request.body);
       auth.requirePermission(current, mutations.permission(input));
+      cutover.assertAllowed(input);
       const rawKey = request.headers['idempotency-key'];
       const idempotencyKey = Array.isArray(rawKey) ? rawKey[0] : rawKey;
       const result = await mutations.run(current.userId, idempotencyKey, input);

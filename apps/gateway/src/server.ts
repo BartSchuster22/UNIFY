@@ -7,6 +7,7 @@ import { createDefaultAdapters } from './integrations/adapters.js';
 import { IntegrationService } from './integrations/service.js';
 import { MutationOwnerClient } from './mutations/owner-client.js';
 import { PostgresNotificationStore } from './notifications/postgres-store.js';
+import { CutoverPolicy } from './cutover/policy.js';
 async function secret(name: string): Promise<string> {
   const file = process.env[`${name}_FILE`];
   const value = file ? await readFile(file, 'utf8') : process.env[name];
@@ -46,6 +47,8 @@ const app = buildApp({
   integrations: new IntegrationService(createDefaultAdapters(integrationEnv)),
   mutationOwners: MutationOwnerClient.fromEnv(integrationEnv),
   notificationStore: new PostgresNotificationStore(pool),
+  cutoverPolicy: CutoverPolicy.fromEnv(process.env),
+  requestRateLimit: Number(process.env.REQUESTS_PER_MINUTE ?? 600),
 });
 const close = async (signal: string) => {
   app.log.info({ signal }, 'graceful shutdown');

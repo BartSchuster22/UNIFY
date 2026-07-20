@@ -18,7 +18,14 @@
     "compose:build": "docker compose build gateway uniui chat-pwa alerts-pwa",
     "compose:up": "docker compose up -d --wait postgres gateway uniui chat-pwa alerts-pwa",
     "compose:down": "docker compose down --remove-orphans",
-    "qa": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm contracts:check && pnpm format:check",
+    "backup": "bash scripts/backup-gateway.sh",
+    "restore:rehearse": "bash scripts/rehearse-restore.sh",
+    "performance:smoke": "node scripts/performance-smoke.mjs",
+    "audit:verify": "docker compose exec -T gateway node dist/cli/verify-audit.js",
+    "security:audit": "pnpm audit --prod --audit-level high",
+    "security:sbom": "node scripts/generate-sbom.mjs",
+    "legacy:check": "node scripts/check-legacy-routes.mjs",
+    "qa": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm contracts:check && pnpm legacy:check && pnpm format:check",
     "clean": "pnpm -r --if-present clean"
   },
   "devDependencies": {

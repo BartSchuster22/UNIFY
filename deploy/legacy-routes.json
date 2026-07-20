@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1.0",
+  "policy": {
+    "defaultState": "retained",
+    "minimumStableDaysBeforeDeprecation": 14,
+    "minimumNoticeDaysBeforeRemoval": 90,
+    "serviceDeletionPermitted": false,
+    "requiredEvidence": [
+      "written-domain-acceptance",
+      "shadow-parity-slo",
+      "successful-domain-canary",
+      "rollback-rehearsal",
+      "legacy-consumer-inventory",
+      "published-sunset-notice"
+    ]
+  },
+  "domains": [
+    {
+      "domain": "profiles",
+      "owner": "Agency/Hermes",
+      "routes": [
+        "/api/frameworks/{frameworkId}/profiles",
+        "/api/frameworks/{frameworkId}/profiles/{profileId}*"
+      ],
+      "state": "retained",
+      "deprecationDate": null,
+      "sunsetDate": null
+    },
+    {
+      "domain": "dmm",
+      "owner": "DMM",
+      "routes": ["/api/providers/{providerId}/credential*"],
+      "state": "retained",
+      "deprecationDate": null,
+      "sunsetDate": null
+    },
+    {
+      "domain": "worker",
+      "owner": "Worker",
+      "routes": ["/api/kanban/*", "/api/cron/*"],
+      "state": "retained",
+      "deprecationDate": null,
+      "sunsetDate": null
+    },
+    {
+      "domain": "chat",
+      "owner": "Chat",
+      "routes": ["/api/chat/*", "/api/uploads*"],
+      "state": "retained",
+      "deprecationDate": null,
+      "sunsetDate": null
+    },
+    {
+      "domain": "memory-v4",
+      "owner": "Memory V4",
+      "routes": ["/entities/{entityType}/{entityId}/records*"],
+      "state": "retained",
+      "deprecationDate": null,
+      "sunsetDate": null
+    }
+  ]
+}

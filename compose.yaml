@@ -51,7 +51,11 @@ services:
       HOST: 127.0.0.1
       PORT: ${GATEWAY_PORT:-28081}
       RELEASE_ID: local-compose
-      ALLOWED_ORIGINS: http://127.0.0.1:${UNIUI_PORT:-3000},http://localhost:${UNIUI_PORT:-3000},http://127.0.0.1:${CHAT_PWA_PORT:-3101},http://localhost:${CHAT_PWA_PORT:-3101},http://127.0.0.1:${ALERTS_PWA_PORT:-3102},http://localhost:${ALERTS_PWA_PORT:-3102}
+      DEPLOYMENT_MODE: ${DEPLOYMENT_MODE:-read-only}
+      MUTATION_DOMAINS: ${MUTATION_DOMAINS:-}
+      MUTATION_ACCEPTANCE_REFS: ${MUTATION_ACCEPTANCE_REFS:-}
+      REQUESTS_PER_MINUTE: ${REQUESTS_PER_MINUTE:-600}
+      ALLOWED_ORIGINS: https://uniui.aquiero.com,http://127.0.0.1:${UNIUI_PORT:-3000},http://localhost:${UNIUI_PORT:-3000},http://127.0.0.1:${CHAT_PWA_PORT:-3101},http://localhost:${CHAT_PWA_PORT:-3101},http://127.0.0.1:${ALERTS_PWA_PORT:-3102},http://localhost:${ALERTS_PWA_PORT:-3102}
       AGENCY_URL: ${AGENCY_URL:-http://127.0.0.1:18082}
       AGENCY_USERNAME_FILE: /run/secrets/agency_username
       AGENCY_PASSWORD_FILE: /run/secrets/agency_password

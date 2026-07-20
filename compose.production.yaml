@@ -1,0 +1,12 @@
+services:
+  gateway:
+    environment:
+      NODE_ENV: production
+      RELEASE_ID: ${RELEASE_ID:-read-only-production}
+      DEPLOYMENT_MODE: ${DEPLOYMENT_MODE:-read-only}
+      MUTATION_DOMAINS: ${MUTATION_DOMAINS:-}
+      MUTATION_ACCEPTANCE_REFS: ${MUTATION_ACCEPTANCE_REFS:-}
+  uniui:
+    environment:
+      HOST: 127.0.0.1
+      PORT: ${UNIUI_PORT:-3000}

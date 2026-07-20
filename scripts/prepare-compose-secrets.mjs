@@ -18,6 +18,7 @@ const values = new Map([
     `postgresql://unify:${postgresPassword}@127.0.0.1:${process.env.UNIFY_DB_PORT ?? '25432'}/unify`,
   ],
   ['gateway_auth_pepper', secret()],
+  ['backup_encryption_key', secret()],
   ['bootstrap_admin_password', secret()],
   ['agency_username', ''],
   ['agency_password', ''],
