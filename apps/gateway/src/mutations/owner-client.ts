@@ -130,6 +130,40 @@ export class MutationOwnerClient {
     return definition;
   }
 
+  async agencyProfileInventory(): Promise<{
+    frameworks: unknown;
+    profiles: unknown;
+    agents: unknown;
+  }> {
+    const [frameworks, profiles, agents] = await Promise.all([
+      this.json('agency', 'GET', '/api/frameworks', undefined),
+      this.json('agency', 'GET', '/api/framework-profiles', undefined),
+      this.json('agency', 'GET', '/api/agents?visibility=all', undefined),
+    ]);
+    return { frameworks, profiles, agents };
+  }
+
+  async agencyProfileContext(frameworkId: string, profileId?: string): Promise<{
+    capabilities: unknown;
+    models: unknown;
+    detail?: unknown;
+  }> {
+    const framework = encodeURIComponent(validSegment(frameworkId, 'frameworkId'));
+    const [capabilities, models, detail] = await Promise.all([
+      this.json('agency', 'GET', `/api/frameworks/${framework}/capabilities`, undefined),
+      this.json('agency', 'GET', `/api/frameworks/${framework}/models/selectable`, undefined),
+      profileId
+        ? this.json(
+            'agency',
+            'GET',
+            `/api/frameworks/${framework}/profiles/${encodeURIComponent(validSegment(profileId, 'profileId'))}`,
+            undefined,
+          )
+        : Promise.resolve(undefined),
+    ]);
+    return { capabilities, models, ...(detail === undefined ? {} : { detail }) };
+  }
+
   validate(input: MutationInput): MutationDefinition {
     const definition = this.definition(input.operationType);
     if (input.target.owner !== definition.owner || input.target.kind !== definition.kind)
@@ -469,6 +503,13 @@ export class MutationOwnerClient {
               : this.#config.memoryUrl,
     );
   }
+}
+
+function validSegment(value: string, field: string): string {
+  const normalized = value.trim();
+  if (!/^[a-zA-Z0-9_-]{1,128}$/.test(normalized))
+    throw new GovernanceError('MUTATION_TARGET_INVALID', 422, `${field} is invalid`);
+  return normalized;
 }
 
 function string(value: unknown, field: string): string {

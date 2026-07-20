@@ -322,6 +322,36 @@ export function buildApp(options: AppOptions) {
     reply.header('cache-control', 'private, no-store');
     return reply.send(file.body);
   });
+  app.get('/api/v1/profiles/agency-context', async (request) => {
+    const current = await session(request);
+    auth.requirePermission(current, 'profiles.read');
+    if (!mutations)
+      throw new GovernanceError('MUTATIONS_UNAVAILABLE', 503, 'Agency profile access is unavailable');
+    return mutations.owners.agencyProfileInventory();
+  });
+  app.get<{ Params: { frameworkId: string } }>(
+    '/api/v1/profiles/agency-context/:frameworkId',
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'profiles.read');
+      if (!mutations)
+        throw new GovernanceError('MUTATIONS_UNAVAILABLE', 503, 'Agency profile access is unavailable');
+      return mutations.owners.agencyProfileContext(request.params.frameworkId);
+    },
+  );
+  app.get<{ Params: { frameworkId: string; profileId: string } }>(
+    '/api/v1/profiles/agency-context/:frameworkId/:profileId',
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'profiles.read');
+      if (!mutations)
+        throw new GovernanceError('MUTATIONS_UNAVAILABLE', 503, 'Agency profile access is unavailable');
+      return mutations.owners.agencyProfileContext(
+        request.params.frameworkId,
+        request.params.profileId,
+      );
+    },
+  );
   app.get('/api/v1/integrations', async (request) => {
     const current = await session(request);
     const integrations = requireIntegrations();

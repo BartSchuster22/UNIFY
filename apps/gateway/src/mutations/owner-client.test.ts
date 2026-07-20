@@ -40,6 +40,32 @@ function input(
 afterEach(() => vi.unstubAllGlobals());
 
 describe('MutationOwnerClient', () => {
+  it('reads only the fixed Agency profile inventory and encoded profile context paths', async () => {
+    const calls: string[] = [];
+    vi.stubGlobal('fetch', vi.fn(async (request: string | URL | Request) => {
+      const url = String(request);
+      calls.push(url);
+      if (url.endsWith('/api/auth/login'))
+        return new Response('{}', { headers: { 'set-cookie': 'agency=session; Secure' } });
+      return Response.json({ ok: true });
+    }));
+    const owners = new MutationOwnerClient(config);
+    await owners.agencyProfileInventory();
+    await owners.agencyProfileContext('hermes-main', 'default');
+    for (const path of [
+      '/api/frameworks',
+      '/api/framework-profiles',
+      '/api/agents?visibility=all',
+      '/api/frameworks/hermes-main/capabilities',
+      '/api/frameworks/hermes-main/models/selectable',
+      '/api/frameworks/hermes-main/profiles/default',
+    ]) expect(calls.some((url) => url.endsWith(path)), path).toBe(true);
+    await expect(owners.agencyProfileContext('../unsafe', 'default')).rejects.toMatchObject({
+      code: 'MUTATION_TARGET_INVALID',
+      statusCode: 422,
+    });
+  });
+
   it('routes owner mutations with owner authentication and exact native paths', async () => {
     const calls: Array<{ url: string; init: RequestInit }> = [];
     vi.stubGlobal(

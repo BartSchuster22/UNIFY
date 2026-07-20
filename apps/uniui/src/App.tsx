@@ -68,6 +68,7 @@ import {
 import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { ApiError, api, gateway } from './api';
 import { WorkView } from './WorkView';
+import { ProfilesView } from './ProfilesView';
 import type {
   ApiFailure,
   Collection,
@@ -437,14 +438,7 @@ function View({
         />
       );
     case 'profiles':
-      return (
-        <ResourcesView
-          title="Profiles"
-          description="Hermes profiles exposed by their authoritative owner."
-          owner="hermes"
-          kinds={['profile', 'agent']}
-        />
-      );
+      return <ProfilesView canManage={principal.permissions.includes('profiles.manage')} canManageModels={principal.permissions.includes('models.manage')} canDelete={principal.permissions.includes('profiles.delete')} />;
     case 'work':
       return <WorkView canManage={principal.permissions.includes('work.manage')} />;
     case 'chat':
