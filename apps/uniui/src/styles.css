@@ -54,6 +54,33 @@ body {
   min-height: 25rem;
   background: color-mix(in srgb, var(--mantine-color-body) 92%, var(--mantine-color-ocean-1));
 }
+.work-section-navigation {
+  min-width: max-content;
+}
+.worker-summary-card {
+  cursor: default;
+  min-height: 9.5rem;
+}
+.worker-summary-card:nth-child(2),
+.worker-summary-card:nth-child(3) {
+  cursor: pointer;
+}
+.worker-summary-card:nth-child(2):hover,
+.worker-summary-card:nth-child(3):hover {
+  border-color: var(--mantine-color-ocean-5);
+}
+.ttrrbda-board {
+  min-width: 100rem;
+}
+.ttrrbda-board .kanban-column {
+  width: 13.75rem;
+}
+.worker-task-card {
+  overflow-wrap: anywhere;
+}
+.work-form-wide {
+  grid-column: 1 / -1;
+}
 .virtual-list {
   height: min(68vh, 42rem);
   overflow: auto;

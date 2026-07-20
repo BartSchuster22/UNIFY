@@ -67,6 +67,7 @@ import {
 
 import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { ApiError, api, gateway } from './api';
+import { WorkView } from './WorkView';
 import type {
   ApiFailure,
   Collection,
@@ -445,7 +446,7 @@ function View({
         />
       );
     case 'work':
-      return <WorkView />;
+      return <WorkView canManage={principal.permissions.includes('work.manage')} />;
     case 'chat':
       return <ChatView />;
     case 'memory':
@@ -1329,68 +1330,6 @@ function ResourceTable({ items }: { items: UnifiedResource[] }) {
   );
 }
 
-function WorkView() {
-  const [mode, setMode] = useState('board');
-  const result = useData<Collection<UnifiedResource>>('/resources?owner=worker&limit=500');
-  const tasks = result.data?.items.filter((item) => item.resource.kind === 'task') ?? [];
-  const columns = ['backlog', 'todo', 'in-progress', 'review', 'done'];
-  return (
-    <>
-      <PageHeading
-        title="Work & Kanban"
-        description="Projects, boards, tasks, and schedules owned by Worker."
-        action={
-          <SegmentedControl
-            value={mode}
-            onChange={setMode}
-            data={[
-              { value: 'board', label: 'Board' },
-              { value: 'list', label: 'List' },
-            ]}
-          />
-        }
-      />
-      <TruthPanel
-        meta={result.data?.meta}
-        loading={result.loading}
-        failure={result.failure}
-        empty={Boolean(result.data && result.data.items.length === 0)}
-        onRetry={result.reload}
-      >
-        {mode === 'list' ? (
-          <ResourceTable items={result.data?.items ?? []} />
-        ) : (
-          <ScrollArea type="auto">
-            <Group align="flex-start" wrap="nowrap" className="kanban">
-              {columns.map((column) => {
-                const matching = tasks.filter((task) => taskStatus(task) === column);
-                return (
-                  <Paper withBorder p="sm" key={column} className="kanban-column">
-                    <Group justify="space-between" mb="sm">
-                      <Text fw={700}>{label(column)}</Text>
-                      <Badge variant="light">{matching.length}</Badge>
-                    </Group>
-                    <Stack>
-                      {matching.map((task) => (
-                        <Card withBorder shadow="xs" key={task.resource.canonicalId}>
-                          <Text fw={600}>{task.title}</Text>
-                          <Text size="xs" c="dimmed">
-                            {task.resource.nativeId}
-                          </Text>
-                        </Card>
-                      ))}
-                    </Stack>
-                  </Paper>
-                );
-              })}
-            </Group>
-          </ScrollArea>
-        )}
-      </TruthPanel>
-    </>
-  );
-}
-
 function ChatView() {
   const [session, setSession] = useState('all');
   const sessions = useData<Collection<UnifiedResource>>(
@@ -1822,16 +1761,6 @@ function stringField(data: Record<string, unknown>, fields: string[]) {
     if (typeof value === 'string') return value;
   }
   return '';
-}
-function taskStatus(task: UnifiedResource) {
-  const raw = stringField(task.data, ['status', 'state', 'column'])
-    .toLowerCase()
-    .replaceAll('_', '-');
-  if (raw.includes('progress') || raw === 'doing') return 'in-progress';
-  if (raw.includes('review')) return 'review';
-  if (raw.includes('done') || raw.includes('complete') || raw === 'closed') return 'done';
-  if (raw.includes('backlog')) return 'backlog';
-  return 'todo';
 }
 function summaryFields(data: Record<string, unknown>): Array<[string, string]> {
   return Object.entries(data)
