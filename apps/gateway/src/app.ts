@@ -352,6 +352,13 @@ export function buildApp(options: AppOptions) {
       );
     },
   );
+  app.get('/api/v1/models/dmm-context', async (request) => {
+    const current = await session(request);
+    auth.requirePermission(current, 'models.read');
+    if (!mutations)
+      throw new GovernanceError('MUTATIONS_UNAVAILABLE', 503, 'DMM inventory access is unavailable');
+    return mutations.owners.dmmInventory();
+  });
   app.get('/api/v1/integrations', async (request) => {
     const current = await session(request);
     const integrations = requireIntegrations();

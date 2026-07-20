@@ -164,6 +164,23 @@ export class MutationOwnerClient {
     return { capabilities, models, ...(detail === undefined ? {} : { detail }) };
   }
 
+  async dmmInventory(): Promise<{
+    providers: unknown;
+    requirements: unknown;
+    credentials: unknown;
+    models: unknown;
+    normalizedState: unknown;
+  }> {
+    const [providers, requirements, credentials, models, normalizedState] = await Promise.all([
+      this.json('dmm', 'GET', '/api/providers', undefined),
+      this.json('dmm', 'GET', '/api/providers/requirements', undefined),
+      this.json('dmm', 'GET', '/api/credentials', undefined),
+      this.json('dmm', 'GET', '/api/models', undefined),
+      this.json('dmm', 'GET', '/api/normalized-state', undefined),
+    ]);
+    return { providers, requirements, credentials, models, normalizedState };
+  }
+
   validate(input: MutationInput): MutationDefinition {
     const definition = this.definition(input.operationType);
     if (input.target.owner !== definition.owner || input.target.kind !== definition.kind)

@@ -69,6 +69,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNod
 import { ApiError, api, gateway } from './api';
 import { WorkView } from './WorkView';
 import { ProfilesView } from './ProfilesView';
+import { ModelsView } from './ModelsView';
 import type {
   ApiFailure,
   Collection,
@@ -428,15 +429,7 @@ function View({
         />
       );
     case 'models':
-      return (
-        <ResourcesView
-          title="Models & providers"
-          description="DMM catalog, provider availability, and model inventory."
-          owner="dmm"
-          kinds={['provider', 'model', 'catalog-snapshot']}
-          grouped
-        />
-      );
+      return <ModelsView canManageCredentials={principal.permissions.includes('credentials.manage')} />;
     case 'profiles':
       return <ProfilesView canManage={principal.permissions.includes('profiles.manage')} canManageModels={principal.permissions.includes('models.manage')} canDelete={principal.permissions.includes('profiles.delete')} />;
     case 'work':

@@ -66,6 +66,19 @@ describe('MutationOwnerClient', () => {
     });
   });
 
+  it('reads the fixed DMM provider, model and credential-status inventory without arbitrary proxy paths', async () => {
+    const calls: string[] = [];
+    vi.stubGlobal('fetch', vi.fn(async (request: string | URL | Request) => {
+      const url = String(request);
+      calls.push(url);
+      if (url.endsWith('/api/auth/login')) return new Response(JSON.stringify({ data: { csrfToken: 'csrf' } }), { headers: { 'content-type': 'application/json', 'set-cookie': 'dmm=session; Secure' } });
+      return Response.json({ ok: true, data: {} });
+    }));
+    await new MutationOwnerClient(config).dmmInventory();
+    for (const path of ['/api/providers', '/api/providers/requirements', '/api/credentials', '/api/models', '/api/normalized-state'])
+      expect(calls.some((url) => url.endsWith(path)), path).toBe(true);
+  });
+
   it('routes owner mutations with owner authentication and exact native paths', async () => {
     const calls: Array<{ url: string; init: RequestInit }> = [];
     vi.stubGlobal(
