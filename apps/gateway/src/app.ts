@@ -308,6 +308,83 @@ export function buildApp(options: AppOptions) {
       });
     },
   );
+  app.get('/api/v1/chat/workspace', async (request) => {
+    const current = await session(request);
+    auth.requirePermission(current, 'chat.read');
+    if (!mutations)
+      throw new GovernanceError('MUTATIONS_UNAVAILABLE', 503, 'Chat workspace is unavailable');
+    return mutations.owners.chatWorkspace();
+  });
+  app.get<{ Params: { sessionId: string } }>(
+    '/api/v1/chat/workspace/:sessionId',
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'chat.read');
+      if (!mutations)
+        throw new GovernanceError('MUTATIONS_UNAVAILABLE', 503, 'Chat workspace is unavailable');
+      return mutations.owners.chatWorkspace(request.params.sessionId);
+    },
+  );
+  app.get('/api/v1/chat/events', async (request, reply) => {
+    const current = await session(request);
+    auth.requirePermission(current, 'chat.read');
+    if (!mutations)
+      throw new GovernanceError('MUTATIONS_UNAVAILABLE', 503, 'Chat realtime is unavailable');
+
+    const rawLastEventId = request.headers['last-event-id'];
+    const lastEventId = Array.isArray(rawLastEventId) ? rawLastEventId[0] : rawLastEventId;
+    reply.hijack();
+    reply.raw.writeHead(200, {
+      'content-type': 'text/event-stream; charset=utf-8',
+      'cache-control': 'no-cache, no-transform',
+      connection: 'keep-alive',
+      'x-accel-buffering': 'no',
+    });
+    reply.raw.write(': UNIFY CHAT realtime connected\n\n');
+
+    let stopped = false;
+    let stopUpstream = () => {};
+    const heartbeat = setInterval(() => {
+      if (!stopped) reply.raw.write(': keepalive\n\n');
+    }, 15_000);
+    const stop = () => {
+      if (stopped) return;
+      stopped = true;
+      clearInterval(heartbeat);
+      stopUpstream();
+    };
+    reply.raw.on('close', stop);
+
+    try {
+      const openedUpstream = await mutations.owners.openChatRealtime(
+        (frame) => {
+          if (stopped) return;
+          const eventId =
+            frame && typeof frame === 'object' && typeof (frame as { event_id?: unknown }).event_id === 'string'
+              ? (frame as { event_id: string }).event_id.replace(/[^a-zA-Z0-9_.:-]/g, '')
+              : '';
+          const prefix = eventId ? `id: ${eventId}\n` : '';
+          reply.raw.write(`${prefix}event: chat\ndata: ${JSON.stringify(frame)}\n\n`);
+        },
+        (reason) => {
+          if (stopped) return;
+          reply.raw.write(`event: upstream\ndata: ${JSON.stringify({ status: 'disconnected', reason })}\n\n`);
+          reply.raw.end();
+          stop();
+        },
+        lastEventId,
+      );
+      if (stopped) openedUpstream();
+      else stopUpstream = openedUpstream;
+    } catch {
+      if (!stopped) {
+        reply.raw.write('event: upstream\ndata: {"status":"unavailable"}\n\n');
+        reply.raw.end();
+        stop();
+      }
+    }
+  });
+
   app.get<{ Querystring: { path?: string } }>('/api/v1/chat/download', async (request, reply) => {
     const current = await session(request);
     auth.requirePermission(current, 'chat.read');

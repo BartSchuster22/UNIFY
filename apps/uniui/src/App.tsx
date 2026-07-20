@@ -39,7 +39,7 @@ import {
   createTheme,
 } from '@mantine/core';
 import { useDisclosure, useHotkeys, useMediaQuery } from '@mantine/hooks';
-import { ChatWorkspace } from '@aquiero/chat-components';
+
 import { NotificationInbox } from '@aquiero/notification-components';
 import {
   IconActivity,
@@ -70,6 +70,7 @@ import { ApiError, api, gateway } from './api';
 import { WorkView } from './WorkView';
 import { ProfilesView } from './ProfilesView';
 import { ModelsView } from './ModelsView';
+import { ChatView } from './ChatView';
 import type {
   ApiFailure,
   Collection,
@@ -435,7 +436,7 @@ function View({
     case 'work':
       return <WorkView canManage={principal.permissions.includes('work.manage')} />;
     case 'chat':
-      return <ChatView />;
+      return <ChatView canUse={principal.permissions.includes('chat.use')} />;
     case 'memory':
       return <MemoryView />;
     case 'audit':
@@ -1317,44 +1318,6 @@ function ResourceTable({ items }: { items: UnifiedResource[] }) {
   );
 }
 
-function ChatView() {
-  const [session, setSession] = useState('all');
-  const sessions = useData<Collection<UnifiedResource>>(
-    '/resources?owner=chat&kind=chat-session&limit=100',
-  );
-  const messages = useData<Collection<UnifiedResource>>(
-    '/resources?owner=chat&kind=chat-message&limit=500',
-  );
-  return (
-    <>
-      <PageHeading
-        title="Chat"
-        description="Bounded, virtualized message history from the authoritative Chat service."
-      />
-      <TruthPanel
-        meta={messages.data?.meta}
-        loading={messages.loading || sessions.loading}
-        failure={messages.failure || sessions.failure}
-        empty={Boolean(messages.data && sessions.data && messages.data.items.length === 0)}
-        onRetry={() => {
-          sessions.reload();
-          messages.reload();
-        }}
-      >
-        <ChatWorkspace
-          sessions={sessions.data?.items ?? []}
-          messages={messages.data?.items ?? []}
-          selectedSession={session}
-          onSelectSession={setSession}
-          onRefresh={() => {
-            sessions.reload();
-            messages.reload();
-          }}
-        />
-      </TruthPanel>
-    </>
-  );
-}
 
 function MemoryView() {
   const [draft, setDraft] = useState('');

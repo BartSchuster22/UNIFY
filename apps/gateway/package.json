@@ -15,13 +15,15 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@aquiero/contracts": "workspace:*",
     "@aquiero/adapter-sdk": "workspace:*",
+    "@aquiero/contracts": "workspace:*",
     "@fastify/cookie": "11.1.2",
     "fastify": "5.10.0",
-    "pg": "8.22.0"
+    "pg": "8.22.0",
+    "ws": "8.18.3"
   },
   "devDependencies": {
-    "@types/pg": "8.20.0"
+    "@types/pg": "8.20.0",
+    "@types/ws": "8.18.1"
   }
 }

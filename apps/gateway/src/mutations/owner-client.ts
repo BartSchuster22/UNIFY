@@ -1,3 +1,4 @@
+import WebSocket from 'ws';
 import { GovernanceError } from '../governance/service.js';
 
 export type MutationTarget = {
@@ -89,6 +90,7 @@ export const mutationDefinitions: Record<string, MutationDefinition> = {
     destructive: true,
   },
   'chat.message.send': { owner: 'chat', kind: 'chat-session', permission: 'chat.use' },
+  'chat.session.create': { owner: 'chat', kind: 'chat-session', permission: 'chat.use' },
   'chat.upload': { owner: 'chat', kind: 'chat-session', permission: 'chat.use' },
   'memory.record.write': { owner: 'memory-v4', kind: 'memory-record', permission: 'memory.write' },
 };
@@ -181,6 +183,71 @@ export class MutationOwnerClient {
     return { providers, requirements, credentials, models, normalizedState };
   }
 
+  async chatWorkspace(sessionId?: string): Promise<{
+    agents: unknown;
+    sessions: unknown;
+    messages?: unknown;
+  }> {
+    const [agents, sessions, rawMessages] = await Promise.all([
+      this.json('chat', 'GET', '/api/agents', undefined),
+      this.json('chat', 'GET', '/api/chat/sessions', undefined),
+      sessionId
+        ? this.json(
+            'chat',
+            'GET',
+            `/api/chat/sessions/${encodeURIComponent(validSegment(sessionId, 'sessionId'))}/messages`,
+            undefined,
+            false,
+            16 * 1024 * 1024,
+          )
+        : Promise.resolve(undefined),
+    ]);
+    const messages = rawMessages === undefined ? undefined : latestChatMessages(rawMessages, 500);
+    return { agents, sessions, ...(messages === undefined ? {} : { messages }) };
+  }
+
+  async openChatRealtime(
+    onFrame: (frame: unknown) => void,
+    onDisconnect: (reason: string) => void,
+    lastEventId?: string,
+  ): Promise<() => void> {
+    const ownerSession = await this.session('chat');
+    const endpoint = new URL('/api/realtime', this.url('chat'));
+    endpoint.protocol = endpoint.protocol === 'https:' ? 'wss:' : 'ws:';
+    let intentionallyClosed = false;
+    let disconnectReported = false;
+    const reportDisconnect = (reason: string) => {
+      if (!intentionallyClosed && !disconnectReported) {
+        disconnectReported = true;
+        onDisconnect(reason);
+      }
+    };
+    const socket = new WebSocket(endpoint, { headers: { cookie: ownerSession.cookie } });
+    socket.on('open', () => {
+      socket.send(
+        JSON.stringify({
+          type: 'subscribe',
+          topics: ['chat:*'],
+          ...(lastEventId ? { last_event_id: lastEventId } : {}),
+        }),
+      );
+    });
+    socket.on('message', (data) => {
+      try {
+        onFrame(JSON.parse(data.toString()));
+      } catch {
+        // Ignore malformed owner frames; the stream remains usable.
+      }
+    });
+    socket.on('error', () => reportDisconnect('upstream_error'));
+    socket.on('close', () => reportDisconnect('upstream_closed'));
+    return () => {
+      intentionallyClosed = true;
+      if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)
+        socket.close();
+    };
+  }
+
   validate(input: MutationInput): MutationDefinition {
     const definition = this.definition(input.operationType);
     if (input.target.owner !== definition.owner || input.target.kind !== definition.kind)
@@ -240,6 +307,10 @@ export class MutationOwnerClient {
       record(payload.schedule, 'schedule');
     }
     if (action === 'chat.message.send') nonEmptyArray(payload.blocks, 'blocks');
+    if (action === 'chat.session.create') {
+      string(payload.agent_id, 'agent_id');
+      string(payload.title, 'title');
+    }
     if (action === 'chat.upload') {
       const name = string(payload.name, 'name');
       const mime = string(payload.mime, 'mime').toLowerCase();
@@ -383,6 +454,10 @@ export class MutationOwnerClient {
       return dryRun
         ? { valid: true, dryRun: true }
         : this.json('chat', 'POST', `/api/chat/sessions/${id}/messages`, payload);
+    if (action === 'chat.session.create')
+      return dryRun
+        ? { valid: true, dryRun: true }
+        : this.json('chat', 'POST', '/api/chat/sessions', payload);
     if (action === 'chat.upload')
       return dryRun
         ? { valid: true, dryRun: true }
@@ -435,6 +510,7 @@ export class MutationOwnerClient {
     path: string,
     body: unknown,
     retried = false,
+    maxResponseChars = 2 * 1024 * 1024,
   ): Promise<unknown> {
     const headers: Record<string, string> = {
       accept: 'application/json',
@@ -461,11 +537,15 @@ export class MutationOwnerClient {
     ) {
       this.#sessions.delete(owner);
       await response.arrayBuffer();
-      return this.json(owner, method, path, body, true);
+      return this.json(owner, method, path, body, true, maxResponseChars);
     }
     const text = await response.text();
-    if (text.length > 2 * 1024 * 1024)
-      throw new GovernanceError('UPSTREAM_RESPONSE_TOO_LARGE', 502, 'Owner response exceeds 2 MB');
+    if (text.length > maxResponseChars)
+      throw new GovernanceError(
+        'UPSTREAM_RESPONSE_TOO_LARGE',
+        502,
+        `Owner response exceeds ${Math.round(maxResponseChars / 1024 / 1024)} MB`,
+      );
     if (!response.ok) throw upstreamError(owner, response.status, text);
     try {
       return text ? JSON.parse(text) : { ok: true };
@@ -520,6 +600,19 @@ export class MutationOwnerClient {
               : this.#config.memoryUrl,
     );
   }
+}
+
+function latestChatMessages(value: unknown, limit: number): unknown {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return value;
+  const response = value as Record<string, unknown>;
+  const messages = response.messages;
+  if (!Array.isArray(messages)) return value;
+  return {
+    ...response,
+    messages: messages.slice(-limit),
+    total: messages.length,
+    truncated: messages.length > limit,
+  };
 }
 
 function validSegment(value: string, field: string): string {

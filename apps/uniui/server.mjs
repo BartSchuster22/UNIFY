@@ -2,6 +2,7 @@ import { createServer } from 'node:http';
 import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { extname, join, normalize } from 'node:path';
+import { Readable } from 'node:stream';
 const host = process.env.HOST ?? '0.0.0.0';
 const port = Number(process.env.PORT ?? 3000);
 const gateway = (process.env.GATEWAY_INTERNAL_URL ?? 'http://gateway:8080').replace(/\/$/, '');
@@ -83,11 +84,15 @@ async function proxy(req, res) {
     if (value !== undefined && !['host', 'connection', 'content-length'].includes(key))
       headers.set(key, Array.isArray(value) ? value.join(',') : value);
   const body = chunks.length ? Buffer.concat(chunks) : undefined;
+  const controller = new AbortController();
+  req.once('aborted', () => controller.abort());
+  res.once('close', () => { if (!res.writableEnded) controller.abort(); });
   const upstream = await fetch(`${gateway}${req.url}`, {
     method: req.method,
     headers,
     ...(body ? { body } : {}),
     redirect: 'manual',
+    signal: controller.signal,
   });
   const outgoing = { ...security };
   upstream.headers.forEach((value, key) => {
@@ -106,7 +111,11 @@ async function proxy(req, res) {
   const cookies = upstream.headers.getSetCookie();
   if (cookies.length) outgoing['set-cookie'] = cookies;
   res.writeHead(upstream.status, outgoing);
-  res.end(Buffer.from(await upstream.arrayBuffer()));
+  if (!upstream.body) {
+    res.end();
+    return;
+  }
+  Readable.fromWeb(upstream.body).on('error', () => res.destroy()).pipe(res);
 }
 server.listen(port, host, () => console.log(`Focused web shell listening on ${host}:${port}`));
 for (const signal of ['SIGTERM', 'SIGINT'])
