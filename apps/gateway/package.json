@@ -18,6 +18,7 @@
     "@aquiero/adapter-sdk": "workspace:*",
     "@aquiero/contracts": "workspace:*",
     "@fastify/cookie": "11.1.2",
+    "@sinclair/typebox": "0.34.52",
     "fastify": "5.10.0",
     "pg": "8.22.0",
     "ws": "8.18.3"

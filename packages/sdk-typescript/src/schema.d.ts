@@ -212,6 +212,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/frameworks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listFrameworkRegistrations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/frameworks/{frameworkId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getFrameworkRegistration"];
+        put: operations["registerFramework"];
+        post?: never;
+        delete: operations["unregisterFramework"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/resources": {
         parameters: {
             query?: never;
@@ -1231,6 +1263,235 @@ export interface components {
             };
             result: unknown;
         };
+        /** @constant */
+        HermesContractVersion: "hermes-control/v1";
+        HermesFrameworkId: string;
+        HermesControlMetadata: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+        };
+        HermesIdentityResponse: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                /** @constant */
+                runtime: "hermes-agent";
+                instanceId: string;
+                displayName: string;
+            };
+        };
+        HermesHealthResponse: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                status: "healthy" | "degraded" | "unavailable";
+                checks: {
+                    [key: string]: {
+                        status: "healthy" | "degraded" | "unavailable";
+                        safeCode?: string;
+                    };
+                };
+            };
+        };
+        HermesVersionResponse: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                release: string;
+                commit: string;
+                upstreamBaseCommit?: string;
+                dirty: boolean;
+                pythonVersion: string;
+            };
+        };
+        HermesCapabilityStatus: "supported" | "unsupported" | "unavailable" | "forbidden";
+        HermesCapabilityMode: "read" | "validate" | "dry-run" | "execute" | "verify" | "subscribe";
+        HermesCapability: {
+            status: "supported" | "unsupported" | "unavailable" | "forbidden";
+            modes: ("read" | "validate" | "dry-run" | "execute" | "verify" | "subscribe")[];
+            requiredScopes: string[];
+            reasonCode?: string;
+            constraints?: {
+                [key: string]: unknown;
+            };
+        };
+        HermesCapabilitiesResponse: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                capabilities: {
+                    [key: string]: {
+                        status: "supported" | "unsupported" | "unavailable" | "forbidden";
+                        modes: ("read" | "validate" | "dry-run" | "execute" | "verify" | "subscribe")[];
+                        requiredScopes: string[];
+                        reasonCode?: string;
+                        constraints?: {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        HermesPage: {
+            nextCursor?: string;
+            hasMore: boolean;
+        };
+        HermesCollectionResponse: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                items: unknown[];
+                page: {
+                    nextCursor?: string;
+                    hasMore: boolean;
+                };
+            };
+        };
+        HermesControlErrorCode: "invalid_request" | "unauthenticated" | "forbidden" | "not_found" | "conflict" | "source_version_mismatch" | "idempotency_conflict" | "unsupported_contract_version" | "unsupported_framework_version" | "capability_unsupported" | "capability_unavailable" | "replay_gap" | "rate_limited" | "internal_error";
+        HermesControlErrorResponse: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId?: string;
+            error: {
+                code: "invalid_request" | "unauthenticated" | "forbidden" | "not_found" | "conflict" | "source_version_mismatch" | "idempotency_conflict" | "unsupported_contract_version" | "unsupported_framework_version" | "capability_unsupported" | "capability_unavailable" | "replay_gap" | "rate_limited" | "internal_error";
+                message: string;
+                requestId: string;
+                retryable: boolean;
+                retryAfterSeconds?: number;
+                details?: {
+                    [key: string]: unknown;
+                };
+            };
+        };
+        HermesControlCommand: {
+            mode: "validate" | "dry-run" | "execute";
+            idempotencyKey: string;
+            expectedSourceVersion?: string;
+            requestId: string;
+            correlationId: string;
+            actor: {
+                type: "user" | "service";
+                id: string;
+            };
+            payload: {
+                [key: string]: unknown;
+            };
+        };
+        HermesEventEnvelope: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            eventId: string;
+            sequence: number;
+            sourceVersion: string;
+            type: string;
+            classification: "durable" | "ephemeral";
+            /** Format: date-time */
+            occurredAt: string;
+            correlationId?: string;
+            operationId?: string;
+            runId?: string;
+            payload: {
+                [key: string]: unknown;
+            };
+        };
+        FrameworkScope: "control:read" | "control:execute" | "control:secrets" | "control:delivery" | "control:approval" | "control:events";
+        FrameworkRegistrationInput: {
+            frameworkId: string;
+            displayName: string;
+            baseUrl: string;
+            serviceAuthReference: string;
+            scopes: ("control:read" | "control:execute" | "control:secrets" | "control:delivery" | "control:approval" | "control:events")[];
+            /** @constant */
+            expectedContractVersion: "hermes-control/v1";
+            /** @constant */
+            expectedFrameworkVersion: "0.18.0";
+            /** @constant */
+            expectedFrameworkCommit: "9e54eee44f1cbbe62247a36546e51ff8940373c6";
+            enabled: boolean;
+        };
+        FrameworkRegistration: {
+            frameworkId: string;
+            displayName: string;
+            baseUrl: string;
+            serviceAuthConfigured: boolean;
+            scopes: ("control:read" | "control:execute" | "control:secrets" | "control:delivery" | "control:approval" | "control:events")[];
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            /** @constant */
+            frameworkVersion: "0.18.0";
+            /** @constant */
+            frameworkCommit: "9e54eee44f1cbbe62247a36546e51ff8940373c6";
+            status: "verified" | "disabled" | "unavailable" | "unsupported";
+            enabled: boolean;
+            /** Format: date-time */
+            verifiedAt?: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        FrameworkRegistrationList: {
+            items: {
+                frameworkId: string;
+                displayName: string;
+                baseUrl: string;
+                serviceAuthConfigured: boolean;
+                scopes: ("control:read" | "control:execute" | "control:secrets" | "control:delivery" | "control:approval" | "control:events")[];
+                /** @constant */
+                contractVersion: "hermes-control/v1";
+                /** @constant */
+                frameworkVersion: "0.18.0";
+                /** @constant */
+                frameworkCommit: "9e54eee44f1cbbe62247a36546e51ff8940373c6";
+                status: "verified" | "disabled" | "unavailable" | "unsupported";
+                enabled: boolean;
+                /** Format: date-time */
+                verifiedAt?: string;
+                /** Format: date-time */
+                createdAt: string;
+                /** Format: date-time */
+                updatedAt: string;
+            }[];
+        };
     };
     responses: never;
     parameters: never;
@@ -1773,6 +2034,166 @@ export interface operations {
             };
             /** @description ErrorResponse */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listFrameworkRegistrations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description FrameworkRegistrationList */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FrameworkRegistrationList"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getFrameworkRegistration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                frameworkId: components["schemas"]["HermesFrameworkId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description FrameworkRegistration */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FrameworkRegistration"];
+                };
+            };
+            /** @description ErrorResponse */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    registerFramework: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                frameworkId: components["schemas"]["HermesFrameworkId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FrameworkRegistrationInput"];
+            };
+        };
+        responses: {
+            /** @description FrameworkRegistration */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FrameworkRegistration"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    unregisterFramework: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                frameworkId: components["schemas"]["HermesFrameworkId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Framework unregistered */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ErrorResponse */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

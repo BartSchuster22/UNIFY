@@ -97,6 +97,26 @@ for (const [name, marker] of historicalDocumentMarkers) {
     violations.push(`${name}: required source-of-truth supersession marker is missing`);
 }
 
+const immutableFrameworkDocuments = new Map([
+  [
+    'docs/plans/HERMES-SOT-REBUILD-AND-IMPLEMENTATION-PLAN.md',
+    /Hermes Agent is an immutable external framework/,
+  ],
+  [
+    'docs/architecture/HERMES-CONTROL-V1.md',
+    /UNIFY-owned adapter contract[\s\S]*not an API that Hermes must implement/,
+  ],
+]);
+for (const [name, marker] of immutableFrameworkDocuments) {
+  const body = await readFile(resolve(root, name), 'utf8');
+  if (!marker.test(body))
+    violations.push(`${name}: immutable external Hermes framework boundary is missing`);
+}
+
+const pinnedFixture = await readFile(resolve(root, 'scripts/hermes-pinned-fixture.mjs'), 'utf8');
+if (/\b(?:writeFile|appendFile|rm|unlink|rename|copyFile|chmod|chown)\b/.test(pinnedFixture))
+  violations.push('hermes-pinned-fixture.mjs: fixture must never mutate the Hermes checkout');
+
 if (violations.length) {
   console.error('Hermes source-of-truth policy violations:');
   for (const violation of violations) console.error(`- ${violation}`);

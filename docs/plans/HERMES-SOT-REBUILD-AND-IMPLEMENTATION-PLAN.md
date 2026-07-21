@@ -23,7 +23,7 @@
 1. Every domain resource has `owner: hermes` and an exact `frameworkId`, except UNIFY-owned access/audit/UI records.
 2. Agency, DMM, Worker and CHAT are never returned as authoritative owners.
 3. The browser talks only to UNIFY Gateway.
-4. UNIFY Gateway talks directly to a versioned Hermes control contract.
+4. UNIFY Gateway talks to a versioned UNIFY-owned Hermes adapter contract; the adapter approaches existing Hermes interfaces without changing Hermes.
 5. Legacy applications may be read during migration for comparison or import only; they are not a write path.
 6. There is one writer for each framework record at all times: Hermes.
 7. UNIFY PostgreSQL stores access-plane state and derived projections only, never a competing domain ledger.
@@ -32,6 +32,7 @@
 10. External-channel ingestion and delivery remain singular inside Hermes Gateway; UNIFY never runs a second Telegram/Discord/etc. consumer.
 11. Legacy retirement is complete only when removing the legacy service, database and credentials has no effect on UNIFY behavior.
 12. A compatibility bridge is explicitly labeled `migration-only`, feature-flagged, observable and time-bounded.
+13. Hermes Agent is an immutable external framework. UNIFY-specific APIs, adapters, schemas, authentication, events and compatibility logic must never be added to the Hermes codebase.
 
 ### 1.3 Target request and event paths
 
@@ -40,8 +41,8 @@ Browser / mobile client
   -> UNIFY UI
   -> /api/v1/* on UNIFY Gateway
        -> authentication + RBAC + policy
-       -> canonical Hermes adapter
-       -> exact registered Hermes framework
+       -> canonical UNIFY-owned Hermes adapter
+       -> existing interfaces of the exact registered Hermes framework
             -> profiles / runtime / providers / models
             -> projects / Kanban / cron
             -> sessions / messages / runs / approvals
@@ -49,7 +50,7 @@ Browser / mobile client
             -> durable framework events
        -> verified readback / operation audit
 
-Hermes durable event stream
+UNIFY adapter event/reconciliation stream derived from Hermes truth
   -> UNIFY event ingestor and cursor
   -> permission-filtered UNIFY SSE
   -> UNIFY UI reconciliation
@@ -70,7 +71,7 @@ The rebuild is required. The current repository is a strangler prototype, not th
 | Area | Current implementation | Violation / risk | Required replacement |
 |---|---|---|---|
 | Resource ownership | Contracts allow `agency`, `dmm`, `worker`, and `chat` owners | Legacy applications can be presented as authoritative | Restrict domain ownership to `hermes`; retain `gateway` only for access-plane records |
-| Profiles | UNIFY reads and mutates through Agency | Extra control plane and authentication dependency | Direct Hermes profile/control API |
+| Profiles | UNIFY reads and mutates through Agency | Extra control plane and authentication dependency | UNIFY adapter over existing Hermes profile interfaces |
 | Providers/models | UNIFY reads inventory and credentials through DMM | DMM is treated as model/credential owner | Hermes provider registry, runtime resolver and secret/auth control contract |
 | Work | UNIFY reads and mutates Worker project/task/cron APIs | Worker metadata becomes a competing ledger | Hermes Projects + Kanban + cron APIs |
 | CHAT reads | UNIFY reads CHAT SQLite-backed sessions/messages | CHAT becomes the conversation ledger | Hermes SessionDB and Hermes Gateway session metadata |
@@ -98,11 +99,11 @@ The installed Hermes line and current official documentation provide substantial
 - Durable Hermes Kanban boards/tasks/comments/links/runs in Hermes-owned SQLite.
 - A local Hermes control contract for profile reads, profile mutations, model selection and profile events.
 
-### 2.2 Hermes contract gaps that must be completed
+### 2.2 UNIFY adapter gaps that must be completed
 
-The rebuild must not work around these gaps in UNIFY or in another legacy application:
+These are UNIFY integration requirements. They must be implemented on the UNIFY side against existing Hermes interfaces. If Hermes does not expose a safe existing interface, the capability remains unsupported; Hermes must not be changed for UNIFY:
 
-1. A supported, versioned machine control API covering all required profile operations.
+1. A supported, versioned UNIFY adapter API covering all profile operations safely reachable through existing Hermes interfaces.
 2. Provider inventory, credential status, credential validate/save/delete and model selection without exposing secrets.
 3. Projects and Kanban boards/tasks/comments/dependencies/runs through authenticated HTTP or JSON-RPC suitable for UNIFY.
 4. A canonical global conversation view combining SessionDB records with Hermes Gateway route metadata.
@@ -120,15 +121,15 @@ The active installation reports Hermes `0.18.0 (2026.7.1)` with a local carried 
 - identify the exact deployed commit for every Hermes profile;
 - inventory local control-plane changes;
 - compare them with current upstream APIs;
-- rebase or upstream the required control contracts;
+- keep all required control adaptation in UNIFY;
 - pin a tested Hermes release/commit in UNIFY framework registration;
 - reject unsupported framework versions instead of guessing compatibility.
 
 ---
 
-## 3. Target Hermes control contract
+## 3. Target UNIFY-owned Hermes adapter contract
 
-The contract may be implemented in Hermes API Server or an authenticated Hermes control adapter shipped in Hermes. It must execute inside the framework boundary and call Hermes-native modules rather than reading files from UNIFY.
+The contract is implemented and shipped only by UNIFY. It identifies and approaches an immutable Hermes framework through existing, independently supported Hermes interfaces. Hermes does not import, implement, or know about this contract. Adapter projections and derived events must preserve Hermes as the sole domain authority and must never create a competing domain ledger.
 
 ### 3.1 Contract metadata
 
@@ -396,8 +397,8 @@ The word `chat` may remain a user-facing domain name. It must not mean the retir
 ### 4.5 Security
 
 - Browser receives only UNIFY cookies/tokens.
-- Hermes endpoint and service credentials remain server-side.
-- Use a separate least-privilege Hermes service credential per registered framework.
+- UNIFY adapter endpoint and any existing Hermes credentials remain server-side.
+- Use separate least-privilege service-auth references per registered framework adapter.
 - Separate read, execute, secrets, delivery and approval scopes.
 - Require CSRF on cookie-authenticated writes.
 - Require idempotency keys and source versions on writes.
@@ -405,7 +406,7 @@ The word `chat` may remain a user-facing domain name. It must not mean the retir
 - Recursively redact credentials, cookies, tokens, identity files and tool outputs.
 - Audit denied and failed operations as well as successful ones.
 - Do not log conversation bodies by default.
-- Framework TLS/private-network identity must be verified; no public unauthenticated Hermes control endpoint.
+- Adapter TLS/private-network identity must be verified; no public unauthenticated UNIFY control-adapter endpoint.
 
 ---
 
@@ -543,26 +544,27 @@ No phase is complete because code exists. Each phase must satisfy its exit gate 
 - Contract tests run against a real pinned Hermes fixture.
 - Unsupported versions fail closed.
 
-### Phase 2 — Complete Hermes control-plane foundations
+### Phase 2 — Complete UNIFY-side Hermes adapter foundations
 
 **Work**
 
-- Harden/merge profile control APIs.
-- Add provider credential/status control.
-- Add Projects/Kanban control API.
-- Add global conversation/delivery control API.
-- Add durable global event journal and replay.
-- Add idempotency, source versions and correlation.
+- Implement profile adaptation over existing Hermes interfaces.
+- Implement provider credential/status adaptation where existing Hermes interfaces safely permit it.
+- Implement Projects/Kanban adaptation over existing Hermes interfaces.
+- Implement conversation/delivery adaptation over existing Hermes interfaces without running a second channel consumer.
+- Add a UNIFY-owned derived event journal and reconciliation without treating it as domain truth.
+- Add UNIFY-side idempotency, source-version derivation and correlation.
 
 **Exit gate**
 
-- Hermes integration suite proves every capability without Agency/DMM/Worker/CHAT running.
+- UNIFY adapter integration suite proves every supported capability against an unchanged pinned Hermes checkout without Agency/DMM/Worker/CHAT running.
+- Git verification proves the Hermes checkout was not modified; unavailable interfaces remain explicitly unsupported.
 
 ### Phase 3 — Rebuild UNIFY Gateway around Hermes
 
 **Work**
 
-- Implement typed `HermesControlClient` and domain adapters.
+- Implement typed `HermesControlClient` against the UNIFY-owned adapter contract and domain adapters.
 - Replace owner mutation definitions with capability commands targeting `frameworkId`.
 - Implement operation verification and event ingestion.
 - Introduce cursor endpoints and framework provenance.
@@ -737,7 +739,7 @@ A domain is not production-ready until all ten gates pass.
 
 | Suite | Required proof |
 |---|---|
-| Hermes contract | Schema/version/capability, pagination, source versions, errors, idempotency, readback |
+| UNIFY Hermes-adapter contract | Schema/version/capability, pagination, source versions, errors, idempotency, readback |
 | Gateway unit | RBAC, policy, mappings, redaction, operation transitions, cursor handling |
 | Adapter integration | Real pinned Hermes instance for every read/write/event family |
 | Migration | Repeatable import, dedupe, conflicts, hashes, rollback/quarantine |
@@ -779,7 +781,7 @@ Each flag binds to:
 
 ### 10.2 Cutover sequence per domain
 
-1. Direct Hermes read contract passes.
+1. UNIFY adapter read contract against the unchanged Hermes framework passes.
 2. Legacy-vs-Hermes shadow comparison passes.
 3. Import/reconciliation completes.
 4. Legacy write path is disabled.
@@ -797,7 +799,7 @@ Rollback never makes a legacy app the source of truth again after Hermes import.
 
 - Disable the affected UNIFY execute capability.
 - Keep UNIFY reads on Hermes or show unavailable/stale truth.
-- Repair/restore Hermes from its verified backup or revert the Hermes control adapter/version.
+- Repair/restore Hermes from its verified backup when Hermes itself is unhealthy, or revert the UNIFY control-adapter version.
 - Replay or reconcile framework events.
 - Legacy UI may be used only as a read-only diagnostic if it reads Hermes directly; its old database is not reactivated as writer.
 
@@ -838,14 +840,14 @@ No network connection from UNIFY containers to legacy ports
 | Epic | Deliverable | Dependency |
 |---|---|---|
 | E0 Architecture correction | Binding ADR, corrected SoT matrix, CI architecture guard | None |
-| E1 Hermes baseline | Pinned/upgraded Hermes release and local patch inventory | E0 |
-| E2 Hermes contract schemas | OpenAPI/JSON schemas, SDK fixtures, capabilities | E1 |
-| E3 Hermes control security | Scoped service auth, idempotency, versions, audit correlation | E2 |
-| E4 Profile control | Direct profile CRUD/runtime/health/usage | E3 |
-| E5 Provider/model control | Registry, credentials, validation, routing | E3 |
-| E6 Work control | Projects, Kanban, cron and event support | E3 |
-| E7 Conversation control | Sessions/messages/runs/routes/delivery/attachments | E3 |
-| E8 Durable events | Global journal, cursor, replay gap, subscriptions | E3-E7 |
+| E1 Hermes baseline | Pinned, verified Hermes release and local patch inventory; no Hermes modification | E0 |
+| E2 UNIFY Hermes-adapter schemas | OpenAPI/JSON schemas, SDK fixtures, capabilities | E1 |
+| E3 UNIFY adapter security | Scoped service auth, idempotency, versions, audit correlation | E2 |
+| E4 Profile adaptation | Profile CRUD/runtime/health/usage through existing Hermes interfaces | E3 |
+| E5 Provider/model adaptation | Registry, credentials, validation, routing through existing Hermes interfaces | E3 |
+| E6 Work adaptation | Projects, Kanban, cron and event support through existing Hermes interfaces | E3 |
+| E7 Conversation adaptation | Sessions/messages/runs/routes/delivery/attachments through existing Hermes interfaces | E3 |
+| E8 Derived durable events | UNIFY journal, cursor, replay gap, subscriptions; Hermes remains domain SoT | E3-E7 |
 | E9 Gateway framework layer | Registry, typed client, capabilities, operations, events | E2-E8 |
 | E10 UNIFY Profiles/Models | Hermes-backed APIs/UI and migrations | E4-E5,E9 |
 | E11 UNIFY Work | Hermes-backed APIs/UI and Worker migration | E6,E8-E9 |
@@ -853,7 +855,7 @@ No network connection from UNIFY containers to legacy ports
 | E13 Hardening | Security, performance, accessibility, chaos, DR | E10-E12 |
 | E14 Cutover/retirement | Canary, stable window, shutdown and archive | E13 |
 
-Parallelization is allowed only after E3: profile, provider, work and conversation Hermes contracts may proceed in parallel, but all must use the same identity, capability, command and event envelope.
+Parallelization is allowed only after E3: profile, provider, work and conversation UNIFY adapters may proceed in parallel, but all must use the same identity, capability, command and event envelope and must not modify Hermes.
 
 ---
 
@@ -868,5 +870,6 @@ UNIFY is fully production-ready only when all statements below are true:
 5. New sessions, agents, provider/model changes, projects, tasks and schedules execute directly in Hermes.
 6. All ten QA gates pass with retained evidence.
 7. Agency, DMM, Worker and CHAT can be—and are—retired without functional regression.
+8. Hermes Agent contains no UNIFY-specific code, contract, dependency or compatibility change.
 
 Until then, any working legacy-backed integration is a migration bridge, not final production readiness.

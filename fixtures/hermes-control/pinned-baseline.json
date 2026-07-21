@@ -1,0 +1,37 @@
+{
+  "contractVersion": "hermes-control/v1",
+  "frameworkId": "hermes-dev",
+  "frameworkVersion": "0.18.0",
+  "frameworkCommit": "9e54eee44f1cbbe62247a36546e51ff8940373c6",
+  "upstreamBaseCommit": "a41d280f95c69f67380358b305b62345934ecaf3",
+  "sourceVersion": "git:9e54eee44f1cbbe62247a36546e51ff8940373c6",
+  "runtime": "hermes-agent",
+  "instanceId": "pinned-hermes-dev",
+  "displayName": "Pinned Hermes development baseline",
+  "capabilities": {
+    "profiles.read": {
+      "status": "unsupported",
+      "modes": [],
+      "requiredScopes": ["control:read"],
+      "reasonCode": "PHASE_2_NOT_IMPLEMENTED"
+    },
+    "models.read": {
+      "status": "unsupported",
+      "modes": [],
+      "requiredScopes": ["control:read"],
+      "reasonCode": "PHASE_2_NOT_IMPLEMENTED"
+    },
+    "work.read": {
+      "status": "unsupported",
+      "modes": [],
+      "requiredScopes": ["control:read"],
+      "reasonCode": "PHASE_2_NOT_IMPLEMENTED"
+    },
+    "events.subscribe": {
+      "status": "unsupported",
+      "modes": [],
+      "requiredScopes": ["control:events"],
+      "reasonCode": "PHASE_2_NOT_IMPLEMENTED"
+    }
+  }
+}

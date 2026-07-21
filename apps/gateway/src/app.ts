@@ -5,7 +5,11 @@ import { AuthError, AuthService } from './auth/service.js';
 import type { AuthStore, SessionRecord } from './auth/types.js';
 import { GovernanceError, GovernanceService } from './governance/service.js';
 import type { GovernanceStore, OperationRecord } from './governance/types.js';
-import type { ResourceRef } from '@aquiero/contracts';
+import {
+  FrameworkRegistrationInputSchema,
+  type FrameworkRegistrationInput,
+  type ResourceRef,
+} from '@aquiero/contracts';
 import type { IntegrationService } from './integrations/service.js';
 import type { IntegrationKind, IntegrationOwner } from './integrations/types.js';
 import { MutationService } from './mutations/service.js';
@@ -13,6 +17,8 @@ import type { MutationOwnerClient } from './mutations/owner-client.js';
 import type { NotificationStore } from './notifications/postgres-store.js';
 import { CutoverPolicy } from './cutover/policy.js';
 import { FixedWindowRateLimiter } from './security/rate-limiter.js';
+import { FrameworkRegistryError } from './framework-registry/service.js';
+import type { FrameworkRegistryService } from './framework-registry/service.js';
 export interface AppOptions {
   authStore: AuthStore;
   authPepper: string;
@@ -26,6 +32,7 @@ export interface AppOptions {
   notificationStore?: NotificationStore;
   cutoverPolicy?: CutoverPolicy;
   requestRateLimit?: number;
+  frameworkRegistry?: FrameworkRegistryService;
 }
 const SESSION_COOKIE = 'aquiero_session';
 const CSRF_COOKIE = 'aquiero_csrf';
@@ -86,7 +93,11 @@ export function buildApp(options: AppOptions) {
   });
   app.setErrorHandler((error, request, reply) => {
     const domainError =
-      error instanceof AuthError || error instanceof GovernanceError ? error : null;
+      error instanceof AuthError ||
+      error instanceof GovernanceError ||
+      error instanceof FrameworkRegistryError
+        ? error
+        : null;
     const status = domainError?.statusCode ?? 500;
     if (!domainError) request.log.error({ err: error }, 'request failed');
     void reply.status(status).send({
@@ -124,7 +135,8 @@ export function buildApp(options: AppOptions) {
     const ready =
       (await options.authStore.ready()) &&
       (!options.governanceStore || (await options.governanceStore.ready())) &&
-      (!options.notificationStore || (await options.notificationStore.ready()));
+      (!options.notificationStore || (await options.notificationStore.ready())) &&
+      (!options.frameworkRegistry || (await options.frameworkRegistry.ready()));
     return reply
       .status(ready ? 200 : 503)
       .send({ status: ready ? 'ready' : 'not_ready', release: options.release ?? 'development' });
@@ -464,6 +476,105 @@ export function buildApp(options: AppOptions) {
     reply.header('x-unify-source-role', 'migration-only');
     return mutations.owners.dmmInventory();
   });
+  app.get('/api/v1/frameworks', async (request) => {
+    const current = await session(request);
+    auth.requirePermission(current, 'frameworks.read');
+    if (!options.frameworkRegistry)
+      throw new FrameworkRegistryError(
+        'FRAMEWORK_REGISTRY_UNAVAILABLE',
+        503,
+        'Framework registry is unavailable',
+      );
+    return { items: await options.frameworkRegistry.list() };
+  });
+  app.get<{ Params: { frameworkId: string } }>(
+    '/api/v1/frameworks/:frameworkId',
+    async (request, reply) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'frameworks.read');
+      if (!options.frameworkRegistry)
+        throw new FrameworkRegistryError(
+          'FRAMEWORK_REGISTRY_UNAVAILABLE',
+          503,
+          'Framework registry is unavailable',
+        );
+      const item = await options.frameworkRegistry.get(request.params.frameworkId);
+      return (
+        item ??
+        reply.status(404).send({
+          error: {
+            code: 'FRAMEWORK_NOT_FOUND',
+            message: 'Framework not found',
+            requestId: request.id,
+            retryable: false,
+          },
+        })
+      );
+    },
+  );
+  app.put<{ Params: { frameworkId: string }; Body: FrameworkRegistrationInput }>(
+    '/api/v1/frameworks/:frameworkId',
+    { schema: { body: FrameworkRegistrationInputSchema } },
+    async (request) => {
+      const current = await mutationSession(request);
+      auth.requirePermission(current, 'settings.manage');
+      if (request.params.frameworkId !== request.body.frameworkId)
+        throw new FrameworkRegistryError(
+          'FRAMEWORK_ID_MISMATCH',
+          422,
+          'Path and body framework IDs differ',
+        );
+      if (!options.frameworkRegistry)
+        throw new FrameworkRegistryError(
+          'FRAMEWORK_REGISTRY_UNAVAILABLE',
+          503,
+          'Framework registry is unavailable',
+        );
+      const item = await options.frameworkRegistry.register(request.body);
+      await governance?.audit({
+        actorUserId: current.userId,
+        sessionId: current.sessionId,
+        action: 'framework.register',
+        outcome: 'success',
+        requestId: request.id,
+        target: { frameworkId: item.frameworkId },
+        details: { contractVersion: item.contractVersion, frameworkCommit: item.frameworkCommit },
+      });
+      return item;
+    },
+  );
+  app.delete<{ Params: { frameworkId: string } }>(
+    '/api/v1/frameworks/:frameworkId',
+    async (request, reply) => {
+      const current = await mutationSession(request);
+      auth.requirePermission(current, 'settings.manage');
+      if (!options.frameworkRegistry)
+        throw new FrameworkRegistryError(
+          'FRAMEWORK_REGISTRY_UNAVAILABLE',
+          503,
+          'Framework registry is unavailable',
+        );
+      const removed = await options.frameworkRegistry.remove(request.params.frameworkId);
+      if (!removed)
+        return reply.status(404).send({
+          error: {
+            code: 'FRAMEWORK_NOT_FOUND',
+            message: 'Framework not found',
+            requestId: request.id,
+            retryable: false,
+          },
+        });
+      await governance?.audit({
+        actorUserId: current.userId,
+        sessionId: current.sessionId,
+        action: 'framework.unregister',
+        outcome: 'success',
+        requestId: request.id,
+        target: { frameworkId: request.params.frameworkId },
+      });
+      return reply.status(204).send();
+    },
+  );
   app.get('/api/v1/integrations', async (request) => {
     const current = await session(request);
     const integrations = requireIntegrations();

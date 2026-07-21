@@ -1,4 +1,6 @@
 import { FormatRegistry, Type, type Static, type TSchema } from '@sinclair/typebox';
+import { HermesControlSchemas } from './hermes-control.js';
+export * from './hermes-control.js';
 
 if (!FormatRegistry.Has('date-time')) {
   FormatRegistry.Set('date-time', (value) => !Number.isNaN(Date.parse(value)));
@@ -512,6 +514,7 @@ const schemas: TSchema[] = [
   MutationTargetSchema,
   MutationRequestSchema,
   MutationResponseSchema,
+  ...HermesControlSchemas,
 ];
 
 export function buildOpenApiDocument(): Record<string, unknown> {
@@ -531,6 +534,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
       { name: 'mutations' },
       { name: 'audit' },
       { name: 'integrations' },
+      { name: 'frameworks' },
       { name: 'search' },
       { name: 'events' },
       { name: 'notifications' },
@@ -675,6 +679,67 @@ export function buildOpenApiDocument(): Record<string, unknown> {
       },
       '/audit': readPath('audit', 'listAuditEvents', 'AuditEventList'),
       '/integrations': readPath('integrations', 'listIntegrations', 'IntegrationStatusList'),
+      '/frameworks': readPath(
+        'frameworks',
+        'listFrameworkRegistrations',
+        'FrameworkRegistrationList',
+      ),
+      '/frameworks/{frameworkId}': {
+        get: {
+          tags: ['frameworks'],
+          operationId: 'getFrameworkRegistration',
+          security: [{ cookieSession: [] }],
+          parameters: [
+            {
+              name: 'frameworkId',
+              in: 'path',
+              required: true,
+              schema: { $ref: '#/components/schemas/HermesFrameworkId' },
+            },
+          ],
+          responses: {
+            '200': jsonResponse('FrameworkRegistration'),
+            '404': jsonResponse('ErrorResponse'),
+          },
+        },
+        put: {
+          tags: ['frameworks'],
+          operationId: 'registerFramework',
+          security: [{ cookieSession: [], csrfToken: [] }],
+          parameters: [
+            {
+              name: 'frameworkId',
+              in: 'path',
+              required: true,
+              schema: { $ref: '#/components/schemas/HermesFrameworkId' },
+            },
+          ],
+          requestBody: jsonBody('FrameworkRegistrationInput'),
+          responses: {
+            '200': jsonResponse('FrameworkRegistration'),
+            '401': jsonResponse('ErrorResponse'),
+            '403': jsonResponse('ErrorResponse'),
+            '422': jsonResponse('ErrorResponse'),
+          },
+        },
+        delete: {
+          tags: ['frameworks'],
+          operationId: 'unregisterFramework',
+          security: [{ cookieSession: [], csrfToken: [] }],
+          parameters: [
+            {
+              name: 'frameworkId',
+              in: 'path',
+              required: true,
+              schema: { $ref: '#/components/schemas/HermesFrameworkId' },
+            },
+          ],
+          responses: {
+            '204': { description: 'Framework unregistered' },
+            '404': jsonResponse('ErrorResponse'),
+          },
+        },
+      },
       '/resources': readPath(
         'integrations',
         'listUnifiedResources',

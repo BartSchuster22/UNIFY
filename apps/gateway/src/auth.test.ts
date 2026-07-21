@@ -10,6 +10,13 @@ import type {
   SessionSummary,
   UserRecord,
 } from './auth/types.js';
+import {
+  HERMES_CONTROL_VERSION,
+  PINNED_HERMES_COMMIT,
+  PINNED_HERMES_RELEASE,
+} from '@aquiero/contracts';
+import { FrameworkRegistryService } from './framework-registry/service.js';
+import type { FrameworkRegistrationRecord } from './framework-registry/types.js';
 
 class MemoryAuthStore implements AuthStore {
   readonly users = new Map<string, UserRecord>();
@@ -115,7 +122,7 @@ function fixtureStore() {
     username: 'admin',
     displayName: 'Administrator',
     roles: ['Administrator'],
-    permissions: ['users.manage'],
+    permissions: ['users.manage', 'frameworks.read', 'settings.manage'],
   });
   return store;
 }
@@ -140,6 +147,100 @@ async function login(app: ReturnType<typeof buildApp>, username = 'viewer') {
 }
 
 describe('named-user session security', () => {
+  it('enforces framework registration RBAC/CSRF and never returns service-auth references', async () => {
+    const records = new Map<string, FrameworkRegistrationRecord>();
+    const meta = {
+      contractVersion: HERMES_CONTROL_VERSION,
+      frameworkId: 'hermes-dev',
+      frameworkVersion: PINNED_HERMES_RELEASE,
+      frameworkCommit: PINNED_HERMES_COMMIT,
+      sourceVersion: `git:${PINNED_HERMES_COMMIT}`,
+      observedAt: '2026-07-21T12:00:00.000Z',
+    };
+    const registry = new FrameworkRegistryService(
+      {
+        async ready() {
+          return true;
+        },
+        async list() {
+          return [...records.values()];
+        },
+        async get(id) {
+          return records.get(id) ?? null;
+        },
+        async upsert(value) {
+          records.set(value.frameworkId, value);
+          return value;
+        },
+        async remove(id) {
+          return records.delete(id);
+        },
+      },
+      {
+        async inspect() {
+          return {
+            identity: {
+              ...meta,
+              data: { runtime: 'hermes-agent', instanceId: 'pinned', displayName: 'Hermes' },
+            },
+            version: {
+              ...meta,
+              data: {
+                release: PINNED_HERMES_RELEASE,
+                commit: PINNED_HERMES_COMMIT,
+                dirty: false,
+                pythonVersion: '3.11.15',
+              },
+            },
+            capabilities: { ...meta, data: { capabilities: {} } },
+          };
+        },
+      },
+      () => 'fixture-token',
+    );
+    const app = buildApp({
+      authStore: fixtureStore(),
+      authPepper: pepper,
+      secureCookies: false,
+      frameworkRegistry: registry,
+    });
+    const payload = {
+      frameworkId: 'hermes-dev',
+      displayName: 'Hermes Dev',
+      baseUrl: 'http://127.0.0.1:18799',
+      serviceAuthReference: 'env:HERMES_CONTROL_TOKEN',
+      scopes: ['control:read'],
+      expectedContractVersion: HERMES_CONTROL_VERSION,
+      expectedFrameworkVersion: PINNED_HERMES_RELEASE,
+      expectedFrameworkCommit: PINNED_HERMES_COMMIT,
+      enabled: true,
+    };
+    const viewer = await login(app, 'viewer');
+    const denied = await app.inject({
+      method: 'PUT',
+      url: '/api/v1/frameworks/hermes-dev',
+      headers: {
+        cookie: `aquiero_session=${viewer.session}; aquiero_csrf=${viewer.csrf}`,
+        'x-csrf-token': viewer.csrf,
+      },
+      payload,
+    });
+    expect(denied.statusCode).toBe(403);
+    const admin = await login(app, 'admin');
+    const allowed = await app.inject({
+      method: 'PUT',
+      url: '/api/v1/frameworks/hermes-dev',
+      headers: {
+        cookie: `aquiero_session=${admin.session}; aquiero_csrf=${admin.csrf}`,
+        'x-csrf-token': admin.csrf,
+      },
+      payload,
+    });
+    expect(allowed.statusCode).toBe(200);
+    expect(allowed.body).not.toContain('HERMES_CONTROL_TOKEN');
+    await app.close();
+  });
+
   it('authenticates a named user and does not return session tokens in JSON', async () => {
     const app = buildApp({ authStore: fixtureStore(), authPepper: pepper, secureCookies: false });
     const result = await login(app);

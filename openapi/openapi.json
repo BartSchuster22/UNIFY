@@ -33,6 +33,9 @@
       "name": "integrations"
     },
     {
+      "name": "frameworks"
+    },
+    {
       "name": "search"
     },
     {
@@ -700,6 +703,218 @@
             }
           },
           "503": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/frameworks": {
+      "get": {
+        "tags": [
+          "frameworks"
+        ],
+        "operationId": "listFrameworkRegistrations",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "FrameworkRegistrationList",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FrameworkRegistrationList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/frameworks/{frameworkId}": {
+      "get": {
+        "tags": [
+          "frameworks"
+        ],
+        "operationId": "getFrameworkRegistration",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "frameworkId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/HermesFrameworkId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "FrameworkRegistration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FrameworkRegistration"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "frameworks"
+        ],
+        "operationId": "registerFramework",
+        "security": [
+          {
+            "cookieSession": [],
+            "csrfToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "frameworkId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/HermesFrameworkId"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FrameworkRegistrationInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "FrameworkRegistration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FrameworkRegistration"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "frameworks"
+        ],
+        "operationId": "unregisterFramework",
+        "security": [
+          {
+            "cookieSession": [],
+            "csrfToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "frameworkId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/HermesFrameworkId"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Framework unregistered"
+          },
+          "404": {
             "description": "ErrorResponse",
             "content": {
               "application/json": {
@@ -8701,6 +8916,1408 @@
             }
           },
           "result": {}
+        }
+      },
+      "HermesContractVersion": {
+        "$id": "HermesContractVersion",
+        "const": "hermes-control/v1",
+        "type": "string"
+      },
+      "HermesFrameworkId": {
+        "$id": "HermesFrameworkId",
+        "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+        "type": "string"
+      },
+      "HermesControlMetadata": {
+        "$id": "HermesControlMetadata",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contractVersion",
+          "frameworkId",
+          "frameworkVersion",
+          "frameworkCommit",
+          "sourceVersion",
+          "observedAt"
+        ],
+        "properties": {
+          "contractVersion": {
+            "$id": "HermesContractVersion",
+            "const": "hermes-control/v1",
+            "type": "string"
+          },
+          "frameworkId": {
+            "$id": "HermesFrameworkId",
+            "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+            "type": "string"
+          },
+          "frameworkVersion": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          },
+          "frameworkCommit": {
+            "pattern": "^[a-f0-9]{40}$",
+            "type": "string"
+          },
+          "sourceVersion": {
+            "minLength": 1,
+            "maxLength": 256,
+            "type": "string"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        }
+      },
+      "HermesIdentityResponse": {
+        "$id": "HermesIdentityResponse",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contractVersion",
+          "frameworkId",
+          "frameworkVersion",
+          "frameworkCommit",
+          "sourceVersion",
+          "observedAt",
+          "data"
+        ],
+        "properties": {
+          "contractVersion": {
+            "$id": "HermesContractVersion",
+            "const": "hermes-control/v1",
+            "type": "string"
+          },
+          "frameworkId": {
+            "$id": "HermesFrameworkId",
+            "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+            "type": "string"
+          },
+          "frameworkVersion": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          },
+          "frameworkCommit": {
+            "pattern": "^[a-f0-9]{40}$",
+            "type": "string"
+          },
+          "sourceVersion": {
+            "minLength": 1,
+            "maxLength": 256,
+            "type": "string"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "data": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "runtime",
+              "instanceId",
+              "displayName"
+            ],
+            "properties": {
+              "runtime": {
+                "const": "hermes-agent",
+                "type": "string"
+              },
+              "instanceId": {
+                "minLength": 1,
+                "maxLength": 200,
+                "type": "string"
+              },
+              "displayName": {
+                "minLength": 1,
+                "maxLength": 200,
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "HermesHealthResponse": {
+        "$id": "HermesHealthResponse",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contractVersion",
+          "frameworkId",
+          "frameworkVersion",
+          "frameworkCommit",
+          "sourceVersion",
+          "observedAt",
+          "data"
+        ],
+        "properties": {
+          "contractVersion": {
+            "$id": "HermesContractVersion",
+            "const": "hermes-control/v1",
+            "type": "string"
+          },
+          "frameworkId": {
+            "$id": "HermesFrameworkId",
+            "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+            "type": "string"
+          },
+          "frameworkVersion": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          },
+          "frameworkCommit": {
+            "pattern": "^[a-f0-9]{40}$",
+            "type": "string"
+          },
+          "sourceVersion": {
+            "minLength": 1,
+            "maxLength": 256,
+            "type": "string"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "data": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "status",
+              "checks"
+            ],
+            "properties": {
+              "status": {
+                "anyOf": [
+                  {
+                    "const": "healthy",
+                    "type": "string"
+                  },
+                  {
+                    "const": "degraded",
+                    "type": "string"
+                  },
+                  {
+                    "const": "unavailable",
+                    "type": "string"
+                  }
+                ]
+              },
+              "checks": {
+                "type": "object",
+                "patternProperties": {
+                  "^(.*)$": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": [
+                      "status"
+                    ],
+                    "properties": {
+                      "status": {
+                        "anyOf": [
+                          {
+                            "const": "healthy",
+                            "type": "string"
+                          },
+                          {
+                            "const": "degraded",
+                            "type": "string"
+                          },
+                          {
+                            "const": "unavailable",
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "safeCode": {
+                        "maxLength": 100,
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "HermesVersionResponse": {
+        "$id": "HermesVersionResponse",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contractVersion",
+          "frameworkId",
+          "frameworkVersion",
+          "frameworkCommit",
+          "sourceVersion",
+          "observedAt",
+          "data"
+        ],
+        "properties": {
+          "contractVersion": {
+            "$id": "HermesContractVersion",
+            "const": "hermes-control/v1",
+            "type": "string"
+          },
+          "frameworkId": {
+            "$id": "HermesFrameworkId",
+            "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+            "type": "string"
+          },
+          "frameworkVersion": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          },
+          "frameworkCommit": {
+            "pattern": "^[a-f0-9]{40}$",
+            "type": "string"
+          },
+          "sourceVersion": {
+            "minLength": 1,
+            "maxLength": 256,
+            "type": "string"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "data": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "release",
+              "commit",
+              "dirty",
+              "pythonVersion"
+            ],
+            "properties": {
+              "release": {
+                "minLength": 1,
+                "maxLength": 128,
+                "type": "string"
+              },
+              "commit": {
+                "pattern": "^[a-f0-9]{40}$",
+                "type": "string"
+              },
+              "upstreamBaseCommit": {
+                "pattern": "^[a-f0-9]{40}$",
+                "type": "string"
+              },
+              "dirty": {
+                "type": "boolean"
+              },
+              "pythonVersion": {
+                "minLength": 1,
+                "maxLength": 64,
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "HermesCapabilityStatus": {
+        "$id": "HermesCapabilityStatus",
+        "anyOf": [
+          {
+            "const": "supported",
+            "type": "string"
+          },
+          {
+            "const": "unsupported",
+            "type": "string"
+          },
+          {
+            "const": "unavailable",
+            "type": "string"
+          },
+          {
+            "const": "forbidden",
+            "type": "string"
+          }
+        ]
+      },
+      "HermesCapabilityMode": {
+        "$id": "HermesCapabilityMode",
+        "anyOf": [
+          {
+            "const": "read",
+            "type": "string"
+          },
+          {
+            "const": "validate",
+            "type": "string"
+          },
+          {
+            "const": "dry-run",
+            "type": "string"
+          },
+          {
+            "const": "execute",
+            "type": "string"
+          },
+          {
+            "const": "verify",
+            "type": "string"
+          },
+          {
+            "const": "subscribe",
+            "type": "string"
+          }
+        ]
+      },
+      "HermesCapability": {
+        "$id": "HermesCapability",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "modes",
+          "requiredScopes"
+        ],
+        "properties": {
+          "status": {
+            "$id": "HermesCapabilityStatus",
+            "anyOf": [
+              {
+                "const": "supported",
+                "type": "string"
+              },
+              {
+                "const": "unsupported",
+                "type": "string"
+              },
+              {
+                "const": "unavailable",
+                "type": "string"
+              },
+              {
+                "const": "forbidden",
+                "type": "string"
+              }
+            ]
+          },
+          "modes": {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "$id": "HermesCapabilityMode",
+              "anyOf": [
+                {
+                  "const": "read",
+                  "type": "string"
+                },
+                {
+                  "const": "validate",
+                  "type": "string"
+                },
+                {
+                  "const": "dry-run",
+                  "type": "string"
+                },
+                {
+                  "const": "execute",
+                  "type": "string"
+                },
+                {
+                  "const": "verify",
+                  "type": "string"
+                },
+                {
+                  "const": "subscribe",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "requiredScopes": {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "minLength": 1,
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          "reasonCode": {
+            "minLength": 1,
+            "maxLength": 100,
+            "type": "string"
+          },
+          "constraints": {
+            "type": "object",
+            "patternProperties": {
+              "^(.*)$": {}
+            }
+          }
+        }
+      },
+      "HermesCapabilitiesResponse": {
+        "$id": "HermesCapabilitiesResponse",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contractVersion",
+          "frameworkId",
+          "frameworkVersion",
+          "frameworkCommit",
+          "sourceVersion",
+          "observedAt",
+          "data"
+        ],
+        "properties": {
+          "contractVersion": {
+            "$id": "HermesContractVersion",
+            "const": "hermes-control/v1",
+            "type": "string"
+          },
+          "frameworkId": {
+            "$id": "HermesFrameworkId",
+            "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+            "type": "string"
+          },
+          "frameworkVersion": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          },
+          "frameworkCommit": {
+            "pattern": "^[a-f0-9]{40}$",
+            "type": "string"
+          },
+          "sourceVersion": {
+            "minLength": 1,
+            "maxLength": 256,
+            "type": "string"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "data": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "capabilities"
+            ],
+            "properties": {
+              "capabilities": {
+                "type": "object",
+                "patternProperties": {
+                  "^(.*)$": {
+                    "$id": "HermesCapability",
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": [
+                      "status",
+                      "modes",
+                      "requiredScopes"
+                    ],
+                    "properties": {
+                      "status": {
+                        "$id": "HermesCapabilityStatus",
+                        "anyOf": [
+                          {
+                            "const": "supported",
+                            "type": "string"
+                          },
+                          {
+                            "const": "unsupported",
+                            "type": "string"
+                          },
+                          {
+                            "const": "unavailable",
+                            "type": "string"
+                          },
+                          {
+                            "const": "forbidden",
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "modes": {
+                        "uniqueItems": true,
+                        "type": "array",
+                        "items": {
+                          "$id": "HermesCapabilityMode",
+                          "anyOf": [
+                            {
+                              "const": "read",
+                              "type": "string"
+                            },
+                            {
+                              "const": "validate",
+                              "type": "string"
+                            },
+                            {
+                              "const": "dry-run",
+                              "type": "string"
+                            },
+                            {
+                              "const": "execute",
+                              "type": "string"
+                            },
+                            {
+                              "const": "verify",
+                              "type": "string"
+                            },
+                            {
+                              "const": "subscribe",
+                              "type": "string"
+                            }
+                          ]
+                        }
+                      },
+                      "requiredScopes": {
+                        "uniqueItems": true,
+                        "type": "array",
+                        "items": {
+                          "minLength": 1,
+                          "maxLength": 100,
+                          "type": "string"
+                        }
+                      },
+                      "reasonCode": {
+                        "minLength": 1,
+                        "maxLength": 100,
+                        "type": "string"
+                      },
+                      "constraints": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^(.*)$": {}
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "HermesPage": {
+        "$id": "HermesPage",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "hasMore"
+        ],
+        "properties": {
+          "nextCursor": {
+            "minLength": 1,
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        }
+      },
+      "HermesCollectionResponse": {
+        "$id": "HermesCollectionResponse",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contractVersion",
+          "frameworkId",
+          "frameworkVersion",
+          "frameworkCommit",
+          "sourceVersion",
+          "observedAt",
+          "data"
+        ],
+        "properties": {
+          "contractVersion": {
+            "$id": "HermesContractVersion",
+            "const": "hermes-control/v1",
+            "type": "string"
+          },
+          "frameworkId": {
+            "$id": "HermesFrameworkId",
+            "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+            "type": "string"
+          },
+          "frameworkVersion": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          },
+          "frameworkCommit": {
+            "pattern": "^[a-f0-9]{40}$",
+            "type": "string"
+          },
+          "sourceVersion": {
+            "minLength": 1,
+            "maxLength": 256,
+            "type": "string"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "data": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "items",
+              "page"
+            ],
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {}
+              },
+              "page": {
+                "$id": "HermesPage",
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "hasMore"
+                ],
+                "properties": {
+                  "nextCursor": {
+                    "minLength": 1,
+                    "maxLength": 2048,
+                    "type": "string"
+                  },
+                  "hasMore": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "HermesControlErrorCode": {
+        "$id": "HermesControlErrorCode",
+        "anyOf": [
+          {
+            "const": "invalid_request",
+            "type": "string"
+          },
+          {
+            "const": "unauthenticated",
+            "type": "string"
+          },
+          {
+            "const": "forbidden",
+            "type": "string"
+          },
+          {
+            "const": "not_found",
+            "type": "string"
+          },
+          {
+            "const": "conflict",
+            "type": "string"
+          },
+          {
+            "const": "source_version_mismatch",
+            "type": "string"
+          },
+          {
+            "const": "idempotency_conflict",
+            "type": "string"
+          },
+          {
+            "const": "unsupported_contract_version",
+            "type": "string"
+          },
+          {
+            "const": "unsupported_framework_version",
+            "type": "string"
+          },
+          {
+            "const": "capability_unsupported",
+            "type": "string"
+          },
+          {
+            "const": "capability_unavailable",
+            "type": "string"
+          },
+          {
+            "const": "replay_gap",
+            "type": "string"
+          },
+          {
+            "const": "rate_limited",
+            "type": "string"
+          },
+          {
+            "const": "internal_error",
+            "type": "string"
+          }
+        ]
+      },
+      "HermesControlErrorResponse": {
+        "$id": "HermesControlErrorResponse",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contractVersion",
+          "error"
+        ],
+        "properties": {
+          "contractVersion": {
+            "$id": "HermesContractVersion",
+            "const": "hermes-control/v1",
+            "type": "string"
+          },
+          "frameworkId": {
+            "$id": "HermesFrameworkId",
+            "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+            "type": "string"
+          },
+          "error": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "code",
+              "message",
+              "requestId",
+              "retryable"
+            ],
+            "properties": {
+              "code": {
+                "$id": "HermesControlErrorCode",
+                "anyOf": [
+                  {
+                    "const": "invalid_request",
+                    "type": "string"
+                  },
+                  {
+                    "const": "unauthenticated",
+                    "type": "string"
+                  },
+                  {
+                    "const": "forbidden",
+                    "type": "string"
+                  },
+                  {
+                    "const": "not_found",
+                    "type": "string"
+                  },
+                  {
+                    "const": "conflict",
+                    "type": "string"
+                  },
+                  {
+                    "const": "source_version_mismatch",
+                    "type": "string"
+                  },
+                  {
+                    "const": "idempotency_conflict",
+                    "type": "string"
+                  },
+                  {
+                    "const": "unsupported_contract_version",
+                    "type": "string"
+                  },
+                  {
+                    "const": "unsupported_framework_version",
+                    "type": "string"
+                  },
+                  {
+                    "const": "capability_unsupported",
+                    "type": "string"
+                  },
+                  {
+                    "const": "capability_unavailable",
+                    "type": "string"
+                  },
+                  {
+                    "const": "replay_gap",
+                    "type": "string"
+                  },
+                  {
+                    "const": "rate_limited",
+                    "type": "string"
+                  },
+                  {
+                    "const": "internal_error",
+                    "type": "string"
+                  }
+                ]
+              },
+              "message": {
+                "minLength": 1,
+                "maxLength": 1000,
+                "type": "string"
+              },
+              "requestId": {
+                "minLength": 1,
+                "maxLength": 200,
+                "type": "string"
+              },
+              "retryable": {
+                "type": "boolean"
+              },
+              "retryAfterSeconds": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "details": {
+                "type": "object",
+                "patternProperties": {
+                  "^(.*)$": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "HermesControlCommand": {
+        "$id": "HermesControlCommand",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "mode",
+          "idempotencyKey",
+          "requestId",
+          "correlationId",
+          "actor",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "anyOf": [
+              {
+                "const": "validate",
+                "type": "string"
+              },
+              {
+                "const": "dry-run",
+                "type": "string"
+              },
+              {
+                "const": "execute",
+                "type": "string"
+              }
+            ]
+          },
+          "idempotencyKey": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "expectedSourceVersion": {
+            "minLength": 1,
+            "maxLength": 256,
+            "type": "string"
+          },
+          "requestId": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "correlationId": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "actor": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "id"
+            ],
+            "properties": {
+              "type": {
+                "anyOf": [
+                  {
+                    "const": "user",
+                    "type": "string"
+                  },
+                  {
+                    "const": "service",
+                    "type": "string"
+                  }
+                ]
+              },
+              "id": {
+                "minLength": 1,
+                "maxLength": 200,
+                "type": "string"
+              }
+            }
+          },
+          "payload": {
+            "type": "object",
+            "patternProperties": {
+              "^(.*)$": {}
+            }
+          }
+        }
+      },
+      "HermesEventEnvelope": {
+        "$id": "HermesEventEnvelope",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contractVersion",
+          "frameworkId",
+          "frameworkVersion",
+          "frameworkCommit",
+          "eventId",
+          "sequence",
+          "sourceVersion",
+          "type",
+          "classification",
+          "occurredAt",
+          "payload"
+        ],
+        "properties": {
+          "contractVersion": {
+            "$id": "HermesContractVersion",
+            "const": "hermes-control/v1",
+            "type": "string"
+          },
+          "frameworkId": {
+            "$id": "HermesFrameworkId",
+            "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+            "type": "string"
+          },
+          "frameworkVersion": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          },
+          "frameworkCommit": {
+            "pattern": "^[a-f0-9]{40}$",
+            "type": "string"
+          },
+          "eventId": {
+            "minLength": 1,
+            "maxLength": 256,
+            "type": "string"
+          },
+          "sequence": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "sourceVersion": {
+            "minLength": 1,
+            "maxLength": 256,
+            "type": "string"
+          },
+          "type": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "classification": {
+            "anyOf": [
+              {
+                "const": "durable",
+                "type": "string"
+              },
+              {
+                "const": "ephemeral",
+                "type": "string"
+              }
+            ]
+          },
+          "occurredAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "correlationId": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "operationId": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "runId": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "payload": {
+            "type": "object",
+            "patternProperties": {
+              "^(.*)$": {}
+            }
+          }
+        }
+      },
+      "FrameworkScope": {
+        "$id": "FrameworkScope",
+        "anyOf": [
+          {
+            "const": "control:read",
+            "type": "string"
+          },
+          {
+            "const": "control:execute",
+            "type": "string"
+          },
+          {
+            "const": "control:secrets",
+            "type": "string"
+          },
+          {
+            "const": "control:delivery",
+            "type": "string"
+          },
+          {
+            "const": "control:approval",
+            "type": "string"
+          },
+          {
+            "const": "control:events",
+            "type": "string"
+          }
+        ]
+      },
+      "FrameworkRegistrationInput": {
+        "$id": "FrameworkRegistrationInput",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "frameworkId",
+          "displayName",
+          "baseUrl",
+          "serviceAuthReference",
+          "scopes",
+          "expectedContractVersion",
+          "expectedFrameworkVersion",
+          "expectedFrameworkCommit",
+          "enabled"
+        ],
+        "properties": {
+          "frameworkId": {
+            "$id": "HermesFrameworkId",
+            "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+            "type": "string"
+          },
+          "displayName": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "baseUrl": {
+            "minLength": 1,
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "serviceAuthReference": {
+            "pattern": "^env:[A-Z][A-Z0-9_]{2,127}$",
+            "type": "string"
+          },
+          "scopes": {
+            "minItems": 1,
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "$id": "FrameworkScope",
+              "anyOf": [
+                {
+                  "const": "control:read",
+                  "type": "string"
+                },
+                {
+                  "const": "control:execute",
+                  "type": "string"
+                },
+                {
+                  "const": "control:secrets",
+                  "type": "string"
+                },
+                {
+                  "const": "control:delivery",
+                  "type": "string"
+                },
+                {
+                  "const": "control:approval",
+                  "type": "string"
+                },
+                {
+                  "const": "control:events",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "expectedContractVersion": {
+            "$id": "HermesContractVersion",
+            "const": "hermes-control/v1",
+            "type": "string"
+          },
+          "expectedFrameworkVersion": {
+            "const": "0.18.0",
+            "type": "string"
+          },
+          "expectedFrameworkCommit": {
+            "const": "9e54eee44f1cbbe62247a36546e51ff8940373c6",
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "FrameworkRegistration": {
+        "$id": "FrameworkRegistration",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "frameworkId",
+          "displayName",
+          "baseUrl",
+          "serviceAuthConfigured",
+          "scopes",
+          "contractVersion",
+          "frameworkVersion",
+          "frameworkCommit",
+          "status",
+          "enabled",
+          "createdAt",
+          "updatedAt"
+        ],
+        "properties": {
+          "frameworkId": {
+            "$id": "HermesFrameworkId",
+            "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+            "type": "string"
+          },
+          "displayName": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "baseUrl": {
+            "minLength": 1,
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "serviceAuthConfigured": {
+            "type": "boolean"
+          },
+          "scopes": {
+            "minItems": 1,
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "$id": "FrameworkScope",
+              "anyOf": [
+                {
+                  "const": "control:read",
+                  "type": "string"
+                },
+                {
+                  "const": "control:execute",
+                  "type": "string"
+                },
+                {
+                  "const": "control:secrets",
+                  "type": "string"
+                },
+                {
+                  "const": "control:delivery",
+                  "type": "string"
+                },
+                {
+                  "const": "control:approval",
+                  "type": "string"
+                },
+                {
+                  "const": "control:events",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "contractVersion": {
+            "$id": "HermesContractVersion",
+            "const": "hermes-control/v1",
+            "type": "string"
+          },
+          "frameworkVersion": {
+            "const": "0.18.0",
+            "type": "string"
+          },
+          "frameworkCommit": {
+            "const": "9e54eee44f1cbbe62247a36546e51ff8940373c6",
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "const": "verified",
+                "type": "string"
+              },
+              {
+                "const": "disabled",
+                "type": "string"
+              },
+              {
+                "const": "unavailable",
+                "type": "string"
+              },
+              {
+                "const": "unsupported",
+                "type": "string"
+              }
+            ]
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "verifiedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        }
+      },
+      "FrameworkRegistrationList": {
+        "$id": "FrameworkRegistrationList",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$id": "FrameworkRegistration",
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "frameworkId",
+                "displayName",
+                "baseUrl",
+                "serviceAuthConfigured",
+                "scopes",
+                "contractVersion",
+                "frameworkVersion",
+                "frameworkCommit",
+                "status",
+                "enabled",
+                "createdAt",
+                "updatedAt"
+              ],
+              "properties": {
+                "frameworkId": {
+                  "$id": "HermesFrameworkId",
+                  "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+                  "type": "string"
+                },
+                "displayName": {
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                "baseUrl": {
+                  "minLength": 1,
+                  "maxLength": 2048,
+                  "type": "string"
+                },
+                "serviceAuthConfigured": {
+                  "type": "boolean"
+                },
+                "scopes": {
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "type": "array",
+                  "items": {
+                    "$id": "FrameworkScope",
+                    "anyOf": [
+                      {
+                        "const": "control:read",
+                        "type": "string"
+                      },
+                      {
+                        "const": "control:execute",
+                        "type": "string"
+                      },
+                      {
+                        "const": "control:secrets",
+                        "type": "string"
+                      },
+                      {
+                        "const": "control:delivery",
+                        "type": "string"
+                      },
+                      {
+                        "const": "control:approval",
+                        "type": "string"
+                      },
+                      {
+                        "const": "control:events",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "contractVersion": {
+                  "$id": "HermesContractVersion",
+                  "const": "hermes-control/v1",
+                  "type": "string"
+                },
+                "frameworkVersion": {
+                  "const": "0.18.0",
+                  "type": "string"
+                },
+                "frameworkCommit": {
+                  "const": "9e54eee44f1cbbe62247a36546e51ff8940373c6",
+                  "type": "string"
+                },
+                "status": {
+                  "anyOf": [
+                    {
+                      "const": "verified",
+                      "type": "string"
+                    },
+                    {
+                      "const": "disabled",
+                      "type": "string"
+                    },
+                    {
+                      "const": "unavailable",
+                      "type": "string"
+                    },
+                    {
+                      "const": "unsupported",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "enabled": {
+                  "type": "boolean"
+                },
+                "verifiedAt": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "createdAt": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              }
+            }
+          }
         }
       }
     }
