@@ -18,6 +18,10 @@ const gatewayHermesMigration = readFileSync(
   resolve(import.meta.dirname, '../migrations/004_gateway_hermes_framework.up.sql'),
   'utf8',
 );
+const hermesWorkMigration = readFileSync(
+  resolve(import.meta.dirname, '../migrations/005_hermes_work_cutover.up.sql'),
+  'utf8',
+);
 describe('gateway foundation migration', () => {
   it.each([
     'users',
@@ -96,5 +100,13 @@ describe('Gateway Hermes framework migration', () => {
     expect(gatewayHermesMigration).toContain("'frameworks.manage'");
     expect(gatewayHermesMigration).not.toContain("'agency.manage'");
     expect(gatewayHermesMigration).not.toContain("'dmm.manage'");
+  });
+});
+
+describe('Hermes Work cutover migration', () => {
+  it('grants one governed Hermes Work permission without creating competing domain tables', () => {
+    expect(hermesWorkMigration).toContain("'work.manage'");
+    expect(hermesWorkMigration).toContain("r.name='Administrator'");
+    expect(hermesWorkMigration).not.toMatch(/CREATE TABLE (?:projects|boards|tasks|cronjobs)\b/);
   });
 });

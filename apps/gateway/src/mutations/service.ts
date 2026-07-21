@@ -1,3 +1,4 @@
+import type { HermesWorkOperation } from '@aquiero/contracts';
 import { redactEvidence } from '../governance/canonical.js';
 import { GovernanceError } from '../governance/service.js';
 import type { GovernanceService } from '../governance/service.js';
@@ -5,7 +6,9 @@ import type { OperationRecord } from '../governance/types.js';
 import type { HermesGatewayService } from '../hermes-control/service.js';
 import {
   frameworkReconcileDefinition,
+  workMutationDefinitions,
   type LegacyMutationOwnerClient,
+  type MutationDefinition,
   type MutationInput,
   type MutationTarget,
 } from './types.js';
@@ -55,8 +58,10 @@ export class MutationService {
       confirmed: raw.confirmed === true,
     };
     const definition = this.definition(operationType);
-    if (definition.executionPath === 'hermes-control') validateFrameworkCommand(input);
-    else this.owners.validate(input);
+    if (definition.executionPath === 'hermes-control') {
+      if (operationType === 'framework.reconcile') validateFrameworkCommand(input);
+      else validateWorkCommand(input, definition);
+    } else this.owners.validate(input);
     return input;
   }
 
@@ -98,7 +103,7 @@ export class MutationService {
       const definition = this.definition(input.operationType);
       const ownerResult =
         definition.executionPath === 'hermes-control'
-          ? await this.executeFramework(input, {
+          ? await this.executeHermes(input, {
               actorUserId,
               operationId,
               idempotencyKey: claim.operation.idempotencyKey,
@@ -160,10 +165,12 @@ export class MutationService {
 
   private definition(operationType: string) {
     if (operationType === 'framework.reconcile') return frameworkReconcileDefinition;
+    const work = workMutationDefinitions[operationType];
+    if (work) return work;
     return this.owners.definition(operationType);
   }
 
-  private executeFramework(
+  private executeHermes(
     input: MutationInput,
     context: { actorUserId: string; operationId: string; idempotencyKey: string },
   ) {
@@ -173,13 +180,22 @@ export class MutationService {
         503,
         'Hermes control client is unavailable',
       );
-    return this.hermes.reconcile(
+    if (input.operationType === 'framework.reconcile')
+      return this.hermes.reconcile(
+        input.target.frameworkId!,
+        {
+          mode: input.mode,
+          families: input.payload.families,
+          expectedSourceVersion: input.payload.expectedSourceVersion,
+        },
+        context,
+      );
+    return this.hermes.work(
       input.target.frameworkId!,
-      {
-        mode: input.mode,
-        families: input.payload.families,
-        expectedSourceVersion: input.payload.expectedSourceVersion,
-      },
+      input.operationType.slice('work.'.length) as HermesWorkOperation,
+      input.target.nativeId,
+      input.payload,
+      input.mode,
       context,
     );
   }
@@ -198,6 +214,50 @@ export class MutationService {
       target.frameworkId = requiredString(raw.frameworkId, 'target.frameworkId');
     return target;
   }
+}
+
+function validateWorkCommand(input: MutationInput, definition: MutationDefinition) {
+  if (
+    input.target.owner !== 'hermes' ||
+    input.target.kind !== definition.kind ||
+    input.target.frameworkId !== 'hermes-main'
+  )
+    throw new GovernanceError(
+      'MUTATION_TARGET_INVALID',
+      422,
+      'Work mutation must target its exact Hermes-owned resource in hermes-main',
+    );
+  if (definition.destructive && !input.confirmed)
+    throw new GovernanceError(
+      'CONFIRMATION_REQUIRED',
+      409,
+      'Destructive work mutation requires confirmation',
+    );
+  const required: Record<string, string[]> = {
+    'work.project.create': ['name'],
+    'work.project.rename': ['name'],
+    'work.task.create': ['boardId', 'title'],
+    'work.task.start': ['boardId'],
+    'work.task.block': ['boardId'],
+    'work.task.unblock': ['boardId'],
+    'work.task.complete': ['boardId'],
+    'work.cron.create': ['name', 'schedule', 'prompt'],
+  };
+  for (const field of required[input.operationType] ?? []) {
+    const value = input.payload[field];
+    if (typeof value !== 'string' || !value.trim())
+      throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, `${field} is required`);
+  }
+  if (
+    input.operationType === 'work.project.create' &&
+    input.payload.startPmPlanning === true &&
+    (typeof input.payload.projectManager !== 'string' || !input.payload.projectManager.trim())
+  )
+    throw new GovernanceError(
+      'MUTATION_PAYLOAD_INVALID',
+      422,
+      'projectManager is required when starting PM planning',
+    );
 }
 
 function validateFrameworkCommand(input: MutationInput) {

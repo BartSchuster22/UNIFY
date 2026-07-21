@@ -610,6 +610,17 @@ export function buildApp(options: AppOptions) {
     },
   );
   app.get<{ Params: { frameworkId: string }; Querystring: FrameworkPageQuery }>(
+    '/api/v1/frameworks/:frameworkId/work/projects',
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'work.read');
+      return requireHermesGateway().projects(
+        request.params.frameworkId,
+        frameworkPageQuery(request.query),
+      );
+    },
+  );
+  app.get<{ Params: { frameworkId: string }; Querystring: FrameworkPageQuery }>(
     '/api/v1/frameworks/:frameworkId/work/boards',
     async (request) => {
       const current = await session(request);
@@ -632,6 +643,17 @@ export function buildApp(options: AppOptions) {
       frameworkPageQuery(request.query),
     );
   });
+  app.get<{ Params: { frameworkId: string }; Querystring: FrameworkPageQuery }>(
+    '/api/v1/frameworks/:frameworkId/work/cronjobs',
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'work.read');
+      return requireHermesGateway().cronjobs(
+        request.params.frameworkId,
+        frameworkPageQuery(request.query),
+      );
+    },
+  );
   app.get<{ Params: { frameworkId: string }; Querystring: FrameworkPageQuery }>(
     '/api/v1/frameworks/:frameworkId/conversations/sessions',
     async (request) => {

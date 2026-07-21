@@ -83,6 +83,57 @@ describe('HermesNativeSource', () => {
     await expect(source.tasks('../escape')).rejects.toThrow('Invalid native identifier');
   });
 
+  it('adapts Hermes projects and cronjobs and executes idempotent native task creation', async () => {
+    const source = new HermesNativeSource({
+      runner: new FixtureRunner({
+        'project list --all': '  alpha                    Alpha Project  [0 folder(s)]\n',
+        'project show alpha':
+          '  name: Alpha Project\n  slug: alpha\n  about: Ship Alpha\n  board: alpha\n',
+        'cron list --all': `job-1 [paused]\n  Name: Daily checks\n  Schedule: every 1440m\n  Next run: 2026-07-22T09:00:00+00:00\n  Deliver: local\n`,
+        'kanban --board alpha create Verify --body Run checks --assignee herman --priority 75 --idempotency-key idem-1 --json':
+          JSON.stringify({
+            id: 'task-1',
+            title: 'Verify',
+            status: 'triage',
+          }),
+      }),
+    });
+    expect((await source.projects()).items).toEqual([
+      {
+        id: 'alpha',
+        name: 'Alpha Project',
+        description: 'Ship Alpha',
+        boardId: 'alpha',
+        archived: false,
+      },
+    ]);
+    expect((await source.cronjobs()).items[0]).toMatchObject({
+      id: 'job-1',
+      name: 'Daily checks',
+      schedule: 'every 1440m',
+      status: 'paused',
+      deliver: ['local'],
+    });
+    await expect(
+      source.executeWork({
+        mode: 'execute',
+        idempotencyKey: 'idem-1',
+        requestId: 'request-1',
+        correlationId: 'correlation-1',
+        actor: { type: 'user', id: 'user-1' },
+        operation: 'task.create',
+        targetId: 'verify',
+        payload: {
+          boardId: 'alpha',
+          title: 'Verify',
+          body: 'Run checks',
+          assignee: 'herman',
+          priority: 'high',
+        },
+      }),
+    ).resolves.toMatchObject({ task: { id: 'task-1', status: 'triage' } });
+  });
+
   it('uses existing Hermes session APIs and fails unavailable rather than returning empty truth', async () => {
     const fetchImpl: typeof fetch = async (input) => {
       const url = String(input);

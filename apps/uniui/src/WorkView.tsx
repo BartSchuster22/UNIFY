@@ -48,7 +48,6 @@ type CronForm = {
   name: string;
   title: string;
   prompt: string;
-  agent: string;
   mode: 'at' | 'every' | 'cron';
   schedule: string;
   timezone: string;
@@ -56,7 +55,7 @@ type CronForm = {
 
 const lanes = ['triage', 'todo', 'ready', 'running', 'blocked', 'done', 'archived'] as const;
 const pageOptions: Array<{ value: WorkPage; label: string }> = [
-  { value: 'overview', label: 'Worker overview' },
+  { value: 'overview', label: 'Hermes overview' },
   { value: 'projects', label: 'Kanban overview' },
   { value: 'board', label: 'Kanban project' },
   { value: 'details', label: 'Project details' },
@@ -81,8 +80,7 @@ export function WorkView({ canManage }: { canManage: boolean }) {
     setLoading(true);
     setFailure(undefined);
     try {
-      const query = new URLSearchParams({ owner: 'worker', limit: '500', refresh: 'true' });
-      const response = await gateway.resources(query);
+      const response = await loadHermesWork();
       setData(response);
       const projects = workerProjects(response.items);
       setSelectedProject((current) => current || projects[0]?.slug || '');
@@ -141,11 +139,11 @@ export function WorkView({ canManage }: { canManage: boolean }) {
       <Group justify="space-between" align="flex-start">
         <Box>
           <Text size="xs" fw={800} tt="uppercase" c="ocean.7">
-            Migration comparison · read-only
+            Hermes source of truth
           </Text>
           <Title order={1}>Work & Kanban</Title>
           <Text c="dimmed">
-            Migration-only Worker snapshot for parity; Hermes work control is not connected yet.
+            Projects, Kanban cards, and schedules are read from and mutated through native Hermes.
           </Text>
         </Box>
         <Button variant="light" leftSection={<IconRefresh size={16} />} onClick={() => void load()}>
@@ -166,7 +164,7 @@ export function WorkView({ canManage }: { canManage: boolean }) {
       {data.meta?.freshness && (
         <Group gap="xs">
           <Badge color={data.meta.freshness === 'current' ? 'teal' : 'orange'} variant="light">
-            Worker · {data.meta.freshness}
+            Hermes · {data.meta.freshness}
           </Badge>
           {data.meta.observedAt && (
             <Text size="xs" c="dimmed">
@@ -176,7 +174,7 @@ export function WorkView({ canManage }: { canManage: boolean }) {
         </Group>
       )}
       {failure && (
-        <Alert color="red" title="Worker request failed">
+        <Alert color="red" title="Hermes work request failed">
           {failure}
         </Alert>
       )}
@@ -365,13 +363,13 @@ function KanbanOverview({
   onOpen: (slug: string) => void;
   onDetails: (slug: string) => void;
 }) {
-  if (!projects.length) return <Empty text="No Kanban projects exist in Worker." />;
+  if (!projects.length) return <Empty text="No Kanban projects exist in Hermes." />;
   return (
     <Stack>
       <Group justify="space-between">
         <Box>
           <Title order={2}>Kanban overview</Title>
-          <Text c="dimmed">All Kanban-based projects from Worker.</Text>
+          <Text c="dimmed">All Kanban-based projects from Hermes.</Text>
         </Box>
         <Badge size="lg">{projects.length} projects</Badge>
       </Group>
@@ -517,12 +515,10 @@ function TaskCard({
   const id = text(task.data.nativeId) || task.resource.nativeId;
   const action = async (name: 'start' | 'block' | 'unblock' | 'complete') => {
     await onMutate(
-      mutation(
-        `worker.task.${name}`,
-        'task',
-        id,
-        name === 'block' ? { reason: 'Blocked from UNIFY Work & Kanban' } : {},
-      ),
+      mutation(`work.task.${name}`, 'task', id, {
+        boardId: text(task.data.boardId) || text(task.data.projectSlug),
+        ...(name === 'block' ? { reason: 'Blocked from UNIFY Work & Kanban' } : {}),
+      }),
       `${name} succeeded for ${id}.`,
     );
   };
@@ -539,14 +535,14 @@ function TaskCard({
       )}
       {canManage && (
         <Group mt="sm" gap="xs">
-          {['triage', 'todo', 'ready'].includes(lane) && (
+          {lane === 'todo' && (
             <Button
               size="compact-xs"
               variant="light"
               loading={busy}
               onClick={() => void action('start')}
             >
-              Start
+              Promote to ready
             </Button>
           )}
           {lane !== 'blocked' && lane !== 'done' && lane !== 'archived' && (
@@ -609,7 +605,7 @@ function ProjectDetails({
     setForm((current) => ({ ...current, [key]: value }));
   const save = () =>
     onMutate(
-      mutation('worker.project.update', 'project', project.slug, projectPayload(form, false)),
+      mutation('work.project.rename', 'project', project.slug, { name: form.name.trim() }),
       `Updated project ${project.slug}.`,
     );
   return (
@@ -620,7 +616,7 @@ function ProjectDetails({
       </Group>
       <Card withBorder>
         <Title order={2}>Kanban project details</Title>
-        <Text c="dimmed">View and edit the Worker project setup.</Text>
+        <Text c="dimmed">Hermes owns project identity, its board, and all task state.</Text>
         <SimpleGrid cols={{ base: 1, md: 2 }} mt="lg">
           <TextInput label="Project slug" value={form.slug} disabled />
           <TextInput
@@ -633,7 +629,7 @@ function ProjectDetails({
           <Textarea
             label="Project goal"
             value={form.goal}
-            disabled={!canManage}
+            disabled
             onChange={(event) => update('goal', event.currentTarget.value)}
             minRows={4}
             className="work-form-wide"
@@ -641,20 +637,20 @@ function ProjectDetails({
           <TextInput
             label="Default workspace path"
             value={form.workspace}
-            disabled={!canManage}
+            disabled
             onChange={(event) => update('workspace', event.currentTarget.value)}
           />
           <TextInput
             label="Project manager agent"
             value={form.projectManager}
-            disabled={!canManage}
+            disabled
             onChange={(event) => update('projectManager', event.currentTarget.value)}
           />
           <TextInput
             label="Project agents"
             description="Comma-separated agent profiles"
             value={form.agents}
-            disabled={!canManage}
+            disabled
             onChange={(event) => update('agents', event.currentTarget.value)}
           />
         </SimpleGrid>
@@ -684,28 +680,16 @@ function ProjectDetails({
             </Button>
             <Button
               variant="light"
+              color="red"
               loading={busy}
               onClick={() =>
                 void onMutate(
-                  mutation('worker.project.start', 'project', project.slug, { harness: 'hermes' }),
-                  `Started ${project.slug}.`,
+                  mutation('work.project.archive', 'project', project.slug, {}, true),
+                  `Archived ${project.slug}.`,
                 )
               }
             >
-              Start
-            </Button>
-            <Button
-              variant="light"
-              color="orange"
-              loading={busy}
-              onClick={() =>
-                void onMutate(
-                  mutation('worker.project.stop', 'project', project.slug, { harness: 'hermes' }),
-                  `Stopped ${project.slug}.`,
-                )
-              }
-            >
-              Stop
+              Archive
             </Button>
           </Group>
         )}
@@ -762,12 +746,7 @@ function AddNew({
     if (start && (!project.goal.trim() || !project.projectManager.trim() || !project.agents.trim()))
       return;
     const result = await onMutate(
-      mutation(
-        'worker.project.create',
-        'project',
-        slug,
-        projectPayload({ ...project, slug }, start),
-      ),
+      mutation('work.project.create', 'project', slug, projectPayload({ ...project, slug }, start)),
       start ? `Saved ${slug} and activated planning.` : `Saved ${slug}.`,
     );
     if (result) onCreated(slug);
@@ -775,22 +754,22 @@ function AddNew({
   const saveTask = async (start: boolean) => {
     if (!task.title.trim() || !task.project) return;
     const result = await onMutate(
-      mutation('worker.task.create', 'task', slugify(task.title), {
-        harness: 'hermes',
+      mutation('work.task.create', 'task', slugify(task.title), {
         title: task.title,
-        description: task.prompt,
-        board: task.project,
-        assigneeProfile: task.agent || undefined,
+        body: task.prompt,
+        boardId: task.project,
+        assignee: task.agent || undefined,
         priority: task.priority,
+        triage: !start,
       }),
       `Created ${task.title}.`,
     );
-    const created = record(record(result).task);
+    const created = record(ownerResult(result).task);
     const id = text(created.nativeId) || text(created.id);
     if (start && id)
       await onMutate(
-        mutation('worker.task.start', 'task', id, {}),
-        `Created and started ${task.title}.`,
+        mutation('work.task.start', 'task', id, { boardId: task.project }),
+        `Created and promoted ${task.title} to ready.`,
       );
   };
   return (
@@ -798,7 +777,7 @@ function AddNew({
       <Group justify="space-between">
         <Box>
           <Title order={2}>Add new</Title>
-          <Text c="dimmed">Create a Worker PROJECT or a task related to a project.</Text>
+          <Text c="dimmed">Create a Hermes project or a Kanban task related to it.</Text>
         </Box>
         <IconPlus size={26} />
       </Group>
@@ -944,7 +923,7 @@ function AddNew({
               disabled={!task.title.trim() || !task.project}
               onClick={() => void saveTask(true)}
             >
-              Start
+              Promote to ready
             </Button>
           </Group>
         </Stack>
@@ -970,7 +949,6 @@ function Cronjobs({
     name: '',
     title: '',
     prompt: '',
-    agent: 'chatboard',
     mode: 'every',
     schedule: 'every 1d',
     timezone: 'UTC',
@@ -987,7 +965,7 @@ function Cronjobs({
   const action = (job: UnifiedResource, name: 'run' | 'pause' | 'resume' | 'delete') =>
     onMutate(
       mutation(
-        `worker.cron.${name}`,
+        `work.cron.${name}`,
         'cronjob',
         text(job.data.nativeId) || job.resource.nativeId,
         {},
@@ -996,23 +974,13 @@ function Cronjobs({
       `${name} succeeded for ${job.title}.`,
     );
   const create = async () => {
-    const schedule =
-      form.mode === 'at'
-        ? { kind: 'at', at: new Date(form.schedule).toISOString(), timezone: form.timezone }
-        : form.mode === 'every'
-          ? { kind: 'every', every: form.schedule, timezone: form.timezone }
-          : { kind: 'cron', expression: form.schedule, timezone: form.timezone };
+    const schedule = form.mode === 'at' ? new Date(form.schedule).toISOString() : form.schedule;
     const result = await onMutate(
-      mutation('worker.cron.create', 'cronjob', form.name || slugify(form.title), {
-        harness: 'hermes',
-        name: form.name || slugify(form.title),
-        title: form.title,
+      mutation('work.cron.create', 'cronjob', form.name || slugify(form.title), {
+        name: form.name || form.title,
         prompt: form.prompt,
-        profile: form.agent,
-        assignedAgent: form.agent,
-        targetType: 'direct_prompt',
         schedule,
-        enabled: true,
+        deliver: 'local',
       }),
       `Created cronjob ${form.title}.`,
     );
@@ -1159,13 +1127,6 @@ function Cronjobs({
               setForm((current) => ({ ...current, prompt: event.currentTarget.value }))
             }
           />
-          <TextInput
-            label="Profile / agent"
-            value={form.agent}
-            onChange={(event) =>
-              setForm((current) => ({ ...current, agent: event.currentTarget.value }))
-            }
-          />
           <Select
             label="Schedule mode"
             value={form.mode}
@@ -1198,10 +1159,9 @@ function Cronjobs({
           />
           <TextInput
             label="Timezone"
+            description="Hermes cron currently uses its configured scheduler timezone."
             value={form.timezone}
-            onChange={(event) =>
-              setForm((current) => ({ ...current, timezone: event.currentTarget.value }))
-            }
+            disabled
           />
           <Button
             loading={busy}
@@ -1229,7 +1189,7 @@ function NotificationSettings() {
         <IconSettings size={26} />
         <Box>
           <Title order={2}>Settings</Title>
-          <Text c="dimmed">Worker notification rules setup.</Text>
+          <Text c="dimmed">Hermes Work notification rules setup.</Text>
         </Box>
       </Group>
       <Card withBorder>
@@ -1240,7 +1200,7 @@ function NotificationSettings() {
             </Text>
             <Title order={3}>Notification rules setup</Title>
             <Text c="dimmed">
-              Choose how Worker project events surface in UNIFY and external channels.
+              Choose how Hermes project events surface in UNIFY and external channels.
             </Text>
           </Box>
           <IconActivity size={24} />
@@ -1316,6 +1276,109 @@ function NotificationSettings() {
 }
 
 type Mutate = (request: MutationRequest, success: string) => Promise<unknown>;
+
+async function loadHermesWork(): Promise<Collection<UnifiedResource>> {
+  const [projects, boards, cronjobs] = await Promise.all([
+    gateway.hermesProjects(),
+    gateway.hermesBoards(),
+    gateway.hermesCronjobs(),
+  ]);
+  const taskCollections = await Promise.all(
+    boards.items.map(async (board) => ({
+      boardId: text(board.id),
+      response: await gateway.hermesTasks(text(board.id)),
+    })),
+  );
+  const items: UnifiedResource[] = [];
+  const add = (
+    kind: string,
+    item: Record<string, unknown>,
+    title: string,
+    sourceVersion: string,
+  ) => {
+    const nativeId = text(item.id);
+    const observedAt = new Date().toISOString();
+    items.push({
+      resource: {
+        canonicalId: `hermes-main:${kind}:${nativeId}`,
+        kind,
+        owner: 'hermes',
+        nativeId,
+        observedAt,
+        displayLabel: title,
+        sourceVersion,
+      },
+      truth: 'current',
+      authoritative: true,
+      adapterId: 'hermes-control',
+      fetchedAt: observedAt,
+      title,
+      searchableText: `${title} ${nativeId}`,
+      data: { ...item, nativeId },
+    });
+  };
+  for (const project of projects.items)
+    add(
+      'project',
+      {
+        ...project,
+        slug: project.id,
+        status: project.archived === true ? 'archived' : 'active',
+      },
+      text(project.name) || text(project.id),
+      projects.meta.sourceVersion,
+    );
+  for (const board of boards.items)
+    add(
+      'kanban-board',
+      {
+        ...board,
+        slug: board.id,
+        status: board.archived === true ? 'archived' : 'active',
+        countsByLane: board.counts,
+      },
+      text(board.name) || text(board.id),
+      boards.meta.sourceVersion,
+    );
+  for (const collection of taskCollections)
+    for (const task of collection.response.items) {
+      const status = text(task.status);
+      add(
+        'task',
+        {
+          ...task,
+          boardId: collection.boardId,
+          board: collection.boardId,
+          projectSlug: collection.boardId,
+          lane: hermesTaskLane(status),
+          description: task.body,
+        },
+        text(task.title) || text(task.id),
+        collection.response.meta.sourceVersion,
+      );
+    }
+  for (const cronjob of cronjobs.items)
+    add('cronjob', cronjob, text(cronjob.name) || text(cronjob.id), cronjobs.meta.sourceVersion);
+  return {
+    items,
+    meta: {
+      requestId: crypto.randomUUID(),
+      freshness: 'current',
+      observedAt: projects.meta.generatedAt,
+      generatedAt: new Date().toISOString(),
+      warnings: [],
+    },
+  };
+}
+
+function hermesTaskLane(status: string) {
+  return lanes.includes(status as (typeof lanes)[number]) ? status : 'triage';
+}
+
+function ownerResult(value: unknown) {
+  return record(record(record(value).data).result);
+}
+
 type ProjectView = {
   slug: string;
   name: string;
@@ -1390,19 +1453,13 @@ function projectPayload(form: ProjectForm, startPmPlanning: boolean): Record<str
     .map((item) => item.trim())
     .filter(Boolean);
   const pm = form.projectManager.trim();
-  const team = [...new Set([pm, ...agents].filter(Boolean))].map((name) => ({
-    name,
-    role: name === pm ? 'Project manager agent' : '',
-    isProjectManager: name === pm,
-  }));
   return {
     slug: form.slug,
     name: form.name.trim(),
     description: form.goal.trim(),
     defaultWorkspacePath: form.workspace.trim() || undefined,
-    defaultAgents: { pm: pm || 'unassigned' },
-    agentTeam: team,
-    schedule: 'none',
+    projectManager: pm || undefined,
+    agents: [...new Set([pm, ...agents].filter(Boolean))],
     startPmPlanning,
   };
 }
@@ -1415,7 +1472,7 @@ function mutation(
 ): MutationRequest {
   return {
     operationType,
-    target: { owner: 'worker', kind, nativeId },
+    target: { owner: 'hermes', kind, nativeId, frameworkId: 'hermes-main' },
     payload,
     mode: 'execute',
     confirmed,

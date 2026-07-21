@@ -12,12 +12,12 @@ WorkingDirectory=/srv/unify
 Environment=NODE_ENV=production
 Environment=HOST=127.0.0.1
 Environment=PORT=28082
-Environment=RELEASE_ID=unify-hermes-profiles-models-cutover
+Environment=RELEASE_ID=unify-hermes-work-cutover
 Environment=HERMES_REPO=/home/herman/.hermes/hermes-agent
 Environment=HERMES_HOME=/home/herman/.hermes
 Environment=HERMES_BIN=/home/herman/.local/bin/hermes
 Environment=HERMES_FRAMEWORK_ID=hermes-main
-Environment=HERMES_DISPLAY_NAME=Hermes Main
+Environment="HERMES_DISPLAY_NAME=Hermes Main"
 Environment=HERMES_INSTANCE_ID=hermes-main-local
 Environment=HERMES_ADAPTER_SCOPES=control:read,control:execute,control:events
 Environment=DATABASE_URL_FILE=/srv/unify/.secrets/gateway_database_url
@@ -30,6 +30,10 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=read-only
+# Native Projects/Kanban/cron commands need their authoritative Hermes state writable.
+ReadWritePaths=/home/herman/.hermes
+# Keep executable and pinned framework source immutable inside that state root.
+ReadOnlyPaths=/home/herman/.hermes/hermes-agent /home/herman/.hermes/hermes-agent-live-lane-clean
 ProtectKernelTunables=true
 ProtectKernelModules=true
 ProtectControlGroups=true

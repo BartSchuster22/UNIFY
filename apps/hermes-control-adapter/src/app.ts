@@ -3,10 +3,12 @@ import Fastify, { type FastifyRequest } from 'fastify';
 import {
   HERMES_CONTROL_VERSION,
   HermesControlCommandSchema,
+  HermesWorkCommandSchema,
   PINNED_HERMES_COMMIT,
   PINNED_HERMES_RELEASE,
   type FrameworkScope,
   type HermesControlCommand,
+  type HermesWorkCommand,
 } from '@aquiero/contracts';
 import { sourceVersion, SourceUnavailableError } from './source.js';
 import { IdempotencyBusyError, IdempotencyConflictError } from './event-store.js';
@@ -51,7 +53,9 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
     const body = commandAuditFields(request.body);
     await options.events.audit({
       frameworkId: options.frameworkId,
-      eventType: 'hermes.adapter.command.reconcile',
+      eventType: request.url.startsWith('/control/v1/commands/work')
+        ? 'hermes.adapter.command.work'
+        : 'hermes.adapter.command.reconcile',
       outcome,
       requestId: body.requestId ?? request.id,
       correlationId: body.correlationId ?? request.id,
@@ -72,7 +76,7 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
 
   app.setErrorHandler(async (error, request, reply) => {
     let mapped = mapError(error);
-    if (request.url.startsWith('/control/v1/commands/reconcile')) {
+    if (request.url.startsWith('/control/v1/commands/')) {
       try {
         await auditCommand(
           request,
@@ -151,8 +155,10 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
         'profiles.read': supported('control:read'),
         'providers.read': supported('control:read'),
         'providers.credentials.status': supported('control:read'),
+        'work.projects.read': supported('control:read'),
         'work.boards.read': supported('control:read'),
         'work.tasks.read': supported('control:read'),
+        'work.cron.read': supported('control:read'),
         'conversations.sessions.read': conversations
           ? supported('control:read')
           : unavailable('HERMES_API_NOT_CONFIGURED'),
@@ -167,7 +173,13 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
         },
         'profiles.execute': unsupported('NO_IDEMPOTENT_NONINTERACTIVE_INTERFACE'),
         'providers.credentials.execute': unsupported('NO_IDEMPOTENT_NONINTERACTIVE_INTERFACE'),
-        'work.execute': unsupported('PHASE_3_NOT_ACCEPTED'),
+        'work.execute': {
+          status: scopes.has('control:execute') ? 'supported' : 'forbidden',
+          modes: scopes.has('control:execute') ? ['validate', 'dry-run', 'execute'] : [],
+          requiredScopes: ['control:execute'],
+          ...(!scopes.has('control:execute') ? { reasonCode: 'SCOPE_NOT_CONFIGURED' } : {}),
+          constraints: { authority: 'hermes-native', secondWriter: false },
+        },
         'conversations.execute': unsupported('PHASE_3_NOT_ACCEPTED'),
         'conversations.delivery.execute': unsupported('SECOND_CONSUMER_FORBIDDEN'),
       },
@@ -182,6 +194,11 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
   app.get('/control/v1/providers', async (request) => {
     requireScope(scopes, 'control:read');
     return collection(options, await options.source.providers(), pageQuery(request.query));
+  });
+
+  app.get('/control/v1/work/projects', async (request) => {
+    requireScope(scopes, 'control:read');
+    return collection(options, await options.source.projects(), pageQuery(request.query));
   });
 
   app.get('/control/v1/work/boards', async (request) => {
@@ -200,6 +217,11 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
       );
     },
   );
+
+  app.get('/control/v1/work/cronjobs', async (request) => {
+    requireScope(scopes, 'control:read');
+    return collection(options, await options.source.cronjobs(), pageQuery(request.query));
+  });
 
   app.get('/control/v1/conversations/sessions', async (request) => {
     requireScope(scopes, 'control:read');
@@ -308,7 +330,98 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
     },
   );
 
+  app.post<{ Body: HermesWorkCommand }>(
+    '/control/v1/commands/work',
+    { schema: { body: HermesWorkCommandSchema } },
+    async (request) => {
+      requireScope(scopes, 'control:execute');
+      const command = request.body;
+      validateWorkPayload(command);
+      const operationId = randomUUID();
+      if (command.mode !== 'execute') {
+        const status = command.mode === 'validate' ? 'validated' : 'dry-run';
+        const result = response(options, sourceVersion(command), {
+          operationId,
+          status,
+          replayed: false,
+          operation: command.operation,
+          targetId: command.targetId,
+          result: {},
+          emittedEvents: 0,
+        });
+        await auditCommand(request, 'success', operationId, status);
+        return result;
+      }
+      const ownerResult = await options.source.executeWork(command);
+      const version = sourceVersion(ownerResult);
+      const result = response(options, version, {
+        operationId,
+        status: 'completed',
+        replayed: false,
+        operation: command.operation,
+        targetId: command.targetId,
+        result: ownerResult,
+        emittedEvents: 0,
+      });
+      const committed = await options.events.commit({
+        frameworkId: options.frameworkId,
+        capability: 'work.execute',
+        idempotencyKey: command.idempotencyKey,
+        requestHash: sourceVersion(command),
+        command,
+        response: result,
+        events: [
+          {
+            family: 'work',
+            type: `work.${command.operation}`,
+            sourceVersion: version,
+            correlationId: command.correlationId,
+            operationId,
+            payload: { targetId: command.targetId },
+          },
+        ],
+      });
+      if (committed.replayed) {
+        const data = committed.response.data;
+        if (data && typeof data === 'object' && !Array.isArray(data))
+          (data as Record<string, unknown>).replayed = true;
+      }
+      await auditCommand(
+        request,
+        'success',
+        operationId,
+        committed.replayed ? 'replayed' : 'completed',
+      );
+      return committed.response;
+    },
+  );
+
   return app;
+}
+
+function validateWorkPayload(command: HermesWorkCommand) {
+  const required: Partial<Record<HermesWorkCommand['operation'], string[]>> = {
+    'project.create': ['name'],
+    'project.rename': ['name'],
+    'task.create': ['boardId', 'title'],
+    'task.start': ['boardId'],
+    'task.block': ['boardId'],
+    'task.unblock': ['boardId'],
+    'task.complete': ['boardId'],
+    'cron.create': ['name', 'schedule', 'prompt'],
+  };
+  const missing = (required[command.operation] ?? []).find((key) => {
+    const value = command.payload[key];
+    return typeof value !== 'string' || !value.trim();
+  });
+  if (missing)
+    throw new AdapterError('invalid_request', 400, `Work payload ${missing} is required`);
+  if (
+    command.operation === 'project.create' &&
+    command.payload.startPmPlanning === true &&
+    (typeof command.payload.projectManager !== 'string' || !command.payload.projectManager.trim())
+  )
+    throw new AdapterError('invalid_request', 400, 'Project manager is required to start planning');
 }
 
 function response(options: HermesControlAdapterOptions, version: string, data: unknown) {
@@ -437,8 +550,20 @@ async function observeFamilies(source: AdapterSource, families: CapabilityFamily
       const value = await source.providers();
       output.push({ family, sourceVersion: value.sourceVersion, count: value.items.length });
     } else if (family === 'work') {
-      const value = await source.boards();
-      output.push({ family, sourceVersion: value.sourceVersion, count: value.items.length });
+      const [projects, boards, cronjobs] = await Promise.all([
+        source.projects(),
+        source.boards(),
+        source.cronjobs(),
+      ]);
+      output.push({
+        family,
+        sourceVersion: sourceVersion([
+          projects.sourceVersion,
+          boards.sourceVersion,
+          cronjobs.sourceVersion,
+        ]),
+        count: projects.items.length + boards.items.length + cronjobs.items.length,
+      });
     } else {
       const value = await source.sessions();
       output.push({ family, sourceVersion: value.sourceVersion, count: value.items.length });

@@ -43,6 +43,17 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   return response.status === 204 ? (undefined as T) : ((await response.json()) as T);
 }
 
+export interface HermesCollection<T extends Record<string, unknown>> {
+  items: T[];
+  meta: {
+    owner: 'hermes';
+    frameworkId: string;
+    sourceVersion: string;
+    generatedAt: string;
+  };
+  page: { hasMore: boolean; nextCursor?: string };
+}
+
 export const gateway = {
   me: () => api<Principal>('/auth/me'),
   login: (username: string, password: string) =>
@@ -52,6 +63,20 @@ export const gateway = {
     }),
   logout: () => api<void>('/auth/logout', { method: 'POST' }),
   resources: (query: URLSearchParams) => api<Collection<UnifiedResource>>(`/resources?${query}`),
+  hermesProjects: () =>
+    api<HermesCollection<Record<string, unknown>>>(
+      '/frameworks/hermes-main/work/projects?limit=500',
+    ),
+  hermesBoards: () =>
+    api<HermesCollection<Record<string, unknown>>>('/frameworks/hermes-main/work/boards?limit=500'),
+  hermesTasks: (boardId: string) =>
+    api<HermesCollection<Record<string, unknown>>>(
+      `/frameworks/hermes-main/work/boards/${encodeURIComponent(boardId)}/tasks?limit=500`,
+    ),
+  hermesCronjobs: () =>
+    api<HermesCollection<Record<string, unknown>>>(
+      '/frameworks/hermes-main/work/cronjobs?limit=500',
+    ),
   mutate: (request: MutationRequest, idempotencyKey = crypto.randomUUID()) =>
     api<MutationResponse>('/mutations', {
       method: 'POST',

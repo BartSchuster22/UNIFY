@@ -5,6 +5,8 @@ import {
   PINNED_HERMES_RELEASE,
   type FrameworkScope,
   type HermesControlCommand,
+  type HermesWorkCommand,
+  type HermesWorkOperation,
 } from '@aquiero/contracts';
 import type { FrameworkRegistryService } from '../framework-registry/service.js';
 import type { FrameworkConnection } from '../framework-registry/types.js';
@@ -62,6 +64,10 @@ export class HermesGatewayService {
     return projectCollection(await this.read(frameworkId, (client) => client.providers(query)));
   }
 
+  async projects(frameworkId: string, query: PageQuery) {
+    return projectCollection(await this.read(frameworkId, (client) => client.projects(query)));
+  }
+
   async boards(frameworkId: string, query: PageQuery) {
     return projectCollection(await this.read(frameworkId, (client) => client.boards(query)));
   }
@@ -72,6 +78,10 @@ export class HermesGatewayService {
     );
   }
 
+  async cronjobs(frameworkId: string, query: PageQuery) {
+    return projectCollection(await this.read(frameworkId, (client) => client.cronjobs(query)));
+  }
+
   async sessions(frameworkId: string, query: PageQuery) {
     return projectCollection(await this.read(frameworkId, (client) => client.sessions(query)));
   }
@@ -80,6 +90,39 @@ export class HermesGatewayService {
     return projectCollection(
       await this.read(frameworkId, (client) => client.messages(sessionId, query)),
     );
+  }
+
+  async work(
+    frameworkId: string,
+    operation: HermesWorkOperation,
+    targetId: string,
+    payload: Record<string, unknown>,
+    mode: 'validate' | 'dry-run' | 'execute',
+    context: GatewayCommandContext,
+  ) {
+    const command: HermesWorkCommand = {
+      mode,
+      idempotencyKey: gatewayIdempotencyKey(context.actorUserId, context.idempotencyKey),
+      requestId: context.operationId,
+      correlationId: context.operationId,
+      actor: { type: 'user', id: context.actorUserId },
+      payload,
+      operation,
+      targetId,
+    };
+    return this.call(frameworkId, 'control:execute', async (client) => {
+      const result = await client.work(command);
+      assertProvenance(frameworkId, result);
+      const expectedStatus =
+        mode === 'validate' ? 'validated' : mode === 'dry-run' ? 'dry-run' : 'completed';
+      if (result.data.status !== expectedStatus)
+        throw new GovernanceError(
+          'FRAMEWORK_VERIFICATION_FAILED',
+          502,
+          'Hermes work command did not return the expected terminal status',
+        );
+      return projectEnvelope(result);
+    });
   }
 
   async reconcile(

@@ -50,6 +50,34 @@ describe('CutoverPolicy', () => {
     );
   });
 
+  it('enables only accepted Hermes-owned Work execution', () => {
+    const active = CutoverPolicy.fromEnv({
+      DEPLOYMENT_MODE: 'mutation-canary',
+      MUTATION_DOMAINS: 'work',
+      MUTATION_ACCEPTANCE_REFS: 'work=phase6/hermes-work',
+    });
+    const work: MutationInput = {
+      operationType: 'work.task.create',
+      target: {
+        owner: 'hermes',
+        kind: 'task',
+        nativeId: 'fixture',
+        frameworkId: 'hermes-main',
+      },
+      payload: { boardId: 'alpha', title: 'Verify' },
+      mode: 'execute',
+      confirmed: false,
+    };
+    expect(() => active.assertAllowed(work)).not.toThrow();
+    expect(active.status().domains.find((domain) => domain.domain === 'work')).toMatchObject({
+      executeEnabled: true,
+      acceptanceRef: 'phase6/hermes-work',
+    });
+    expect(() => active.assertAllowed(mutation('worker', 'execute'))).toThrowError(
+      expect.objectContaining({ code: 'LEGACY_WRITE_CONTAINED' }),
+    );
+  });
+
   it('rejects ambiguous or unknown deployment configuration', () => {
     expect(() => CutoverPolicy.fromEnv({ DEPLOYMENT_MODE: 'production' })).toThrowError(
       /DEPLOYMENT_MODE/,

@@ -237,11 +237,27 @@ export const HermesBoardsResponseSchema = controlCollectionResponse(
   HermesBoardSchema,
 );
 
+export const HermesProjectSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1, maxLength: 200 }),
+    name: Type.String({ minLength: 1, maxLength: 500 }),
+    description: Type.Optional(Type.String({ maxLength: 1000000 })),
+    boardId: Type.Optional(Type.String({ maxLength: 200 })),
+    archived: Type.Boolean(),
+  },
+  { $id: 'HermesProject', additionalProperties: false },
+);
+export const HermesProjectsResponseSchema = controlCollectionResponse(
+  'HermesProjectsResponse',
+  HermesProjectSchema,
+);
+
 export const HermesTaskSchema = Type.Object(
   {
     id: Type.String({ minLength: 1, maxLength: 200 }),
     boardId: Type.String({ minLength: 1, maxLength: 200 }),
     title: Type.String({ minLength: 1, maxLength: 2000 }),
+    body: Type.Optional(Type.String({ maxLength: 1000000 })),
     status: Type.String({ minLength: 1, maxLength: 100 }),
     assignee: Type.Optional(Type.String({ maxLength: 200 })),
     priority: Type.Optional(Type.Integer()),
@@ -252,6 +268,30 @@ export const HermesTaskSchema = Type.Object(
 export const HermesTasksResponseSchema = controlCollectionResponse(
   'HermesTasksResponse',
   HermesTaskSchema,
+);
+
+export const HermesCronjobSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1, maxLength: 200 }),
+    name: Type.String({ minLength: 1, maxLength: 500 }),
+    schedule: Type.String({ minLength: 1, maxLength: 500 }),
+    status: Type.Union([
+      Type.Literal('active'),
+      Type.Literal('paused'),
+      Type.Literal('completed'),
+      Type.Literal('failed'),
+      Type.Literal('disabled'),
+    ]),
+    nextRunAt: Type.Optional(Type.String({ format: 'date-time' })),
+    lastRunAt: Type.Optional(Type.String({ format: 'date-time' })),
+    lastResult: Type.Optional(Type.String({ maxLength: 100 })),
+    deliver: Type.Array(Type.String({ minLength: 1, maxLength: 500 })),
+  },
+  { $id: 'HermesCronjob', additionalProperties: false },
+);
+export const HermesCronjobsResponseSchema = controlCollectionResponse(
+  'HermesCronjobsResponse',
+  HermesCronjobSchema,
 );
 
 export const HermesSessionSchema = Type.Object(
@@ -322,23 +362,70 @@ export const HermesControlErrorResponseSchema = Type.Object(
   { $id: 'HermesControlErrorResponse', additionalProperties: false },
 );
 
-export const HermesControlCommandSchema = Type.Object(
+const HermesControlCommandProperties = {
+  mode: Type.Union([Type.Literal('validate'), Type.Literal('dry-run'), Type.Literal('execute')]),
+  idempotencyKey: Type.String({ minLength: 1, maxLength: 200 }),
+  expectedSourceVersion: Type.Optional(HermesSourceVersionSchema),
+  requestId: Type.String({ minLength: 1, maxLength: 200 }),
+  correlationId: Type.String({ minLength: 1, maxLength: 200 }),
+  actor: Type.Object(
+    {
+      type: Type.Union([Type.Literal('user'), Type.Literal('service')]),
+      id: Type.String({ minLength: 1, maxLength: 200 }),
+    },
+    { additionalProperties: false },
+  ),
+  payload: Type.Record(Type.String(), Type.Unknown()),
+};
+export const HermesControlCommandSchema = Type.Object(HermesControlCommandProperties, {
+  $id: 'HermesControlCommand',
+  additionalProperties: false,
+});
+
+export const HermesWorkOperationSchema = Type.Union(
+  [
+    Type.Literal('project.create'),
+    Type.Literal('project.rename'),
+    Type.Literal('project.archive'),
+    Type.Literal('task.create'),
+    Type.Literal('task.start'),
+    Type.Literal('task.block'),
+    Type.Literal('task.unblock'),
+    Type.Literal('task.complete'),
+    Type.Literal('cron.create'),
+    Type.Literal('cron.run'),
+    Type.Literal('cron.pause'),
+    Type.Literal('cron.resume'),
+    Type.Literal('cron.delete'),
+  ],
+  { $id: 'HermesWorkOperation' },
+);
+export const HermesWorkCommandSchema = Type.Object(
   {
-    mode: Type.Union([Type.Literal('validate'), Type.Literal('dry-run'), Type.Literal('execute')]),
-    idempotencyKey: Type.String({ minLength: 1, maxLength: 200 }),
-    expectedSourceVersion: Type.Optional(HermesSourceVersionSchema),
-    requestId: Type.String({ minLength: 1, maxLength: 200 }),
-    correlationId: Type.String({ minLength: 1, maxLength: 200 }),
-    actor: Type.Object(
-      {
-        type: Type.Union([Type.Literal('user'), Type.Literal('service')]),
-        id: Type.String({ minLength: 1, maxLength: 200 }),
-      },
-      { additionalProperties: false },
-    ),
-    payload: Type.Record(Type.String(), Type.Unknown()),
+    ...HermesControlCommandProperties,
+    operation: HermesWorkOperationSchema,
+    targetId: Type.String({ minLength: 1, maxLength: 300 }),
   },
-  { $id: 'HermesControlCommand', additionalProperties: false },
+  { $id: 'HermesWorkCommand', additionalProperties: false },
+);
+export const HermesWorkResultSchema = controlResponse(
+  'HermesWorkResult',
+  Type.Object(
+    {
+      operationId: Type.String({ minLength: 1, maxLength: 200 }),
+      status: Type.Union([
+        Type.Literal('validated'),
+        Type.Literal('dry-run'),
+        Type.Literal('completed'),
+      ]),
+      replayed: Type.Boolean(),
+      operation: HermesWorkOperationSchema,
+      targetId: Type.String({ minLength: 1, maxLength: 300 }),
+      result: Type.Record(Type.String(), Type.Unknown()),
+      emittedEvents: Type.Integer({ minimum: 0 }),
+    },
+    { additionalProperties: false },
+  ),
 );
 
 export const HermesEventEnvelopeSchema = Type.Object(
@@ -517,6 +604,14 @@ export const GatewayHermesProvidersSchema = gatewayCollection(
   'GatewayHermesProviders',
   GatewayHermesProviderSchema,
 );
+export const GatewayHermesProjectSchema = gatewayOwnedItem(
+  'GatewayHermesProject',
+  HermesProjectSchema,
+);
+export const GatewayHermesProjectsSchema = gatewayCollection(
+  'GatewayHermesProjects',
+  GatewayHermesProjectSchema,
+);
 export const GatewayHermesBoardSchema = gatewayOwnedItem('GatewayHermesBoard', HermesBoardSchema);
 export const GatewayHermesBoardsSchema = gatewayCollection(
   'GatewayHermesBoards',
@@ -526,6 +621,14 @@ export const GatewayHermesTaskSchema = gatewayOwnedItem('GatewayHermesTask', Her
 export const GatewayHermesTasksSchema = gatewayCollection(
   'GatewayHermesTasks',
   GatewayHermesTaskSchema,
+);
+export const GatewayHermesCronjobSchema = gatewayOwnedItem(
+  'GatewayHermesCronjob',
+  HermesCronjobSchema,
+);
+export const GatewayHermesCronjobsSchema = gatewayCollection(
+  'GatewayHermesCronjobs',
+  GatewayHermesCronjobSchema,
 );
 export const GatewayHermesSessionSchema = gatewayOwnedItem(
   'GatewayHermesSession',
@@ -575,10 +678,14 @@ export type HermesCapabilitiesResponse = Static<typeof HermesCapabilitiesRespons
 export type HermesProfile = Static<typeof HermesProfileSchema>;
 export type HermesProvider = Static<typeof HermesProviderSchema>;
 export type HermesBoard = Static<typeof HermesBoardSchema>;
+export type HermesProject = Static<typeof HermesProjectSchema>;
 export type HermesTask = Static<typeof HermesTaskSchema>;
+export type HermesCronjob = Static<typeof HermesCronjobSchema>;
 export type HermesSession = Static<typeof HermesSessionSchema>;
 export type HermesMessage = Static<typeof HermesMessageSchema>;
 export type HermesControlCommand = Static<typeof HermesControlCommandSchema>;
+export type HermesWorkOperation = Static<typeof HermesWorkOperationSchema>;
+export type HermesWorkCommand = Static<typeof HermesWorkCommandSchema>;
 export type HermesEventEnvelope = Static<typeof HermesEventEnvelopeSchema>;
 export type HermesReconcileResult = Static<typeof HermesReconcileResultSchema>;
 export type FrameworkScope = Static<typeof FrameworkScopeSchema>;
@@ -604,8 +711,12 @@ export const HermesControlSchemas = [
   HermesProvidersResponseSchema,
   HermesBoardSchema,
   HermesBoardsResponseSchema,
+  HermesProjectSchema,
+  HermesProjectsResponseSchema,
   HermesTaskSchema,
   HermesTasksResponseSchema,
+  HermesCronjobSchema,
+  HermesCronjobsResponseSchema,
   HermesSessionSchema,
   HermesSessionsResponseSchema,
   HermesMessageSchema,
@@ -613,6 +724,9 @@ export const HermesControlSchemas = [
   HermesControlErrorCodeSchema,
   HermesControlErrorResponseSchema,
   HermesControlCommandSchema,
+  HermesWorkOperationSchema,
+  HermesWorkCommandSchema,
+  HermesWorkResultSchema,
   HermesEventEnvelopeSchema,
   HermesEventsResponseSchema,
   HermesReconcileResultSchema,
@@ -626,10 +740,14 @@ export const HermesControlSchemas = [
   GatewayHermesProfilesSchema,
   GatewayHermesProviderSchema,
   GatewayHermesProvidersSchema,
+  GatewayHermesProjectSchema,
+  GatewayHermesProjectsSchema,
   GatewayHermesBoardSchema,
   GatewayHermesBoardsSchema,
   GatewayHermesTaskSchema,
   GatewayHermesTasksSchema,
+  GatewayHermesCronjobSchema,
+  GatewayHermesCronjobsSchema,
   GatewayHermesSessionSchema,
   GatewayHermesSessionsSchema,
   GatewayHermesMessageSchema,

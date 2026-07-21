@@ -1,12 +1,15 @@
 import type {
   HermesBoard,
+  HermesCronjob,
   HermesControlCommand,
   HermesEventEnvelope,
   HermesMessage,
   HermesProfile,
+  HermesProject,
   HermesProvider,
   HermesSession,
   HermesTask,
+  HermesWorkCommand,
 } from '@aquiero/contracts';
 
 export type CapabilityFamily = 'profiles' | 'providers' | 'work' | 'conversations';
@@ -19,8 +22,11 @@ export interface Snapshot<T> {
 export interface AdapterSource {
   profiles(): Promise<Snapshot<HermesProfile>>;
   providers(): Promise<Snapshot<HermesProvider>>;
+  projects(): Promise<Snapshot<HermesProject>>;
   boards(): Promise<Snapshot<HermesBoard>>;
   tasks(boardId: string): Promise<Snapshot<HermesTask>>;
+  cronjobs(): Promise<Snapshot<HermesCronjob>>;
+  executeWork(command: HermesWorkCommand): Promise<Record<string, unknown>>;
   sessions(): Promise<Snapshot<HermesSession>>;
   messages(sessionId: string): Promise<Snapshot<HermesMessage>>;
   health(): Promise<Record<string, 'healthy' | 'degraded' | 'unavailable'>>;
@@ -41,7 +47,7 @@ export interface IdempotentCommitInput {
   capability: string;
   idempotencyKey: string;
   requestHash: string;
-  command: HermesControlCommand;
+  command: HermesControlCommand | HermesWorkCommand;
   response: Record<string, unknown>;
   events: DerivedEventInput[];
 }

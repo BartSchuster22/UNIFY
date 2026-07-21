@@ -694,6 +694,11 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         'HermesProvidersResponse',
         controlPageParameters(),
       ),
+      '/control/v1/work/projects': controlReadPath(
+        'listHermesProjects',
+        'HermesProjectsResponse',
+        controlPageParameters(),
+      ),
       '/control/v1/work/boards': controlReadPath(
         'listHermesBoards',
         'HermesBoardsResponse',
@@ -711,6 +716,11 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           },
           ...controlPageParameters(),
         ],
+      ),
+      '/control/v1/work/cronjobs': controlReadPath(
+        'listHermesCronjobs',
+        'HermesCronjobsResponse',
+        controlPageParameters(),
       ),
       '/control/v1/conversations/sessions': controlReadPath(
         'listHermesSessions',
@@ -735,6 +745,22 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         'HermesEventsResponse',
         controlPageParameters(),
       ),
+      '/control/v1/commands/work': {
+        post: {
+          tags: ['hermes-control'],
+          operationId: 'executeHermesWorkCommand',
+          security: [{ bearerAuth: [] }],
+          requestBody: jsonBody('HermesWorkCommand'),
+          responses: {
+            '200': jsonResponse('HermesWorkResult'),
+            '400': jsonResponse('HermesControlErrorResponse'),
+            '401': jsonResponse('HermesControlErrorResponse'),
+            '403': jsonResponse('HermesControlErrorResponse'),
+            '409': jsonResponse('HermesControlErrorResponse'),
+            '503': jsonResponse('HermesControlErrorResponse'),
+          },
+        },
+      },
       '/control/v1/commands/reconcile': {
         post: {
           tags: ['hermes-control'],
@@ -832,6 +858,12 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         'GatewayHermesProviders',
         frameworkParameters(true),
       ),
+      '/frameworks/{frameworkId}/work/projects': readPath(
+        'frameworks',
+        'listFrameworkProjects',
+        'GatewayHermesProjects',
+        frameworkParameters(true),
+      ),
       '/frameworks/{frameworkId}/work/boards': readPath(
         'frameworks',
         'listFrameworkBoards',
@@ -852,6 +884,12 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           },
           ...controlPageParameters(),
         ],
+      ),
+      '/frameworks/{frameworkId}/work/cronjobs': readPath(
+        'frameworks',
+        'listFrameworkCronjobs',
+        'GatewayHermesCronjobs',
+        frameworkParameters(true),
       ),
       '/frameworks/{frameworkId}/conversations/sessions': readPath(
         'frameworks',

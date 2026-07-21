@@ -2,11 +2,11 @@ services:
   gateway:
     environment:
       NODE_ENV: production
-      RELEASE_ID: ${RELEASE_ID:-unify-hermes-profiles-models-cutover}
-      # Profiles/providers are Hermes-owned reads. Unsupported Hermes writes remain visibly disabled.
-      DEPLOYMENT_MODE: read-only
-      MUTATION_DOMAINS: ''
-      MUTATION_ACCEPTANCE_REFS: ''
+      RELEASE_ID: ${RELEASE_ID:-unify-hermes-work-cutover}
+      # Only native Hermes Work commands are enabled; every legacy write remains contained.
+      DEPLOYMENT_MODE: mutation-canary
+      MUTATION_DOMAINS: work
+      MUTATION_ACCEPTANCE_REFS: work=phase6/hermes-work
   uniui:
     environment:
       HOST: 127.0.0.1

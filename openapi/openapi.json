@@ -1103,6 +1103,104 @@
         }
       }
     },
+    "/control/v1/work/projects": {
+      "get": {
+        "tags": [
+          "hermes-control"
+        ],
+        "operationId": "listHermesProjects",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HermesProjectsResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HermesProjectsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "HermesControlErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HermesControlErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "HermesControlErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HermesControlErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "HermesControlErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HermesControlErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "HermesControlErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HermesControlErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "HermesControlErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HermesControlErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/control/v1/work/boards": {
       "get": {
         "tags": [
@@ -1252,6 +1350,104 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HermesTasksResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "HermesControlErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HermesControlErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "HermesControlErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HermesControlErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "HermesControlErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HermesControlErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "HermesControlErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HermesControlErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "HermesControlErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HermesControlErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/control/v1/work/cronjobs": {
+      "get": {
+        "tags": [
+          "hermes-control"
+        ],
+        "operationId": "listHermesCronjobs",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HermesCronjobsResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HermesCronjobsResponse"
                 }
               }
             }
@@ -1556,6 +1752,91 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HermesEventsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "HermesControlErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HermesControlErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "HermesControlErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HermesControlErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "HermesControlErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HermesControlErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "HermesControlErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HermesControlErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "HermesControlErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HermesControlErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/control/v1/commands/work": {
+      "post": {
+        "tags": [
+          "hermes-control"
+        ],
+        "operationId": "executeHermesWorkCommand",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HermesWorkCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "HermesWorkResult",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HermesWorkResult"
                 }
               }
             }
@@ -2259,6 +2540,92 @@
         }
       }
     },
+    "/frameworks/{frameworkId}/work/projects": {
+      "get": {
+        "tags": [
+          "frameworks"
+        ],
+        "operationId": "listFrameworkProjects",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "frameworkId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/HermesFrameworkId"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GatewayHermesProjects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayHermesProjects"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/frameworks/{frameworkId}/work/boards": {
       "get": {
         "tags": [
@@ -2404,6 +2771,92 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/GatewayHermesTasks"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "ErrorResponse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/frameworks/{frameworkId}/work/cronjobs": {
+      "get": {
+        "tags": [
+          "frameworks"
+        ],
+        "operationId": "listFrameworkCronjobs",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "frameworkId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/HermesFrameworkId"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "GatewayHermesCronjobs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GatewayHermesCronjobs"
                 }
               }
             }
@@ -11882,6 +12335,147 @@
           }
         }
       },
+      "HermesProject": {
+        "$id": "HermesProject",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "archived"
+        ],
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "name": {
+            "minLength": 1,
+            "maxLength": 500,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 1000000,
+            "type": "string"
+          },
+          "boardId": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "archived": {
+            "type": "boolean"
+          }
+        }
+      },
+      "HermesProjectsResponse": {
+        "$id": "HermesProjectsResponse",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contractVersion",
+          "frameworkId",
+          "frameworkVersion",
+          "frameworkCommit",
+          "sourceVersion",
+          "observedAt",
+          "data"
+        ],
+        "properties": {
+          "contractVersion": {
+            "$id": "HermesContractVersion",
+            "const": "hermes-control/v1",
+            "type": "string"
+          },
+          "frameworkId": {
+            "$id": "HermesFrameworkId",
+            "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+            "type": "string"
+          },
+          "frameworkVersion": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          },
+          "frameworkCommit": {
+            "pattern": "^[a-f0-9]{40}$",
+            "type": "string"
+          },
+          "sourceVersion": {
+            "minLength": 1,
+            "maxLength": 256,
+            "type": "string"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "data": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "items",
+              "page"
+            ],
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "$id": "HermesProject",
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "name",
+                    "archived"
+                  ],
+                  "properties": {
+                    "id": {
+                      "minLength": 1,
+                      "maxLength": 200,
+                      "type": "string"
+                    },
+                    "name": {
+                      "minLength": 1,
+                      "maxLength": 500,
+                      "type": "string"
+                    },
+                    "description": {
+                      "maxLength": 1000000,
+                      "type": "string"
+                    },
+                    "boardId": {
+                      "maxLength": 200,
+                      "type": "string"
+                    },
+                    "archived": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "page": {
+                "$id": "HermesPage",
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "hasMore"
+                ],
+                "properties": {
+                  "nextCursor": {
+                    "minLength": 1,
+                    "maxLength": 2048,
+                    "type": "string"
+                  },
+                  "hasMore": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "HermesTask": {
         "$id": "HermesTask",
         "additionalProperties": false,
@@ -11906,6 +12500,10 @@
           "title": {
             "minLength": 1,
             "maxLength": 2000,
+            "type": "string"
+          },
+          "body": {
+            "maxLength": 1000000,
             "type": "string"
           },
           "status": {
@@ -12004,6 +12602,10 @@
                       "maxLength": 2000,
                       "type": "string"
                     },
+                    "body": {
+                      "maxLength": 1000000,
+                      "type": "string"
+                    },
                     "status": {
                       "minLength": 1,
                       "maxLength": 100,
@@ -12019,6 +12621,227 @@
                     "updatedAt": {
                       "format": "date-time",
                       "type": "string"
+                    }
+                  }
+                }
+              },
+              "page": {
+                "$id": "HermesPage",
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "hasMore"
+                ],
+                "properties": {
+                  "nextCursor": {
+                    "minLength": 1,
+                    "maxLength": 2048,
+                    "type": "string"
+                  },
+                  "hasMore": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "HermesCronjob": {
+        "$id": "HermesCronjob",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "schedule",
+          "status",
+          "deliver"
+        ],
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "name": {
+            "minLength": 1,
+            "maxLength": 500,
+            "type": "string"
+          },
+          "schedule": {
+            "minLength": 1,
+            "maxLength": 500,
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "const": "active",
+                "type": "string"
+              },
+              {
+                "const": "paused",
+                "type": "string"
+              },
+              {
+                "const": "completed",
+                "type": "string"
+              },
+              {
+                "const": "failed",
+                "type": "string"
+              },
+              {
+                "const": "disabled",
+                "type": "string"
+              }
+            ]
+          },
+          "nextRunAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "lastRunAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "lastResult": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "deliver": {
+            "type": "array",
+            "items": {
+              "minLength": 1,
+              "maxLength": 500,
+              "type": "string"
+            }
+          }
+        }
+      },
+      "HermesCronjobsResponse": {
+        "$id": "HermesCronjobsResponse",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contractVersion",
+          "frameworkId",
+          "frameworkVersion",
+          "frameworkCommit",
+          "sourceVersion",
+          "observedAt",
+          "data"
+        ],
+        "properties": {
+          "contractVersion": {
+            "$id": "HermesContractVersion",
+            "const": "hermes-control/v1",
+            "type": "string"
+          },
+          "frameworkId": {
+            "$id": "HermesFrameworkId",
+            "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+            "type": "string"
+          },
+          "frameworkVersion": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          },
+          "frameworkCommit": {
+            "pattern": "^[a-f0-9]{40}$",
+            "type": "string"
+          },
+          "sourceVersion": {
+            "minLength": 1,
+            "maxLength": 256,
+            "type": "string"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "data": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "items",
+              "page"
+            ],
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "$id": "HermesCronjob",
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "name",
+                    "schedule",
+                    "status",
+                    "deliver"
+                  ],
+                  "properties": {
+                    "id": {
+                      "minLength": 1,
+                      "maxLength": 200,
+                      "type": "string"
+                    },
+                    "name": {
+                      "minLength": 1,
+                      "maxLength": 500,
+                      "type": "string"
+                    },
+                    "schedule": {
+                      "minLength": 1,
+                      "maxLength": 500,
+                      "type": "string"
+                    },
+                    "status": {
+                      "anyOf": [
+                        {
+                          "const": "active",
+                          "type": "string"
+                        },
+                        {
+                          "const": "paused",
+                          "type": "string"
+                        },
+                        {
+                          "const": "completed",
+                          "type": "string"
+                        },
+                        {
+                          "const": "failed",
+                          "type": "string"
+                        },
+                        {
+                          "const": "disabled",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "nextRunAt": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "lastRunAt": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "lastResult": {
+                      "maxLength": 100,
+                      "type": "string"
+                    },
+                    "deliver": {
+                      "type": "array",
+                      "items": {
+                        "minLength": 1,
+                        "maxLength": 500,
+                        "type": "string"
+                      }
                     }
                   }
                 }
@@ -12585,6 +13408,366 @@
             "type": "object",
             "patternProperties": {
               "^(.*)$": {}
+            }
+          }
+        }
+      },
+      "HermesWorkOperation": {
+        "$id": "HermesWorkOperation",
+        "anyOf": [
+          {
+            "const": "project.create",
+            "type": "string"
+          },
+          {
+            "const": "project.rename",
+            "type": "string"
+          },
+          {
+            "const": "project.archive",
+            "type": "string"
+          },
+          {
+            "const": "task.create",
+            "type": "string"
+          },
+          {
+            "const": "task.start",
+            "type": "string"
+          },
+          {
+            "const": "task.block",
+            "type": "string"
+          },
+          {
+            "const": "task.unblock",
+            "type": "string"
+          },
+          {
+            "const": "task.complete",
+            "type": "string"
+          },
+          {
+            "const": "cron.create",
+            "type": "string"
+          },
+          {
+            "const": "cron.run",
+            "type": "string"
+          },
+          {
+            "const": "cron.pause",
+            "type": "string"
+          },
+          {
+            "const": "cron.resume",
+            "type": "string"
+          },
+          {
+            "const": "cron.delete",
+            "type": "string"
+          }
+        ]
+      },
+      "HermesWorkCommand": {
+        "$id": "HermesWorkCommand",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "mode",
+          "idempotencyKey",
+          "requestId",
+          "correlationId",
+          "actor",
+          "payload",
+          "operation",
+          "targetId"
+        ],
+        "properties": {
+          "mode": {
+            "anyOf": [
+              {
+                "const": "validate",
+                "type": "string"
+              },
+              {
+                "const": "dry-run",
+                "type": "string"
+              },
+              {
+                "const": "execute",
+                "type": "string"
+              }
+            ]
+          },
+          "idempotencyKey": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "expectedSourceVersion": {
+            "minLength": 1,
+            "maxLength": 256,
+            "type": "string"
+          },
+          "requestId": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "correlationId": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "actor": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "id"
+            ],
+            "properties": {
+              "type": {
+                "anyOf": [
+                  {
+                    "const": "user",
+                    "type": "string"
+                  },
+                  {
+                    "const": "service",
+                    "type": "string"
+                  }
+                ]
+              },
+              "id": {
+                "minLength": 1,
+                "maxLength": 200,
+                "type": "string"
+              }
+            }
+          },
+          "payload": {
+            "type": "object",
+            "patternProperties": {
+              "^(.*)$": {}
+            }
+          },
+          "operation": {
+            "$id": "HermesWorkOperation",
+            "anyOf": [
+              {
+                "const": "project.create",
+                "type": "string"
+              },
+              {
+                "const": "project.rename",
+                "type": "string"
+              },
+              {
+                "const": "project.archive",
+                "type": "string"
+              },
+              {
+                "const": "task.create",
+                "type": "string"
+              },
+              {
+                "const": "task.start",
+                "type": "string"
+              },
+              {
+                "const": "task.block",
+                "type": "string"
+              },
+              {
+                "const": "task.unblock",
+                "type": "string"
+              },
+              {
+                "const": "task.complete",
+                "type": "string"
+              },
+              {
+                "const": "cron.create",
+                "type": "string"
+              },
+              {
+                "const": "cron.run",
+                "type": "string"
+              },
+              {
+                "const": "cron.pause",
+                "type": "string"
+              },
+              {
+                "const": "cron.resume",
+                "type": "string"
+              },
+              {
+                "const": "cron.delete",
+                "type": "string"
+              }
+            ]
+          },
+          "targetId": {
+            "minLength": 1,
+            "maxLength": 300,
+            "type": "string"
+          }
+        }
+      },
+      "HermesWorkResult": {
+        "$id": "HermesWorkResult",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contractVersion",
+          "frameworkId",
+          "frameworkVersion",
+          "frameworkCommit",
+          "sourceVersion",
+          "observedAt",
+          "data"
+        ],
+        "properties": {
+          "contractVersion": {
+            "$id": "HermesContractVersion",
+            "const": "hermes-control/v1",
+            "type": "string"
+          },
+          "frameworkId": {
+            "$id": "HermesFrameworkId",
+            "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+            "type": "string"
+          },
+          "frameworkVersion": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          },
+          "frameworkCommit": {
+            "pattern": "^[a-f0-9]{40}$",
+            "type": "string"
+          },
+          "sourceVersion": {
+            "minLength": 1,
+            "maxLength": 256,
+            "type": "string"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "data": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "operationId",
+              "status",
+              "replayed",
+              "operation",
+              "targetId",
+              "result",
+              "emittedEvents"
+            ],
+            "properties": {
+              "operationId": {
+                "minLength": 1,
+                "maxLength": 200,
+                "type": "string"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "const": "validated",
+                    "type": "string"
+                  },
+                  {
+                    "const": "dry-run",
+                    "type": "string"
+                  },
+                  {
+                    "const": "completed",
+                    "type": "string"
+                  }
+                ]
+              },
+              "replayed": {
+                "type": "boolean"
+              },
+              "operation": {
+                "$id": "HermesWorkOperation",
+                "anyOf": [
+                  {
+                    "const": "project.create",
+                    "type": "string"
+                  },
+                  {
+                    "const": "project.rename",
+                    "type": "string"
+                  },
+                  {
+                    "const": "project.archive",
+                    "type": "string"
+                  },
+                  {
+                    "const": "task.create",
+                    "type": "string"
+                  },
+                  {
+                    "const": "task.start",
+                    "type": "string"
+                  },
+                  {
+                    "const": "task.block",
+                    "type": "string"
+                  },
+                  {
+                    "const": "task.unblock",
+                    "type": "string"
+                  },
+                  {
+                    "const": "task.complete",
+                    "type": "string"
+                  },
+                  {
+                    "const": "cron.create",
+                    "type": "string"
+                  },
+                  {
+                    "const": "cron.run",
+                    "type": "string"
+                  },
+                  {
+                    "const": "cron.pause",
+                    "type": "string"
+                  },
+                  {
+                    "const": "cron.resume",
+                    "type": "string"
+                  },
+                  {
+                    "const": "cron.delete",
+                    "type": "string"
+                  }
+                ]
+              },
+              "targetId": {
+                "minLength": 1,
+                "maxLength": 300,
+                "type": "string"
+              },
+              "result": {
+                "type": "object",
+                "patternProperties": {
+                  "^(.*)$": {}
+                }
+              },
+              "emittedEvents": {
+                "minimum": 0,
+                "type": "integer"
+              }
             }
           }
         }
@@ -13965,6 +15148,196 @@
           }
         }
       },
+      "GatewayHermesProject": {
+        "$id": "GatewayHermesProject",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "archived",
+          "owner",
+          "frameworkId",
+          "sourceVersion",
+          "observedAt"
+        ],
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "name": {
+            "minLength": 1,
+            "maxLength": 500,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 1000000,
+            "type": "string"
+          },
+          "boardId": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "archived": {
+            "type": "boolean"
+          },
+          "owner": {
+            "const": "hermes",
+            "type": "string"
+          },
+          "frameworkId": {
+            "$id": "HermesFrameworkId",
+            "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+            "type": "string"
+          },
+          "sourceVersion": {
+            "minLength": 1,
+            "maxLength": 256,
+            "type": "string"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        }
+      },
+      "GatewayHermesProjects": {
+        "$id": "GatewayHermesProjects",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "meta",
+          "items",
+          "page"
+        ],
+        "properties": {
+          "meta": {
+            "$id": "GatewayHermesMetadata",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "owner",
+              "frameworkId",
+              "frameworkVersion",
+              "frameworkCommit",
+              "sourceVersion",
+              "observedAt",
+              "freshness"
+            ],
+            "properties": {
+              "owner": {
+                "const": "hermes",
+                "type": "string"
+              },
+              "frameworkId": {
+                "$id": "HermesFrameworkId",
+                "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+                "type": "string"
+              },
+              "frameworkVersion": {
+                "minLength": 1,
+                "maxLength": 128,
+                "type": "string"
+              },
+              "frameworkCommit": {
+                "pattern": "^[a-f0-9]{40}$",
+                "type": "string"
+              },
+              "sourceVersion": {
+                "minLength": 1,
+                "maxLength": 256,
+                "type": "string"
+              },
+              "observedAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "freshness": {
+                "const": "current",
+                "type": "string"
+              }
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$id": "GatewayHermesProject",
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "id",
+                "name",
+                "archived",
+                "owner",
+                "frameworkId",
+                "sourceVersion",
+                "observedAt"
+              ],
+              "properties": {
+                "id": {
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                "name": {
+                  "minLength": 1,
+                  "maxLength": 500,
+                  "type": "string"
+                },
+                "description": {
+                  "maxLength": 1000000,
+                  "type": "string"
+                },
+                "boardId": {
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                "archived": {
+                  "type": "boolean"
+                },
+                "owner": {
+                  "const": "hermes",
+                  "type": "string"
+                },
+                "frameworkId": {
+                  "$id": "HermesFrameworkId",
+                  "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+                  "type": "string"
+                },
+                "sourceVersion": {
+                  "minLength": 1,
+                  "maxLength": 256,
+                  "type": "string"
+                },
+                "observedAt": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "page": {
+            "$id": "HermesPage",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "hasMore"
+            ],
+            "properties": {
+              "nextCursor": {
+                "minLength": 1,
+                "maxLength": 2048,
+                "type": "string"
+              },
+              "hasMore": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
       "GatewayHermesBoard": {
         "$id": "GatewayHermesBoard",
         "additionalProperties": false,
@@ -14215,6 +15588,10 @@
             "maxLength": 2000,
             "type": "string"
           },
+          "body": {
+            "maxLength": 1000000,
+            "type": "string"
+          },
           "status": {
             "minLength": 1,
             "maxLength": 100,
@@ -14340,6 +15717,10 @@
                   "maxLength": 2000,
                   "type": "string"
                 },
+                "body": {
+                  "maxLength": 1000000,
+                  "type": "string"
+                },
                 "status": {
                   "minLength": 1,
                   "maxLength": 100,
@@ -14355,6 +15736,276 @@
                 "updatedAt": {
                   "format": "date-time",
                   "type": "string"
+                },
+                "owner": {
+                  "const": "hermes",
+                  "type": "string"
+                },
+                "frameworkId": {
+                  "$id": "HermesFrameworkId",
+                  "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+                  "type": "string"
+                },
+                "sourceVersion": {
+                  "minLength": 1,
+                  "maxLength": 256,
+                  "type": "string"
+                },
+                "observedAt": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "page": {
+            "$id": "HermesPage",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "hasMore"
+            ],
+            "properties": {
+              "nextCursor": {
+                "minLength": 1,
+                "maxLength": 2048,
+                "type": "string"
+              },
+              "hasMore": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "GatewayHermesCronjob": {
+        "$id": "GatewayHermesCronjob",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "schedule",
+          "status",
+          "deliver",
+          "owner",
+          "frameworkId",
+          "sourceVersion",
+          "observedAt"
+        ],
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "name": {
+            "minLength": 1,
+            "maxLength": 500,
+            "type": "string"
+          },
+          "schedule": {
+            "minLength": 1,
+            "maxLength": 500,
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "const": "active",
+                "type": "string"
+              },
+              {
+                "const": "paused",
+                "type": "string"
+              },
+              {
+                "const": "completed",
+                "type": "string"
+              },
+              {
+                "const": "failed",
+                "type": "string"
+              },
+              {
+                "const": "disabled",
+                "type": "string"
+              }
+            ]
+          },
+          "nextRunAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "lastRunAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "lastResult": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "deliver": {
+            "type": "array",
+            "items": {
+              "minLength": 1,
+              "maxLength": 500,
+              "type": "string"
+            }
+          },
+          "owner": {
+            "const": "hermes",
+            "type": "string"
+          },
+          "frameworkId": {
+            "$id": "HermesFrameworkId",
+            "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+            "type": "string"
+          },
+          "sourceVersion": {
+            "minLength": 1,
+            "maxLength": 256,
+            "type": "string"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        }
+      },
+      "GatewayHermesCronjobs": {
+        "$id": "GatewayHermesCronjobs",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "meta",
+          "items",
+          "page"
+        ],
+        "properties": {
+          "meta": {
+            "$id": "GatewayHermesMetadata",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "owner",
+              "frameworkId",
+              "frameworkVersion",
+              "frameworkCommit",
+              "sourceVersion",
+              "observedAt",
+              "freshness"
+            ],
+            "properties": {
+              "owner": {
+                "const": "hermes",
+                "type": "string"
+              },
+              "frameworkId": {
+                "$id": "HermesFrameworkId",
+                "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+                "type": "string"
+              },
+              "frameworkVersion": {
+                "minLength": 1,
+                "maxLength": 128,
+                "type": "string"
+              },
+              "frameworkCommit": {
+                "pattern": "^[a-f0-9]{40}$",
+                "type": "string"
+              },
+              "sourceVersion": {
+                "minLength": 1,
+                "maxLength": 256,
+                "type": "string"
+              },
+              "observedAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "freshness": {
+                "const": "current",
+                "type": "string"
+              }
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$id": "GatewayHermesCronjob",
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "id",
+                "name",
+                "schedule",
+                "status",
+                "deliver",
+                "owner",
+                "frameworkId",
+                "sourceVersion",
+                "observedAt"
+              ],
+              "properties": {
+                "id": {
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                "name": {
+                  "minLength": 1,
+                  "maxLength": 500,
+                  "type": "string"
+                },
+                "schedule": {
+                  "minLength": 1,
+                  "maxLength": 500,
+                  "type": "string"
+                },
+                "status": {
+                  "anyOf": [
+                    {
+                      "const": "active",
+                      "type": "string"
+                    },
+                    {
+                      "const": "paused",
+                      "type": "string"
+                    },
+                    {
+                      "const": "completed",
+                      "type": "string"
+                    },
+                    {
+                      "const": "failed",
+                      "type": "string"
+                    },
+                    {
+                      "const": "disabled",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "nextRunAt": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "lastRunAt": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "lastResult": {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                "deliver": {
+                  "type": "array",
+                  "items": {
+                    "minLength": 1,
+                    "maxLength": 500,
+                    "type": "string"
+                  }
                 },
                 "owner": {
                   "const": "hermes",

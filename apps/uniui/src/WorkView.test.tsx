@@ -2,70 +2,70 @@ import { MantineProvider } from '@mantine/core';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { gateway } from './api';
-import type { UnifiedResource } from './types';
 import { WorkView } from './WorkView';
 
-function resource(
-  kind: string,
-  nativeId: string,
-  title: string,
-  data: Record<string, unknown>,
-): UnifiedResource {
-  return {
-    resource: {
-      canonicalId: `worker:${kind}:${nativeId}`,
-      kind,
-      owner: 'worker',
-      nativeId,
-      observedAt: '2026-07-20T12:00:00.000Z',
+const meta = {
+  owner: 'hermes' as const,
+  frameworkId: 'hermes-main',
+  sourceVersion: 'sha256:test',
+  generatedAt: '2026-07-20T12:00:00.000Z',
+};
+const page = { hasMore: false };
+const projects = {
+  items: [
+    {
+      id: 'alpha',
+      name: 'Alpha',
+      description: 'Ship Alpha safely',
+      boardId: 'alpha',
+      archived: false,
     },
-    truth: 'current',
-    authoritative: true,
-    adapterId: 'worker-read-v1',
-    fetchedAt: '2026-07-20T12:00:00.000Z',
-    title,
-    searchableText: title,
-    data,
-  };
-}
-
-const items = [
-  resource('project', 'alpha', 'Alpha', {
-    slug: 'alpha',
-    name: 'Alpha',
-    description: 'Ship Alpha safely',
-    lifecycleState: 'active',
-    defaultWorkspacePath: '/srv/alpha',
-    defaultAgents: { pm: 'Herman' },
-    agentTeam: [{ name: 'Herman', role: 'Project manager agent', isProjectManager: true }],
-  }),
-  resource('kanban-board', 'alpha', 'Alpha', {
-    slug: 'alpha',
-    name: 'Alpha',
-    description: 'Ship Alpha safely',
-    status: 'active',
-    countsByLane: { triage: 1, todo: 0, ready: 0, running: 1, blocked: 1, done: 0, archived: 0 },
-  }),
-  resource('task', 'TASK-1', 'Blocked release', {
-    nativeId: 'TASK-1',
-    board: 'alpha',
-    lane: 'blocked',
-    blockedReason: 'Needs approval',
-  }),
-  resource('task', 'TASK-2', 'Running checks', {
-    nativeId: 'TASK-2',
-    board: 'alpha',
-    lane: 'running',
-    assignee: 'Herman',
-  }),
-  resource('task', 'TASK-3', 'New intake', { nativeId: 'TASK-3', board: 'alpha', lane: 'triage' }),
-  resource('cronjob', 'cron-1', 'Daily checks', {
-    nativeId: 'cron-1',
-    status: 'paused',
-    paused: true,
-    schedule: { kind: 'every', every: 'every 1d' },
-  }),
-];
+  ],
+  meta,
+  page,
+};
+const boards = {
+  items: [
+    {
+      id: 'alpha',
+      name: 'Alpha',
+      archived: false,
+      isCurrent: true,
+      counts: { triage: 1, running: 1, blocked: 1 },
+      total: 3,
+    },
+  ],
+  meta,
+  page,
+};
+const tasks = {
+  items: [
+    { id: 'TASK-1', boardId: 'alpha', title: 'Blocked release', status: 'blocked' },
+    {
+      id: 'TASK-2',
+      boardId: 'alpha',
+      title: 'Running checks',
+      status: 'running',
+      assignee: 'Herman',
+    },
+    { id: 'TASK-3', boardId: 'alpha', title: 'New intake', status: 'triage' },
+  ],
+  meta,
+  page,
+};
+const cronjobs = {
+  items: [
+    {
+      id: 'cron-1',
+      name: 'Daily checks',
+      status: 'paused',
+      schedule: 'every 1440m',
+      deliver: ['local'],
+    },
+  ],
+  meta,
+  page,
+};
 
 function renderWork(canManage = true) {
   return render(
@@ -78,21 +78,15 @@ function renderWork(canManage = true) {
 describe('UNIFY Work & Kanban', () => {
   beforeEach(() => {
     window.history.replaceState(null, '', '/?view=work');
-    vi.spyOn(gateway, 'resources').mockResolvedValue({
-      items,
-      meta: {
-        requestId: 'r1',
-        freshness: 'current',
-        generatedAt: '2026-07-20T12:00:00.000Z',
-        observedAt: '2026-07-20T12:00:00.000Z',
-        warnings: [],
-      },
-    });
+    vi.spyOn(gateway, 'hermesProjects').mockResolvedValue(projects);
+    vi.spyOn(gateway, 'hermesBoards').mockResolvedValue(boards);
+    vi.spyOn(gateway, 'hermesTasks').mockResolvedValue(tasks);
+    vi.spyOn(gateway, 'hermesCronjobs').mockResolvedValue(cronjobs);
     vi.spyOn(gateway, 'mutate').mockResolvedValue({
       replayed: false,
       operation: {
         operationId: 'op-1',
-        operationType: 'worker.project.create',
+        operationType: 'work.project.create',
         state: 'succeeded',
         mode: 'execute',
         updatedAt: '2026-07-20T12:00:00.000Z',
@@ -107,7 +101,7 @@ describe('UNIFY Work & Kanban', () => {
     localStorage.clear();
   });
 
-  it('shows the Worker operational attention, Kanban and Cronjobs overview', async () => {
+  it('shows Hermes operational attention, Kanban and Cronjobs overview', async () => {
     renderWork();
     expect(
       await screen.findByRole('heading', { name: '2 items need attention' }),
@@ -128,12 +122,11 @@ describe('UNIFY Work & Kanban', () => {
       expect(await screen.findByText(lane)).toBeInTheDocument();
     }
     fireEvent.click(screen.getByRole('button', { name: 'Project setup' }));
-    expect(await screen.findByDisplayValue('Ship Alpha safely')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('/srv/alpha')).toBeInTheDocument();
+    expect(await screen.findByDisplayValue('Ship Alpha safely')).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Save project setup' })).toBeInTheDocument();
   });
 
-  it('creates projects through governed Worker mutations and enforces Save versus Save and Start fields', async () => {
+  it('creates projects through governed Hermes mutations and enforces Save versus Save and Start fields', async () => {
     window.history.replaceState(null, '', '/?view=work&workPage=add');
     renderWork();
     const name = await screen.findByRole('textbox', { name: /Project name/ });
@@ -143,8 +136,13 @@ describe('UNIFY Work & Kanban', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
     await waitFor(() => expect(gateway.mutate).toHaveBeenCalled());
     expect(vi.mocked(gateway.mutate).mock.calls[0]?.[0]).toMatchObject({
-      operationType: 'worker.project.create',
-      target: { owner: 'worker', kind: 'project', nativeId: 'beta-project' },
+      operationType: 'work.project.create',
+      target: {
+        owner: 'hermes',
+        kind: 'project',
+        nativeId: 'beta-project',
+        frameworkId: 'hermes-main',
+      },
       payload: { name: 'Beta Project', startPmPlanning: false },
       mode: 'execute',
     });

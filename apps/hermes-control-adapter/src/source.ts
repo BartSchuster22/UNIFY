@@ -3,11 +3,14 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import type {
   HermesBoard,
+  HermesCronjob,
   HermesMessage,
   HermesProfile,
+  HermesProject,
   HermesProvider,
   HermesSession,
   HermesTask,
+  HermesWorkCommand,
 } from '@aquiero/contracts';
 import type { AdapterSource, Snapshot } from './types.js';
 
@@ -130,6 +133,37 @@ export class HermesNativeSource implements AdapterSource {
     return snapshot([...providers.values()].sort((a, b) => a.id.localeCompare(b.id)));
   }
 
+  async projects(): Promise<Snapshot<HermesProject>> {
+    const output = stripAnsi(await this.options.runner.run(['project', 'list', '--all']));
+    const summaries = output
+      .split('\n')
+      .map((line) => line.trim())
+      .map((line) => {
+        const match =
+          /^([a-z0-9][a-z0-9._-]*)\s{2,}(.+?)\s+\[(\d+) folder\(s\)\](?:\s+\[archived\])?$/i.exec(
+            line,
+          );
+        return match
+          ? { id: match[1]!, name: match[2]!, archived: line.includes('[archived]') }
+          : null;
+      })
+      .filter((item): item is { id: string; name: string; archived: boolean } => Boolean(item));
+    const items: HermesProject[] = [];
+    for (const summary of summaries) {
+      const detail = stripAnsi(await this.options.runner.run(['project', 'show', summary.id]));
+      const description = /^\s*about:\s*(.*)$/m.exec(detail)?.[1]?.trim();
+      const boardId = /^\s*board:\s*(\S+)$/m.exec(detail)?.[1]?.trim();
+      items.push({
+        id: summary.id,
+        name: /^\s*name:\s*(.*)$/m.exec(detail)?.[1]?.trim() || summary.name,
+        archived: summary.archived,
+        ...(description ? { description } : {}),
+        ...(boardId ? { boardId } : {}),
+      });
+    }
+    return snapshot(items);
+  }
+
   async boards(): Promise<Snapshot<HermesBoard>> {
     const raw = JSON.parse(
       await this.options.runner.run(['kanban', 'boards', 'list', '--json', '--all']),
@@ -175,6 +209,7 @@ export class HermesNativeSource implements AdapterSource {
         title: requiredString(row.title, 'task title'),
         status: requiredString(row.status, 'task status'),
       };
+      assignOptional(task, 'body', optionalString(row.body));
       const assignee = optionalString(row.assignee);
       if (assignee) task.assignee = assignee;
       if (Number.isInteger(row.priority)) task.priority = Number(row.priority);
@@ -183,6 +218,243 @@ export class HermesNativeSource implements AdapterSource {
       return task;
     });
     return snapshot(items);
+  }
+
+  async cronjobs(): Promise<Snapshot<HermesCronjob>> {
+    const output = stripAnsi(await this.options.runner.run(['cron', 'list', '--all']));
+    const items: HermesCronjob[] = [];
+    let current: Partial<HermesCronjob> | undefined;
+    for (const rawLine of output.split('\n')) {
+      const line = rawLine.trim();
+      const header = /^([a-zA-Z0-9._-]+) \[(active|paused|completed|disabled|failed)\]$/.exec(line);
+      if (header) {
+        if (current?.id && current.name && current.schedule && current.status)
+          items.push({ ...current, deliver: current.deliver ?? [] } as HermesCronjob);
+        current = { id: header[1]!, status: header[2]! as HermesCronjob['status'] };
+        continue;
+      }
+      if (!current) continue;
+      const field = /^([^:]+):\s*(.*)$/.exec(line);
+      if (!field) continue;
+      const key = field[1]?.trim();
+      const value = field[2]?.trim() ?? '';
+      if (key === 'Name') current.name = value;
+      else if (key === 'Schedule') current.schedule = value;
+      else if (key === 'Next run') assignOptional(current, 'nextRunAt', dateString(value));
+      else if (key === 'Last run') {
+        const [at, result] = value.split(/\s{2,}/);
+        assignOptional(current, 'lastRunAt', dateString(at));
+        if (result) current.lastResult = result.slice(0, 100);
+      } else if (key === 'Deliver')
+        current.deliver = value
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean);
+    }
+    if (current?.id && current.name && current.schedule && current.status)
+      items.push({ ...current, deliver: current.deliver ?? [] } as HermesCronjob);
+    return snapshot(items);
+  }
+
+  async executeWork(command: HermesWorkCommand): Promise<Record<string, unknown>> {
+    assertNativeId(command.targetId);
+    const payload = record(command.payload);
+    switch (command.operation) {
+      case 'project.create': {
+        const name = payloadString(payload, 'name', 500);
+        const description = optionalPayloadString(payload, 'description', 1_000_000);
+        const existing = (await this.projects()).items.find((item) => item.id === command.targetId);
+        if (existing) {
+          if (existing.name !== name || (description && existing.description !== description))
+            throw new Error('Hermes project identifier already exists with different content');
+        } else {
+          await this.options.runner.run([
+            'project',
+            'create',
+            name,
+            '--slug',
+            command.targetId,
+            ...(description ? ['--description', description] : []),
+          ]);
+        }
+        const board = (await this.boards()).items.find((item) => item.id === command.targetId);
+        if (!board) await this.options.runner.run(['kanban', 'boards', 'create', command.targetId]);
+        await this.options.runner.run([
+          'project',
+          'bind-board',
+          command.targetId,
+          command.targetId,
+        ]);
+        let planningTask: Record<string, unknown> | undefined;
+        if (payload.startPmPlanning === true) {
+          const pm = payloadString(payload, 'projectManager', 200);
+          const agents = Array.isArray(payload.agents)
+            ? payload.agents.map(String).filter(Boolean).slice(0, 50)
+            : [];
+          const body = [
+            description ?? '',
+            agents.length ? `Project agents: ${agents.join(', ')}` : '',
+          ]
+            .filter(Boolean)
+            .join('\n\n');
+          planningTask = await this.createTask(
+            command.targetId,
+            `Plan ${name}`,
+            body,
+            pm,
+            90,
+            command.idempotencyKey,
+          );
+          const planningTaskId = payloadString(planningTask, 'id', 300);
+          await this.options.runner.run([
+            'kanban',
+            '--board',
+            command.targetId,
+            'promote',
+            planningTaskId,
+            'Activated by UNIFY Save and Start',
+          ]);
+          planningTask.status = 'ready';
+        }
+        return {
+          project: { id: command.targetId, name },
+          ...(planningTask ? { planningTask } : {}),
+        };
+      }
+      case 'project.rename': {
+        const name = payloadString(payload, 'name', 500);
+        await this.options.runner.run(['project', 'rename', command.targetId, name]);
+        return { project: { id: command.targetId, name } };
+      }
+      case 'project.archive':
+        await this.options.runner.run(['project', 'archive', command.targetId]);
+        return { project: { id: command.targetId, archived: true } };
+      case 'task.create': {
+        const boardId = payloadString(payload, 'boardId', 200);
+        assertNativeId(boardId);
+        return {
+          task: await this.createTask(
+            boardId,
+            payloadString(payload, 'title', 2000),
+            optionalPayloadString(payload, 'body', 1_000_000) ?? '',
+            optionalPayloadString(payload, 'assignee', 200),
+            priorityNumber(payload.priority),
+            command.idempotencyKey,
+            payload.triage === true,
+          ),
+        };
+      }
+      case 'task.start':
+        await this.options.runner.run([
+          'kanban',
+          '--board',
+          payloadString(payload, 'boardId', 200),
+          'promote',
+          command.targetId,
+          'Promoted to ready from UNIFY',
+        ]);
+        return { task: { id: command.targetId, status: 'ready' } };
+      case 'task.block':
+        await this.options.runner.run([
+          'kanban',
+          '--board',
+          payloadString(payload, 'boardId', 200),
+          'block',
+          command.targetId,
+          optionalPayloadString(payload, 'reason', 2000) ?? 'Blocked from UNIFY',
+        ]);
+        return { task: { id: command.targetId, status: 'blocked' } };
+      case 'task.unblock':
+        await this.options.runner.run([
+          'kanban',
+          '--board',
+          payloadString(payload, 'boardId', 200),
+          'unblock',
+          command.targetId,
+        ]);
+        return { task: { id: command.targetId, status: 'ready' } };
+      case 'task.complete':
+        await this.options.runner.run([
+          'kanban',
+          '--board',
+          payloadString(payload, 'boardId', 200),
+          'complete',
+          command.targetId,
+          optionalPayloadString(payload, 'result', 20_000) ?? 'Completed from UNIFY',
+        ]);
+        return { task: { id: command.targetId, status: 'done' } };
+      case 'cron.create': {
+        const name = payloadString(payload, 'name', 500);
+        const schedule = payloadString(payload, 'schedule', 500);
+        const prior = (await this.cronjobs()).items.find((item) => item.name === name);
+        if (prior) {
+          if (prior.schedule !== normalizeCronSchedule(schedule))
+            throw new Error('Hermes cron name already exists with a different schedule');
+          return { cronjob: prior };
+        }
+        const output = await this.options.runner.run([
+          'cron',
+          'create',
+          schedule,
+          payloadString(payload, 'prompt', 1_000_000),
+          '--name',
+          name,
+          '--deliver',
+          optionalPayloadString(payload, 'deliver', 500) ?? 'local',
+        ]);
+        const id = /Created job:\s*(\S+)/.exec(stripAnsi(output))?.[1];
+        if (!id) throw new Error('Hermes cron create did not return a job identifier');
+        return {
+          cronjob: { id, name, schedule: normalizeCronSchedule(schedule), status: 'active' },
+        };
+      }
+      case 'cron.run':
+      case 'cron.pause':
+      case 'cron.resume':
+      case 'cron.delete': {
+        const action =
+          command.operation.slice(5) === 'delete' ? 'remove' : command.operation.slice(5);
+        const prior = (await this.cronjobs()).items.find((item) => item.id === command.targetId);
+        if (!prior && action === 'remove')
+          return { cronjob: { id: command.targetId, deleted: true } };
+        if (!prior) throw new Error('Hermes cron job does not exist');
+        if (
+          (action === 'pause' && prior.status === 'paused') ||
+          (action === 'resume' && prior.status === 'active')
+        )
+          return { cronjob: prior };
+        await this.options.runner.run(['cron', action, command.targetId]);
+        return { cronjob: { id: command.targetId, action } };
+      }
+    }
+    throw new Error('Unsupported Hermes work operation');
+  }
+
+  private async createTask(
+    boardId: string,
+    title: string,
+    body: string,
+    assignee: string | undefined,
+    priority: number,
+    idempotencyKey: string,
+    triage = false,
+  ) {
+    const output = await this.options.runner.run([
+      'kanban',
+      '--board',
+      boardId,
+      'create',
+      title,
+      ...(body ? ['--body', body] : []),
+      ...(assignee ? ['--assignee', assignee] : []),
+      ...(triage ? ['--triage'] : []),
+      '--priority',
+      String(priority),
+      '--idempotency-key',
+      idempotencyKey,
+      '--json',
+    ]);
+    return record(JSON.parse(output));
   }
 
   async sessions(): Promise<Snapshot<HermesSession>> {
@@ -347,6 +619,35 @@ function integerRecord(value: unknown) {
 
 function nonNegativeInteger(value: unknown) {
   return Number.isInteger(value) && Number(value) >= 0 ? Number(value) : 0;
+}
+
+function payloadString(row: Record<string, unknown>, key: string, maxLength: number) {
+  const value = optionalPayloadString(row, key, maxLength);
+  if (!value) throw new Error(`Hermes work payload ${key} is required`);
+  return value;
+}
+
+function optionalPayloadString(row: Record<string, unknown>, key: string, maxLength: number) {
+  const value = row[key];
+  if (value === undefined || value === null || value === '') return undefined;
+  if (typeof value !== 'string' || !value.trim() || value.length > maxLength)
+    throw new Error(`Hermes work payload ${key} is invalid`);
+  return value.trim();
+}
+
+function priorityNumber(value: unknown) {
+  if (typeof value === 'number' && Number.isInteger(value))
+    return Math.min(100, Math.max(0, value));
+  return value === 'urgent' ? 100 : value === 'high' ? 75 : value === 'low' ? 25 : 50;
+}
+
+function normalizeCronSchedule(value: string) {
+  const match = /^every\s+(\d+)\s*([mhd])$/i.exec(value.trim());
+  if (!match) return value.trim();
+  const count = Number(match[1]);
+  const unit = match[2]?.toLowerCase();
+  const minutes = unit === 'd' ? count * 1440 : unit === 'h' ? count * 60 : count;
+  return `every ${minutes}m`;
 }
 
 function slug(value: string) {

@@ -276,6 +276,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/control/v1/work/projects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listHermesProjects"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/control/v1/work/boards": {
         parameters: {
             query?: never;
@@ -300,6 +316,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["listHermesTasks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/control/v1/work/cronjobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listHermesCronjobs"];
         put?: never;
         post?: never;
         delete?: never;
@@ -350,6 +382,22 @@ export interface paths {
         get: operations["listHermesAdapterEvents"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/control/v1/commands/work": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["executeHermesWorkCommand"];
         delete?: never;
         options?: never;
         head?: never;
@@ -484,6 +532,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/frameworks/{frameworkId}/work/projects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listFrameworkProjects"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/frameworks/{frameworkId}/work/boards": {
         parameters: {
             query?: never;
@@ -508,6 +572,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["listFrameworkTasks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/frameworks/{frameworkId}/work/cronjobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listFrameworkCronjobs"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1803,10 +1883,41 @@ export interface components {
                 };
             };
         };
+        HermesProject: {
+            id: string;
+            name: string;
+            description?: string;
+            boardId?: string;
+            archived: boolean;
+        };
+        HermesProjectsResponse: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                items: {
+                    id: string;
+                    name: string;
+                    description?: string;
+                    boardId?: string;
+                    archived: boolean;
+                }[];
+                page: {
+                    nextCursor?: string;
+                    hasMore: boolean;
+                };
+            };
+        };
         HermesTask: {
             id: string;
             boardId: string;
             title: string;
+            body?: string;
             status: string;
             assignee?: string;
             priority?: number;
@@ -1827,11 +1938,52 @@ export interface components {
                     id: string;
                     boardId: string;
                     title: string;
+                    body?: string;
                     status: string;
                     assignee?: string;
                     priority?: number;
                     /** Format: date-time */
                     updatedAt?: string;
+                }[];
+                page: {
+                    nextCursor?: string;
+                    hasMore: boolean;
+                };
+            };
+        };
+        HermesCronjob: {
+            id: string;
+            name: string;
+            schedule: string;
+            status: "active" | "paused" | "completed" | "failed" | "disabled";
+            /** Format: date-time */
+            nextRunAt?: string;
+            /** Format: date-time */
+            lastRunAt?: string;
+            lastResult?: string;
+            deliver: string[];
+        };
+        HermesCronjobsResponse: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                items: {
+                    id: string;
+                    name: string;
+                    schedule: string;
+                    status: "active" | "paused" | "completed" | "failed" | "disabled";
+                    /** Format: date-time */
+                    nextRunAt?: string;
+                    /** Format: date-time */
+                    lastRunAt?: string;
+                    lastResult?: string;
+                    deliver: string[];
                 }[];
                 page: {
                     nextCursor?: string;
@@ -1933,6 +2085,44 @@ export interface components {
             };
             payload: {
                 [key: string]: unknown;
+            };
+        };
+        HermesWorkOperation: "project.create" | "project.rename" | "project.archive" | "task.create" | "task.start" | "task.block" | "task.unblock" | "task.complete" | "cron.create" | "cron.run" | "cron.pause" | "cron.resume" | "cron.delete";
+        HermesWorkCommand: {
+            mode: "validate" | "dry-run" | "execute";
+            idempotencyKey: string;
+            expectedSourceVersion?: string;
+            requestId: string;
+            correlationId: string;
+            actor: {
+                type: "user" | "service";
+                id: string;
+            };
+            payload: {
+                [key: string]: unknown;
+            };
+            operation: "project.create" | "project.rename" | "project.archive" | "task.create" | "task.start" | "task.block" | "task.unblock" | "task.complete" | "cron.create" | "cron.run" | "cron.pause" | "cron.resume" | "cron.delete";
+            targetId: string;
+        };
+        HermesWorkResult: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                operationId: string;
+                status: "validated" | "dry-run" | "completed";
+                replayed: boolean;
+                operation: "project.create" | "project.rename" | "project.archive" | "task.create" | "task.start" | "task.block" | "task.unblock" | "task.complete" | "cron.create" | "cron.run" | "cron.pause" | "cron.resume" | "cron.delete";
+                targetId: string;
+                result: {
+                    [key: string]: unknown;
+                };
+                emittedEvents: number;
             };
         };
         HermesEventEnvelope: {
@@ -2194,6 +2384,50 @@ export interface components {
                 hasMore: boolean;
             };
         };
+        GatewayHermesProject: {
+            id: string;
+            name: string;
+            description?: string;
+            boardId?: string;
+            archived: boolean;
+            /** @constant */
+            owner: "hermes";
+            frameworkId: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+        };
+        GatewayHermesProjects: {
+            meta: {
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                frameworkVersion: string;
+                frameworkCommit: string;
+                sourceVersion: string;
+                /** Format: date-time */
+                observedAt: string;
+                /** @constant */
+                freshness: "current";
+            };
+            items: {
+                id: string;
+                name: string;
+                description?: string;
+                boardId?: string;
+                archived: boolean;
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                sourceVersion: string;
+                /** Format: date-time */
+                observedAt: string;
+            }[];
+            page: {
+                nextCursor?: string;
+                hasMore: boolean;
+            };
+        };
         GatewayHermesBoard: {
             id: string;
             name: string;
@@ -2252,6 +2486,7 @@ export interface components {
             id: string;
             boardId: string;
             title: string;
+            body?: string;
             status: string;
             assignee?: string;
             priority?: number;
@@ -2281,11 +2516,66 @@ export interface components {
                 id: string;
                 boardId: string;
                 title: string;
+                body?: string;
                 status: string;
                 assignee?: string;
                 priority?: number;
                 /** Format: date-time */
                 updatedAt?: string;
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                sourceVersion: string;
+                /** Format: date-time */
+                observedAt: string;
+            }[];
+            page: {
+                nextCursor?: string;
+                hasMore: boolean;
+            };
+        };
+        GatewayHermesCronjob: {
+            id: string;
+            name: string;
+            schedule: string;
+            status: "active" | "paused" | "completed" | "failed" | "disabled";
+            /** Format: date-time */
+            nextRunAt?: string;
+            /** Format: date-time */
+            lastRunAt?: string;
+            lastResult?: string;
+            deliver: string[];
+            /** @constant */
+            owner: "hermes";
+            frameworkId: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+        };
+        GatewayHermesCronjobs: {
+            meta: {
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                frameworkVersion: string;
+                frameworkCommit: string;
+                sourceVersion: string;
+                /** Format: date-time */
+                observedAt: string;
+                /** @constant */
+                freshness: "current";
+            };
+            items: {
+                id: string;
+                name: string;
+                schedule: string;
+                status: "active" | "paused" | "completed" | "failed" | "disabled";
+                /** Format: date-time */
+                nextRunAt?: string;
+                /** Format: date-time */
+                lastRunAt?: string;
+                lastResult?: string;
+                deliver: string[];
                 /** @constant */
                 owner: "hermes";
                 frameworkId: string;
@@ -3284,6 +3574,74 @@ export interface operations {
             };
         };
     };
+    listHermesProjects: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description HermesProjectsResponse */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesProjectsResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+        };
+    };
     listHermesBoards: {
         parameters: {
             query?: {
@@ -3373,6 +3731,74 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HermesTasksResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+        };
+    };
+    listHermesCronjobs: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description HermesCronjobsResponse */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesCronjobsResponse"];
                 };
             };
             /** @description HermesControlErrorResponse */
@@ -3579,6 +4005,75 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HermesEventsResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+        };
+    };
+    executeHermesWorkCommand: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HermesWorkCommand"];
+            };
+        };
+        responses: {
+            /** @description HermesWorkResult */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesWorkResult"];
                 };
             };
             /** @description HermesControlErrorResponse */
@@ -4104,6 +4599,58 @@ export interface operations {
             };
         };
     };
+    listFrameworkProjects: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                frameworkId: components["schemas"]["HermesFrameworkId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description GatewayHermesProjects */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GatewayHermesProjects"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     listFrameworkBoards: {
         parameters: {
             query?: {
@@ -4178,6 +4725,58 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GatewayHermesTasks"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listFrameworkCronjobs: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                frameworkId: components["schemas"]["HermesFrameworkId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description GatewayHermesCronjobs */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GatewayHermesCronjobs"];
                 };
             };
             /** @description ErrorResponse */

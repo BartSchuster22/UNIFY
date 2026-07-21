@@ -48,15 +48,17 @@ for (const path of files) {
 
 const production = await readFile(resolve(root, 'compose.production.yaml'), 'utf8');
 for (const required of [
-  /DEPLOYMENT_MODE:\s*read-only\b/,
-  /MUTATION_DOMAINS:\s*''/,
-  /MUTATION_ACCEPTANCE_REFS:\s*''/,
+  /DEPLOYMENT_MODE:\s*mutation-canary\b/,
+  /MUTATION_DOMAINS:\s*work\b/,
+  /MUTATION_ACCEPTANCE_REFS:\s*work=phase6\/hermes-work\b/,
 ]) {
   if (!required.test(production))
-    violations.push('compose.production.yaml: production must remain unconditionally read-only');
+    violations.push(
+      'compose.production.yaml: production must enable only accepted Hermes Work mutations',
+    );
 }
-if (/mutation-canary|qa10:unify-chat/i.test(production))
-  violations.push('compose.production.yaml: legacy mutation canary declaration is forbidden');
+if (/MUTATION_DOMAINS:\s*[^\n]*(?:profiles|dmm|worker|chat|memory-v4)/i.test(production))
+  violations.push('compose.production.yaml: legacy mutation domains are forbidden');
 
 const mutations = await readFile(
   resolve(root, 'apps/gateway/src/migration/legacy/owner-client.ts'),
@@ -150,11 +152,15 @@ const hermesAdapterSource = await readFile(
 if (/from\s+['"][^'"]*(?:hermes-agent|hermes_cli|gateway\/platforms)/.test(hermesAdapterSource))
   violations.push('Hermes adapter: importing Hermes implementation code is forbidden');
 if (
-  /['"](?:profile|kanban|cron)['"]\s*,\s*['"](?:create|add|update|edit|delete|remove|start|stop|run|enable|disable)['"]/.test(
-    hermesAdapterSource,
-  )
+  /['"]profile['"]\s*,\s*['"](?:create|delete|start|stop|set-model)['"]/.test(hermesAdapterSource)
 )
-  violations.push('Hermes adapter foundations: mutating Hermes CLI commands are forbidden');
+  violations.push('Hermes adapter: profile mutations remain unsupported');
+for (const required of [/async executeWork\(/, /command\.operation/, /command\.idempotencyKey/]) {
+  if (!required.test(hermesAdapterSource))
+    violations.push(
+      'Hermes adapter: governed Work mutations must remain command-scoped and idempotent',
+    );
+}
 
 if (violations.length) {
   console.error('Hermes source-of-truth policy violations:');

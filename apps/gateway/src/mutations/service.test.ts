@@ -209,6 +209,39 @@ describe('mutation lifecycle', () => {
     expect(replay.replayed).toBe(true);
     expect(execute).toHaveBeenCalledTimes(1);
   });
+  it('routes Hermes-owned Work operations to the pinned Hermes control gateway without legacy fallback', async () => {
+    const store = new Store();
+    const client = owners();
+    const legacyExecute = vi.spyOn(client, 'execute');
+    const work = vi.fn().mockResolvedValue({
+      data: { operation: 'task.create', result: { task: { id: 'task-1' } } },
+    });
+    const service = new MutationService(new GovernanceService(store), client, { work } as never);
+    const input: MutationInput = {
+      operationType: 'work.task.create',
+      target: {
+        owner: 'hermes',
+        kind: 'task',
+        nativeId: 'task-1',
+        frameworkId: 'hermes-main',
+      },
+      payload: { boardId: 'alpha', title: 'Verify' },
+      mode: 'execute',
+      confirmed: false,
+    };
+    const result = await service.run('u1', 'hermes-work-key', input);
+    expect(result.operation.state).toBe('verified');
+    expect(work).toHaveBeenCalledWith(
+      'hermes-main',
+      'task.create',
+      'task-1',
+      input.payload,
+      'execute',
+      expect.objectContaining({ idempotencyKey: 'hermes-work-key' }),
+    );
+    expect(legacyExecute).not.toHaveBeenCalled();
+  });
+
   it('records owner failure as error rather than a successful result', async () => {
     const store = new Store();
     const client = owners();

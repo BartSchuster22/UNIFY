@@ -1,8 +1,9 @@
 import { GovernanceError } from '../governance/service.js';
-import { type MutationInput, type MutationTarget } from '../mutations/types.js';
+import { type MutationInput } from '../mutations/types.js';
 
 export const mutationDomains = [
   'frameworks',
+  'work',
   'profiles',
   'dmm',
   'worker',
@@ -11,14 +12,6 @@ export const mutationDomains = [
 ] as const;
 export type MutationDomain = (typeof mutationDomains)[number];
 export type DeploymentMode = 'read-only' | 'mutation-canary';
-
-const ownerDomain: Record<MutationTarget['owner'], MutationDomain> = {
-  hermes: 'profiles',
-  dmm: 'dmm',
-  worker: 'worker',
-  chat: 'chat',
-  'memory-v4': 'memory-v4',
-};
 
 export type DomainStatus = {
   domain: MutationDomain;
@@ -59,16 +52,18 @@ export class CutoverPolicy {
 
   assertAllowed(input: MutationInput): void {
     if (input.mode !== 'execute') return;
-    if (input.operationType !== 'framework.reconcile')
-      throw new GovernanceError(
-        'LEGACY_WRITE_CONTAINED',
-        403,
-        'Execution is blocked because this operation still targets a migration-only legacy adapter',
-      );
-    const domain =
+    const domain: MutationDomain =
       input.operationType === 'framework.reconcile'
         ? 'frameworks'
-        : ownerDomain[input.target.owner];
+        : input.operationType.startsWith('work.') && input.target.owner === 'hermes'
+          ? 'work'
+          : (() => {
+              throw new GovernanceError(
+                'LEGACY_WRITE_CONTAINED',
+                403,
+                'Execution is blocked because this operation still targets a migration-only legacy adapter',
+              );
+            })();
     if (this.mode === 'read-only')
       throw new GovernanceError(
         'DEPLOYMENT_READ_ONLY',
@@ -93,7 +88,10 @@ export class CutoverPolicy {
       mode: this.mode,
       domains: mutationDomains.map((domain) => ({
         domain,
-        executeEnabled: false,
+        executeEnabled:
+          this.mode === 'mutation-canary' &&
+          (domain === 'frameworks' || domain === 'work') &&
+          this.#enabled.has(domain),
         acceptanceRef: this.#acceptance.get(domain) ?? null,
         rollback: 'remove-domain-and-redeploy',
       })),

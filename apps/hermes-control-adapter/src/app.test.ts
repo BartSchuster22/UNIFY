@@ -13,6 +13,7 @@ import {
   HermesSessionsResponseSchema,
   HermesTasksResponseSchema,
   HermesVersionResponseSchema,
+  HermesWorkResultSchema,
   PINNED_HERMES_COMMIT,
   PINNED_HERMES_RELEASE,
   type FrameworkScope,
@@ -45,6 +46,10 @@ const source: AdapterSource = {
     ],
     sourceVersion: 'sha256:providers',
   }),
+  projects: async () => ({
+    items: [{ id: 'board-1', name: 'Project 1', boardId: 'board-1', archived: false }],
+    sourceVersion: 'sha256:projects',
+  }),
   boards: async () => ({
     items: [
       { id: 'board-1', name: 'Board 1', archived: false, isCurrent: true, counts: {}, total: 0 },
@@ -55,6 +60,8 @@ const source: AdapterSource = {
     items: [{ id: 'task-1', boardId, title: 'Task', status: 'ready' }],
     sourceVersion: 'sha256:tasks',
   }),
+  cronjobs: async () => ({ items: [], sourceVersion: 'sha256:cronjobs' }),
+  executeWork: async (command) => ({ operation: command.operation, targetId: command.targetId }),
   sessions: async () => ({
     items: [{ id: 'session-1', title: 'Session' }],
     sourceVersion: 'sha256:sessions',
@@ -172,6 +179,28 @@ describe('Hermes control adapter', () => {
     });
     expect(rejected.statusCode).toBe(409);
     expect(rejected.json().error.code).toBe('source_version_mismatch');
+  });
+
+  it('accepts the complete Work command schema and returns a typed non-mutating validation result', async () => {
+    const app = create();
+    const reply = await app.inject({
+      method: 'POST',
+      url: '/control/v1/commands/work',
+      headers: auth,
+      payload: {
+        ...command({ mode: 'validate', payload: { boardId: 'board-1', title: 'Verify' } }),
+        operation: 'task.create',
+        targetId: 'task-validation-only',
+      },
+    });
+    expect(reply.statusCode).toBe(200);
+    expect(Value.Check(HermesWorkResultSchema, reply.json())).toBe(true);
+    expect(reply.json().data).toMatchObject({
+      status: 'validated',
+      operation: 'task.create',
+      targetId: 'task-validation-only',
+      replayed: false,
+    });
   });
 
   it('reports source outage as unavailable rather than authoritative empty data', async () => {

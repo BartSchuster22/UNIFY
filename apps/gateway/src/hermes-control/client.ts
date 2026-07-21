@@ -4,23 +4,29 @@ import type { Static, TSchema } from '@sinclair/typebox';
 import {
   HermesBoardsResponseSchema,
   HermesCapabilitiesResponseSchema,
+  HermesCronjobsResponseSchema,
   HermesControlErrorResponseSchema,
   HermesEventsResponseSchema,
   HermesHealthResponseSchema,
   HermesMessagesResponseSchema,
   HermesProfilesResponseSchema,
+  HermesProjectsResponseSchema,
   HermesProvidersResponseSchema,
   HermesReconcileResultSchema,
   HermesSessionsResponseSchema,
   HermesTasksResponseSchema,
+  HermesWorkResultSchema,
   type HermesControlCommand,
   type HermesBoard,
+  type HermesCronjob,
   type HermesEventEnvelope,
   type HermesMessage,
   type HermesProfile,
+  type HermesProject,
   type HermesProvider,
   type HermesSession,
   type HermesTask,
+  type HermesWorkCommand,
 } from '@aquiero/contracts';
 
 type CollectionResponse<T> = {
@@ -34,8 +40,10 @@ type CollectionResponse<T> = {
 };
 export type HermesProfilesResponse = CollectionResponse<HermesProfile>;
 export type HermesProvidersResponse = CollectionResponse<HermesProvider>;
+export type HermesProjectsResponse = CollectionResponse<HermesProject>;
 export type HermesBoardsResponse = CollectionResponse<HermesBoard>;
 export type HermesTasksResponse = CollectionResponse<HermesTask>;
+export type HermesCronjobsResponse = CollectionResponse<HermesCronjob>;
 export type HermesSessionsResponse = CollectionResponse<HermesSession>;
 export type HermesMessagesResponse = CollectionResponse<HermesMessage>;
 export type HermesEventsResponse = CollectionResponse<HermesEventEnvelope>;
@@ -111,6 +119,14 @@ export class HermesControlClient {
     );
   }
 
+  projects(query: PageQuery = {}): Promise<HermesProjectsResponse> {
+    return this.request(
+      'GET',
+      pagePath('/control/v1/work/projects', query),
+      HermesProjectsResponseSchema,
+    );
+  }
+
   boards(query: PageQuery = {}): Promise<HermesBoardsResponse> {
     return this.request(
       'GET',
@@ -124,6 +140,14 @@ export class HermesControlClient {
       'GET',
       pagePath(`/control/v1/work/boards/${segment(boardId)}/tasks`, query),
       HermesTasksResponseSchema,
+    );
+  }
+
+  cronjobs(query: PageQuery = {}): Promise<HermesCronjobsResponse> {
+    return this.request(
+      'GET',
+      pagePath('/control/v1/work/cronjobs', query),
+      HermesCronjobsResponseSchema,
     );
   }
 
@@ -145,6 +169,10 @@ export class HermesControlClient {
 
   events(query: PageQuery = {}): Promise<HermesEventsResponse> {
     return this.request('GET', pagePath('/control/v1/events', query), HermesEventsResponseSchema);
+  }
+
+  work(command: HermesWorkCommand): Promise<Static<typeof HermesWorkResultSchema>> {
+    return this.request('POST', '/control/v1/commands/work', HermesWorkResultSchema, command);
   }
 
   reconcile(command: HermesControlCommand): Promise<HermesReconcileResponse> {
