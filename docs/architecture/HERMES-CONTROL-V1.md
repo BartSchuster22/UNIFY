@@ -1,6 +1,6 @@
 # Hermes Control Contract v1
 
-**Status:** Frozen for UNIFY Phase 1  
+**Status:** Frozen in Phase 1; UNIFY adapter foundations implemented in Phase 2
 **Contract identifier:** `hermes-control/v1`  
 **Supported Hermes release:** `0.18.0`  
 **Supported Hermes commit:** `9e54eee44f1cbbe62247a36546e51ff8940373c6`
@@ -31,7 +31,14 @@ This freeze does **not** claim that every domain capability can already be reach
 | `GET`  | `/control/v1/health`       | Safe health state and named checks                                        |
 | `GET`  | `/control/v1/version`      | Release, full commit, upstream base, dirty state, and runtime version      |
 | `GET`  | `/control/v1/capabilities` | Per-operation support, modes, scopes, reason, and constraints              |
-| `GET`  | `/control/v1/events`       | Adapter replay/reconciliation stream; `Last-Event-ID` supports resumption |
+| `GET`  | `/control/v1/profiles` | Existing-interface profile projection |
+| `GET`  | `/control/v1/providers` | Redacted provider/credential-status projection |
+| `GET`  | `/control/v1/work/boards` | Existing Hermes Kanban board projection |
+| `GET`  | `/control/v1/work/boards/{boardId}/tasks` | Existing Hermes Kanban task projection |
+| `GET`  | `/control/v1/conversations/sessions` | Existing Hermes session projection |
+| `GET`  | `/control/v1/conversations/sessions/{sessionId}/messages` | Existing Hermes message projection |
+| `GET`  | `/control/v1/events` | UNIFY-derived replay/reconciliation stream |
+| `POST` | `/control/v1/commands/reconcile` | Read-only reconciliation command with validation, dry-run and idempotent execute modes |
 
 Domain collections use cursor pagination with `items`, `page.hasMore`, and optional `page.nextCursor`. Commands use the frozen `HermesControlCommand` envelope with mode, idempotency key, expected source version, request/correlation IDs, actor, and payload.
 

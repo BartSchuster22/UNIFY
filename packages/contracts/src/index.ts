@@ -677,6 +677,80 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           },
         },
       },
+      '/control/v1/identity': controlReadPath('getHermesAdapterIdentity', 'HermesIdentityResponse'),
+      '/control/v1/health': controlReadPath('getHermesAdapterHealth', 'HermesHealthResponse'),
+      '/control/v1/version': controlReadPath('getHermesAdapterVersion', 'HermesVersionResponse'),
+      '/control/v1/capabilities': controlReadPath(
+        'getHermesAdapterCapabilities',
+        'HermesCapabilitiesResponse',
+      ),
+      '/control/v1/profiles': controlReadPath(
+        'listHermesProfiles',
+        'HermesProfilesResponse',
+        controlPageParameters(),
+      ),
+      '/control/v1/providers': controlReadPath(
+        'listHermesProviders',
+        'HermesProvidersResponse',
+        controlPageParameters(),
+      ),
+      '/control/v1/work/boards': controlReadPath(
+        'listHermesBoards',
+        'HermesBoardsResponse',
+        controlPageParameters(),
+      ),
+      '/control/v1/work/boards/{boardId}/tasks': controlReadPath(
+        'listHermesTasks',
+        'HermesTasksResponse',
+        [
+          {
+            name: 'boardId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', minLength: 1, maxLength: 200 },
+          },
+          ...controlPageParameters(),
+        ],
+      ),
+      '/control/v1/conversations/sessions': controlReadPath(
+        'listHermesSessions',
+        'HermesSessionsResponse',
+        controlPageParameters(),
+      ),
+      '/control/v1/conversations/sessions/{sessionId}/messages': controlReadPath(
+        'listHermesMessages',
+        'HermesMessagesResponse',
+        [
+          {
+            name: 'sessionId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', minLength: 1, maxLength: 300 },
+          },
+          ...controlPageParameters(),
+        ],
+      ),
+      '/control/v1/events': controlReadPath(
+        'listHermesAdapterEvents',
+        'HermesEventsResponse',
+        controlPageParameters(),
+      ),
+      '/control/v1/commands/reconcile': {
+        post: {
+          tags: ['hermes-control'],
+          operationId: 'reconcileHermesAdapter',
+          security: [{ bearerAuth: [] }],
+          requestBody: jsonBody('HermesControlCommand'),
+          responses: {
+            '200': jsonResponse('HermesReconcileResult'),
+            '400': jsonResponse('HermesControlErrorResponse'),
+            '401': jsonResponse('HermesControlErrorResponse'),
+            '403': jsonResponse('HermesControlErrorResponse'),
+            '409': jsonResponse('HermesControlErrorResponse'),
+            '503': jsonResponse('HermesControlErrorResponse'),
+          },
+        },
+      },
       '/audit': readPath('audit', 'listAuditEvents', 'AuditEventList'),
       '/integrations': readPath('integrations', 'listIntegrations', 'IntegrationStatusList'),
       '/frameworks': readPath(
@@ -806,6 +880,44 @@ function jsonBody(schema: string): Record<string, unknown> {
     required: true,
     content: { 'application/json': { schema: { $ref: `#/components/schemas/${schema}` } } },
   };
+}
+function controlReadPath(
+  operationId: string,
+  schema: string,
+  parameters: unknown[] = [],
+): Record<string, unknown> {
+  return {
+    get: {
+      tags: ['hermes-control'],
+      operationId,
+      security: [{ bearerAuth: [] }],
+      parameters,
+      responses: {
+        '200': jsonResponse(schema),
+        '400': jsonResponse('HermesControlErrorResponse'),
+        '401': jsonResponse('HermesControlErrorResponse'),
+        '403': jsonResponse('HermesControlErrorResponse'),
+        '409': jsonResponse('HermesControlErrorResponse'),
+        '503': jsonResponse('HermesControlErrorResponse'),
+      },
+    },
+  };
+}
+function controlPageParameters(): unknown[] {
+  return [
+    {
+      name: 'cursor',
+      in: 'query',
+      required: false,
+      schema: { type: 'string', minLength: 1, maxLength: 4096 },
+    },
+    {
+      name: 'limit',
+      in: 'query',
+      required: false,
+      schema: { type: 'integer', minimum: 1, maximum: 500, default: 100 },
+    },
+  ];
 }
 function readPath(
   tag: string,

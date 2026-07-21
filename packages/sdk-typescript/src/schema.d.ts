@@ -180,6 +180,198 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/control/v1/identity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getHermesAdapterIdentity"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/control/v1/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getHermesAdapterHealth"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/control/v1/version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getHermesAdapterVersion"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/control/v1/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getHermesAdapterCapabilities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/control/v1/profiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listHermesProfiles"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/control/v1/providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listHermesProviders"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/control/v1/work/boards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listHermesBoards"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/control/v1/work/boards/{boardId}/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listHermesTasks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/control/v1/conversations/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listHermesSessions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/control/v1/conversations/sessions/{sessionId}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listHermesMessages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/control/v1/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listHermesAdapterEvents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/control/v1/commands/reconcile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["reconcileHermesAdapter"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/audit": {
         parameters: {
             query?: never;
@@ -1383,6 +1575,208 @@ export interface components {
                 };
             };
         };
+        HermesProfile: {
+            id: string;
+            displayName: string;
+            active: boolean;
+            gatewayStatus: "running" | "stopped" | "unknown";
+            model?: string;
+            provider?: string;
+        };
+        HermesProfilesResponse: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                items: {
+                    id: string;
+                    displayName: string;
+                    active: boolean;
+                    gatewayStatus: "running" | "stopped" | "unknown";
+                    model?: string;
+                    provider?: string;
+                }[];
+                page: {
+                    nextCursor?: string;
+                    hasMore: boolean;
+                };
+            };
+        };
+        HermesProvider: {
+            id: string;
+            displayName: string;
+            credentialStatus: "configured" | "missing" | "unknown";
+            selected: boolean;
+        };
+        HermesProvidersResponse: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                items: {
+                    id: string;
+                    displayName: string;
+                    credentialStatus: "configured" | "missing" | "unknown";
+                    selected: boolean;
+                }[];
+                page: {
+                    nextCursor?: string;
+                    hasMore: boolean;
+                };
+            };
+        };
+        HermesBoard: {
+            id: string;
+            name: string;
+            archived: boolean;
+            isCurrent: boolean;
+            counts: {
+                [key: string]: number;
+            };
+            total: number;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        HermesBoardsResponse: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                items: {
+                    id: string;
+                    name: string;
+                    archived: boolean;
+                    isCurrent: boolean;
+                    counts: {
+                        [key: string]: number;
+                    };
+                    total: number;
+                    /** Format: date-time */
+                    updatedAt?: string;
+                }[];
+                page: {
+                    nextCursor?: string;
+                    hasMore: boolean;
+                };
+            };
+        };
+        HermesTask: {
+            id: string;
+            boardId: string;
+            title: string;
+            status: string;
+            assignee?: string;
+            priority?: number;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        HermesTasksResponse: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                items: {
+                    id: string;
+                    boardId: string;
+                    title: string;
+                    status: string;
+                    assignee?: string;
+                    priority?: number;
+                    /** Format: date-time */
+                    updatedAt?: string;
+                }[];
+                page: {
+                    nextCursor?: string;
+                    hasMore: boolean;
+                };
+            };
+        };
+        HermesSession: {
+            id: string;
+            title?: string;
+            source?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        HermesSessionsResponse: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                items: {
+                    id: string;
+                    title?: string;
+                    source?: string;
+                    /** Format: date-time */
+                    createdAt?: string;
+                    /** Format: date-time */
+                    updatedAt?: string;
+                }[];
+                page: {
+                    nextCursor?: string;
+                    hasMore: boolean;
+                };
+            };
+        };
+        HermesMessage: {
+            id: string;
+            sessionId: string;
+            role: string;
+            content?: string;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        HermesMessagesResponse: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                items: {
+                    id: string;
+                    sessionId: string;
+                    role: string;
+                    content?: string;
+                    /** Format: date-time */
+                    createdAt?: string;
+                }[];
+                page: {
+                    nextCursor?: string;
+                    hasMore: boolean;
+                };
+            };
+        };
         HermesControlErrorCode: "invalid_request" | "unauthenticated" | "forbidden" | "not_found" | "conflict" | "source_version_mismatch" | "idempotency_conflict" | "unsupported_contract_version" | "unsupported_framework_version" | "capability_unsupported" | "capability_unavailable" | "replay_gap" | "rate_limited" | "internal_error";
         HermesControlErrorResponse: {
             /** @constant */
@@ -1431,6 +1825,59 @@ export interface components {
             runId?: string;
             payload: {
                 [key: string]: unknown;
+            };
+        };
+        HermesEventsResponse: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                items: {
+                    /** @constant */
+                    contractVersion: "hermes-control/v1";
+                    frameworkId: string;
+                    frameworkVersion: string;
+                    frameworkCommit: string;
+                    eventId: string;
+                    sequence: number;
+                    sourceVersion: string;
+                    type: string;
+                    classification: "durable" | "ephemeral";
+                    /** Format: date-time */
+                    occurredAt: string;
+                    correlationId?: string;
+                    operationId?: string;
+                    runId?: string;
+                    payload: {
+                        [key: string]: unknown;
+                    };
+                }[];
+                page: {
+                    nextCursor?: string;
+                    hasMore: boolean;
+                };
+            };
+        };
+        HermesReconcileResult: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                operationId: string;
+                status: "validated" | "dry-run" | "completed";
+                replayed: boolean;
+                observedFamilies: ("profiles" | "providers" | "work" | "conversations")[];
+                emittedEvents: number;
             };
         };
         FrameworkScope: "control:read" | "control:execute" | "control:secrets" | "control:delivery" | "control:approval" | "control:events";
@@ -1945,6 +2392,815 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getHermesAdapterIdentity: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description HermesIdentityResponse */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesIdentityResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+        };
+    };
+    getHermesAdapterHealth: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description HermesHealthResponse */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesHealthResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+        };
+    };
+    getHermesAdapterVersion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description HermesVersionResponse */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesVersionResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+        };
+    };
+    getHermesAdapterCapabilities: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description HermesCapabilitiesResponse */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesCapabilitiesResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+        };
+    };
+    listHermesProfiles: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description HermesProfilesResponse */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesProfilesResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+        };
+    };
+    listHermesProviders: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description HermesProvidersResponse */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesProvidersResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+        };
+    };
+    listHermesBoards: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description HermesBoardsResponse */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesBoardsResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+        };
+    };
+    listHermesTasks: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                boardId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description HermesTasksResponse */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesTasksResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+        };
+    };
+    listHermesSessions: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description HermesSessionsResponse */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesSessionsResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+        };
+    };
+    listHermesMessages: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description HermesMessagesResponse */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesMessagesResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+        };
+    };
+    listHermesAdapterEvents: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description HermesEventsResponse */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesEventsResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+        };
+    };
+    reconcileHermesAdapter: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HermesControlCommand"];
+            };
+        };
+        responses: {
+            /** @description HermesReconcileResult */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesReconcileResult"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
+                };
+            };
+            /** @description HermesControlErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HermesControlErrorResponse"];
                 };
             };
         };

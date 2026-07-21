@@ -546,6 +546,8 @@ No phase is complete because code exists. Each phase must satisfy its exit gate 
 
 ### Phase 2 — Complete UNIFY-side Hermes adapter foundations
 
+**Status:** Complete (`apps/hermes-control-adapter`; migration `003_hermes_adapter_foundations`).
+
 **Work**
 
 - Implement profile adaptation over existing Hermes interfaces.

@@ -1,4 +1,4 @@
-import { Type, type Static } from '@sinclair/typebox';
+import { Type, type Static, type TSchema } from '@sinclair/typebox';
 
 export const HERMES_CONTROL_VERSION = 'hermes-control/v1' as const;
 export const PINNED_HERMES_RELEASE = '0.18.0' as const;
@@ -165,6 +165,125 @@ export const HermesCollectionResponseSchema = Type.Object(
   { $id: 'HermesCollectionResponse', additionalProperties: false },
 );
 
+const controlCollectionResponse = (id: string, item: TSchema) =>
+  Type.Object(
+    {
+      contractVersion: HermesContractVersionSchema,
+      frameworkId: HermesFrameworkIdSchema,
+      frameworkVersion: Type.String({ minLength: 1, maxLength: 128 }),
+      frameworkCommit: GitCommitSchema,
+      sourceVersion: HermesSourceVersionSchema,
+      observedAt: Type.String({ format: 'date-time' }),
+      data: Type.Object(
+        { items: Type.Array(item), page: HermesPageSchema },
+        { additionalProperties: false },
+      ),
+    },
+    { $id: id, additionalProperties: false },
+  );
+
+export const HermesProfileSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1, maxLength: 128 }),
+    displayName: Type.String({ minLength: 1, maxLength: 200 }),
+    active: Type.Boolean(),
+    gatewayStatus: Type.Union([
+      Type.Literal('running'),
+      Type.Literal('stopped'),
+      Type.Literal('unknown'),
+    ]),
+    model: Type.Optional(Type.String({ maxLength: 300 })),
+    provider: Type.Optional(Type.String({ maxLength: 200 })),
+  },
+  { $id: 'HermesProfile', additionalProperties: false },
+);
+export const HermesProfilesResponseSchema = controlCollectionResponse(
+  'HermesProfilesResponse',
+  HermesProfileSchema,
+);
+
+export const HermesProviderSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1, maxLength: 200 }),
+    displayName: Type.String({ minLength: 1, maxLength: 200 }),
+    credentialStatus: Type.Union([
+      Type.Literal('configured'),
+      Type.Literal('missing'),
+      Type.Literal('unknown'),
+    ]),
+    selected: Type.Boolean(),
+  },
+  { $id: 'HermesProvider', additionalProperties: false },
+);
+export const HermesProvidersResponseSchema = controlCollectionResponse(
+  'HermesProvidersResponse',
+  HermesProviderSchema,
+);
+
+export const HermesBoardSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1, maxLength: 200 }),
+    name: Type.String({ minLength: 1, maxLength: 500 }),
+    archived: Type.Boolean(),
+    isCurrent: Type.Boolean(),
+    counts: Type.Record(Type.String({ maxLength: 100 }), Type.Integer({ minimum: 0 })),
+    total: Type.Integer({ minimum: 0 }),
+    updatedAt: Type.Optional(Type.String({ format: 'date-time' })),
+  },
+  { $id: 'HermesBoard', additionalProperties: false },
+);
+export const HermesBoardsResponseSchema = controlCollectionResponse(
+  'HermesBoardsResponse',
+  HermesBoardSchema,
+);
+
+export const HermesTaskSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1, maxLength: 200 }),
+    boardId: Type.String({ minLength: 1, maxLength: 200 }),
+    title: Type.String({ minLength: 1, maxLength: 2000 }),
+    status: Type.String({ minLength: 1, maxLength: 100 }),
+    assignee: Type.Optional(Type.String({ maxLength: 200 })),
+    priority: Type.Optional(Type.Integer()),
+    updatedAt: Type.Optional(Type.String({ format: 'date-time' })),
+  },
+  { $id: 'HermesTask', additionalProperties: false },
+);
+export const HermesTasksResponseSchema = controlCollectionResponse(
+  'HermesTasksResponse',
+  HermesTaskSchema,
+);
+
+export const HermesSessionSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1, maxLength: 300 }),
+    title: Type.Optional(Type.String({ maxLength: 2000 })),
+    source: Type.Optional(Type.String({ maxLength: 200 })),
+    createdAt: Type.Optional(Type.String({ format: 'date-time' })),
+    updatedAt: Type.Optional(Type.String({ format: 'date-time' })),
+  },
+  { $id: 'HermesSession', additionalProperties: false },
+);
+export const HermesSessionsResponseSchema = controlCollectionResponse(
+  'HermesSessionsResponse',
+  HermesSessionSchema,
+);
+
+export const HermesMessageSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1, maxLength: 300 }),
+    sessionId: Type.String({ minLength: 1, maxLength: 300 }),
+    role: Type.String({ minLength: 1, maxLength: 100 }),
+    content: Type.Optional(Type.String({ maxLength: 1000000 })),
+    createdAt: Type.Optional(Type.String({ format: 'date-time' })),
+  },
+  { $id: 'HermesMessage', additionalProperties: false },
+);
+export const HermesMessagesResponseSchema = controlCollectionResponse(
+  'HermesMessagesResponse',
+  HermesMessageSchema,
+);
+
 export const HermesControlErrorCodeSchema = Type.Union(
   [
     Type.Literal('invalid_request'),
@@ -242,6 +361,48 @@ export const HermesEventEnvelopeSchema = Type.Object(
   { $id: 'HermesEventEnvelope', additionalProperties: false },
 );
 
+export const HermesEventsResponseSchema = Type.Object(
+  {
+    contractVersion: HermesContractVersionSchema,
+    frameworkId: HermesFrameworkIdSchema,
+    frameworkVersion: Type.String({ minLength: 1, maxLength: 128 }),
+    frameworkCommit: GitCommitSchema,
+    sourceVersion: HermesSourceVersionSchema,
+    observedAt: Type.String({ format: 'date-time' }),
+    data: Type.Object(
+      { items: Type.Array(HermesEventEnvelopeSchema), page: HermesPageSchema },
+      { additionalProperties: false },
+    ),
+  },
+  { $id: 'HermesEventsResponse', additionalProperties: false },
+);
+
+export const HermesReconcileResultSchema = controlResponse(
+  'HermesReconcileResult',
+  Type.Object(
+    {
+      operationId: Type.String({ minLength: 1, maxLength: 200 }),
+      status: Type.Union([
+        Type.Literal('validated'),
+        Type.Literal('dry-run'),
+        Type.Literal('completed'),
+      ]),
+      replayed: Type.Boolean(),
+      observedFamilies: Type.Array(
+        Type.Union([
+          Type.Literal('profiles'),
+          Type.Literal('providers'),
+          Type.Literal('work'),
+          Type.Literal('conversations'),
+        ]),
+        { uniqueItems: true },
+      ),
+      emittedEvents: Type.Integer({ minimum: 0 }),
+    },
+    { additionalProperties: false },
+  ),
+);
+
 export const FrameworkScopeSchema = Type.Union(
   [
     Type.Literal('control:read'),
@@ -300,8 +461,15 @@ export type HermesIdentityResponse = Static<typeof HermesIdentityResponseSchema>
 export type HermesHealthResponse = Static<typeof HermesHealthResponseSchema>;
 export type HermesVersionResponse = Static<typeof HermesVersionResponseSchema>;
 export type HermesCapabilitiesResponse = Static<typeof HermesCapabilitiesResponseSchema>;
+export type HermesProfile = Static<typeof HermesProfileSchema>;
+export type HermesProvider = Static<typeof HermesProviderSchema>;
+export type HermesBoard = Static<typeof HermesBoardSchema>;
+export type HermesTask = Static<typeof HermesTaskSchema>;
+export type HermesSession = Static<typeof HermesSessionSchema>;
+export type HermesMessage = Static<typeof HermesMessageSchema>;
 export type HermesControlCommand = Static<typeof HermesControlCommandSchema>;
 export type HermesEventEnvelope = Static<typeof HermesEventEnvelopeSchema>;
+export type HermesReconcileResult = Static<typeof HermesReconcileResultSchema>;
 export type FrameworkScope = Static<typeof FrameworkScopeSchema>;
 export type FrameworkRegistrationInput = Static<typeof FrameworkRegistrationInputSchema>;
 export type FrameworkRegistration = Static<typeof FrameworkRegistrationSchema>;
@@ -319,10 +487,24 @@ export const HermesControlSchemas = [
   HermesCapabilitiesResponseSchema,
   HermesPageSchema,
   HermesCollectionResponseSchema,
+  HermesProfileSchema,
+  HermesProfilesResponseSchema,
+  HermesProviderSchema,
+  HermesProvidersResponseSchema,
+  HermesBoardSchema,
+  HermesBoardsResponseSchema,
+  HermesTaskSchema,
+  HermesTasksResponseSchema,
+  HermesSessionSchema,
+  HermesSessionsResponseSchema,
+  HermesMessageSchema,
+  HermesMessagesResponseSchema,
   HermesControlErrorCodeSchema,
   HermesControlErrorResponseSchema,
   HermesControlCommandSchema,
   HermesEventEnvelopeSchema,
+  HermesEventsResponseSchema,
+  HermesReconcileResultSchema,
   FrameworkScopeSchema,
   FrameworkRegistrationInputSchema,
   FrameworkRegistrationSchema,

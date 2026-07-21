@@ -168,6 +168,25 @@ importers:
         specifier: 8.18.1
         version: 8.18.1
 
+  apps/hermes-control-adapter:
+    dependencies:
+      '@aquiero/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@sinclair/typebox':
+        specifier: 0.34.52
+        version: 0.34.52
+      fastify:
+        specifier: 5.10.0
+        version: 5.10.0
+      pg:
+        specifier: 8.22.0
+        version: 8.22.0
+    devDependencies:
+      '@types/pg':
+        specifier: 8.20.0
+        version: 8.20.0
+
   apps/uniui:
     dependencies:
       '@aquiero/chat-components':

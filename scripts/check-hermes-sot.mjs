@@ -106,6 +106,10 @@ const immutableFrameworkDocuments = new Map([
     'docs/architecture/HERMES-CONTROL-V1.md',
     /UNIFY-owned adapter contract[\s\S]*not an API that Hermes must implement/,
   ],
+  [
+    'docs/architecture/HERMES-ADAPTER-FOUNDATIONS.md',
+    /never imports, patches, vendors, or writes the Hermes repository/,
+  ],
 ]);
 for (const [name, marker] of immutableFrameworkDocuments) {
   const body = await readFile(resolve(root, name), 'utf8');
@@ -116,6 +120,26 @@ for (const [name, marker] of immutableFrameworkDocuments) {
 const pinnedFixture = await readFile(resolve(root, 'scripts/hermes-pinned-fixture.mjs'), 'utf8');
 if (/\b(?:writeFile|appendFile|rm|unlink|rename|copyFile|chmod|chown)\b/.test(pinnedFixture))
   violations.push('hermes-pinned-fixture.mjs: fixture must never mutate the Hermes checkout');
+
+const liveVerifier = await readFile(
+  resolve(root, 'scripts/verify-hermes-adapter-foundations.mjs'),
+  'utf8',
+);
+if (/\b(?:writeFile|appendFile|rm|unlink|rename|copyFile|chmod|chown)\b/.test(liveVerifier))
+  violations.push('verify-hermes-adapter-foundations.mjs: verifier must never mutate Hermes');
+
+const hermesAdapterSource = await readFile(
+  resolve(root, 'apps/hermes-control-adapter/src/source.ts'),
+  'utf8',
+);
+if (/from\s+['"][^'"]*(?:hermes-agent|hermes_cli|gateway\/platforms)/.test(hermesAdapterSource))
+  violations.push('Hermes adapter: importing Hermes implementation code is forbidden');
+if (
+  /['"](?:profile|kanban|cron)['"]\s*,\s*['"](?:create|add|update|edit|delete|remove|start|stop|run|enable|disable)['"]/.test(
+    hermesAdapterSource,
+  )
+)
+  violations.push('Hermes adapter foundations: mutating Hermes CLI commands are forbidden');
 
 if (violations.length) {
   console.error('Hermes source-of-truth policy violations:');
