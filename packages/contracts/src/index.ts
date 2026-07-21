@@ -814,6 +814,72 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           },
         },
       },
+      '/frameworks/{frameworkId}/capabilities': readPath(
+        'frameworks',
+        'getFrameworkCapabilities',
+        'GatewayHermesCapabilities',
+        frameworkParameters(),
+      ),
+      '/frameworks/{frameworkId}/profiles': readPath(
+        'frameworks',
+        'listFrameworkProfiles',
+        'GatewayHermesProfiles',
+        frameworkParameters(true),
+      ),
+      '/frameworks/{frameworkId}/providers': readPath(
+        'frameworks',
+        'listFrameworkProviders',
+        'GatewayHermesProviders',
+        frameworkParameters(true),
+      ),
+      '/frameworks/{frameworkId}/work/boards': readPath(
+        'frameworks',
+        'listFrameworkBoards',
+        'GatewayHermesBoards',
+        frameworkParameters(true),
+      ),
+      '/frameworks/{frameworkId}/work/boards/{boardId}/tasks': readPath(
+        'frameworks',
+        'listFrameworkTasks',
+        'GatewayHermesTasks',
+        [
+          ...frameworkParameters(),
+          {
+            name: 'boardId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', minLength: 1, maxLength: 200 },
+          },
+          ...controlPageParameters(),
+        ],
+      ),
+      '/frameworks/{frameworkId}/conversations/sessions': readPath(
+        'frameworks',
+        'listFrameworkSessions',
+        'GatewayHermesSessions',
+        frameworkParameters(true),
+      ),
+      '/frameworks/{frameworkId}/conversations/sessions/{sessionId}/messages': readPath(
+        'frameworks',
+        'listFrameworkMessages',
+        'GatewayHermesMessages',
+        [
+          ...frameworkParameters(),
+          {
+            name: 'sessionId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', minLength: 1, maxLength: 300 },
+          },
+          ...controlPageParameters(),
+        ],
+      ),
+      '/frameworks/{frameworkId}/events': readPath(
+        'frameworks',
+        'listFrameworkEvents',
+        'GatewayHermesEvents',
+        frameworkParameters(true),
+      ),
       '/resources': readPath(
         'integrations',
         'listUnifiedResources',
@@ -917,6 +983,17 @@ function controlPageParameters(): unknown[] {
       required: false,
       schema: { type: 'integer', minimum: 1, maximum: 500, default: 100 },
     },
+  ];
+}
+function frameworkParameters(includePage = false): unknown[] {
+  return [
+    {
+      name: 'frameworkId',
+      in: 'path',
+      required: true,
+      schema: { $ref: '#/components/schemas/HermesFrameworkId' },
+    },
+    ...(includePage ? controlPageParameters() : []),
   ];
 }
 function readPath(

@@ -7,17 +7,16 @@ const legacyOwners = '(?:agency|dmm|worker|chat)';
 const legacyOwnerPattern = new RegExp(`\\bowner\\s*:\\s*['"]${legacyOwners}['"]`, 'i');
 const legacyUrlPattern = /\b(?:AGENCY|DMM|WORKER|CHAT)_(?:URL|USERNAME|PASSWORD|TOKEN)(?:_FILE)?\b/;
 
-// Phase 0 quarantine: these are the only files allowed to know legacy owner
-// identities or credentials. The list must shrink as direct Hermes adapters land.
+// Migration quarantine: production profile/provider UI and Hermes control code must not know
+// legacy owners. Remaining legacy code is disabled unless the migration flag is explicit.
 const migrationBoundaryFiles = new Set([
   'apps/chat-pwa/src/App.tsx',
   'apps/gateway/src/app.ts',
   'apps/gateway/src/integrations/adapters.ts',
-  'apps/gateway/src/mutations/owner-client.ts',
+  'apps/gateway/src/migration/legacy/owner-client.ts',
   'apps/gateway/src/server.ts',
   'apps/uniui/src/App.tsx',
   'apps/uniui/src/ChatView.tsx',
-  'apps/uniui/src/ModelsView.tsx',
   'apps/uniui/src/WorkView.tsx',
   'compose.yaml',
   'scripts/prepare-compose-secrets.mjs',
@@ -60,7 +59,7 @@ if (/mutation-canary|qa10:unify-chat/i.test(production))
   violations.push('compose.production.yaml: legacy mutation canary declaration is forbidden');
 
 const mutations = await readFile(
-  resolve(root, 'apps/gateway/src/mutations/owner-client.ts'),
+  resolve(root, 'apps/gateway/src/migration/legacy/owner-client.ts'),
   'utf8',
 );
 const definitions = mutations.slice(
@@ -82,6 +81,22 @@ for (const required of [
 ]) {
   if (!required.test(adapter))
     violations.push('adapters.ts: legacy adapters must be non-authoritative and read-only');
+}
+
+const gatewayServer = await readFile(resolve(root, 'apps/gateway/src/server.ts'), 'utf8');
+if (!/ENABLE_LEGACY_MIGRATION_READERS\s*===\s*['"]true['"]/.test(gatewayServer))
+  violations.push('gateway server: legacy migration readers must be explicitly feature-gated');
+if (!/import\(['"]\.\/migration\/legacy\/owner-client\.js['"]\)/.test(gatewayServer))
+  violations.push('gateway server: legacy owner client must be isolated behind a dynamic import');
+
+for (const name of ['apps/uniui/src/ProfilesView.tsx', 'apps/uniui/src/ModelsView.tsx']) {
+  const body = await readFile(resolve(root, name), 'utf8');
+  if (
+    /agency-context|dmm-context|['"]dmm\.credential|['"]profile\.(?:create|delete|identity|model|runtime)/i.test(
+      body,
+    )
+  )
+    violations.push(`${name}: production profile/model UI cannot call a legacy owner path`);
 }
 
 const historicalDocumentMarkers = new Map([

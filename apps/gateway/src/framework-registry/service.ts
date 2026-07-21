@@ -4,8 +4,10 @@ import {
   PINNED_HERMES_RELEASE,
   type FrameworkRegistration,
   type FrameworkRegistrationInput,
+  type FrameworkScope,
 } from '@aquiero/contracts';
 import type {
+  FrameworkConnection,
   FrameworkProbe,
   FrameworkRegistrationRecord,
   FrameworkRegistrationStore,
@@ -42,6 +44,42 @@ export class FrameworkRegistryService {
   async get(frameworkId: string): Promise<FrameworkRegistration | null> {
     const value = await this.store.get(frameworkId);
     return value ? publicRegistration(value) : null;
+  }
+
+  async connection(
+    frameworkId: string,
+    requiredScope: FrameworkScope,
+  ): Promise<FrameworkConnection> {
+    const record = await this.store.get(frameworkId);
+    if (!record)
+      throw new FrameworkRegistryError('FRAMEWORK_NOT_FOUND', 404, 'Framework not found');
+    if (!record.enabled || record.status !== 'verified')
+      throw new FrameworkRegistryError(
+        'FRAMEWORK_UNAVAILABLE',
+        503,
+        'Framework registration is not enabled and verified',
+      );
+    if (!record.scopes.includes(requiredScope))
+      throw new FrameworkRegistryError(
+        'FRAMEWORK_SCOPE_DENIED',
+        403,
+        'Framework registration does not grant the required scope',
+      );
+    const bearerToken = this.resolveAuth(record.serviceAuthReference);
+    if (!bearerToken)
+      throw new FrameworkRegistryError(
+        'SERVICE_AUTH_UNAVAILABLE',
+        503,
+        'Framework service authentication is unavailable',
+      );
+    return {
+      frameworkId: record.frameworkId,
+      baseUrl: record.baseUrl,
+      bearerToken,
+      scopes: [...record.scopes],
+      frameworkVersion: record.frameworkVersion,
+      frameworkCommit: record.frameworkCommit,
+    };
   }
 
   async register(input: FrameworkRegistrationInput): Promise<FrameworkRegistration> {
@@ -83,14 +121,19 @@ export class FrameworkRegistryService {
     const version = observed.version;
     if (
       identity.contractVersion !== input.expectedContractVersion ||
-      version.contractVersion !== input.expectedContractVersion
+      version.contractVersion !== input.expectedContractVersion ||
+      observed.capabilities.contractVersion !== input.expectedContractVersion
     )
       throw new FrameworkRegistryError(
         'UNSUPPORTED_CONTRACT_VERSION',
         422,
         'Framework returned an unsupported contract',
       );
-    if (identity.frameworkId !== input.frameworkId || version.frameworkId !== input.frameworkId)
+    if (
+      identity.frameworkId !== input.frameworkId ||
+      version.frameworkId !== input.frameworkId ||
+      observed.capabilities.frameworkId !== input.frameworkId
+    )
       throw new FrameworkRegistryError(
         'FRAMEWORK_ID_MISMATCH',
         422,

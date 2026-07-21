@@ -1,0 +1,42 @@
+[Unit]
+Description=UNIFY Hermes control adapter
+Documentation=file:/srv/unify/docs/architecture/HERMES-ADAPTER-FOUNDATIONS.md
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=herman
+Group=herman
+WorkingDirectory=/srv/unify
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=28082
+Environment=RELEASE_ID=unify-hermes-profiles-models-cutover
+Environment=HERMES_REPO=/home/herman/.hermes/hermes-agent
+Environment=HERMES_HOME=/home/herman/.hermes
+Environment=HERMES_BIN=/home/herman/.local/bin/hermes
+Environment=HERMES_FRAMEWORK_ID=hermes-main
+Environment=HERMES_DISPLAY_NAME=Hermes Main
+Environment=HERMES_INSTANCE_ID=hermes-main-local
+Environment=HERMES_ADAPTER_SCOPES=control:read,control:execute,control:events
+Environment=DATABASE_URL_FILE=/srv/unify/.secrets/gateway_database_url
+Environment=HERMES_ADAPTER_TOKEN_FILE=/srv/unify/.secrets/hermes_main_control_token
+ExecStart=/home/herman/.local/bin/node /srv/unify/apps/hermes-control-adapter/dist/server.js
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=20
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+
+[Install]
+WantedBy=multi-user.target

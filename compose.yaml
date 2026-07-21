@@ -56,12 +56,9 @@ services:
       MUTATION_ACCEPTANCE_REFS: ${MUTATION_ACCEPTANCE_REFS:-}
       REQUESTS_PER_MINUTE: ${REQUESTS_PER_MINUTE:-600}
       ALLOWED_ORIGINS: https://uniui.aquiero.com,http://127.0.0.1:${UNIUI_PORT:-3000},http://localhost:${UNIUI_PORT:-3000},http://127.0.0.1:${CHAT_PWA_PORT:-3101},http://localhost:${CHAT_PWA_PORT:-3101},http://127.0.0.1:${ALERTS_PWA_PORT:-3102},http://localhost:${ALERTS_PWA_PORT:-3102}
-      AGENCY_URL: ${AGENCY_URL:-http://127.0.0.1:18082}
-      AGENCY_USERNAME_FILE: /run/secrets/agency_username
-      AGENCY_PASSWORD_FILE: /run/secrets/agency_password
-      DMM_URL: ${DMM_URL:-http://127.0.0.1:4100}
-      DMM_USERNAME_FILE: /run/secrets/dmm_username
-      DMM_PASSWORD_FILE: /run/secrets/dmm_password
+      FRAMEWORK_AUTH_ENV_NAMES: HERMES_MAIN_CONTROL_TOKEN
+      HERMES_MAIN_CONTROL_TOKEN_FILE: /run/secrets/hermes_main_control_token
+      HERMES_EVENT_POLL_MS: ${HERMES_EVENT_POLL_MS:-5000}
       WORKER_URL: ${WORKER_URL:-http://127.0.0.1:8891}
       WORKER_TOKEN_FILE: /run/secrets/worker_token
       CHAT_URL: ${CHAT_URL:-http://127.0.0.1:8787}
@@ -72,10 +69,7 @@ services:
       [
         gateway_database_url,
         gateway_auth_pepper,
-        agency_username,
-        agency_password,
-        dmm_username,
-        dmm_password,
+        hermes_main_control_token,
         worker_token,
         chat_password,
         memory_v4_token,
@@ -180,10 +174,7 @@ secrets:
   gateway_database_url: { file: .secrets/gateway_database_url }
   gateway_auth_pepper: { file: .secrets/gateway_auth_pepper }
   bootstrap_admin_password: { file: .secrets/bootstrap_admin_password }
-  agency_username: { file: .secrets/agency_username }
-  agency_password: { file: .secrets/agency_password }
-  dmm_username: { file: .secrets/dmm_username }
-  dmm_password: { file: .secrets/dmm_password }
+  hermes_main_control_token: { file: .secrets/hermes_main_control_token }
   worker_token: { file: .secrets/worker_token }
   chat_password: { file: .secrets/chat_password }
   memory_v4_token: { file: .secrets/memory_v4_token }

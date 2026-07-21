@@ -1,6 +1,7 @@
 import type {
   FrameworkRegistration,
   FrameworkRegistrationInput,
+  FrameworkScope,
   HermesCapabilitiesResponse,
   HermesIdentityResponse,
   HermesVersionResponse,
@@ -29,3 +30,12 @@ export interface FrameworkProbe {
 }
 
 export type RegistrationInput = FrameworkRegistrationInput;
+
+export interface FrameworkConnection {
+  frameworkId: string;
+  baseUrl: string;
+  bearerToken: string;
+  scopes: FrameworkScope[];
+  frameworkVersion: string;
+  frameworkCommit: string;
+}

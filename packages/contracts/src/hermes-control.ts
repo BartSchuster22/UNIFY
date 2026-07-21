@@ -1,4 +1,4 @@
-import { Type, type Static, type TSchema } from '@sinclair/typebox';
+import { Type, type Static, type TObject, type TSchema } from '@sinclair/typebox';
 
 export const HERMES_CONTROL_VERSION = 'hermes-control/v1' as const;
 export const PINNED_HERMES_RELEASE = '0.18.0' as const;
@@ -165,7 +165,7 @@ export const HermesCollectionResponseSchema = Type.Object(
   { $id: 'HermesCollectionResponse', additionalProperties: false },
 );
 
-const controlCollectionResponse = (id: string, item: TSchema) =>
+const controlCollectionResponse = <T extends TSchema>(id: string, item: T) =>
   Type.Object(
     {
       contractVersion: HermesContractVersionSchema,
@@ -456,6 +456,117 @@ export const FrameworkRegistrationListSchema = Type.Object(
   { $id: 'FrameworkRegistrationList', additionalProperties: false },
 );
 
+export const GatewayHermesMetadataSchema = Type.Object(
+  {
+    owner: Type.Literal('hermes'),
+    frameworkId: HermesFrameworkIdSchema,
+    frameworkVersion: Type.String({ minLength: 1, maxLength: 128 }),
+    frameworkCommit: GitCommitSchema,
+    sourceVersion: HermesSourceVersionSchema,
+    observedAt: Type.String({ format: 'date-time' }),
+    freshness: Type.Literal('current'),
+  },
+  { $id: 'GatewayHermesMetadata', additionalProperties: false },
+);
+
+const gatewayOwnedItem = <T extends TObject>(id: string, item: T) =>
+  Type.Object(
+    {
+      ...item.properties,
+      owner: Type.Literal('hermes'),
+      frameworkId: HermesFrameworkIdSchema,
+      sourceVersion: HermesSourceVersionSchema,
+      observedAt: Type.String({ format: 'date-time' }),
+    },
+    { $id: id, additionalProperties: false },
+  );
+const gatewayCollection = <T extends TSchema>(id: string, item: T) =>
+  Type.Object(
+    { meta: GatewayHermesMetadataSchema, items: Type.Array(item), page: HermesPageSchema },
+    { $id: id, additionalProperties: false },
+  );
+
+export const GatewayHermesCapabilitiesSchema = Type.Object(
+  {
+    meta: GatewayHermesMetadataSchema,
+    data: Type.Object(
+      {
+        capabilities: Type.Record(
+          Type.String({ minLength: 1, maxLength: 200 }),
+          HermesCapabilitySchema,
+        ),
+      },
+      { additionalProperties: false },
+    ),
+  },
+  { $id: 'GatewayHermesCapabilities', additionalProperties: false },
+);
+export const GatewayHermesProfileSchema = gatewayOwnedItem(
+  'GatewayHermesProfile',
+  HermesProfileSchema,
+);
+export const GatewayHermesProfilesSchema = gatewayCollection(
+  'GatewayHermesProfiles',
+  GatewayHermesProfileSchema,
+);
+export const GatewayHermesProviderSchema = gatewayOwnedItem(
+  'GatewayHermesProvider',
+  HermesProviderSchema,
+);
+export const GatewayHermesProvidersSchema = gatewayCollection(
+  'GatewayHermesProviders',
+  GatewayHermesProviderSchema,
+);
+export const GatewayHermesBoardSchema = gatewayOwnedItem('GatewayHermesBoard', HermesBoardSchema);
+export const GatewayHermesBoardsSchema = gatewayCollection(
+  'GatewayHermesBoards',
+  GatewayHermesBoardSchema,
+);
+export const GatewayHermesTaskSchema = gatewayOwnedItem('GatewayHermesTask', HermesTaskSchema);
+export const GatewayHermesTasksSchema = gatewayCollection(
+  'GatewayHermesTasks',
+  GatewayHermesTaskSchema,
+);
+export const GatewayHermesSessionSchema = gatewayOwnedItem(
+  'GatewayHermesSession',
+  HermesSessionSchema,
+);
+export const GatewayHermesSessionsSchema = gatewayCollection(
+  'GatewayHermesSessions',
+  GatewayHermesSessionSchema,
+);
+export const GatewayHermesMessageSchema = gatewayOwnedItem(
+  'GatewayHermesMessage',
+  HermesMessageSchema,
+);
+export const GatewayHermesMessagesSchema = gatewayCollection(
+  'GatewayHermesMessages',
+  GatewayHermesMessageSchema,
+);
+export const GatewayHermesEventsSchema = Type.Object(
+  {
+    meta: Type.Object(
+      {
+        owner: Type.Literal('hermes'),
+        frameworkId: HermesFrameworkIdSchema,
+        frameworkVersion: Type.String({ minLength: 1, maxLength: 128 }),
+        frameworkCommit: GitCommitSchema,
+        freshness: Type.Union([
+          Type.Literal('current'),
+          Type.Literal('stale'),
+          Type.Literal('unavailable'),
+        ]),
+        generatedAt: Type.String({ format: 'date-time' }),
+        warnings: Type.Array(Type.Object({ code: Type.String({ minLength: 1, maxLength: 100 }) })),
+      },
+      { additionalProperties: false },
+    ),
+    items: Type.Array(HermesEventEnvelopeSchema),
+    page: HermesPageSchema,
+  },
+  { $id: 'GatewayHermesEvents', additionalProperties: false },
+);
+
 export type HermesControlMetadata = Static<typeof HermesControlMetadataSchema>;
 export type HermesIdentityResponse = Static<typeof HermesIdentityResponseSchema>;
 export type HermesHealthResponse = Static<typeof HermesHealthResponseSchema>;
@@ -509,4 +620,19 @@ export const HermesControlSchemas = [
   FrameworkRegistrationInputSchema,
   FrameworkRegistrationSchema,
   FrameworkRegistrationListSchema,
+  GatewayHermesMetadataSchema,
+  GatewayHermesCapabilitiesSchema,
+  GatewayHermesProfileSchema,
+  GatewayHermesProfilesSchema,
+  GatewayHermesProviderSchema,
+  GatewayHermesProvidersSchema,
+  GatewayHermesBoardSchema,
+  GatewayHermesBoardsSchema,
+  GatewayHermesTaskSchema,
+  GatewayHermesTasksSchema,
+  GatewayHermesSessionSchema,
+  GatewayHermesSessionsSchema,
+  GatewayHermesMessageSchema,
+  GatewayHermesMessagesSchema,
+  GatewayHermesEventsSchema,
 ] as const;

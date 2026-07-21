@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CutoverPolicy } from './policy.js';
-import type { MutationInput } from '../mutations/owner-client.js';
+import type { MutationInput } from '../mutations/types.js';
 
 const mutation = (
   owner: MutationInput['target']['owner'],

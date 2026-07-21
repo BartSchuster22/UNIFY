@@ -1,5 +1,5 @@
 import WebSocket from 'ws';
-import { GovernanceError } from '../governance/service.js';
+import { GovernanceError } from '../../governance/service.js';
 
 export type MutationTarget = {
   owner: 'hermes' | 'dmm' | 'worker' | 'chat' | 'memory-v4';
@@ -38,8 +38,8 @@ export type MutationDefinition = {
   owner: Owner;
   kind: string;
   permission: string;
-  /** The current adapter boundary. Only hermes-control paths may ever execute in production. */
-  executionPath: 'migration-legacy' | 'hermes-control';
+  /** Quarantined legacy migration execution path; never production-authoritative. */
+  executionPath: 'migration-legacy';
   destructive?: boolean;
 };
 

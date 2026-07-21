@@ -61,6 +61,18 @@ Capability discovery reports these as `unsupported`, `unavailable`, or `forbidde
 - Public provider responses never include token values, masked fragments, auth-file paths, or environment-variable names.
 - The adapter is intended to run host-local and listen on loopback so it can approach an existing local Hermes installation without modifying or packaging Hermes.
 
+## Host-local production service
+
+The checked-in `deploy/unify-hermes-control-adapter.service` runs the adapter independently of Compose on `127.0.0.1:28082`. This is intentional: the adapter invokes the existing host Hermes CLI and does not package or mount a second Hermes implementation. Install or refresh it after building the workspace:
+
+```bash
+sudo install -m 0644 deploy/unify-hermes-control-adapter.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now unify-hermes-control-adapter.service
+```
+
+The service reads the database URL and bearer token through file-backed secrets, runs as the unprivileged `herman` user, starts only from the pinned immutable Hermes checkout, and is reachable only through loopback. The Gateway registration uses `http://127.0.0.1:28082` and `env:HERMES_MAIN_CONTROL_TOKEN`; both services must receive the same `.secrets/hermes_main_control_token` value.
+
 ## Verification
 
 Unit and integration tests cover typed envelopes, authentication, scope denial, safe parsing, provider redaction, malformed native IDs, truthful outages, source-bound pagination, validation/dry-run/execute modes, stale-version rejection, idempotency conflicts/replay, event deduplication/replay, and explicit legacy independence. Live verification reads the pinned Hermes checkout before and after adapter probes and requires zero tracked changes.

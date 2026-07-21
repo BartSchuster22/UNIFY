@@ -13,7 +13,7 @@ import type {
 import { IntegrationService } from './service.js';
 import type { IntegrationSnapshot, SourceAdapter } from './types.js';
 import type { GovernanceStore } from '../governance/types.js';
-import { MutationOwnerClient } from '../mutations/owner-client.js';
+import { MutationOwnerClient } from '../migration/legacy/owner-client.js';
 import type { NotificationDraft, NotificationStore } from '../notifications/postgres-store.js';
 import { CutoverPolicy } from '../cutover/policy.js';
 

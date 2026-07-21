@@ -436,6 +436,134 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/frameworks/{frameworkId}/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getFrameworkCapabilities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/frameworks/{frameworkId}/profiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listFrameworkProfiles"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/frameworks/{frameworkId}/providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listFrameworkProviders"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/frameworks/{frameworkId}/work/boards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listFrameworkBoards"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/frameworks/{frameworkId}/work/boards/{boardId}/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listFrameworkTasks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/frameworks/{frameworkId}/conversations/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listFrameworkSessions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/frameworks/{frameworkId}/conversations/sessions/{sessionId}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listFrameworkMessages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/frameworks/{frameworkId}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listFrameworkEvents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/resources": {
         parameters: {
             query?: never;
@@ -1938,6 +2066,370 @@ export interface components {
                 /** Format: date-time */
                 updatedAt: string;
             }[];
+        };
+        GatewayHermesMetadata: {
+            /** @constant */
+            owner: "hermes";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            /** @constant */
+            freshness: "current";
+        };
+        GatewayHermesCapabilities: {
+            meta: {
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                frameworkVersion: string;
+                frameworkCommit: string;
+                sourceVersion: string;
+                /** Format: date-time */
+                observedAt: string;
+                /** @constant */
+                freshness: "current";
+            };
+            data: {
+                capabilities: {
+                    [key: string]: {
+                        status: "supported" | "unsupported" | "unavailable" | "forbidden";
+                        modes: ("read" | "validate" | "dry-run" | "execute" | "verify" | "subscribe")[];
+                        requiredScopes: string[];
+                        reasonCode?: string;
+                        constraints?: {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+        };
+        GatewayHermesProfile: {
+            id: string;
+            displayName: string;
+            active: boolean;
+            gatewayStatus: "running" | "stopped" | "unknown";
+            model?: string;
+            provider?: string;
+            /** @constant */
+            owner: "hermes";
+            frameworkId: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+        };
+        GatewayHermesProfiles: {
+            meta: {
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                frameworkVersion: string;
+                frameworkCommit: string;
+                sourceVersion: string;
+                /** Format: date-time */
+                observedAt: string;
+                /** @constant */
+                freshness: "current";
+            };
+            items: {
+                id: string;
+                displayName: string;
+                active: boolean;
+                gatewayStatus: "running" | "stopped" | "unknown";
+                model?: string;
+                provider?: string;
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                sourceVersion: string;
+                /** Format: date-time */
+                observedAt: string;
+            }[];
+            page: {
+                nextCursor?: string;
+                hasMore: boolean;
+            };
+        };
+        GatewayHermesProvider: {
+            id: string;
+            displayName: string;
+            credentialStatus: "configured" | "missing" | "unknown";
+            selected: boolean;
+            /** @constant */
+            owner: "hermes";
+            frameworkId: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+        };
+        GatewayHermesProviders: {
+            meta: {
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                frameworkVersion: string;
+                frameworkCommit: string;
+                sourceVersion: string;
+                /** Format: date-time */
+                observedAt: string;
+                /** @constant */
+                freshness: "current";
+            };
+            items: {
+                id: string;
+                displayName: string;
+                credentialStatus: "configured" | "missing" | "unknown";
+                selected: boolean;
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                sourceVersion: string;
+                /** Format: date-time */
+                observedAt: string;
+            }[];
+            page: {
+                nextCursor?: string;
+                hasMore: boolean;
+            };
+        };
+        GatewayHermesBoard: {
+            id: string;
+            name: string;
+            archived: boolean;
+            isCurrent: boolean;
+            counts: {
+                [key: string]: number;
+            };
+            total: number;
+            /** Format: date-time */
+            updatedAt?: string;
+            /** @constant */
+            owner: "hermes";
+            frameworkId: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+        };
+        GatewayHermesBoards: {
+            meta: {
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                frameworkVersion: string;
+                frameworkCommit: string;
+                sourceVersion: string;
+                /** Format: date-time */
+                observedAt: string;
+                /** @constant */
+                freshness: "current";
+            };
+            items: {
+                id: string;
+                name: string;
+                archived: boolean;
+                isCurrent: boolean;
+                counts: {
+                    [key: string]: number;
+                };
+                total: number;
+                /** Format: date-time */
+                updatedAt?: string;
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                sourceVersion: string;
+                /** Format: date-time */
+                observedAt: string;
+            }[];
+            page: {
+                nextCursor?: string;
+                hasMore: boolean;
+            };
+        };
+        GatewayHermesTask: {
+            id: string;
+            boardId: string;
+            title: string;
+            status: string;
+            assignee?: string;
+            priority?: number;
+            /** Format: date-time */
+            updatedAt?: string;
+            /** @constant */
+            owner: "hermes";
+            frameworkId: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+        };
+        GatewayHermesTasks: {
+            meta: {
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                frameworkVersion: string;
+                frameworkCommit: string;
+                sourceVersion: string;
+                /** Format: date-time */
+                observedAt: string;
+                /** @constant */
+                freshness: "current";
+            };
+            items: {
+                id: string;
+                boardId: string;
+                title: string;
+                status: string;
+                assignee?: string;
+                priority?: number;
+                /** Format: date-time */
+                updatedAt?: string;
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                sourceVersion: string;
+                /** Format: date-time */
+                observedAt: string;
+            }[];
+            page: {
+                nextCursor?: string;
+                hasMore: boolean;
+            };
+        };
+        GatewayHermesSession: {
+            id: string;
+            title?: string;
+            source?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            /** @constant */
+            owner: "hermes";
+            frameworkId: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+        };
+        GatewayHermesSessions: {
+            meta: {
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                frameworkVersion: string;
+                frameworkCommit: string;
+                sourceVersion: string;
+                /** Format: date-time */
+                observedAt: string;
+                /** @constant */
+                freshness: "current";
+            };
+            items: {
+                id: string;
+                title?: string;
+                source?: string;
+                /** Format: date-time */
+                createdAt?: string;
+                /** Format: date-time */
+                updatedAt?: string;
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                sourceVersion: string;
+                /** Format: date-time */
+                observedAt: string;
+            }[];
+            page: {
+                nextCursor?: string;
+                hasMore: boolean;
+            };
+        };
+        GatewayHermesMessage: {
+            id: string;
+            sessionId: string;
+            role: string;
+            content?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** @constant */
+            owner: "hermes";
+            frameworkId: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+        };
+        GatewayHermesMessages: {
+            meta: {
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                frameworkVersion: string;
+                frameworkCommit: string;
+                sourceVersion: string;
+                /** Format: date-time */
+                observedAt: string;
+                /** @constant */
+                freshness: "current";
+            };
+            items: {
+                id: string;
+                sessionId: string;
+                role: string;
+                content?: string;
+                /** Format: date-time */
+                createdAt?: string;
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                sourceVersion: string;
+                /** Format: date-time */
+                observedAt: string;
+            }[];
+            page: {
+                nextCursor?: string;
+                hasMore: boolean;
+            };
+        };
+        GatewayHermesEvents: {
+            meta: {
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                frameworkVersion: string;
+                frameworkCommit: string;
+                freshness: "current" | "stale" | "unavailable";
+                /** Format: date-time */
+                generatedAt: string;
+                warnings: {
+                    code: string;
+                }[];
+            };
+            items: {
+                /** @constant */
+                contractVersion: "hermes-control/v1";
+                frameworkId: string;
+                frameworkVersion: string;
+                frameworkCommit: string;
+                eventId: string;
+                sequence: number;
+                sourceVersion: string;
+                type: string;
+                classification: "durable" | "ephemeral";
+                /** Format: date-time */
+                occurredAt: string;
+                correlationId?: string;
+                operationId?: string;
+                runId?: string;
+                payload: {
+                    [key: string]: unknown;
+                };
+            }[];
+            page: {
+                nextCursor?: string;
+                hasMore: boolean;
+            };
         };
     };
     responses: never;
@@ -3450,6 +3942,421 @@ export interface operations {
             };
             /** @description ErrorResponse */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getFrameworkCapabilities: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                frameworkId: components["schemas"]["HermesFrameworkId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description GatewayHermesCapabilities */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GatewayHermesCapabilities"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listFrameworkProfiles: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                frameworkId: components["schemas"]["HermesFrameworkId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description GatewayHermesProfiles */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GatewayHermesProfiles"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listFrameworkProviders: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                frameworkId: components["schemas"]["HermesFrameworkId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description GatewayHermesProviders */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GatewayHermesProviders"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listFrameworkBoards: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                frameworkId: components["schemas"]["HermesFrameworkId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description GatewayHermesBoards */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GatewayHermesBoards"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listFrameworkTasks: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                frameworkId: components["schemas"]["HermesFrameworkId"];
+                boardId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description GatewayHermesTasks */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GatewayHermesTasks"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listFrameworkSessions: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                frameworkId: components["schemas"]["HermesFrameworkId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description GatewayHermesSessions */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GatewayHermesSessions"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listFrameworkMessages: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                frameworkId: components["schemas"]["HermesFrameworkId"];
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description GatewayHermesMessages */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GatewayHermesMessages"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listFrameworkEvents: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                frameworkId: components["schemas"]["HermesFrameworkId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description GatewayHermesEvents */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GatewayHermesEvents"];
+                };
+            };
+            /** @description ErrorResponse */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description ErrorResponse */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

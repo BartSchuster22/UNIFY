@@ -10,7 +10,8 @@ import type {
   OperationRecord,
   OperationState,
 } from '../governance/types.js';
-import { MutationOwnerClient, type MutationInput } from './owner-client.js';
+import { MutationOwnerClient } from '../migration/legacy/owner-client.js';
+import type { MutationInput } from './types.js';
 import { MutationService } from './service.js';
 
 class Store implements GovernanceStore {

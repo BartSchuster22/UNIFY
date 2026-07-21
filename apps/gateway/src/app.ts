@@ -13,12 +13,13 @@ import {
 import type { IntegrationService } from './integrations/service.js';
 import type { IntegrationKind, IntegrationOwner } from './integrations/types.js';
 import { MutationService } from './mutations/service.js';
-import type { MutationOwnerClient } from './mutations/owner-client.js';
+import type { LegacyMutationOwnerClient } from './mutations/types.js';
 import type { NotificationStore } from './notifications/postgres-store.js';
 import { CutoverPolicy } from './cutover/policy.js';
 import { FixedWindowRateLimiter } from './security/rate-limiter.js';
 import { FrameworkRegistryError } from './framework-registry/service.js';
 import type { FrameworkRegistryService } from './framework-registry/service.js';
+import type { HermesGatewayService } from './hermes-control/service.js';
 export interface AppOptions {
   authStore: AuthStore;
   authPepper: string;
@@ -28,11 +29,12 @@ export interface AppOptions {
   governanceStore?: GovernanceStore;
   allowedOrigins?: readonly string[];
   integrations?: IntegrationService;
-  mutationOwners?: MutationOwnerClient;
+  mutationOwners?: LegacyMutationOwnerClient;
   notificationStore?: NotificationStore;
   cutoverPolicy?: CutoverPolicy;
   requestRateLimit?: number;
   frameworkRegistry?: FrameworkRegistryService;
+  hermesGateway?: HermesGatewayService;
 }
 const SESSION_COOKIE = 'aquiero_session';
 const CSRF_COOKIE = 'aquiero_csrf';
@@ -60,8 +62,8 @@ export function buildApp(options: AppOptions) {
     ? new GovernanceService(options.governanceStore)
     : null;
   const mutations =
-    governance && options.mutationOwners
-      ? new MutationService(governance, options.mutationOwners)
+    governance && (options.mutationOwners || options.hermesGateway)
+      ? new MutationService(governance, options.mutationOwners, options.hermesGateway)
       : null;
   const cutover = options.cutoverPolicy ?? CutoverPolicy.fromEnv({});
   const requestLimiter = new FixedWindowRateLimiter(options.requestRateLimit ?? 600, 60_000);
@@ -136,7 +138,8 @@ export function buildApp(options: AppOptions) {
       (await options.authStore.ready()) &&
       (!options.governanceStore || (await options.governanceStore.ready())) &&
       (!options.notificationStore || (await options.notificationStore.ready())) &&
-      (!options.frameworkRegistry || (await options.frameworkRegistry.ready()));
+      (!options.frameworkRegistry || (await options.frameworkRegistry.ready())) &&
+      (!options.hermesGateway || (await options.hermesGateway.ready()));
     return reply
       .status(ready ? 200 : 503)
       .send({ status: ready ? 'ready' : 'not_ready', release: options.release ?? 'development' });
@@ -260,6 +263,7 @@ export function buildApp(options: AppOptions) {
     cursor?: string;
     limit?: string | number;
   };
+  type FrameworkPageQuery = Pick<ReadQuery, 'cursor' | 'limit'>;
   app.get<{ Querystring: Pick<ReadQuery, 'cursor' | 'limit'> }>(
     '/api/v1/operations',
     async (request) => {
@@ -575,6 +579,96 @@ export function buildApp(options: AppOptions) {
       return reply.status(204).send();
     },
   );
+  app.get<{ Params: { frameworkId: string } }>(
+    '/api/v1/frameworks/:frameworkId/capabilities',
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'frameworks.read');
+      return requireHermesGateway().capabilities(request.params.frameworkId);
+    },
+  );
+  app.get<{ Params: { frameworkId: string }; Querystring: FrameworkPageQuery }>(
+    '/api/v1/frameworks/:frameworkId/profiles',
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'profiles.read');
+      return requireHermesGateway().profiles(
+        request.params.frameworkId,
+        frameworkPageQuery(request.query),
+      );
+    },
+  );
+  app.get<{ Params: { frameworkId: string }; Querystring: FrameworkPageQuery }>(
+    '/api/v1/frameworks/:frameworkId/providers',
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'models.read');
+      return requireHermesGateway().providers(
+        request.params.frameworkId,
+        frameworkPageQuery(request.query),
+      );
+    },
+  );
+  app.get<{ Params: { frameworkId: string }; Querystring: FrameworkPageQuery }>(
+    '/api/v1/frameworks/:frameworkId/work/boards',
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'work.read');
+      return requireHermesGateway().boards(
+        request.params.frameworkId,
+        frameworkPageQuery(request.query),
+      );
+    },
+  );
+  app.get<{
+    Params: { frameworkId: string; boardId: string };
+    Querystring: FrameworkPageQuery;
+  }>('/api/v1/frameworks/:frameworkId/work/boards/:boardId/tasks', async (request) => {
+    const current = await session(request);
+    auth.requirePermission(current, 'work.read');
+    return requireHermesGateway().tasks(
+      request.params.frameworkId,
+      request.params.boardId,
+      frameworkPageQuery(request.query),
+    );
+  });
+  app.get<{ Params: { frameworkId: string }; Querystring: FrameworkPageQuery }>(
+    '/api/v1/frameworks/:frameworkId/conversations/sessions',
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'chat.read');
+      return requireHermesGateway().sessions(
+        request.params.frameworkId,
+        frameworkPageQuery(request.query),
+      );
+    },
+  );
+  app.get<{
+    Params: { frameworkId: string; sessionId: string };
+    Querystring: FrameworkPageQuery;
+  }>(
+    '/api/v1/frameworks/:frameworkId/conversations/sessions/:sessionId/messages',
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'chat.read');
+      return requireHermesGateway().messages(
+        request.params.frameworkId,
+        request.params.sessionId,
+        frameworkPageQuery(request.query),
+      );
+    },
+  );
+  app.get<{ Params: { frameworkId: string }; Querystring: FrameworkPageQuery }>(
+    '/api/v1/frameworks/:frameworkId/events',
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'operations.read');
+      return requireHermesGateway().events(
+        request.params.frameworkId,
+        frameworkPageQuery(request.query),
+      );
+    },
+  );
   app.get('/api/v1/integrations', async (request) => {
     const current = await session(request);
     const integrations = requireIntegrations();
@@ -707,6 +801,31 @@ export function buildApp(options: AppOptions) {
     assertCanRead(current, owner);
     return { items: await requireIntegrations().shadow(owner), meta: meta(request.id) };
   });
+  function requireHermesGateway(): HermesGatewayService {
+    if (!options.hermesGateway)
+      throw new GovernanceError(
+        'HERMES_GATEWAY_UNAVAILABLE',
+        503,
+        'Hermes framework gateway is unavailable',
+      );
+    return options.hermesGateway;
+  }
+  function frameworkPageQuery(query: FrameworkPageQuery) {
+    let limit: number | undefined;
+    if (query.limit !== undefined) {
+      limit = Number(query.limit);
+      if (!Number.isInteger(limit) || limit < 1 || limit > 500)
+        throw new GovernanceError(
+          'INVALID_PAGE_LIMIT',
+          400,
+          'Page limit must be an integer from 1 to 500',
+        );
+    }
+    return {
+      ...(query.cursor ? { cursor: query.cursor } : {}),
+      ...(limit !== undefined ? { limit } : {}),
+    };
+  }
   function requireIntegrations(): IntegrationService {
     if (!options.integrations)
       throw new GovernanceError(

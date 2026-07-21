@@ -14,6 +14,10 @@ const adapterMigration = readFileSync(
   resolve(import.meta.dirname, '../migrations/003_hermes_adapter_foundations.up.sql'),
   'utf8',
 );
+const gatewayHermesMigration = readFileSync(
+  resolve(import.meta.dirname, '../migrations/004_gateway_hermes_framework.up.sql'),
+  'utf8',
+);
 describe('gateway foundation migration', () => {
   it.each([
     'users',
@@ -73,5 +77,24 @@ describe('UNIFY-owned Hermes adapter foundation migration', () => {
     expect(adapterMigration).toContain(
       "event_hash text NOT NULL UNIQUE CHECK (event_hash ~ '^[a-f0-9]{64}$')",
     );
+  });
+});
+
+describe('Gateway Hermes framework migration', () => {
+  it('persists only derived framework events and durable replay cursors', () => {
+    expect(gatewayHermesMigration).toContain('CREATE TABLE gateway_framework_events');
+    expect(gatewayHermesMigration).toContain('PRIMARY KEY (framework_id, source_sequence)');
+    expect(gatewayHermesMigration).toContain(
+      "replay_state IN ('idle','replaying','current','gap','unavailable')",
+    );
+    expect(gatewayHermesMigration).not.toMatch(
+      /CREATE TABLE (?:profiles|providers|models|credentials)\b/,
+    );
+  });
+
+  it('adds framework authorization without adding legacy profile/model owners', () => {
+    expect(gatewayHermesMigration).toContain("'frameworks.manage'");
+    expect(gatewayHermesMigration).not.toContain("'agency.manage'");
+    expect(gatewayHermesMigration).not.toContain("'dmm.manage'");
   });
 });

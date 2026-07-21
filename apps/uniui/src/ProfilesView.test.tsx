@@ -1,77 +1,33 @@
 import { MantineProvider } from '@mantine/core';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { gateway } from './api';
 import { ProfilesView } from './ProfilesView';
 
-const inventory = {
-  frameworks: { frameworks: [{ id: 'hermes-main', name: 'Main Hermes', default: true }] },
-  profiles: {
-    status: 'current',
-    generatedAt: '2026-07-20T12:00:00.000Z',
-    profiles: [
-      {
-        id: 'default',
-        profileId: 'default',
-        frameworkId: 'hermes-main',
-        displayName: 'Herman',
-        runtimeStatus: 'active',
-        lifecycleStatus: 'active',
-        primaryModel: { modelRef: 'openai-codex/gpt-5.6-sol' },
-      },
-      {
-        id: 'chatboard',
-        profileId: 'chatboard',
-        frameworkId: 'hermes-main',
-        displayName: 'Chatboard',
-        runtimeStatus: 'stopped',
-        lifecycleStatus: 'active',
-        primaryModel: { modelRef: 'openai-codex/gpt-5.5' },
-      },
-    ],
-  },
-  agents: {
-    agents: [
-      {
-        id: 'herman',
-        displayName: 'Herman',
-        agentClass: 'base',
-        profileRefs: ['hermes:profile:default'],
-      },
-      {
-        id: 'chatboard',
-        displayName: 'Chatboard',
-        agentClass: 'independent',
-        profileRefs: ['hermes:profile:chatboard'],
-      },
-    ],
-  },
+const framework = {
+  frameworkId: 'hermes-main',
+  displayName: 'Main Hermes',
+  status: 'verified',
+  enabled: true,
 };
-const context = {
-  capabilities: {
+const meta = {
+  owner: 'hermes' as const,
+  frameworkId: 'hermes-main',
+  frameworkVersion: '0.2.0',
+  frameworkCommit: 'a'.repeat(40),
+  sourceVersion: 'profiles:v1',
+  observedAt: '2026-07-21T12:00:00.000Z',
+  freshness: 'current' as const,
+};
+const capabilities = {
+  meta,
+  data: {
     capabilities: {
-      capabilityStatus: { edit_identity: true, edit_models: true, runtime_control: true },
-      contractSatisfied: true,
-      sourceStatus: 'authoritative',
+      'profiles.read': { status: 'supported' },
+      'profiles.execute': {
+        status: 'unsupported',
+        reasonCode: 'NO_IDEMPOTENT_NONINTERACTIVE_INTERFACE',
+      },
     },
-  },
-  models: {
-    modelInventoryStatus: 'authoritative',
-    models: [{ modelRef: 'openai-codex/gpt-5.6-sol', displayName: 'GPT 5.6 SOL' }],
-  },
-  detail: {
-    profile: {
-      ...inventory.profiles.profiles[0],
-      description: 'Primary orchestrator',
-      identityFilesStatus: 'current',
-      identityFiles: [{ path: 'AGENTS.md', content: '# Herman' }],
-      fallbackModels: [{ modelRef: 'openai-codex/gpt-5.5' }],
-      runtime: { pid: 42 },
-      health: { state: 'healthy' },
-      usage: { requests: 7 },
-    },
-    profileProtection: { protected: true, policy: 'base_agent' },
   },
 };
 
@@ -83,112 +39,96 @@ function renderProfiles() {
   );
 }
 
-describe('UNIFY Profiles', () => {
+function response(
+  items: unknown[],
+  page: { hasMore: boolean; nextCursor?: string } = { hasMore: false },
+) {
+  return { meta, items, page };
+}
+
+const herman = {
+  id: 'default',
+  displayName: 'Herman',
+  active: true,
+  gatewayStatus: 'running',
+  model: 'gpt-5.6-sol',
+  provider: 'OpenAI Codex',
+  owner: 'hermes',
+  frameworkId: 'hermes-main',
+  sourceVersion: 'profiles:v1',
+  observedAt: meta.observedAt,
+};
+
+describe('Profiles Hermes cutover', () => {
   beforeEach(() => {
     window.history.replaceState(null, '', '/?view=profiles');
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(async (request: string | URL | Request) => {
-        const url = String(request);
-        if (url.endsWith('/api/v1/profiles/agency-context')) return Response.json(inventory);
-        if (url.includes('/api/v1/profiles/agency-context/hermes-main'))
-          return Response.json(context);
-        return Response.json(
-          { error: { code: 'NOT_FOUND', message: 'Not found' } },
-          { status: 404 },
-        );
-      }),
-    );
-    vi.spyOn(gateway, 'mutate').mockResolvedValue({
-      replayed: false,
-      operation: {
-        operationId: 'op-profile',
-        operationType: 'profile.identity.update',
-        state: 'succeeded',
-        mode: 'dry-run',
-        updatedAt: '2026-07-20T12:00:00.000Z',
-      },
-      result: { valid: true, dryRun: true },
-    });
   });
-
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
   });
 
-  it('shows the requested Agent, Type, Model and Truth inventory and opens Agent detail', async () => {
+  it('renders only Hermes-owned profile truth and disables unsupported writes', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (request: string | URL | Request) => {
+        const url = String(request);
+        if (url.endsWith('/api/v1/frameworks')) return Response.json({ items: [framework] });
+        if (url.includes('/capabilities')) return Response.json(capabilities);
+        if (url.includes('/profiles')) return Response.json(response([herman]));
+        return Response.json({ error: { message: 'not found' } }, { status: 404 });
+      }),
+    );
     renderProfiles();
-    expect(await screen.findByRole('columnheader', { name: 'Agent' })).toBeInTheDocument();
-    for (const heading of ['Type', 'Model', 'Truth'])
-      expect(screen.getByRole('columnheader', { name: heading })).toBeInTheDocument();
-    expect(screen.getByText('base')).toBeInTheDocument();
-    expect(screen.getByText('independent')).toBeInTheDocument();
-    expect(screen.getByText('openai-codex/gpt-5.6-sol')).toBeInTheDocument();
-    expect(screen.getByText('inactive')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Herman' }));
-    expect(await screen.findByRole('heading', { name: 'Agent details' })).toBeInTheDocument();
-    expect(screen.getByDisplayValue('Primary orchestrator')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Edit model config' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Runtime controls' })).toBeInTheDocument();
+    expect(await screen.findByText('Herman')).toBeInTheDocument();
+    expect(screen.getByText('gpt-5.6-sol')).toBeInTheDocument();
+    expect(screen.getByText('OpenAI Codex')).toBeInTheDocument();
+    expect(screen.getAllByText('hermes').length).toBeGreaterThan(0);
+    expect(screen.getByText(/Profile changes are disabled/)).toHaveTextContent(
+      'NO_IDEMPOTENT_NONINTERACTIVE_INTERFACE',
+    );
+    expect(screen.queryByRole('button', { name: /create agent/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Agency/)).not.toBeInTheDocument();
   });
 
-  it('provides Agency-equivalent create fields and dry-runs the exact governed payload', async () => {
-    window.history.replaceState(null, '', '/?view=profiles&profilePage=create');
-    renderProfiles();
-    expect(await screen.findByRole('heading', { name: 'Create new Agent' })).toBeInTheDocument();
-    fireEvent.change(screen.getByRole('textbox', { name: /Display name/ }), {
-      target: { value: 'Release Agent' },
+  it('uses opaque Hermes cursors without falling back to legacy inventory', async () => {
+    const fetchMock = vi.fn(async (request: string | URL | Request) => {
+      const url = String(request);
+      if (url.endsWith('/api/v1/frameworks')) return Response.json({ items: [framework] });
+      if (url.includes('/capabilities')) return Response.json(capabilities);
+      if (url.includes('cursor=next-safe'))
+        return Response.json(response([{ ...herman, id: 'chatboard', displayName: 'Chatboard' }]));
+      if (url.includes('/profiles'))
+        return Response.json(response([herman], { hasMore: true, nextCursor: 'next-safe' }));
+      return Response.json({}, { status: 404 });
     });
-    await screen.findByText(/1 models\./);
-    await waitFor(() =>
-      expect(
-        (screen.getByRole('combobox', { name: /Primary model/ }) as HTMLInputElement).value,
-      ).toContain('GPT 5.6 SOL'),
-    );
-    fireEvent.click(screen.getByRole('button', { name: 'Run create dry-run' }));
-    await waitFor(() =>
-      expect(gateway.mutate).toHaveBeenCalledWith(
-        expect.objectContaining({
-          operationType: 'profile.create',
-          target: expect.objectContaining({
-            frameworkId: 'hermes-main',
-            nativeId: 'release-agent',
-          }),
-          mode: 'dry-run',
-          payload: expect.objectContaining({
-            displayName: 'Release Agent',
-            identityFiles: expect.any(Array),
-            modelConfig: { primary: 'openai-codex/gpt-5.6-sol', fallbacks: [] },
-          }),
-        }),
-      ),
-    );
-    expect(await screen.findByText('Exact payload validated')).toBeInTheDocument();
+    vi.stubGlobal('fetch', fetchMock);
+    renderProfiles();
+    fireEvent.click(await screen.findByRole('button', { name: 'Load more profiles' }));
+    expect(await screen.findByText('Chatboard')).toBeInTheDocument();
+    expect(
+      fetchMock.mock.calls.some(([request]) => String(request).includes('cursor=next-safe')),
+    ).toBe(true);
+    expect(
+      fetchMock.mock.calls.some(([request]) => String(request).includes('agency-context')),
+    ).toBe(false);
   });
 
-  it('edits identity through an Agency dry-run before enabling apply', async () => {
-    window.history.replaceState(
-      null,
-      '',
-      '/?view=profiles&profilePage=detail&framework=hermes-main&agent=default',
+  it('shows a hard Hermes outage instead of stale Agency data', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (request: string | URL | Request) => {
+        const url = String(request);
+        if (url.endsWith('/api/v1/frameworks')) return Response.json({ items: [framework] });
+        return Response.json(
+          { error: { code: 'FRAMEWORK_UNAVAILABLE', message: 'Hermes framework is unavailable' } },
+          { status: 503 },
+        );
+      }),
     );
     renderProfiles();
-    const identity = await screen.findByRole('textbox', { name: 'Identity content 1' });
-    fireEvent.change(identity, { target: { value: '# Herman\n\nUpdated behavior' } });
-    fireEvent.click(screen.getAllByRole('button', { name: 'Run dry-run' })[0]!);
-    await waitFor(() =>
-      expect(gateway.mutate).toHaveBeenCalledWith(
-        expect.objectContaining({
-          operationType: 'profile.identity.update',
-          mode: 'dry-run',
-          payload: {
-            identityFiles: [{ path: 'AGENTS.md', content: '# Herman\n\nUpdated behavior' }],
-          },
-        }),
-      ),
-    );
-    expect(await screen.findByText('Exact payload passed Agency dry-run.')).toBeInTheDocument();
+    expect(await screen.findByText('Hermes framework is unavailable')).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText('Herman')).not.toBeInTheDocument());
   });
 });

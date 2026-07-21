@@ -2,7 +2,13 @@ import { redactEvidence } from '../governance/canonical.js';
 import { GovernanceError } from '../governance/service.js';
 import type { GovernanceService } from '../governance/service.js';
 import type { OperationRecord } from '../governance/types.js';
-import type { MutationInput, MutationTarget, MutationOwnerClient } from './owner-client.js';
+import type { HermesGatewayService } from '../hermes-control/service.js';
+import {
+  frameworkReconcileDefinition,
+  type LegacyMutationOwnerClient,
+  type MutationInput,
+  type MutationTarget,
+} from './types.js';
 
 export type MutationResult = {
   replayed: boolean;
@@ -13,8 +19,19 @@ export type MutationResult = {
 export class MutationService {
   constructor(
     private readonly governance: GovernanceService,
-    readonly owners: MutationOwnerClient,
+    private readonly legacyOwners?: LegacyMutationOwnerClient,
+    private readonly hermes?: HermesGatewayService,
   ) {}
+
+  get owners(): LegacyMutationOwnerClient {
+    if (!this.legacyOwners)
+      throw new GovernanceError(
+        'LEGACY_MIGRATION_DISABLED',
+        503,
+        'Legacy migration readers are disabled',
+      );
+    return this.legacyOwners;
+  }
 
   parse(value: unknown): MutationInput {
     if (!value || typeof value !== 'object' || Array.isArray(value))
@@ -37,12 +54,14 @@ export class MutationService {
       mode,
       confirmed: raw.confirmed === true,
     };
-    this.owners.validate(input);
+    const definition = this.definition(operationType);
+    if (definition.executionPath === 'hermes-control') validateFrameworkCommand(input);
+    else this.owners.validate(input);
     return input;
   }
 
   permission(input: MutationInput): string {
-    return this.owners.definition(input.operationType).permission;
+    return this.definition(input.operationType).permission;
   }
 
   async run(
@@ -76,7 +95,15 @@ export class MutationService {
         confirmed: input.confirmed,
       });
       await this.governance.transition(operationId, 'executing');
-      const ownerResult = await this.owners.execute(input);
+      const definition = this.definition(input.operationType);
+      const ownerResult =
+        definition.executionPath === 'hermes-control'
+          ? await this.executeFramework(input, {
+              actorUserId,
+              operationId,
+              idempotencyKey: claim.operation.idempotencyKey,
+            })
+          : await this.owners.execute(input);
       const safeResult = redactEvidence(ownerResult);
       await this.governance.transition(operationId, 'applied', safeResult);
       await this.governance.transition(operationId, 'verifying');
@@ -131,6 +158,32 @@ export class MutationService {
     return this.governance.getOperation(operationId);
   }
 
+  private definition(operationType: string) {
+    if (operationType === 'framework.reconcile') return frameworkReconcileDefinition;
+    return this.owners.definition(operationType);
+  }
+
+  private executeFramework(
+    input: MutationInput,
+    context: { actorUserId: string; operationId: string; idempotencyKey: string },
+  ) {
+    if (!this.hermes)
+      throw new GovernanceError(
+        'HERMES_CONTROL_UNAVAILABLE',
+        503,
+        'Hermes control client is unavailable',
+      );
+    return this.hermes.reconcile(
+      input.target.frameworkId!,
+      {
+        mode: input.mode,
+        families: input.payload.families,
+        expectedSourceVersion: input.payload.expectedSourceVersion,
+      },
+      context,
+    );
+  }
+
   private parseTarget(value: unknown): MutationTarget {
     const raw = record(value, 'target');
     const owner = requiredString(raw.owner, 'target.owner');
@@ -145,6 +198,46 @@ export class MutationService {
       target.frameworkId = requiredString(raw.frameworkId, 'target.frameworkId');
     return target;
   }
+}
+
+function validateFrameworkCommand(input: MutationInput) {
+  const definition = frameworkReconcileDefinition;
+  if (input.target.owner !== definition.owner || input.target.kind !== definition.kind)
+    throw new GovernanceError(
+      'MUTATION_TARGET_INVALID',
+      422,
+      'Mutation target does not match operation type',
+    );
+  if (!input.target.frameworkId || input.target.nativeId !== input.target.frameworkId)
+    throw new GovernanceError(
+      'FRAMEWORK_REQUIRED',
+      422,
+      'Framework command target must identify one exact framework',
+    );
+  if (input.payload.families !== undefined) {
+    if (
+      !Array.isArray(input.payload.families) ||
+      input.payload.families.length === 0 ||
+      input.payload.families.some(
+        (family) => !['profiles', 'providers', 'work', 'conversations'].includes(String(family)),
+      )
+    )
+      throw new GovernanceError(
+        'MUTATION_PAYLOAD_INVALID',
+        422,
+        'families must contain only supported Hermes domain families',
+      );
+  }
+  if (
+    input.payload.expectedSourceVersion !== undefined &&
+    (typeof input.payload.expectedSourceVersion !== 'string' ||
+      !input.payload.expectedSourceVersion.trim())
+  )
+    throw new GovernanceError(
+      'MUTATION_PAYLOAD_INVALID',
+      422,
+      'expectedSourceVersion must be a non-empty string',
+    );
 }
 
 function requiredString(value: unknown, field: string): string {

@@ -54,10 +54,16 @@ describe('canonical contracts', () => {
   it('emits OpenAPI 3.1 with auth security schemes', () => {
     const document = buildOpenApiDocument() as {
       openapi: string;
+      paths: Record<string, unknown>;
       components: { securitySchemes: Record<string, unknown>; schemas: Record<string, unknown> };
     };
     expect(document.openapi).toBe('3.1.0');
     expect(document.components.securitySchemes).toHaveProperty('cookieSession');
     expect(document.components.schemas).toHaveProperty('ResourceRef');
+    expect(document.components.schemas).toHaveProperty('GatewayHermesProfiles');
+    expect(document.components.schemas).toHaveProperty('GatewayHermesProviders');
+    expect(document.paths).toHaveProperty('/frameworks/{frameworkId}/capabilities');
+    expect(document.paths).toHaveProperty('/frameworks/{frameworkId}/profiles');
+    expect(document.paths).toHaveProperty('/frameworks/{frameworkId}/providers');
   });
 });

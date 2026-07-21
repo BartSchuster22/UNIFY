@@ -17,6 +17,7 @@ import {
 } from '@aquiero/contracts';
 import { FrameworkRegistryService } from './framework-registry/service.js';
 import type { FrameworkRegistrationRecord } from './framework-registry/types.js';
+import type { HermesGatewayService } from './hermes-control/service.js';
 
 class MemoryAuthStore implements AuthStore {
   readonly users = new Map<string, UserRecord>();
@@ -108,7 +109,7 @@ function fixtureStore() {
     username: 'viewer',
     displayName: 'Viewer',
     roles: ['Viewer'],
-    permissions: ['frameworks.read'],
+    permissions: ['frameworks.read', 'profiles.read', 'models.read'],
   });
   store.users.set('admin', {
     id: 'admin',
@@ -341,6 +342,63 @@ describe('named-user session security', () => {
     });
     expect(denied.statusCode).toBe(403);
     expect(denied.json().error.code).toBe('ORIGIN_DENIED');
+    await app.close();
+  });
+
+  it('routes profile/provider reads only through Hermes and leaves legacy owner routes disabled', async () => {
+    const hermesGateway = {
+      async profiles(frameworkId: string) {
+        return {
+          meta: { owner: 'hermes', frameworkId, sourceVersion: 'profiles:v1' },
+          items: [{ id: 'default', owner: 'hermes', frameworkId }],
+          page: { hasMore: false },
+        };
+      },
+      async providers(frameworkId: string) {
+        return {
+          meta: { owner: 'hermes', frameworkId, sourceVersion: 'providers:v1' },
+          items: [{ id: 'openai-codex', owner: 'hermes', frameworkId }],
+          page: { hasMore: false },
+        };
+      },
+    } as unknown as HermesGatewayService;
+    const app = buildApp({
+      authStore: fixtureStore(),
+      authPepper: pepper,
+      secureCookies: false,
+      hermesGateway,
+    });
+    const viewer = await login(app);
+    const cookie = `aquiero_session=${viewer.session}; aquiero_csrf=${viewer.csrf}`;
+    const profiles = await app.inject({
+      method: 'GET',
+      url: '/api/v1/frameworks/hermes-main/profiles',
+      headers: { cookie },
+    });
+    expect(profiles.statusCode).toBe(200);
+    expect(profiles.json()).toMatchObject({
+      meta: { owner: 'hermes', frameworkId: 'hermes-main' },
+      items: [{ owner: 'hermes' }],
+    });
+    const providers = await app.inject({
+      method: 'GET',
+      url: '/api/v1/frameworks/hermes-main/providers',
+      headers: { cookie },
+    });
+    expect(providers.statusCode).toBe(200);
+    expect(providers.json()).toMatchObject({ items: [{ owner: 'hermes' }] });
+    const legacyProfiles = await app.inject({
+      method: 'GET',
+      url: '/api/v1/profiles/agency-context',
+      headers: { cookie },
+    });
+    expect(legacyProfiles.statusCode).toBe(503);
+    const legacyModels = await app.inject({
+      method: 'GET',
+      url: '/api/v1/models/dmm-context',
+      headers: { cookie },
+    });
+    expect(legacyModels.statusCode).toBe(503);
     await app.close();
   });
 
