@@ -55,6 +55,16 @@ export const ResourceOwnerSchema = Type.Union(
   { $id: 'ResourceOwner' },
 );
 
+/**
+ * Legacy owner values are migration provenance only. A resource carrying one of
+ * those values must use sourceRole=migration-only and authoritative=false.
+ */
+export const SourceRoleSchema = Type.Union(
+  [Type.Literal('authoritative'), Type.Literal('migration-only')],
+  { $id: 'SourceRole' },
+);
+export type SourceRole = Static<typeof SourceRoleSchema>;
+
 export const ResourceRefSchema = Type.Object(
   {
     canonicalId: Type.String({ minLength: 1, maxLength: 1024 }),
@@ -312,18 +322,36 @@ export const HealthSchema = Type.Object(
   { $id: 'Health', additionalProperties: false },
 );
 
-export const UnifiedResourceSchema = Type.Object(
-  {
-    resource: ResourceRefSchema,
-    truth: TruthStateSchema,
-    authoritative: Type.Literal(true),
-    adapterId: Type.String({ minLength: 1 }),
-    fetchedAt: Type.String({ format: 'date-time' }),
-    title: Type.String({ minLength: 1, maxLength: 500 }),
-    searchableText: Type.String({ maxLength: 10000 }),
-    data: Type.Record(Type.String(), Type.Unknown()),
-  },
-  { $id: 'UnifiedResource', additionalProperties: false },
+const UnifiedResourceProperties = {
+  resource: ResourceRefSchema,
+  truth: TruthStateSchema,
+  adapterId: Type.String({ minLength: 1 }),
+  fetchedAt: Type.String({ format: 'date-time' }),
+  title: Type.String({ minLength: 1, maxLength: 500 }),
+  searchableText: Type.String({ maxLength: 10000 }),
+  data: Type.Record(Type.String(), Type.Unknown()),
+};
+
+export const UnifiedResourceSchema = Type.Union(
+  [
+    Type.Object(
+      {
+        ...UnifiedResourceProperties,
+        authoritative: Type.Literal(true),
+        sourceRole: Type.Literal('authoritative'),
+      },
+      { additionalProperties: false },
+    ),
+    Type.Object(
+      {
+        ...UnifiedResourceProperties,
+        authoritative: Type.Literal(false),
+        sourceRole: Type.Literal('migration-only'),
+      },
+      { additionalProperties: false },
+    ),
+  ],
+  { $id: 'UnifiedResource' },
 );
 export type UnifiedResource = Static<typeof UnifiedResourceSchema>;
 
@@ -331,6 +359,8 @@ export const IntegrationStatusSchema = Type.Object(
   {
     adapterId: Type.String(),
     owners: Type.Array(ResourceOwnerSchema),
+    sourceRole: SourceRoleSchema,
+    writeEnabled: Type.Boolean(),
     status: TruthStateSchema,
     observedAt: Type.Optional(Type.String({ format: 'date-time' })),
     resourceCount: Type.Integer({ minimum: 0 }),

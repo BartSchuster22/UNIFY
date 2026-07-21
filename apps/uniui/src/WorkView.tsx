@@ -98,7 +98,10 @@ export function WorkView({ canManage }: { canManage: boolean }) {
   }, []);
 
   const projects = useMemo(() => workerProjects(data.items), [data.items]);
-  const tasks = useMemo(() => data.items.filter((item) => item.resource.kind === 'task'), [data.items]);
+  const tasks = useMemo(
+    () => data.items.filter((item) => item.resource.kind === 'task'),
+    [data.items],
+  );
   const cronjobs = useMemo(
     () => data.items.filter((item) => item.resource.kind === 'cronjob'),
     [data.items],
@@ -138,10 +141,12 @@ export function WorkView({ canManage }: { canManage: boolean }) {
       <Group justify="space-between" align="flex-start">
         <Box>
           <Text size="xs" fw={800} tt="uppercase" c="ocean.7">
-            Worker control plane
+            Migration comparison · read-only
           </Text>
           <Title order={1}>Work & Kanban</Title>
-          <Text c="dimmed">Worker-owned projects, TTRRBDA boards, tasks and Hermes cronjobs.</Text>
+          <Text c="dimmed">
+            Migration-only Worker snapshot for parity; Hermes work control is not connected yet.
+          </Text>
         </Box>
         <Button variant="light" leftSection={<IconRefresh size={16} />} onClick={() => void load()}>
           Refresh
@@ -164,22 +169,81 @@ export function WorkView({ canManage }: { canManage: boolean }) {
             Worker · {data.meta.freshness}
           </Badge>
           {data.meta.observedAt && (
-            <Text size="xs" c="dimmed">Observed {formatDate(data.meta.observedAt)}</Text>
+            <Text size="xs" c="dimmed">
+              Observed {formatDate(data.meta.observedAt)}
+            </Text>
           )}
         </Group>
       )}
-      {failure && <Alert color="red" title="Worker request failed">{failure}</Alert>}
-      {notice && <Alert color="teal" title="Completed">{notice}</Alert>}
+      {failure && (
+        <Alert color="red" title="Worker request failed">
+          {failure}
+        </Alert>
+      )}
+      {notice && (
+        <Alert color="teal" title="Completed">
+          {notice}
+        </Alert>
+      )}
       {loading ? (
-        <Paper withBorder p="xl"><Group justify="center"><Loader size="sm" /><Text>Loading Worker data…</Text></Group></Paper>
+        <Paper withBorder p="xl">
+          <Group justify="center">
+            <Loader size="sm" />
+            <Text>Loading Worker data…</Text>
+          </Group>
+        </Paper>
       ) : (
         <>
-          {page === 'overview' && <WorkerOverview projects={projects} tasks={tasks} cronjobs={cronjobs} onNavigate={navigate} />}
-          {page === 'projects' && <KanbanOverview projects={projects} onOpen={(slug) => navigate('board', slug)} onDetails={(slug) => navigate('details', slug)} />}
-          {page === 'board' && <KanbanProject projects={projects} selected={selected?.slug ?? ''} tasks={tasks} onSelect={setSelectedProject} onDetails={(slug) => navigate('details', slug)} onMutate={mutate} canManage={canManage} busy={busy} />}
-          {page === 'details' && <ProjectDetails project={selected} projects={projects} onSelect={setSelectedProject} onMutate={mutate} canManage={canManage} busy={busy} />}
-          {page === 'add' && <AddNew projects={projects} selectedProject={selected?.slug ?? ''} onMutate={mutate} onCreated={(slug) => navigate('board', slug)} canManage={canManage} busy={busy} />}
-          {page === 'cronjobs' && <Cronjobs jobs={cronjobs} onMutate={mutate} canManage={canManage} busy={busy} />}
+          {page === 'overview' && (
+            <WorkerOverview
+              projects={projects}
+              tasks={tasks}
+              cronjobs={cronjobs}
+              onNavigate={navigate}
+            />
+          )}
+          {page === 'projects' && (
+            <KanbanOverview
+              projects={projects}
+              onOpen={(slug) => navigate('board', slug)}
+              onDetails={(slug) => navigate('details', slug)}
+            />
+          )}
+          {page === 'board' && (
+            <KanbanProject
+              projects={projects}
+              selected={selected?.slug ?? ''}
+              tasks={tasks}
+              onSelect={setSelectedProject}
+              onDetails={(slug) => navigate('details', slug)}
+              onMutate={mutate}
+              canManage={canManage}
+              busy={busy}
+            />
+          )}
+          {page === 'details' && (
+            <ProjectDetails
+              project={selected}
+              projects={projects}
+              onSelect={setSelectedProject}
+              onMutate={mutate}
+              canManage={canManage}
+              busy={busy}
+            />
+          )}
+          {page === 'add' && (
+            <AddNew
+              projects={projects}
+              selectedProject={selected?.slug ?? ''}
+              onMutate={mutate}
+              onCreated={(slug) => navigate('board', slug)}
+              canManage={canManage}
+              busy={busy}
+            />
+          )}
+          {page === 'cronjobs' && (
+            <Cronjobs jobs={cronjobs} onMutate={mutate} canManage={canManage} busy={busy} />
+          )}
           {page === 'settings' && <NotificationSettings />}
         </>
       )}
@@ -187,7 +251,12 @@ export function WorkView({ canManage }: { canManage: boolean }) {
   );
 }
 
-function WorkerOverview({ projects, tasks, cronjobs, onNavigate }: {
+function WorkerOverview({
+  projects,
+  tasks,
+  cronjobs,
+  onNavigate,
+}: {
   projects: ProjectView[];
   tasks: UnifiedResource[];
   cronjobs: UnifiedResource[];
@@ -201,42 +270,85 @@ function WorkerOverview({ projects, tasks, cronjobs, onNavigate }: {
     <Stack>
       <SimpleGrid cols={{ base: 1, md: 3 }}>
         <Card withBorder className="worker-summary-card">
-          <Text size="xs" fw={800} tt="uppercase" c="dimmed">Operational attention</Text>
-          <Title order={2} mt="xs">{attention} items need attention</Title>
-          <Text c="dimmed">{blocked.length} blocked cards · {cronAttention.length} paused or failed jobs</Text>
+          <Text size="xs" fw={800} tt="uppercase" c="dimmed">
+            Operational attention
+          </Text>
+          <Title order={2} mt="xs">
+            {attention} items need attention
+          </Title>
+          <Text c="dimmed">
+            {blocked.length} blocked cards · {cronAttention.length} paused or failed jobs
+          </Text>
         </Card>
         <Card withBorder className="worker-summary-card" onClick={() => onNavigate('projects')}>
-          <Text size="xs" fw={800} tt="uppercase" c="dimmed">Kanban</Text>
-          <Title order={2} mt="xs">{running.length} running</Title>
-          <Text c="dimmed">{projects.length} projects · {tasks.length} cards · {blocked.length} blocked</Text>
+          <Text size="xs" fw={800} tt="uppercase" c="dimmed">
+            Kanban
+          </Text>
+          <Title order={2} mt="xs">
+            {running.length} running
+          </Title>
+          <Text c="dimmed">
+            {projects.length} projects · {tasks.length} cards · {blocked.length} blocked
+          </Text>
         </Card>
         <Card withBorder className="worker-summary-card" onClick={() => onNavigate('cronjobs')}>
-          <Text size="xs" fw={800} tt="uppercase" c="dimmed">Cronjobs</Text>
-          <Title order={2} mt="xs">{cronjobs.filter((job) => !cronPaused(job) && !cronFailed(job)).length} active</Title>
+          <Text size="xs" fw={800} tt="uppercase" c="dimmed">
+            Cronjobs
+          </Text>
+          <Title order={2} mt="xs">
+            {cronjobs.filter((job) => !cronPaused(job) && !cronFailed(job)).length} active
+          </Title>
           <Text c="dimmed">{cronAttention.length} paused or failed schedules</Text>
         </Card>
       </SimpleGrid>
       <SimpleGrid cols={{ base: 1, lg: 2 }}>
         <Card withBorder>
-          <Group justify="space-between"><Title order={3}>Blocked Kanban</Title><IconClipboardList size={20} /></Group>
+          <Group justify="space-between">
+            <Title order={3}>Blocked Kanban</Title>
+            <IconClipboardList size={20} />
+          </Group>
           <Stack mt="md" gap="xs">
-            {blocked.length === 0 ? <Text c="dimmed">No blocked Kanban cards.</Text> : blocked.slice(0, 8).map((task) => (
-              <Paper withBorder p="sm" key={task.resource.canonicalId}>
-                <Group justify="space-between"><Text fw={700}>{task.title}</Text><Badge color="red">Blocked</Badge></Group>
-                <Text size="sm" c="dimmed">{text(task.data.board)} · {text(task.data.blockedReason) || task.resource.nativeId}</Text>
-              </Paper>
-            ))}
+            {blocked.length === 0 ? (
+              <Text c="dimmed">No blocked Kanban cards.</Text>
+            ) : (
+              blocked.slice(0, 8).map((task) => (
+                <Paper withBorder p="sm" key={task.resource.canonicalId}>
+                  <Group justify="space-between">
+                    <Text fw={700}>{task.title}</Text>
+                    <Badge color="red">Blocked</Badge>
+                  </Group>
+                  <Text size="sm" c="dimmed">
+                    {text(task.data.board)} ·{' '}
+                    {text(task.data.blockedReason) || task.resource.nativeId}
+                  </Text>
+                </Paper>
+              ))
+            )}
           </Stack>
         </Card>
         <Card withBorder>
-          <Group justify="space-between"><Title order={3}>Scheduler attention</Title><IconCalendar size={20} /></Group>
+          <Group justify="space-between">
+            <Title order={3}>Scheduler attention</Title>
+            <IconCalendar size={20} />
+          </Group>
           <Stack mt="md" gap="xs">
-            {cronAttention.length === 0 ? <Text c="dimmed">No paused or failed cronjobs.</Text> : cronAttention.slice(0, 8).map((job) => (
-              <Paper withBorder p="sm" key={job.resource.canonicalId}>
-                <Group justify="space-between"><Text fw={700}>{job.title}</Text><Badge color={cronFailed(job) ? 'red' : 'yellow'}>{cronFailed(job) ? 'Failed' : 'Paused'}</Badge></Group>
-                <Text size="sm" c="dimmed">{text(job.data.lastResult) || text(job.data.status)}</Text>
-              </Paper>
-            ))}
+            {cronAttention.length === 0 ? (
+              <Text c="dimmed">No paused or failed cronjobs.</Text>
+            ) : (
+              cronAttention.slice(0, 8).map((job) => (
+                <Paper withBorder p="sm" key={job.resource.canonicalId}>
+                  <Group justify="space-between">
+                    <Text fw={700}>{job.title}</Text>
+                    <Badge color={cronFailed(job) ? 'red' : 'yellow'}>
+                      {cronFailed(job) ? 'Failed' : 'Paused'}
+                    </Badge>
+                  </Group>
+                  <Text size="sm" c="dimmed">
+                    {text(job.data.lastResult) || text(job.data.status)}
+                  </Text>
+                </Paper>
+              ))
+            )}
           </Stack>
         </Card>
       </SimpleGrid>
@@ -244,23 +356,55 @@ function WorkerOverview({ projects, tasks, cronjobs, onNavigate }: {
   );
 }
 
-function KanbanOverview({ projects, onOpen, onDetails }: { projects: ProjectView[]; onOpen: (slug: string) => void; onDetails: (slug: string) => void }) {
+function KanbanOverview({
+  projects,
+  onOpen,
+  onDetails,
+}: {
+  projects: ProjectView[];
+  onOpen: (slug: string) => void;
+  onDetails: (slug: string) => void;
+}) {
   if (!projects.length) return <Empty text="No Kanban projects exist in Worker." />;
   return (
     <Stack>
-      <Group justify="space-between"><Box><Title order={2}>Kanban overview</Title><Text c="dimmed">All Kanban-based projects from Worker.</Text></Box><Badge size="lg">{projects.length} projects</Badge></Group>
+      <Group justify="space-between">
+        <Box>
+          <Title order={2}>Kanban overview</Title>
+          <Text c="dimmed">All Kanban-based projects from Worker.</Text>
+        </Box>
+        <Badge size="lg">{projects.length} projects</Badge>
+      </Group>
       <SimpleGrid cols={{ base: 1, lg: 2 }}>
         {projects.map((project) => (
           <Card withBorder key={project.slug}>
             <Group justify="space-between" align="flex-start">
-              <Box><Title order={3}>{project.name}</Title><Text size="sm" c="dimmed"><Code>{project.slug}</Code> · {project.status}</Text></Box>
-              <Badge color={project.status === 'archived' ? 'gray' : 'teal'}>{project.status}</Badge>
+              <Box>
+                <Title order={3}>{project.name}</Title>
+                <Text size="sm" c="dimmed">
+                  <Code>{project.slug}</Code> · {project.status}
+                </Text>
+              </Box>
+              <Badge color={project.status === 'archived' ? 'gray' : 'teal'}>
+                {project.status}
+              </Badge>
             </Group>
-            <Text mt="sm" lineClamp={2}>{project.description || 'No project goal recorded.'}</Text>
+            <Text mt="sm" lineClamp={2}>
+              {project.description || 'No project goal recorded.'}
+            </Text>
             <Group mt="md" gap="xs">
-              {lanes.map((lane) => <Badge variant="light" key={lane}>{lane} {project.counts[lane] ?? 0}</Badge>)}
+              {lanes.map((lane) => (
+                <Badge variant="light" key={lane}>
+                  {lane} {project.counts[lane] ?? 0}
+                </Badge>
+              ))}
             </Group>
-            <Group mt="lg"><Button onClick={() => onOpen(project.slug)}>Open Kanban</Button><Button variant="light" onClick={() => onDetails(project.slug)}>Project setup</Button></Group>
+            <Group mt="lg">
+              <Button onClick={() => onOpen(project.slug)}>Open Kanban</Button>
+              <Button variant="light" onClick={() => onDetails(project.slug)}>
+                Project setup
+              </Button>
+            </Group>
           </Card>
         ))}
       </SimpleGrid>
@@ -268,11 +412,36 @@ function KanbanOverview({ projects, onOpen, onDetails }: { projects: ProjectView
   );
 }
 
-function ProjectPicker({ projects, selected, onSelect }: { projects: ProjectView[]; selected: string; onSelect: (slug: string) => void }) {
-  return <Select label="Kanban project" value={selected || null} onChange={(value) => value && onSelect(value)} data={projects.map((project) => ({ value: project.slug, label: project.name }))} searchable />;
+function ProjectPicker({
+  projects,
+  selected,
+  onSelect,
+}: {
+  projects: ProjectView[];
+  selected: string;
+  onSelect: (slug: string) => void;
+}) {
+  return (
+    <Select
+      label="Kanban project"
+      value={selected || null}
+      onChange={(value) => value && onSelect(value)}
+      data={projects.map((project) => ({ value: project.slug, label: project.name }))}
+      searchable
+    />
+  );
 }
 
-function KanbanProject({ projects, selected, tasks, onSelect, onDetails, onMutate, canManage, busy }: {
+function KanbanProject({
+  projects,
+  selected,
+  tasks,
+  onSelect,
+  onDetails,
+  onMutate,
+  canManage,
+  busy,
+}: {
   projects: ProjectView[];
   selected: string;
   tasks: UnifiedResource[];
@@ -287,19 +456,41 @@ function KanbanProject({ projects, selected, tasks, onSelect, onDetails, onMutat
     <Stack>
       <Group justify="space-between" align="end">
         <ProjectPicker projects={projects} selected={selected} onSelect={onSelect} />
-        <Group><Badge size="lg">{visible.length} cards</Badge><Button variant="light" onClick={() => onDetails(selected)}>Project setup</Button></Group>
+        <Group>
+          <Badge size="lg">{visible.length} cards</Badge>
+          <Button variant="light" onClick={() => onDetails(selected)}>
+            Project setup
+          </Button>
+        </Group>
       </Group>
-      {!selected ? <Empty text="Select a Kanban project." /> : (
+      {!selected ? (
+        <Empty text="Select a Kanban project." />
+      ) : (
         <ScrollArea type="auto">
           <Group align="flex-start" wrap="nowrap" className="kanban ttrrbda-board">
             {lanes.map((lane) => {
               const cards = visible.filter((task) => taskLane(task) === lane);
               return (
                 <Paper withBorder p="sm" key={lane} className="kanban-column">
-                  <Group justify="space-between" mb="sm"><Text fw={800}>{lane.toUpperCase()}</Text><Badge variant="light">{cards.length}</Badge></Group>
+                  <Group justify="space-between" mb="sm">
+                    <Text fw={800}>{lane.toUpperCase()}</Text>
+                    <Badge variant="light">{cards.length}</Badge>
+                  </Group>
                   <Stack gap="sm">
-                    {cards.map((task) => <TaskCard key={task.resource.canonicalId} task={task} onMutate={onMutate} canManage={canManage} busy={busy} />)}
-                    {!cards.length && <Text size="sm" c="dimmed">No cards</Text>}
+                    {cards.map((task) => (
+                      <TaskCard
+                        key={task.resource.canonicalId}
+                        task={task}
+                        onMutate={onMutate}
+                        canManage={canManage}
+                        busy={busy}
+                      />
+                    ))}
+                    {!cards.length && (
+                      <Text size="sm" c="dimmed">
+                        No cards
+                      </Text>
+                    )}
                   </Stack>
                 </Paper>
               );
@@ -311,28 +502,99 @@ function KanbanProject({ projects, selected, tasks, onSelect, onDetails, onMutat
   );
 }
 
-function TaskCard({ task, onMutate, canManage, busy }: { task: UnifiedResource; onMutate: Mutate; canManage: boolean; busy: boolean }) {
+function TaskCard({
+  task,
+  onMutate,
+  canManage,
+  busy,
+}: {
+  task: UnifiedResource;
+  onMutate: Mutate;
+  canManage: boolean;
+  busy: boolean;
+}) {
   const lane = taskLane(task);
   const id = text(task.data.nativeId) || task.resource.nativeId;
   const action = async (name: 'start' | 'block' | 'unblock' | 'complete') => {
-    await onMutate(mutation(`worker.task.${name}`, 'task', id, name === 'block' ? { reason: 'Blocked from UNIFY Work & Kanban' } : {}), `${name} succeeded for ${id}.`);
+    await onMutate(
+      mutation(
+        `worker.task.${name}`,
+        'task',
+        id,
+        name === 'block' ? { reason: 'Blocked from UNIFY Work & Kanban' } : {},
+      ),
+      `${name} succeeded for ${id}.`,
+    );
   };
   return (
     <Card withBorder shadow="xs" className="worker-task-card">
       <Text fw={700}>{task.title}</Text>
-      <Text size="xs" c="dimmed">{id} · {text(task.data.assigneeProfile) || text(task.data.assignee) || 'unassigned'}</Text>
-      {text(task.data.description) && <Text size="sm" mt="xs" lineClamp={3}>{text(task.data.description)}</Text>}
-      {canManage && <Group mt="sm" gap="xs">
-        {['triage', 'todo', 'ready'].includes(lane) && <Button size="compact-xs" variant="light" loading={busy} onClick={() => void action('start')}>Start</Button>}
-        {lane !== 'blocked' && lane !== 'done' && lane !== 'archived' && <Button size="compact-xs" color="red" variant="light" loading={busy} onClick={() => void action('block')}>Block</Button>}
-        {lane === 'blocked' && <Button size="compact-xs" variant="light" loading={busy} onClick={() => void action('unblock')}>Unblock</Button>}
-        {!['done', 'archived'].includes(lane) && <Button size="compact-xs" color="teal" variant="light" loading={busy} onClick={() => void action('complete')}>Complete</Button>}
-      </Group>}
+      <Text size="xs" c="dimmed">
+        {id} · {text(task.data.assigneeProfile) || text(task.data.assignee) || 'unassigned'}
+      </Text>
+      {text(task.data.description) && (
+        <Text size="sm" mt="xs" lineClamp={3}>
+          {text(task.data.description)}
+        </Text>
+      )}
+      {canManage && (
+        <Group mt="sm" gap="xs">
+          {['triage', 'todo', 'ready'].includes(lane) && (
+            <Button
+              size="compact-xs"
+              variant="light"
+              loading={busy}
+              onClick={() => void action('start')}
+            >
+              Start
+            </Button>
+          )}
+          {lane !== 'blocked' && lane !== 'done' && lane !== 'archived' && (
+            <Button
+              size="compact-xs"
+              color="red"
+              variant="light"
+              loading={busy}
+              onClick={() => void action('block')}
+            >
+              Block
+            </Button>
+          )}
+          {lane === 'blocked' && (
+            <Button
+              size="compact-xs"
+              variant="light"
+              loading={busy}
+              onClick={() => void action('unblock')}
+            >
+              Unblock
+            </Button>
+          )}
+          {!['done', 'archived'].includes(lane) && (
+            <Button
+              size="compact-xs"
+              color="teal"
+              variant="light"
+              loading={busy}
+              onClick={() => void action('complete')}
+            >
+              Complete
+            </Button>
+          )}
+        </Group>
+      )}
     </Card>
   );
 }
 
-function ProjectDetails({ project, projects, onSelect, onMutate, canManage, busy }: {
+function ProjectDetails({
+  project,
+  projects,
+  onSelect,
+  onMutate,
+  canManage,
+  busy,
+}: {
   project: ProjectView | undefined;
   projects: ProjectView[];
   onSelect: (slug: string) => void;
@@ -343,35 +605,123 @@ function ProjectDetails({ project, projects, onSelect, onMutate, canManage, busy
   const [form, setForm] = useState<ProjectForm>(() => projectForm(project));
   useEffect(() => setForm(projectForm(project)), [project?.slug]);
   if (!project) return <Empty text="No Kanban project selected." />;
-  const update = (key: keyof ProjectForm, value: string) => setForm((current) => ({ ...current, [key]: value }));
-  const save = () => onMutate(mutation('worker.project.update', 'project', project.slug, projectPayload(form, false)), `Updated project ${project.slug}.`);
+  const update = (key: keyof ProjectForm, value: string) =>
+    setForm((current) => ({ ...current, [key]: value }));
+  const save = () =>
+    onMutate(
+      mutation('worker.project.update', 'project', project.slug, projectPayload(form, false)),
+      `Updated project ${project.slug}.`,
+    );
   return (
     <Stack>
-      <Group justify="space-between" align="end"><ProjectPicker projects={projects} selected={project.slug} onSelect={onSelect} /><Badge>{project.status}</Badge></Group>
+      <Group justify="space-between" align="end">
+        <ProjectPicker projects={projects} selected={project.slug} onSelect={onSelect} />
+        <Badge>{project.status}</Badge>
+      </Group>
       <Card withBorder>
         <Title order={2}>Kanban project details</Title>
         <Text c="dimmed">View and edit the Worker project setup.</Text>
         <SimpleGrid cols={{ base: 1, md: 2 }} mt="lg">
           <TextInput label="Project slug" value={form.slug} disabled />
-          <TextInput label="Project name" value={form.name} disabled={!canManage} onChange={(event) => update('name', event.currentTarget.value)} required />
-          <Textarea label="Project goal" value={form.goal} disabled={!canManage} onChange={(event) => update('goal', event.currentTarget.value)} minRows={4} className="work-form-wide" />
-          <TextInput label="Default workspace path" value={form.workspace} disabled={!canManage} onChange={(event) => update('workspace', event.currentTarget.value)} />
-          <TextInput label="Project manager agent" value={form.projectManager} disabled={!canManage} onChange={(event) => update('projectManager', event.currentTarget.value)} />
-          <TextInput label="Project agents" description="Comma-separated agent profiles" value={form.agents} disabled={!canManage} onChange={(event) => update('agents', event.currentTarget.value)} />
+          <TextInput
+            label="Project name"
+            value={form.name}
+            disabled={!canManage}
+            onChange={(event) => update('name', event.currentTarget.value)}
+            required
+          />
+          <Textarea
+            label="Project goal"
+            value={form.goal}
+            disabled={!canManage}
+            onChange={(event) => update('goal', event.currentTarget.value)}
+            minRows={4}
+            className="work-form-wide"
+          />
+          <TextInput
+            label="Default workspace path"
+            value={form.workspace}
+            disabled={!canManage}
+            onChange={(event) => update('workspace', event.currentTarget.value)}
+          />
+          <TextInput
+            label="Project manager agent"
+            value={form.projectManager}
+            disabled={!canManage}
+            onChange={(event) => update('projectManager', event.currentTarget.value)}
+          />
+          <TextInput
+            label="Project agents"
+            description="Comma-separated agent profiles"
+            value={form.agents}
+            disabled={!canManage}
+            onChange={(event) => update('agents', event.currentTarget.value)}
+          />
         </SimpleGrid>
         <Divider my="lg" />
         <SimpleGrid cols={{ base: 1, md: 3 }}>
-          <Paper withBorder p="md"><Text fw={700}>Schedule</Text><Text size="sm">{text(project.data.schedule) || 'none'}</Text></Paper>
-          <Paper withBorder p="md"><Text fw={700}>Workspace</Text><Text size="sm" lineClamp={2}>{form.workspace || 'not set'}</Text></Paper>
-          <Paper withBorder p="md"><Text fw={700}>Activity</Text><Text size="sm">{formatDate(text(project.data.latestActivity) || text(project.data.updatedAt))}</Text></Paper>
+          <Paper withBorder p="md">
+            <Text fw={700}>Schedule</Text>
+            <Text size="sm">{text(project.data.schedule) || 'none'}</Text>
+          </Paper>
+          <Paper withBorder p="md">
+            <Text fw={700}>Workspace</Text>
+            <Text size="sm" lineClamp={2}>
+              {form.workspace || 'not set'}
+            </Text>
+          </Paper>
+          <Paper withBorder p="md">
+            <Text fw={700}>Activity</Text>
+            <Text size="sm">
+              {formatDate(text(project.data.latestActivity) || text(project.data.updatedAt))}
+            </Text>
+          </Paper>
         </SimpleGrid>
-        {canManage && <Group mt="lg"><Button loading={busy} onClick={() => void save()}>Save project setup</Button><Button variant="light" loading={busy} onClick={() => void onMutate(mutation('worker.project.start', 'project', project.slug, { harness: 'hermes' }), `Started ${project.slug}.`)}>Start</Button><Button variant="light" color="orange" loading={busy} onClick={() => void onMutate(mutation('worker.project.stop', 'project', project.slug, { harness: 'hermes' }), `Stopped ${project.slug}.`)}>Stop</Button></Group>}
+        {canManage && (
+          <Group mt="lg">
+            <Button loading={busy} onClick={() => void save()}>
+              Save project setup
+            </Button>
+            <Button
+              variant="light"
+              loading={busy}
+              onClick={() =>
+                void onMutate(
+                  mutation('worker.project.start', 'project', project.slug, { harness: 'hermes' }),
+                  `Started ${project.slug}.`,
+                )
+              }
+            >
+              Start
+            </Button>
+            <Button
+              variant="light"
+              color="orange"
+              loading={busy}
+              onClick={() =>
+                void onMutate(
+                  mutation('worker.project.stop', 'project', project.slug, { harness: 'hermes' }),
+                  `Stopped ${project.slug}.`,
+                )
+              }
+            >
+              Stop
+            </Button>
+          </Group>
+        )}
       </Card>
     </Stack>
   );
 }
 
-function AddNew({ projects, selectedProject, onMutate, onCreated, canManage, busy }: {
+function AddNew({
+  projects,
+  selectedProject,
+  onMutate,
+  onCreated,
+  canManage,
+  busy,
+}: {
   projects: ProjectView[];
   selectedProject: string;
   onMutate: Mutate;
@@ -380,77 +730,487 @@ function AddNew({ projects, selectedProject, onMutate, onCreated, canManage, bus
   busy: boolean;
 }) {
   const [kind, setKind] = useState<'project' | 'task'>('project');
-  const [project, setProject] = useState<ProjectForm>({ slug: '', name: '', goal: '', workspace: '', projectManager: '', agents: '' });
-  const [task, setTask] = useState<TaskForm>({ title: '', prompt: '', project: selectedProject, agent: '', priority: 'normal' });
-  useEffect(() => setTask((current) => ({ ...current, project: current.project || selectedProject })), [selectedProject]);
-  if (!canManage) return <Alert color="yellow">Your account has read-only Work access. Project and task creation requires <Code>work.manage</Code>.</Alert>;
+  const [project, setProject] = useState<ProjectForm>({
+    slug: '',
+    name: '',
+    goal: '',
+    workspace: '',
+    projectManager: '',
+    agents: '',
+  });
+  const [task, setTask] = useState<TaskForm>({
+    title: '',
+    prompt: '',
+    project: selectedProject,
+    agent: '',
+    priority: 'normal',
+  });
+  useEffect(
+    () => setTask((current) => ({ ...current, project: current.project || selectedProject })),
+    [selectedProject],
+  );
+  if (!canManage)
+    return (
+      <Alert color="yellow">
+        Your account has read-only Work access. Project and task creation requires{' '}
+        <Code>work.manage</Code>.
+      </Alert>
+    );
   const saveProject = async (start: boolean) => {
     const slug = project.slug.trim() || slugify(project.name);
     if (!project.name.trim()) return;
-    if (start && (!project.goal.trim() || !project.projectManager.trim() || !project.agents.trim())) return;
-    const result = await onMutate(mutation('worker.project.create', 'project', slug, projectPayload({ ...project, slug }, start)), start ? `Saved ${slug} and activated planning.` : `Saved ${slug}.`);
+    if (start && (!project.goal.trim() || !project.projectManager.trim() || !project.agents.trim()))
+      return;
+    const result = await onMutate(
+      mutation(
+        'worker.project.create',
+        'project',
+        slug,
+        projectPayload({ ...project, slug }, start),
+      ),
+      start ? `Saved ${slug} and activated planning.` : `Saved ${slug}.`,
+    );
     if (result) onCreated(slug);
   };
   const saveTask = async (start: boolean) => {
     if (!task.title.trim() || !task.project) return;
-    const result = await onMutate(mutation('worker.task.create', 'task', slugify(task.title), { harness: 'hermes', title: task.title, description: task.prompt, board: task.project, assigneeProfile: task.agent || undefined, priority: task.priority }), `Created ${task.title}.`);
+    const result = await onMutate(
+      mutation('worker.task.create', 'task', slugify(task.title), {
+        harness: 'hermes',
+        title: task.title,
+        description: task.prompt,
+        board: task.project,
+        assigneeProfile: task.agent || undefined,
+        priority: task.priority,
+      }),
+      `Created ${task.title}.`,
+    );
     const created = record(record(result).task);
     const id = text(created.nativeId) || text(created.id);
-    if (start && id) await onMutate(mutation('worker.task.start', 'task', id, {}), `Created and started ${task.title}.`);
+    if (start && id)
+      await onMutate(
+        mutation('worker.task.start', 'task', id, {}),
+        `Created and started ${task.title}.`,
+      );
   };
   return (
     <Card withBorder>
-      <Group justify="space-between"><Box><Title order={2}>Add new</Title><Text c="dimmed">Create a Worker PROJECT or a task related to a project.</Text></Box><IconPlus size={26} /></Group>
-      <SegmentedControl mt="lg" value={kind} onChange={(value) => setKind(value as 'project' | 'task')} data={[{ value: 'project', label: 'Project' }, { value: 'task', label: 'Task' }]} />
+      <Group justify="space-between">
+        <Box>
+          <Title order={2}>Add new</Title>
+          <Text c="dimmed">Create a Worker PROJECT or a task related to a project.</Text>
+        </Box>
+        <IconPlus size={26} />
+      </Group>
+      <SegmentedControl
+        mt="lg"
+        value={kind}
+        onChange={(value) => setKind(value as 'project' | 'task')}
+        data={[
+          { value: 'project', label: 'Project' },
+          { value: 'task', label: 'Task' },
+        ]}
+      />
       {kind === 'project' ? (
         <Stack mt="lg">
           <SimpleGrid cols={{ base: 1, md: 2 }}>
-            <TextInput label="Project name" required value={project.name} onChange={(event) => setProject((current) => ({ ...current, name: event.currentTarget.value }))} />
-            <TextInput label="Project slug optional" placeholder={slugify(project.name)} value={project.slug} onChange={(event) => setProject((current) => ({ ...current, slug: event.currentTarget.value }))} />
-            <Textarea label="Project goal" minRows={4} value={project.goal} onChange={(event) => setProject((current) => ({ ...current, goal: event.currentTarget.value }))} />
-            <TextInput label="Default workspace path" value={project.workspace} onChange={(event) => setProject((current) => ({ ...current, workspace: event.currentTarget.value }))} />
-            <TextInput label="Project manager agent" value={project.projectManager} onChange={(event) => setProject((current) => ({ ...current, projectManager: event.currentTarget.value }))} />
-            <TextInput label="Project agents" description="Comma-separated profiles" value={project.agents} onChange={(event) => setProject((current) => ({ ...current, agents: event.currentTarget.value }))} />
+            <TextInput
+              label="Project name"
+              required
+              value={project.name}
+              onChange={(event) =>
+                setProject((current) => ({ ...current, name: event.currentTarget.value }))
+              }
+            />
+            <TextInput
+              label="Project slug optional"
+              placeholder={slugify(project.name)}
+              value={project.slug}
+              onChange={(event) =>
+                setProject((current) => ({ ...current, slug: event.currentTarget.value }))
+              }
+            />
+            <Textarea
+              label="Project goal"
+              minRows={4}
+              value={project.goal}
+              onChange={(event) =>
+                setProject((current) => ({ ...current, goal: event.currentTarget.value }))
+              }
+            />
+            <TextInput
+              label="Default workspace path"
+              value={project.workspace}
+              onChange={(event) =>
+                setProject((current) => ({ ...current, workspace: event.currentTarget.value }))
+              }
+            />
+            <TextInput
+              label="Project manager agent"
+              value={project.projectManager}
+              onChange={(event) =>
+                setProject((current) => ({ ...current, projectManager: event.currentTarget.value }))
+              }
+            />
+            <TextInput
+              label="Project agents"
+              description="Comma-separated profiles"
+              value={project.agents}
+              onChange={(event) =>
+                setProject((current) => ({ ...current, agents: event.currentTarget.value }))
+              }
+            />
           </SimpleGrid>
-          <Group><Button variant="light" loading={busy} disabled={!project.name.trim()} onClick={() => void saveProject(false)}>Save</Button><Button loading={busy} disabled={!project.name.trim() || !project.goal.trim() || !project.projectManager.trim() || !project.agents.trim()} onClick={() => void saveProject(true)}>Save and Start</Button></Group>
-          <Text size="xs" c="dimmed">Save requires a project name only. Save and Start requires name, goal, project manager and agents.</Text>
+          <Group>
+            <Button
+              variant="light"
+              loading={busy}
+              disabled={!project.name.trim()}
+              onClick={() => void saveProject(false)}
+            >
+              Save
+            </Button>
+            <Button
+              loading={busy}
+              disabled={
+                !project.name.trim() ||
+                !project.goal.trim() ||
+                !project.projectManager.trim() ||
+                !project.agents.trim()
+              }
+              onClick={() => void saveProject(true)}
+            >
+              Save and Start
+            </Button>
+          </Group>
+          <Text size="xs" c="dimmed">
+            Save requires a project name only. Save and Start requires name, goal, project manager
+            and agents.
+          </Text>
         </Stack>
       ) : (
         <Stack mt="lg">
           <SimpleGrid cols={{ base: 1, md: 2 }}>
-            <TextInput label="Task name" required value={task.title} onChange={(event) => setTask((current) => ({ ...current, title: event.currentTarget.value }))} />
-            <Select label="Project" required value={task.project || null} onChange={(value) => setTask((current) => ({ ...current, project: value ?? '' }))} data={projects.map((item) => ({ value: item.slug, label: item.name }))} />
-            <Textarea label="Prompt" minRows={4} value={task.prompt} onChange={(event) => setTask((current) => ({ ...current, prompt: event.currentTarget.value }))} />
-            <TextInput label="Assigned agent" value={task.agent} onChange={(event) => setTask((current) => ({ ...current, agent: event.currentTarget.value }))} />
-            <Select label="Priority" value={task.priority} onChange={(value) => setTask((current) => ({ ...current, priority: value ?? 'normal' }))} data={['low', 'normal', 'high', 'urgent']} />
+            <TextInput
+              label="Task name"
+              required
+              value={task.title}
+              onChange={(event) =>
+                setTask((current) => ({ ...current, title: event.currentTarget.value }))
+              }
+            />
+            <Select
+              label="Project"
+              required
+              value={task.project || null}
+              onChange={(value) => setTask((current) => ({ ...current, project: value ?? '' }))}
+              data={projects.map((item) => ({ value: item.slug, label: item.name }))}
+            />
+            <Textarea
+              label="Prompt"
+              minRows={4}
+              value={task.prompt}
+              onChange={(event) =>
+                setTask((current) => ({ ...current, prompt: event.currentTarget.value }))
+              }
+            />
+            <TextInput
+              label="Assigned agent"
+              value={task.agent}
+              onChange={(event) =>
+                setTask((current) => ({ ...current, agent: event.currentTarget.value }))
+              }
+            />
+            <Select
+              label="Priority"
+              value={task.priority}
+              onChange={(value) =>
+                setTask((current) => ({ ...current, priority: value ?? 'normal' }))
+              }
+              data={['low', 'normal', 'high', 'urgent']}
+            />
           </SimpleGrid>
-          <Group><Button variant="light" loading={busy} disabled={!task.title.trim() || !task.project} onClick={() => void saveTask(false)}>Save Draft</Button><Button loading={busy} disabled={!task.title.trim() || !task.project} onClick={() => void saveTask(true)}>Start</Button></Group>
+          <Group>
+            <Button
+              variant="light"
+              loading={busy}
+              disabled={!task.title.trim() || !task.project}
+              onClick={() => void saveTask(false)}
+            >
+              Save Draft
+            </Button>
+            <Button
+              loading={busy}
+              disabled={!task.title.trim() || !task.project}
+              onClick={() => void saveTask(true)}
+            >
+              Start
+            </Button>
+          </Group>
         </Stack>
       )}
     </Card>
   );
 }
 
-function Cronjobs({ jobs, onMutate, canManage, busy }: { jobs: UnifiedResource[]; onMutate: Mutate; canManage: boolean; busy: boolean }) {
+function Cronjobs({
+  jobs,
+  onMutate,
+  canManage,
+  busy,
+}: {
+  jobs: UnifiedResource[];
+  onMutate: Mutate;
+  canManage: boolean;
+  busy: boolean;
+}) {
   const [filter, setFilter] = useState('all');
   const [opened, setOpened] = useState(false);
-  const [form, setForm] = useState<CronForm>({ name: '', title: '', prompt: '', agent: 'chatboard', mode: 'every', schedule: 'every 1d', timezone: 'UTC' });
-  const visible = jobs.filter((job) => filter === 'all' || (filter === 'active' ? !cronPaused(job) && !cronFailed(job) : filter === 'paused' ? cronPaused(job) : cronFailed(job)));
-  const action = (job: UnifiedResource, name: 'run' | 'pause' | 'resume' | 'delete') => onMutate(mutation(`worker.cron.${name}`, 'cronjob', text(job.data.nativeId) || job.resource.nativeId, {} , name === 'delete'), `${name} succeeded for ${job.title}.`);
+  const [form, setForm] = useState<CronForm>({
+    name: '',
+    title: '',
+    prompt: '',
+    agent: 'chatboard',
+    mode: 'every',
+    schedule: 'every 1d',
+    timezone: 'UTC',
+  });
+  const visible = jobs.filter(
+    (job) =>
+      filter === 'all' ||
+      (filter === 'active'
+        ? !cronPaused(job) && !cronFailed(job)
+        : filter === 'paused'
+          ? cronPaused(job)
+          : cronFailed(job)),
+  );
+  const action = (job: UnifiedResource, name: 'run' | 'pause' | 'resume' | 'delete') =>
+    onMutate(
+      mutation(
+        `worker.cron.${name}`,
+        'cronjob',
+        text(job.data.nativeId) || job.resource.nativeId,
+        {},
+        name === 'delete',
+      ),
+      `${name} succeeded for ${job.title}.`,
+    );
   const create = async () => {
-    const schedule = form.mode === 'at' ? { kind: 'at', at: new Date(form.schedule).toISOString(), timezone: form.timezone } : form.mode === 'every' ? { kind: 'every', every: form.schedule, timezone: form.timezone } : { kind: 'cron', expression: form.schedule, timezone: form.timezone };
-    const result = await onMutate(mutation('worker.cron.create', 'cronjob', form.name || slugify(form.title), { harness: 'hermes', name: form.name || slugify(form.title), title: form.title, prompt: form.prompt, profile: form.agent, assignedAgent: form.agent, targetType: 'direct_prompt', schedule, enabled: true }), `Created cronjob ${form.title}.`);
+    const schedule =
+      form.mode === 'at'
+        ? { kind: 'at', at: new Date(form.schedule).toISOString(), timezone: form.timezone }
+        : form.mode === 'every'
+          ? { kind: 'every', every: form.schedule, timezone: form.timezone }
+          : { kind: 'cron', expression: form.schedule, timezone: form.timezone };
+    const result = await onMutate(
+      mutation('worker.cron.create', 'cronjob', form.name || slugify(form.title), {
+        harness: 'hermes',
+        name: form.name || slugify(form.title),
+        title: form.title,
+        prompt: form.prompt,
+        profile: form.agent,
+        assignedAgent: form.agent,
+        targetType: 'direct_prompt',
+        schedule,
+        enabled: true,
+      }),
+      `Created cronjob ${form.title}.`,
+    );
     if (result) setOpened(false);
   };
   return (
     <Stack>
-      <Group justify="space-between"><Box><Title order={2}>Cronjobs</Title><Text c="dimmed">Single-task repeating or scheduled jobs owned by native Hermes cron.</Text></Box>{canManage && <Button leftSection={<IconPlus size={16} />} onClick={() => setOpened(true)}>New Cronjob</Button>}</Group>
-      <SegmentedControl value={filter} onChange={setFilter} data={[{ value: 'all', label: `All ${jobs.length}` }, { value: 'active', label: `Active ${jobs.filter((job) => !cronPaused(job) && !cronFailed(job)).length}` }, { value: 'paused', label: `Paused ${jobs.filter(cronPaused).length}` }, { value: 'failed', label: `Failed ${jobs.filter(cronFailed).length}` }]} />
-      {!visible.length ? <Empty text="No cronjobs match this filter." /> : (
-        <Paper withBorder><ScrollArea><Table verticalSpacing="sm" miw={760}><Table.Thead><Table.Tr><Table.Th>Job</Table.Th><Table.Th>Schedule</Table.Th><Table.Th>Status</Table.Th><Table.Th>Next run</Table.Th><Table.Th>Actions</Table.Th></Table.Tr></Table.Thead><Table.Tbody>{visible.map((job) => <Table.Tr key={job.resource.canonicalId}><Table.Td><Text fw={700}>{job.title}</Text><Text size="xs" c="dimmed">{job.resource.nativeId}</Text></Table.Td><Table.Td><Code>{scheduleText(job.data.schedule)}</Code></Table.Td><Table.Td><Badge color={cronFailed(job) ? 'red' : cronPaused(job) ? 'yellow' : 'teal'}>{cronFailed(job) ? 'failed' : cronPaused(job) ? 'paused' : text(job.data.status) || 'active'}</Badge></Table.Td><Table.Td>{formatDate(text(job.data.nextRunAt))}</Table.Td><Table.Td>{canManage && <Group gap="xs"><Button size="compact-xs" variant="light" loading={busy} onClick={() => void action(job, 'run')}>Run now</Button>{cronPaused(job) ? <Button size="compact-xs" variant="light" loading={busy} onClick={() => void action(job, 'resume')}>Resume</Button> : <Button size="compact-xs" variant="light" loading={busy} onClick={() => void action(job, 'pause')}>Pause</Button>}<Button size="compact-xs" color="red" variant="subtle" loading={busy} onClick={() => void action(job, 'delete')}>Remove</Button></Group>}</Table.Td></Table.Tr>)}</Table.Tbody></Table></ScrollArea></Paper>
+      <Group justify="space-between">
+        <Box>
+          <Title order={2}>Cronjobs</Title>
+          <Text c="dimmed">
+            Single-task repeating or scheduled jobs owned by native Hermes cron.
+          </Text>
+        </Box>
+        {canManage && (
+          <Button leftSection={<IconPlus size={16} />} onClick={() => setOpened(true)}>
+            New Cronjob
+          </Button>
+        )}
+      </Group>
+      <SegmentedControl
+        value={filter}
+        onChange={setFilter}
+        data={[
+          { value: 'all', label: `All ${jobs.length}` },
+          {
+            value: 'active',
+            label: `Active ${jobs.filter((job) => !cronPaused(job) && !cronFailed(job)).length}`,
+          },
+          { value: 'paused', label: `Paused ${jobs.filter(cronPaused).length}` },
+          { value: 'failed', label: `Failed ${jobs.filter(cronFailed).length}` },
+        ]}
+      />
+      {!visible.length ? (
+        <Empty text="No cronjobs match this filter." />
+      ) : (
+        <Paper withBorder>
+          <ScrollArea>
+            <Table verticalSpacing="sm" miw={760}>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Job</Table.Th>
+                  <Table.Th>Schedule</Table.Th>
+                  <Table.Th>Status</Table.Th>
+                  <Table.Th>Next run</Table.Th>
+                  <Table.Th>Actions</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {visible.map((job) => (
+                  <Table.Tr key={job.resource.canonicalId}>
+                    <Table.Td>
+                      <Text fw={700}>{job.title}</Text>
+                      <Text size="xs" c="dimmed">
+                        {job.resource.nativeId}
+                      </Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Code>{scheduleText(job.data.schedule)}</Code>
+                    </Table.Td>
+                    <Table.Td>
+                      <Badge color={cronFailed(job) ? 'red' : cronPaused(job) ? 'yellow' : 'teal'}>
+                        {cronFailed(job)
+                          ? 'failed'
+                          : cronPaused(job)
+                            ? 'paused'
+                            : text(job.data.status) || 'active'}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>{formatDate(text(job.data.nextRunAt))}</Table.Td>
+                    <Table.Td>
+                      {canManage && (
+                        <Group gap="xs">
+                          <Button
+                            size="compact-xs"
+                            variant="light"
+                            loading={busy}
+                            onClick={() => void action(job, 'run')}
+                          >
+                            Run now
+                          </Button>
+                          {cronPaused(job) ? (
+                            <Button
+                              size="compact-xs"
+                              variant="light"
+                              loading={busy}
+                              onClick={() => void action(job, 'resume')}
+                            >
+                              Resume
+                            </Button>
+                          ) : (
+                            <Button
+                              size="compact-xs"
+                              variant="light"
+                              loading={busy}
+                              onClick={() => void action(job, 'pause')}
+                            >
+                              Pause
+                            </Button>
+                          )}
+                          <Button
+                            size="compact-xs"
+                            color="red"
+                            variant="subtle"
+                            loading={busy}
+                            onClick={() => void action(job, 'delete')}
+                          >
+                            Remove
+                          </Button>
+                        </Group>
+                      )}
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          </ScrollArea>
+        </Paper>
       )}
       <Modal opened={opened} onClose={() => setOpened(false)} title="Create Cronjob" size="lg">
-        <Stack><TextInput label="Cronjob name" required value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.currentTarget.value }))} /><TextInput label="Title" required value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.currentTarget.value }))} /><Textarea label="Prompt" required minRows={4} value={form.prompt} onChange={(event) => setForm((current) => ({ ...current, prompt: event.currentTarget.value }))} /><TextInput label="Profile / agent" value={form.agent} onChange={(event) => setForm((current) => ({ ...current, agent: event.currentTarget.value }))} /><Select label="Schedule mode" value={form.mode} onChange={(value) => setForm((current) => ({ ...current, mode: (value ?? 'every') as CronForm['mode'], schedule: value === 'cron' ? '0 9 * * *' : value === 'at' ? '' : 'every 1d' }))} data={[{ value: 'at', label: 'One-time date/time' }, { value: 'every', label: 'Recurring interval' }, { value: 'cron', label: 'Advanced cron expression' }]} /><TextInput label={form.mode === 'at' ? 'Run date/time' : form.mode === 'every' ? 'Repeat interval' : 'Cron expression'} type={form.mode === 'at' ? 'datetime-local' : 'text'} value={form.schedule} onChange={(event) => setForm((current) => ({ ...current, schedule: event.currentTarget.value }))} /><TextInput label="Timezone" value={form.timezone} onChange={(event) => setForm((current) => ({ ...current, timezone: event.currentTarget.value }))} /><Button loading={busy} disabled={!form.title || !form.prompt || !form.schedule} onClick={() => void create()}>Save Cronjob</Button></Stack>
+        <Stack>
+          <TextInput
+            label="Cronjob name"
+            required
+            value={form.name}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, name: event.currentTarget.value }))
+            }
+          />
+          <TextInput
+            label="Title"
+            required
+            value={form.title}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, title: event.currentTarget.value }))
+            }
+          />
+          <Textarea
+            label="Prompt"
+            required
+            minRows={4}
+            value={form.prompt}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, prompt: event.currentTarget.value }))
+            }
+          />
+          <TextInput
+            label="Profile / agent"
+            value={form.agent}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, agent: event.currentTarget.value }))
+            }
+          />
+          <Select
+            label="Schedule mode"
+            value={form.mode}
+            onChange={(value) =>
+              setForm((current) => ({
+                ...current,
+                mode: (value ?? 'every') as CronForm['mode'],
+                schedule: value === 'cron' ? '0 9 * * *' : value === 'at' ? '' : 'every 1d',
+              }))
+            }
+            data={[
+              { value: 'at', label: 'One-time date/time' },
+              { value: 'every', label: 'Recurring interval' },
+              { value: 'cron', label: 'Advanced cron expression' },
+            ]}
+          />
+          <TextInput
+            label={
+              form.mode === 'at'
+                ? 'Run date/time'
+                : form.mode === 'every'
+                  ? 'Repeat interval'
+                  : 'Cron expression'
+            }
+            type={form.mode === 'at' ? 'datetime-local' : 'text'}
+            value={form.schedule}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, schedule: event.currentTarget.value }))
+            }
+          />
+          <TextInput
+            label="Timezone"
+            value={form.timezone}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, timezone: event.currentTarget.value }))
+            }
+          />
+          <Button
+            loading={busy}
+            disabled={!form.title || !form.prompt || !form.schedule}
+            onClick={() => void create()}
+          >
+            Save Cronjob
+          </Button>
+        </Stack>
       </Modal>
     </Stack>
   );
@@ -458,35 +1218,122 @@ function Cronjobs({ jobs, onMutate, canManage, busy }: { jobs: UnifiedResource[]
 
 function NotificationSettings() {
   const [rules, setRules] = useState(() => notificationRules());
-  const update = (key: keyof NotificationRules, value: string | boolean) => setRules((current: NotificationRules) => ({ ...current, [key]: value }));
+  const update = (key: keyof NotificationRules, value: string | boolean) =>
+    setRules((current: NotificationRules) => ({ ...current, [key]: value }));
   const save = () => {
     localStorage.setItem('unify-worker-notification-rules', JSON.stringify(rules));
   };
   return (
     <Stack>
-      <Group><IconSettings size={26} /><Box><Title order={2}>Settings</Title><Text c="dimmed">Worker notification rules setup.</Text></Box></Group>
+      <Group>
+        <IconSettings size={26} />
+        <Box>
+          <Title order={2}>Settings</Title>
+          <Text c="dimmed">Worker notification rules setup.</Text>
+        </Box>
+      </Group>
       <Card withBorder>
-        <Group justify="space-between"><Box><Text size="xs" fw={800} tt="uppercase" c="dimmed">Notifications</Text><Title order={3}>Notification rules setup</Title><Text c="dimmed">Choose how Worker project events surface in UNIFY and external channels.</Text></Box><IconActivity size={24} /></Group>
+        <Group justify="space-between">
+          <Box>
+            <Text size="xs" fw={800} tt="uppercase" c="dimmed">
+              Notifications
+            </Text>
+            <Title order={3}>Notification rules setup</Title>
+            <Text c="dimmed">
+              Choose how Worker project events surface in UNIFY and external channels.
+            </Text>
+          </Box>
+          <IconActivity size={24} />
+        </Group>
         <SimpleGrid cols={{ base: 1, md: 2 }} mt="lg">
-          <Select label="Toast minimum severity" value={rules.severity} onChange={(value) => update('severity', value ?? 'warning')} data={[{ value: 'info', label: 'Info' }, { value: 'warning', label: 'Warning' }, { value: 'critical', label: 'Critical' }]} />
-          <TextInput label="Telegram destination" value={rules.telegramDestination} onChange={(event) => update('telegramDestination', event.currentTarget.value)} placeholder="chat or topic ID" />
-          <Checkbox label="UNIFY inbox and realtime" checked={rules.inbox} onChange={(event) => update('inbox', event.currentTarget.checked)} />
-          <Checkbox label="Browser toast" checked={rules.toast} onChange={(event) => update('toast', event.currentTarget.checked)} />
-          <Checkbox label="Telegram notifications" checked={rules.telegram} onChange={(event) => update('telegram', event.currentTarget.checked)} />
-          <Checkbox label="Notify on blocked cards" checked={rules.blocked} onChange={(event) => update('blocked', event.currentTarget.checked)} />
-          <Checkbox label="Notify on failed cronjobs" checked={rules.cronFailed} onChange={(event) => update('cronFailed', event.currentTarget.checked)} />
-          <Checkbox label="Notify on project completion" checked={rules.completed} onChange={(event) => update('completed', event.currentTarget.checked)} />
+          <Select
+            label="Toast minimum severity"
+            value={rules.severity}
+            onChange={(value) => update('severity', value ?? 'warning')}
+            data={[
+              { value: 'info', label: 'Info' },
+              { value: 'warning', label: 'Warning' },
+              { value: 'critical', label: 'Critical' },
+            ]}
+          />
+          <TextInput
+            label="Telegram destination"
+            value={rules.telegramDestination}
+            onChange={(event) => update('telegramDestination', event.currentTarget.value)}
+            placeholder="chat or topic ID"
+          />
+          <Checkbox
+            label="UNIFY inbox and realtime"
+            checked={rules.inbox}
+            onChange={(event) => update('inbox', event.currentTarget.checked)}
+          />
+          <Checkbox
+            label="Browser toast"
+            checked={rules.toast}
+            onChange={(event) => update('toast', event.currentTarget.checked)}
+          />
+          <Checkbox
+            label="Telegram notifications"
+            checked={rules.telegram}
+            onChange={(event) => update('telegram', event.currentTarget.checked)}
+          />
+          <Checkbox
+            label="Notify on blocked cards"
+            checked={rules.blocked}
+            onChange={(event) => update('blocked', event.currentTarget.checked)}
+          />
+          <Checkbox
+            label="Notify on failed cronjobs"
+            checked={rules.cronFailed}
+            onChange={(event) => update('cronFailed', event.currentTarget.checked)}
+          />
+          <Checkbox
+            label="Notify on project completion"
+            checked={rules.completed}
+            onChange={(event) => update('completed', event.currentTarget.checked)}
+          />
         </SimpleGrid>
-        <Group mt="lg"><Button onClick={save}>Save notification rules</Button><Button variant="light" onClick={() => { const defaults = defaultNotificationRules(); setRules(defaults); localStorage.setItem('unify-worker-notification-rules', JSON.stringify(defaults)); }}>Reset notifications</Button></Group>
-        <Text size="xs" c="dimmed" mt="sm">These are UNIFY display rules. Project-specific Worker delivery targets remain part of each project setup.</Text>
+        <Group mt="lg">
+          <Button onClick={save}>Save notification rules</Button>
+          <Button
+            variant="light"
+            onClick={() => {
+              const defaults = defaultNotificationRules();
+              setRules(defaults);
+              localStorage.setItem('unify-worker-notification-rules', JSON.stringify(defaults));
+            }}
+          >
+            Reset notifications
+          </Button>
+        </Group>
+        <Text size="xs" c="dimmed" mt="sm">
+          These are UNIFY display rules. Project-specific Worker delivery targets remain part of
+          each project setup.
+        </Text>
       </Card>
     </Stack>
   );
 }
 
 type Mutate = (request: MutationRequest, success: string) => Promise<unknown>;
-type ProjectView = { slug: string; name: string; description: string; status: string; counts: Record<string, number>; data: Record<string, unknown> };
-type NotificationRules = { severity: string; inbox: boolean; toast: boolean; telegram: boolean; telegramDestination: string; blocked: boolean; cronFailed: boolean; completed: boolean };
+type ProjectView = {
+  slug: string;
+  name: string;
+  description: string;
+  status: string;
+  counts: Record<string, number>;
+  data: Record<string, unknown>;
+};
+type NotificationRules = {
+  severity: string;
+  inbox: boolean;
+  toast: boolean;
+  telegram: boolean;
+  telegramDestination: string;
+  blocked: boolean;
+  cronFailed: boolean;
+  completed: boolean;
+};
 
 function workerProjects(items: UnifiedResource[]): ProjectView[] {
   const summaries = items.filter((item) => item.resource.kind === 'kanban-board');
@@ -500,50 +1347,153 @@ function workerProjects(items: UnifiedResource[]): ProjectView[] {
       slug,
       name: text(item.data.name) || item.title || current?.name || slug,
       description: text(item.data.description) || current?.description || '',
-      status: text(item.data.status) || text(item.data.lifecycleState) || current?.status || 'active',
-      counts: Object.keys(counts).length ? numberRecord(counts) : current?.counts ?? {},
+      status:
+        text(item.data.status) || text(item.data.lifecycleState) || current?.status || 'active',
+      counts: Object.keys(counts).length ? numberRecord(counts) : (current?.counts ?? {}),
       data: { ...(current?.data ?? {}), ...item.data },
     });
   }
   return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
-function taskLane(task: UnifiedResource): string { return text(task.data.lane) || 'triage'; }
-function cronPaused(job: UnifiedResource): boolean { return job.data.paused === true || job.data.enabled === false || ['paused', 'disabled'].includes(text(job.data.status)); }
-function cronFailed(job: UnifiedResource): boolean { return ['failed', 'error'].includes(text(job.data.status)) || text(job.data.lastResult) === 'error'; }
+function taskLane(task: UnifiedResource): string {
+  return text(task.data.lane) || 'triage';
+}
+function cronPaused(job: UnifiedResource): boolean {
+  return (
+    job.data.paused === true ||
+    job.data.enabled === false ||
+    ['paused', 'disabled'].includes(text(job.data.status))
+  );
+}
+function cronFailed(job: UnifiedResource): boolean {
+  return (
+    ['failed', 'error'].includes(text(job.data.status)) || text(job.data.lastResult) === 'error'
+  );
+}
 function projectForm(project?: ProjectView): ProjectForm {
-  const agents = Array.isArray(project?.data.agentTeam) ? project!.data.agentTeam.map((item) => text(record(item).name)).filter(Boolean) : [];
+  const agents = Array.isArray(project?.data.agentTeam)
+    ? project!.data.agentTeam.map((item) => text(record(item).name)).filter(Boolean)
+    : [];
   const defaults = record(project?.data.defaultAgents);
-  return { slug: project?.slug ?? '', name: project?.name ?? '', goal: project?.description ?? '', workspace: text(project?.data.defaultWorkspacePath), projectManager: text(defaults.pm) || agents[0] || '', agents: agents.join(', ') };
+  return {
+    slug: project?.slug ?? '',
+    name: project?.name ?? '',
+    goal: project?.description ?? '',
+    workspace: text(project?.data.defaultWorkspacePath),
+    projectManager: text(defaults.pm) || agents[0] || '',
+    agents: agents.join(', '),
+  };
 }
 function projectPayload(form: ProjectForm, startPmPlanning: boolean): Record<string, unknown> {
-  const agents = form.agents.split(',').map((item) => item.trim()).filter(Boolean);
+  const agents = form.agents
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
   const pm = form.projectManager.trim();
-  const team = [...new Set([pm, ...agents].filter(Boolean))].map((name) => ({ name, role: name === pm ? 'Project manager agent' : '', isProjectManager: name === pm }));
-  return { slug: form.slug, name: form.name.trim(), description: form.goal.trim(), defaultWorkspacePath: form.workspace.trim() || undefined, defaultAgents: { pm: pm || 'unassigned' }, agentTeam: team, schedule: 'none', startPmPlanning };
+  const team = [...new Set([pm, ...agents].filter(Boolean))].map((name) => ({
+    name,
+    role: name === pm ? 'Project manager agent' : '',
+    isProjectManager: name === pm,
+  }));
+  return {
+    slug: form.slug,
+    name: form.name.trim(),
+    description: form.goal.trim(),
+    defaultWorkspacePath: form.workspace.trim() || undefined,
+    defaultAgents: { pm: pm || 'unassigned' },
+    agentTeam: team,
+    schedule: 'none',
+    startPmPlanning,
+  };
 }
-function mutation(operationType: string, kind: string, nativeId: string, payload: Record<string, unknown>, confirmed = false): MutationRequest {
-  return { operationType, target: { owner: 'worker', kind, nativeId }, payload, mode: 'execute', confirmed };
+function mutation(
+  operationType: string,
+  kind: string,
+  nativeId: string,
+  payload: Record<string, unknown>,
+  confirmed = false,
+): MutationRequest {
+  return {
+    operationType,
+    target: { owner: 'worker', kind, nativeId },
+    payload,
+    mode: 'execute',
+    confirmed,
+  };
 }
 function scheduleText(value: unknown): string {
   const schedule = record(value);
   if (text(schedule.kind) === 'at') return `at ${text(schedule.at)}`;
   if (text(schedule.kind) === 'every') return text(schedule.every);
-  if (text(schedule.kind) === 'cron') return `${text(schedule.expression)} ${text(schedule.timezone) || 'UTC'}`;
+  if (text(schedule.kind) === 'cron')
+    return `${text(schedule.expression)} ${text(schedule.timezone) || 'UTC'}`;
   return text(value) || 'manual';
 }
 function workPageFromUrl(): WorkPage {
   const value = new URLSearchParams(window.location.search).get('workPage');
-  return pageOptions.some((item) => item.value === value) ? value as WorkPage : 'overview';
+  return pageOptions.some((item) => item.value === value) ? (value as WorkPage) : 'overview';
 }
-function defaultNotificationRules(): NotificationRules { return { severity: 'warning', inbox: true, toast: true, telegram: false, telegramDestination: '', blocked: true, cronFailed: true, completed: false }; }
+function defaultNotificationRules(): NotificationRules {
+  return {
+    severity: 'warning',
+    inbox: true,
+    toast: true,
+    telegram: false,
+    telegramDestination: '',
+    blocked: true,
+    cronFailed: true,
+    completed: false,
+  };
+}
 function notificationRules(): NotificationRules {
-  try { return { ...defaultNotificationRules(), ...record(JSON.parse(localStorage.getItem('unify-worker-notification-rules') ?? '{}')) } as NotificationRules; }
-  catch { return defaultNotificationRules(); }
+  try {
+    return {
+      ...defaultNotificationRules(),
+      ...record(JSON.parse(localStorage.getItem('unify-worker-notification-rules') ?? '{}')),
+    } as NotificationRules;
+  } catch {
+    return defaultNotificationRules();
+  }
 }
-function Empty({ text: value }: { text: string }) { return <Paper withBorder p="xl"><Stack align="center"><IconClipboardList size={34} /><Text fw={700}>{value}</Text></Stack></Paper>; }
-function text(value: unknown): string { return typeof value === 'string' || typeof value === 'number' ? String(value) : ''; }
-function record(value: unknown): Record<string, unknown> { return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {}; }
-function numberRecord(value: Record<string, unknown>): Record<string, number> { return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, Number(item) || 0])); }
-function slugify(value: string): string { return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'project'; }
-function formatDate(value?: string): string { if (!value) return '—'; const date = new Date(value); return Number.isNaN(date.getTime()) ? value : date.toLocaleString(); }
-function errorMessage(error: unknown): string { return error instanceof ApiError ? error.failure.message : error instanceof Error ? error.message : 'Worker request failed'; }
+function Empty({ text: value }: { text: string }) {
+  return (
+    <Paper withBorder p="xl">
+      <Stack align="center">
+        <IconClipboardList size={34} />
+        <Text fw={700}>{value}</Text>
+      </Stack>
+    </Paper>
+  );
+}
+function text(value: unknown): string {
+  return typeof value === 'string' || typeof value === 'number' ? String(value) : '';
+}
+function record(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+}
+function numberRecord(value: Record<string, unknown>): Record<string, number> {
+  return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, Number(item) || 0]));
+}
+function slugify(value: string): string {
+  return (
+    value
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || 'project'
+  );
+}
+function formatDate(value?: string): string {
+  if (!value) return '—';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+}
+function errorMessage(error: unknown): string {
+  return error instanceof ApiError
+    ? error.failure.message
+    : error instanceof Error
+      ? error.message
+      : 'Worker request failed';
+}

@@ -1,10 +1,12 @@
 # Phase 3 read-only integrations
 
+> **MIGRATION-ONLY:** These adapters read legacy applications for import/parity diagnostics. They are not authoritative Hermes adapters, cannot establish framework truth, and have `writeEnabled: false`.
+
 ## Ownership and scope
 
-UNIFY federates reads without becoming a second owner. Every normalized item carries a collision-safe `ResourceRef`, authoritative owner, adapter ID, source version when available, observation time, fetched time, truth state, searchable text, and recursively redacted source data.
+UNIFY federates legacy snapshots without becoming a second owner. Every normalized item carries `authoritative: false`, `sourceRole: migration-only`, a provenance `ResourceRef`, adapter ID, source version when available, observation time, fetched time, truth state, searchable text, and recursively redacted source data.
 
-| Adapter | Authoritative reads | Default host endpoint |
+| Adapter | Migration-only reads | Default host endpoint |
 |---|---|---|
 | `agency-hermes-read-v1` | Agency frameworks; Hermes profiles through Agency inventory | `http://127.0.0.1:18082` |
 | `dmm-read-v1` | Providers, models, catalog snapshots | `http://127.0.0.1:4100` |

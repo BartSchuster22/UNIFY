@@ -1,13 +1,15 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-const realtimeWs = vi.hoisted(() => ({ instances: [] as Array<{
-  url: string;
-  options: unknown;
-  sent: string[];
-  readyState: number;
-  emit: (event: string, ...args: unknown[]) => void;
-  close: () => void;
-}> }));
+const realtimeWs = vi.hoisted(() => ({
+  instances: [] as Array<{
+    url: string;
+    options: unknown;
+    sent: string[];
+    readyState: number;
+    emit: (event: string, ...args: unknown[]) => void;
+    close: () => void;
+  }>,
+}));
 vi.mock('ws', () => {
   class MockWebSocket {
     static OPEN = 1;
@@ -15,11 +17,25 @@ vi.mock('ws', () => {
     readyState = MockWebSocket.CONNECTING;
     sent: string[] = [];
     private handlers = new Map<string, Array<(...args: unknown[]) => void>>();
-    constructor(public url: string, public options: unknown) { realtimeWs.instances.push(this); }
-    on(event: string, handler: (...args: unknown[]) => void) { this.handlers.set(event, [...(this.handlers.get(event) ?? []), handler]); }
-    emit(event: string, ...args: unknown[]) { if (event === 'open') this.readyState = MockWebSocket.OPEN; for (const handler of this.handlers.get(event) ?? []) handler(...args); }
-    send(value: string) { this.sent.push(value); }
-    close() { this.readyState = 3; }
+    constructor(
+      public url: string,
+      public options: unknown,
+    ) {
+      realtimeWs.instances.push(this);
+    }
+    on(event: string, handler: (...args: unknown[]) => void) {
+      this.handlers.set(event, [...(this.handlers.get(event) ?? []), handler]);
+    }
+    emit(event: string, ...args: unknown[]) {
+      if (event === 'open') this.readyState = MockWebSocket.OPEN;
+      for (const handler of this.handlers.get(event) ?? []) handler(...args);
+    }
+    send(value: string) {
+      this.sent.push(value);
+    }
+    close() {
+      this.readyState = 3;
+    }
   }
   return { default: MockWebSocket };
 });
@@ -70,13 +86,16 @@ afterEach(() => {
 describe('MutationOwnerClient', () => {
   it('reads only the fixed Agency profile inventory and encoded profile context paths', async () => {
     const calls: string[] = [];
-    vi.stubGlobal('fetch', vi.fn(async (request: string | URL | Request) => {
-      const url = String(request);
-      calls.push(url);
-      if (url.endsWith('/api/auth/login'))
-        return new Response('{}', { headers: { 'set-cookie': 'agency=session; Secure' } });
-      return Response.json({ ok: true });
-    }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (request: string | URL | Request) => {
+        const url = String(request);
+        calls.push(url);
+        if (url.endsWith('/api/auth/login'))
+          return new Response('{}', { headers: { 'set-cookie': 'agency=session; Secure' } });
+        return Response.json({ ok: true });
+      }),
+    );
     const owners = new MutationOwnerClient(config);
     await owners.agencyProfileInventory();
     await owners.agencyProfileContext('hermes-main', 'default');
@@ -87,7 +106,11 @@ describe('MutationOwnerClient', () => {
       '/api/frameworks/hermes-main/capabilities',
       '/api/frameworks/hermes-main/models/selectable',
       '/api/frameworks/hermes-main/profiles/default',
-    ]) expect(calls.some((url) => url.endsWith(path)), path).toBe(true);
+    ])
+      expect(
+        calls.some((url) => url.endsWith(path)),
+        path,
+      ).toBe(true);
     await expect(owners.agencyProfileContext('../unsafe', 'default')).rejects.toMatchObject({
       code: 'MUTATION_TARGET_INVALID',
       statusCode: 422,
@@ -96,54 +119,100 @@ describe('MutationOwnerClient', () => {
 
   it('reads the fixed DMM provider, model and credential-status inventory without arbitrary proxy paths', async () => {
     const calls: string[] = [];
-    vi.stubGlobal('fetch', vi.fn(async (request: string | URL | Request) => {
-      const url = String(request);
-      calls.push(url);
-      if (url.endsWith('/api/auth/login')) return new Response(JSON.stringify({ data: { csrfToken: 'csrf' } }), { headers: { 'content-type': 'application/json', 'set-cookie': 'dmm=session; Secure' } });
-      return Response.json({ ok: true, data: {} });
-    }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (request: string | URL | Request) => {
+        const url = String(request);
+        calls.push(url);
+        if (url.endsWith('/api/auth/login'))
+          return new Response(JSON.stringify({ data: { csrfToken: 'csrf' } }), {
+            headers: { 'content-type': 'application/json', 'set-cookie': 'dmm=session; Secure' },
+          });
+        return Response.json({ ok: true, data: {} });
+      }),
+    );
     await new MutationOwnerClient(config).dmmInventory();
-    for (const path of ['/api/providers', '/api/providers/requirements', '/api/credentials', '/api/models', '/api/normalized-state'])
-      expect(calls.some((url) => url.endsWith(path)), path).toBe(true);
+    for (const path of [
+      '/api/providers',
+      '/api/providers/requirements',
+      '/api/credentials',
+      '/api/models',
+      '/api/normalized-state',
+    ])
+      expect(
+        calls.some((url) => url.endsWith(path)),
+        path,
+      ).toBe(true);
   });
 
   it('reads CHAT agents, sessions and one validated session message history', async () => {
     const calls: string[] = [];
-    vi.stubGlobal('fetch', vi.fn(async (request: string | URL | Request) => {
-      const url = String(request);
-      calls.push(url);
-      if (url.endsWith('/auth/login')) return new Response('{}', { headers: { 'set-cookie': 'chat=session; Secure' } });
-      if (url.endsWith('/messages'))
-        return Response.json({ ok: true, messages: Array.from({ length: 505 }, (_, index) => ({ id: `m${index}` })) });
-      return Response.json({ ok: true });
-    }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (request: string | URL | Request) => {
+        const url = String(request);
+        calls.push(url);
+        if (url.endsWith('/auth/login'))
+          return new Response('{}', { headers: { 'set-cookie': 'chat=session; Secure' } });
+        if (url.endsWith('/messages'))
+          return Response.json({
+            ok: true,
+            messages: Array.from({ length: 505 }, (_, index) => ({ id: `m${index}` })),
+          });
+        return Response.json({ ok: true });
+      }),
+    );
     const owners = new MutationOwnerClient(config);
     const workspace = await owners.chatWorkspace('ses_123');
-    const history = workspace.messages as { messages: Array<{ id: string }>; total: number; truncated: boolean };
+    const history = workspace.messages as {
+      messages: Array<{ id: string }>;
+      total: number;
+      truncated: boolean;
+    };
     expect(history).toMatchObject({ total: 505, truncated: true });
     expect(history.messages).toHaveLength(500);
     expect(history.messages[0]?.id).toBe('m5');
     for (const path of ['/api/agents', '/api/chat/sessions', '/api/chat/sessions/ses_123/messages'])
-      expect(calls.some((url) => url.endsWith(path)), path).toBe(true);
-    await expect(owners.chatWorkspace('../unsafe')).rejects.toMatchObject({ code: 'MUTATION_TARGET_INVALID', statusCode: 422 });
+      expect(
+        calls.some((url) => url.endsWith(path)),
+        path,
+      ).toBe(true);
+    await expect(owners.chatWorkspace('../unsafe')).rejects.toMatchObject({
+      code: 'MUTATION_TARGET_INVALID',
+      statusCode: 422,
+    });
   });
 
   it('bridges authenticated CHAT websocket events and subscribes with replay state', async () => {
-    vi.stubGlobal('fetch', vi.fn(async (request: string | URL | Request) => {
-      if (String(request).endsWith('/auth/login'))
-        return new Response('{}', { headers: { 'set-cookie': 'chat=session; Secure' } });
-      return Response.json({ ok: true });
-    }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (request: string | URL | Request) => {
+        if (String(request).endsWith('/auth/login'))
+          return new Response('{}', { headers: { 'set-cookie': 'chat=session; Secure' } });
+        return Response.json({ ok: true });
+      }),
+    );
     const owners = new MutationOwnerClient(config);
     const frames: unknown[] = [];
     const disconnects: string[] = [];
-    const stop = await owners.openChatRealtime((frame) => frames.push(frame), (reason) => disconnects.push(reason), 'event-42');
+    const stop = await owners.openChatRealtime(
+      (frame) => frames.push(frame),
+      (reason) => disconnects.push(reason),
+      'event-42',
+    );
     const socket = realtimeWs.instances.at(-1)!;
     expect(String(socket.url)).toBe('wss://chat.test/api/realtime');
     expect(socket.options).toEqual({ headers: { cookie: 'chat=session' } });
     socket.emit('open');
-    expect(JSON.parse(socket.sent[0]!)).toEqual({ type: 'subscribe', topics: ['chat:*'], last_event_id: 'event-42' });
-    socket.emit('message', Buffer.from(JSON.stringify({ type: 'message.created', session_id: 'ses_123' })));
+    expect(JSON.parse(socket.sent[0]!)).toEqual({
+      type: 'subscribe',
+      topics: ['chat:*'],
+      last_event_id: 'event-42',
+    });
+    socket.emit(
+      'message',
+      Buffer.from(JSON.stringify({ type: 'message.created', session_id: 'ses_123' })),
+    );
     expect(frames).toEqual([{ type: 'message.created', session_id: 'ses_123' }]);
     stop();
     socket.emit('close');

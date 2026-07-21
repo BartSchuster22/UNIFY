@@ -38,61 +38,202 @@ export type MutationDefinition = {
   owner: Owner;
   kind: string;
   permission: string;
+  /** The current adapter boundary. Only hermes-control paths may ever execute in production. */
+  executionPath: 'migration-legacy' | 'hermes-control';
   destructive?: boolean;
 };
 
 export const mutationDefinitions: Record<string, MutationDefinition> = {
-  'profile.identity.update': { owner: 'hermes', kind: 'profile', permission: 'profiles.manage' },
-  'profile.model.update': { owner: 'hermes', kind: 'profile', permission: 'models.manage' },
-  'profile.runtime.start': { owner: 'hermes', kind: 'profile', permission: 'profiles.manage' },
-  'profile.runtime.stop': { owner: 'hermes', kind: 'profile', permission: 'profiles.manage' },
-  'profile.runtime.restart': { owner: 'hermes', kind: 'profile', permission: 'profiles.manage' },
-  'profile.create': { owner: 'hermes', kind: 'profile', permission: 'profiles.manage' },
+  'profile.identity.update': {
+    owner: 'hermes',
+    kind: 'profile',
+    permission: 'profiles.manage',
+    executionPath: 'migration-legacy',
+  },
+  'profile.model.update': {
+    owner: 'hermes',
+    kind: 'profile',
+    permission: 'models.manage',
+    executionPath: 'migration-legacy',
+  },
+  'profile.runtime.start': {
+    owner: 'hermes',
+    kind: 'profile',
+    permission: 'profiles.manage',
+    executionPath: 'migration-legacy',
+  },
+  'profile.runtime.stop': {
+    owner: 'hermes',
+    kind: 'profile',
+    permission: 'profiles.manage',
+    executionPath: 'migration-legacy',
+  },
+  'profile.runtime.restart': {
+    owner: 'hermes',
+    kind: 'profile',
+    permission: 'profiles.manage',
+    executionPath: 'migration-legacy',
+  },
+  'profile.create': {
+    owner: 'hermes',
+    kind: 'profile',
+    permission: 'profiles.manage',
+    executionPath: 'migration-legacy',
+  },
   'profile.delete': {
     owner: 'hermes',
     kind: 'profile',
     permission: 'profiles.delete',
+    executionPath: 'migration-legacy',
     destructive: true,
   },
-  'dmm.credential.save': { owner: 'dmm', kind: 'provider', permission: 'credentials.manage' },
-  'dmm.credential.validate': { owner: 'dmm', kind: 'provider', permission: 'credentials.manage' },
+  'dmm.credential.save': {
+    owner: 'dmm',
+    kind: 'provider',
+    permission: 'credentials.manage',
+    executionPath: 'migration-legacy',
+  },
+  'dmm.credential.validate': {
+    owner: 'dmm',
+    kind: 'provider',
+    permission: 'credentials.manage',
+    executionPath: 'migration-legacy',
+  },
   'dmm.credential.delete': {
     owner: 'dmm',
     kind: 'provider',
     permission: 'credentials.manage',
+    executionPath: 'migration-legacy',
     destructive: true,
   },
-  'worker.project.create': { owner: 'worker', kind: 'project', permission: 'work.manage' },
-  'worker.project.update': { owner: 'worker', kind: 'project', permission: 'work.manage' },
-  'worker.project.start': { owner: 'worker', kind: 'project', permission: 'work.manage' },
-  'worker.project.stop': { owner: 'worker', kind: 'project', permission: 'work.manage' },
+  'worker.project.create': {
+    owner: 'worker',
+    kind: 'project',
+    permission: 'work.manage',
+    executionPath: 'migration-legacy',
+  },
+  'worker.project.update': {
+    owner: 'worker',
+    kind: 'project',
+    permission: 'work.manage',
+    executionPath: 'migration-legacy',
+  },
+  'worker.project.start': {
+    owner: 'worker',
+    kind: 'project',
+    permission: 'work.manage',
+    executionPath: 'migration-legacy',
+  },
+  'worker.project.stop': {
+    owner: 'worker',
+    kind: 'project',
+    permission: 'work.manage',
+    executionPath: 'migration-legacy',
+  },
   'worker.project.delete': {
     owner: 'worker',
     kind: 'project',
     permission: 'work.manage',
+    executionPath: 'migration-legacy',
     destructive: true,
   },
-  'worker.task.create': { owner: 'worker', kind: 'task', permission: 'work.manage' },
-  'worker.task.comment': { owner: 'worker', kind: 'task', permission: 'work.manage' },
-  'worker.task.start': { owner: 'worker', kind: 'task', permission: 'work.manage' },
-  'worker.task.move': { owner: 'worker', kind: 'task', permission: 'work.manage' },
-  'worker.task.block': { owner: 'worker', kind: 'task', permission: 'work.manage' },
-  'worker.task.unblock': { owner: 'worker', kind: 'task', permission: 'work.manage' },
-  'worker.task.complete': { owner: 'worker', kind: 'task', permission: 'work.manage' },
-  'worker.cron.create': { owner: 'worker', kind: 'cronjob', permission: 'work.manage' },
-  'worker.cron.run': { owner: 'worker', kind: 'cronjob', permission: 'work.manage' },
-  'worker.cron.pause': { owner: 'worker', kind: 'cronjob', permission: 'work.manage' },
-  'worker.cron.resume': { owner: 'worker', kind: 'cronjob', permission: 'work.manage' },
+  'worker.task.create': {
+    owner: 'worker',
+    kind: 'task',
+    permission: 'work.manage',
+    executionPath: 'migration-legacy',
+  },
+  'worker.task.comment': {
+    owner: 'worker',
+    kind: 'task',
+    permission: 'work.manage',
+    executionPath: 'migration-legacy',
+  },
+  'worker.task.start': {
+    owner: 'worker',
+    kind: 'task',
+    permission: 'work.manage',
+    executionPath: 'migration-legacy',
+  },
+  'worker.task.move': {
+    owner: 'worker',
+    kind: 'task',
+    permission: 'work.manage',
+    executionPath: 'migration-legacy',
+  },
+  'worker.task.block': {
+    owner: 'worker',
+    kind: 'task',
+    permission: 'work.manage',
+    executionPath: 'migration-legacy',
+  },
+  'worker.task.unblock': {
+    owner: 'worker',
+    kind: 'task',
+    permission: 'work.manage',
+    executionPath: 'migration-legacy',
+  },
+  'worker.task.complete': {
+    owner: 'worker',
+    kind: 'task',
+    permission: 'work.manage',
+    executionPath: 'migration-legacy',
+  },
+  'worker.cron.create': {
+    owner: 'worker',
+    kind: 'cronjob',
+    permission: 'work.manage',
+    executionPath: 'migration-legacy',
+  },
+  'worker.cron.run': {
+    owner: 'worker',
+    kind: 'cronjob',
+    permission: 'work.manage',
+    executionPath: 'migration-legacy',
+  },
+  'worker.cron.pause': {
+    owner: 'worker',
+    kind: 'cronjob',
+    permission: 'work.manage',
+    executionPath: 'migration-legacy',
+  },
+  'worker.cron.resume': {
+    owner: 'worker',
+    kind: 'cronjob',
+    permission: 'work.manage',
+    executionPath: 'migration-legacy',
+  },
   'worker.cron.delete': {
     owner: 'worker',
     kind: 'cronjob',
     permission: 'work.manage',
+    executionPath: 'migration-legacy',
     destructive: true,
   },
-  'chat.message.send': { owner: 'chat', kind: 'chat-session', permission: 'chat.use' },
-  'chat.session.create': { owner: 'chat', kind: 'chat-session', permission: 'chat.use' },
-  'chat.upload': { owner: 'chat', kind: 'chat-session', permission: 'chat.use' },
-  'memory.record.write': { owner: 'memory-v4', kind: 'memory-record', permission: 'memory.write' },
+  'chat.message.send': {
+    owner: 'chat',
+    kind: 'chat-session',
+    permission: 'chat.use',
+    executionPath: 'migration-legacy',
+  },
+  'chat.session.create': {
+    owner: 'chat',
+    kind: 'chat-session',
+    permission: 'chat.use',
+    executionPath: 'migration-legacy',
+  },
+  'chat.upload': {
+    owner: 'chat',
+    kind: 'chat-session',
+    permission: 'chat.use',
+    executionPath: 'migration-legacy',
+  },
+  'memory.record.write': {
+    owner: 'memory-v4',
+    kind: 'memory-record',
+    permission: 'memory.write',
+    executionPath: 'migration-legacy',
+  },
 };
 
 export class MutationOwnerClient {
@@ -145,7 +286,10 @@ export class MutationOwnerClient {
     return { frameworks, profiles, agents };
   }
 
-  async agencyProfileContext(frameworkId: string, profileId?: string): Promise<{
+  async agencyProfileContext(
+    frameworkId: string,
+    profileId?: string,
+  ): Promise<{
     capabilities: unknown;
     models: unknown;
     detail?: unknown;

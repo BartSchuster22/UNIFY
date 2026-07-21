@@ -3951,964 +3951,20 @@
       },
       "UnifiedResource": {
         "$id": "UnifiedResource",
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "resource",
-          "truth",
-          "authoritative",
-          "adapterId",
-          "fetchedAt",
-          "title",
-          "searchableText",
-          "data"
-        ],
-        "properties": {
-          "resource": {
-            "$id": "ResourceRef",
-            "additionalProperties": false,
-            "type": "object",
-            "required": [
-              "canonicalId",
-              "kind",
-              "owner",
-              "nativeId",
-              "observedAt"
-            ],
-            "properties": {
-              "canonicalId": {
-                "minLength": 1,
-                "maxLength": 1024,
-                "type": "string"
-              },
-              "kind": {
-                "$id": "ResourceKind",
-                "anyOf": [
-                  {
-                    "const": "framework",
-                    "type": "string"
-                  },
-                  {
-                    "const": "profile",
-                    "type": "string"
-                  },
-                  {
-                    "const": "agent",
-                    "type": "string"
-                  },
-                  {
-                    "const": "provider",
-                    "type": "string"
-                  },
-                  {
-                    "const": "model",
-                    "type": "string"
-                  },
-                  {
-                    "const": "project",
-                    "type": "string"
-                  },
-                  {
-                    "const": "task",
-                    "type": "string"
-                  },
-                  {
-                    "const": "kanban-board",
-                    "type": "string"
-                  },
-                  {
-                    "const": "cronjob",
-                    "type": "string"
-                  },
-                  {
-                    "const": "chat-session",
-                    "type": "string"
-                  },
-                  {
-                    "const": "chat-message",
-                    "type": "string"
-                  },
-                  {
-                    "const": "chat-route",
-                    "type": "string"
-                  },
-                  {
-                    "const": "memory-record",
-                    "type": "string"
-                  },
-                  {
-                    "const": "catalog-snapshot",
-                    "type": "string"
-                  },
-                  {
-                    "const": "operation",
-                    "type": "string"
-                  },
-                  {
-                    "const": "notification",
-                    "type": "string"
-                  }
-                ]
-              },
-              "owner": {
-                "$id": "ResourceOwner",
-                "anyOf": [
-                  {
-                    "const": "hermes",
-                    "type": "string"
-                  },
-                  {
-                    "const": "agency",
-                    "type": "string"
-                  },
-                  {
-                    "const": "dmm",
-                    "type": "string"
-                  },
-                  {
-                    "const": "worker",
-                    "type": "string"
-                  },
-                  {
-                    "const": "chat",
-                    "type": "string"
-                  },
-                  {
-                    "const": "memory-v4",
-                    "type": "string"
-                  },
-                  {
-                    "const": "gateway",
-                    "type": "string"
-                  }
-                ]
-              },
-              "frameworkId": {
-                "minLength": 1,
-                "maxLength": 200,
-                "type": "string"
-              },
-              "nativeId": {
-                "minLength": 1,
-                "maxLength": 1024,
-                "type": "string"
-              },
-              "displayLabel": {
-                "maxLength": 500,
-                "type": "string"
-              },
-              "sourceVersion": {
-                "maxLength": 500,
-                "type": "string"
-              },
-              "observedAt": {
-                "format": "date-time",
-                "type": "string"
-              },
-              "links": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "required": [
-                    "relation",
-                    "canonicalId"
-                  ],
-                  "properties": {
-                    "relation": {
-                      "type": "string"
-                    },
-                    "canonicalId": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "truth": {
-            "$id": "TruthState",
-            "anyOf": [
-              {
-                "const": "current",
-                "type": "string"
-              },
-              {
-                "const": "stale",
-                "type": "string"
-              },
-              {
-                "const": "partial",
-                "type": "string"
-              },
-              {
-                "const": "empty",
-                "type": "string"
-              },
-              {
-                "const": "unavailable",
-                "type": "string"
-              },
-              {
-                "const": "unsupported",
-                "type": "string"
-              },
-              {
-                "const": "forbidden",
-                "type": "string"
-              },
-              {
-                "const": "failed",
-                "type": "string"
-              },
-              {
-                "const": "inconclusive",
-                "type": "string"
-              }
-            ]
-          },
-          "authoritative": {
-            "const": true,
-            "type": "boolean"
-          },
-          "adapterId": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "fetchedAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "title": {
-            "minLength": 1,
-            "maxLength": 500,
-            "type": "string"
-          },
-          "searchableText": {
-            "maxLength": 10000,
-            "type": "string"
-          },
-          "data": {
-            "type": "object",
-            "patternProperties": {
-              "^(.*)$": {}
-            }
-          }
-        }
-      },
-      "IntegrationStatus": {
-        "$id": "IntegrationStatus",
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "adapterId",
-          "owners",
-          "status",
-          "resourceCount",
-          "warnings"
-        ],
-        "properties": {
-          "adapterId": {
-            "type": "string"
-          },
-          "owners": {
-            "type": "array",
-            "items": {
-              "$id": "ResourceOwner",
-              "anyOf": [
-                {
-                  "const": "hermes",
-                  "type": "string"
-                },
-                {
-                  "const": "agency",
-                  "type": "string"
-                },
-                {
-                  "const": "dmm",
-                  "type": "string"
-                },
-                {
-                  "const": "worker",
-                  "type": "string"
-                },
-                {
-                  "const": "chat",
-                  "type": "string"
-                },
-                {
-                  "const": "memory-v4",
-                  "type": "string"
-                },
-                {
-                  "const": "gateway",
-                  "type": "string"
-                }
-              ]
-            }
-          },
-          "status": {
-            "$id": "TruthState",
-            "anyOf": [
-              {
-                "const": "current",
-                "type": "string"
-              },
-              {
-                "const": "stale",
-                "type": "string"
-              },
-              {
-                "const": "partial",
-                "type": "string"
-              },
-              {
-                "const": "empty",
-                "type": "string"
-              },
-              {
-                "const": "unavailable",
-                "type": "string"
-              },
-              {
-                "const": "unsupported",
-                "type": "string"
-              },
-              {
-                "const": "forbidden",
-                "type": "string"
-              },
-              {
-                "const": "failed",
-                "type": "string"
-              },
-              {
-                "const": "inconclusive",
-                "type": "string"
-              }
-            ]
-          },
-          "observedAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "resourceCount": {
-            "minimum": 0,
-            "type": "integer"
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$id": "Warning",
-              "additionalProperties": false,
-              "type": "object",
-              "required": [
-                "code",
-                "message"
-              ],
-              "properties": {
-                "code": {
-                  "minLength": 1,
-                  "maxLength": 100,
-                  "type": "string"
-                },
-                "message": {
-                  "minLength": 1,
-                  "maxLength": 1000,
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      },
-      "IntegrationStatusList": {
-        "$id": "IntegrationStatusList",
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "items"
-        ],
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$id": "IntegrationStatus",
-              "additionalProperties": false,
-              "type": "object",
-              "required": [
-                "adapterId",
-                "owners",
-                "status",
-                "resourceCount",
-                "warnings"
-              ],
-              "properties": {
-                "adapterId": {
-                  "type": "string"
-                },
-                "owners": {
-                  "type": "array",
-                  "items": {
-                    "$id": "ResourceOwner",
-                    "anyOf": [
-                      {
-                        "const": "hermes",
-                        "type": "string"
-                      },
-                      {
-                        "const": "agency",
-                        "type": "string"
-                      },
-                      {
-                        "const": "dmm",
-                        "type": "string"
-                      },
-                      {
-                        "const": "worker",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat",
-                        "type": "string"
-                      },
-                      {
-                        "const": "memory-v4",
-                        "type": "string"
-                      },
-                      {
-                        "const": "gateway",
-                        "type": "string"
-                      }
-                    ]
-                  }
-                },
-                "status": {
-                  "$id": "TruthState",
-                  "anyOf": [
-                    {
-                      "const": "current",
-                      "type": "string"
-                    },
-                    {
-                      "const": "stale",
-                      "type": "string"
-                    },
-                    {
-                      "const": "partial",
-                      "type": "string"
-                    },
-                    {
-                      "const": "empty",
-                      "type": "string"
-                    },
-                    {
-                      "const": "unavailable",
-                      "type": "string"
-                    },
-                    {
-                      "const": "unsupported",
-                      "type": "string"
-                    },
-                    {
-                      "const": "forbidden",
-                      "type": "string"
-                    },
-                    {
-                      "const": "failed",
-                      "type": "string"
-                    },
-                    {
-                      "const": "inconclusive",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "observedAt": {
-                  "format": "date-time",
-                  "type": "string"
-                },
-                "resourceCount": {
-                  "minimum": 0,
-                  "type": "integer"
-                },
-                "warnings": {
-                  "type": "array",
-                  "items": {
-                    "$id": "Warning",
-                    "additionalProperties": false,
-                    "type": "object",
-                    "required": [
-                      "code",
-                      "message"
-                    ],
-                    "properties": {
-                      "code": {
-                        "minLength": 1,
-                        "maxLength": 100,
-                        "type": "string"
-                      },
-                      "message": {
-                        "minLength": 1,
-                        "maxLength": 1000,
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "UnifiedResourceList": {
-        "$id": "UnifiedResourceList",
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "items",
-          "meta"
-        ],
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$id": "UnifiedResource",
-              "additionalProperties": false,
-              "type": "object",
-              "required": [
-                "resource",
-                "truth",
-                "authoritative",
-                "adapterId",
-                "fetchedAt",
-                "title",
-                "searchableText",
-                "data"
-              ],
-              "properties": {
-                "resource": {
-                  "$id": "ResourceRef",
-                  "additionalProperties": false,
-                  "type": "object",
-                  "required": [
-                    "canonicalId",
-                    "kind",
-                    "owner",
-                    "nativeId",
-                    "observedAt"
-                  ],
-                  "properties": {
-                    "canonicalId": {
-                      "minLength": 1,
-                      "maxLength": 1024,
-                      "type": "string"
-                    },
-                    "kind": {
-                      "$id": "ResourceKind",
-                      "anyOf": [
-                        {
-                          "const": "framework",
-                          "type": "string"
-                        },
-                        {
-                          "const": "profile",
-                          "type": "string"
-                        },
-                        {
-                          "const": "agent",
-                          "type": "string"
-                        },
-                        {
-                          "const": "provider",
-                          "type": "string"
-                        },
-                        {
-                          "const": "model",
-                          "type": "string"
-                        },
-                        {
-                          "const": "project",
-                          "type": "string"
-                        },
-                        {
-                          "const": "task",
-                          "type": "string"
-                        },
-                        {
-                          "const": "kanban-board",
-                          "type": "string"
-                        },
-                        {
-                          "const": "cronjob",
-                          "type": "string"
-                        },
-                        {
-                          "const": "chat-session",
-                          "type": "string"
-                        },
-                        {
-                          "const": "chat-message",
-                          "type": "string"
-                        },
-                        {
-                          "const": "chat-route",
-                          "type": "string"
-                        },
-                        {
-                          "const": "memory-record",
-                          "type": "string"
-                        },
-                        {
-                          "const": "catalog-snapshot",
-                          "type": "string"
-                        },
-                        {
-                          "const": "operation",
-                          "type": "string"
-                        },
-                        {
-                          "const": "notification",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "owner": {
-                      "$id": "ResourceOwner",
-                      "anyOf": [
-                        {
-                          "const": "hermes",
-                          "type": "string"
-                        },
-                        {
-                          "const": "agency",
-                          "type": "string"
-                        },
-                        {
-                          "const": "dmm",
-                          "type": "string"
-                        },
-                        {
-                          "const": "worker",
-                          "type": "string"
-                        },
-                        {
-                          "const": "chat",
-                          "type": "string"
-                        },
-                        {
-                          "const": "memory-v4",
-                          "type": "string"
-                        },
-                        {
-                          "const": "gateway",
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "frameworkId": {
-                      "minLength": 1,
-                      "maxLength": 200,
-                      "type": "string"
-                    },
-                    "nativeId": {
-                      "minLength": 1,
-                      "maxLength": 1024,
-                      "type": "string"
-                    },
-                    "displayLabel": {
-                      "maxLength": 500,
-                      "type": "string"
-                    },
-                    "sourceVersion": {
-                      "maxLength": 500,
-                      "type": "string"
-                    },
-                    "observedAt": {
-                      "format": "date-time",
-                      "type": "string"
-                    },
-                    "links": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "required": [
-                          "relation",
-                          "canonicalId"
-                        ],
-                        "properties": {
-                          "relation": {
-                            "type": "string"
-                          },
-                          "canonicalId": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "truth": {
-                  "$id": "TruthState",
-                  "anyOf": [
-                    {
-                      "const": "current",
-                      "type": "string"
-                    },
-                    {
-                      "const": "stale",
-                      "type": "string"
-                    },
-                    {
-                      "const": "partial",
-                      "type": "string"
-                    },
-                    {
-                      "const": "empty",
-                      "type": "string"
-                    },
-                    {
-                      "const": "unavailable",
-                      "type": "string"
-                    },
-                    {
-                      "const": "unsupported",
-                      "type": "string"
-                    },
-                    {
-                      "const": "forbidden",
-                      "type": "string"
-                    },
-                    {
-                      "const": "failed",
-                      "type": "string"
-                    },
-                    {
-                      "const": "inconclusive",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "authoritative": {
-                  "const": true,
-                  "type": "boolean"
-                },
-                "adapterId": {
-                  "minLength": 1,
-                  "type": "string"
-                },
-                "fetchedAt": {
-                  "format": "date-time",
-                  "type": "string"
-                },
-                "title": {
-                  "minLength": 1,
-                  "maxLength": 500,
-                  "type": "string"
-                },
-                "searchableText": {
-                  "maxLength": 10000,
-                  "type": "string"
-                },
-                "data": {
-                  "type": "object",
-                  "patternProperties": {
-                    "^(.*)$": {}
-                  }
-                }
-              }
-            }
-          },
-          "meta": {
-            "$id": "ResponseMeta",
-            "additionalProperties": false,
-            "type": "object",
-            "required": [
-              "requestId",
-              "correlationId",
-              "source",
-              "sourceStatus",
-              "freshness",
-              "generatedAt",
-              "warnings"
-            ],
-            "properties": {
-              "requestId": {
-                "minLength": 1,
-                "type": "string"
-              },
-              "correlationId": {
-                "minLength": 1,
-                "type": "string"
-              },
-              "source": {
-                "additionalProperties": false,
-                "type": "object",
-                "required": [
-                  "owner",
-                  "adapterId"
-                ],
-                "properties": {
-                  "owner": {
-                    "$id": "ResourceOwner",
-                    "anyOf": [
-                      {
-                        "const": "hermes",
-                        "type": "string"
-                      },
-                      {
-                        "const": "agency",
-                        "type": "string"
-                      },
-                      {
-                        "const": "dmm",
-                        "type": "string"
-                      },
-                      {
-                        "const": "worker",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat",
-                        "type": "string"
-                      },
-                      {
-                        "const": "memory-v4",
-                        "type": "string"
-                      },
-                      {
-                        "const": "gateway",
-                        "type": "string"
-                      }
-                    ]
-                  },
-                  "frameworkId": {
-                    "type": "string"
-                  },
-                  "adapterId": {
-                    "minLength": 1,
-                    "type": "string"
-                  }
-                }
-              },
-              "sourceStatus": {
-                "minLength": 1,
-                "type": "string"
-              },
-              "freshness": {
-                "$id": "TruthState",
-                "anyOf": [
-                  {
-                    "const": "current",
-                    "type": "string"
-                  },
-                  {
-                    "const": "stale",
-                    "type": "string"
-                  },
-                  {
-                    "const": "partial",
-                    "type": "string"
-                  },
-                  {
-                    "const": "empty",
-                    "type": "string"
-                  },
-                  {
-                    "const": "unavailable",
-                    "type": "string"
-                  },
-                  {
-                    "const": "unsupported",
-                    "type": "string"
-                  },
-                  {
-                    "const": "forbidden",
-                    "type": "string"
-                  },
-                  {
-                    "const": "failed",
-                    "type": "string"
-                  },
-                  {
-                    "const": "inconclusive",
-                    "type": "string"
-                  }
-                ]
-              },
-              "observedAt": {
-                "format": "date-time",
-                "type": "string"
-              },
-              "generatedAt": {
-                "format": "date-time",
-                "type": "string"
-              },
-              "warnings": {
-                "type": "array",
-                "items": {
-                  "$id": "Warning",
-                  "additionalProperties": false,
-                  "type": "object",
-                  "required": [
-                    "code",
-                    "message"
-                  ],
-                  "properties": {
-                    "code": {
-                      "minLength": 1,
-                      "maxLength": 100,
-                      "type": "string"
-                    },
-                    "message": {
-                      "minLength": 1,
-                      "maxLength": 1000,
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "page": {
-                "additionalProperties": false,
-                "type": "object",
-                "required": [
-                  "hasMore"
-                ],
-                "properties": {
-                  "nextCursor": {
-                    "type": "string"
-                  },
-                  "hasMore": {
-                    "type": "boolean"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "UnifiedSearchHit": {
-        "$id": "UnifiedSearchHit",
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "resource",
-          "score",
-          "matchedFields"
-        ],
-        "properties": {
-          "resource": {
-            "$id": "UnifiedResource",
+        "anyOf": [
+          {
             "additionalProperties": false,
             "type": "object",
             "required": [
               "resource",
               "truth",
-              "authoritative",
               "adapterId",
               "fetchedAt",
               "title",
               "searchableText",
-              "data"
+              "data",
+              "authoritative",
+              "sourceRole"
             ],
             "properties": {
               "resource": {
@@ -5113,9 +4169,255 @@
                   }
                 ]
               },
+              "adapterId": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "fetchedAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "title": {
+                "minLength": 1,
+                "maxLength": 500,
+                "type": "string"
+              },
+              "searchableText": {
+                "maxLength": 10000,
+                "type": "string"
+              },
+              "data": {
+                "type": "object",
+                "patternProperties": {
+                  "^(.*)$": {}
+                }
+              },
               "authoritative": {
                 "const": true,
                 "type": "boolean"
+              },
+              "sourceRole": {
+                "const": "authoritative",
+                "type": "string"
+              }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "resource",
+              "truth",
+              "adapterId",
+              "fetchedAt",
+              "title",
+              "searchableText",
+              "data",
+              "authoritative",
+              "sourceRole"
+            ],
+            "properties": {
+              "resource": {
+                "$id": "ResourceRef",
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "canonicalId",
+                  "kind",
+                  "owner",
+                  "nativeId",
+                  "observedAt"
+                ],
+                "properties": {
+                  "canonicalId": {
+                    "minLength": 1,
+                    "maxLength": 1024,
+                    "type": "string"
+                  },
+                  "kind": {
+                    "$id": "ResourceKind",
+                    "anyOf": [
+                      {
+                        "const": "framework",
+                        "type": "string"
+                      },
+                      {
+                        "const": "profile",
+                        "type": "string"
+                      },
+                      {
+                        "const": "agent",
+                        "type": "string"
+                      },
+                      {
+                        "const": "provider",
+                        "type": "string"
+                      },
+                      {
+                        "const": "model",
+                        "type": "string"
+                      },
+                      {
+                        "const": "project",
+                        "type": "string"
+                      },
+                      {
+                        "const": "task",
+                        "type": "string"
+                      },
+                      {
+                        "const": "kanban-board",
+                        "type": "string"
+                      },
+                      {
+                        "const": "cronjob",
+                        "type": "string"
+                      },
+                      {
+                        "const": "chat-session",
+                        "type": "string"
+                      },
+                      {
+                        "const": "chat-message",
+                        "type": "string"
+                      },
+                      {
+                        "const": "chat-route",
+                        "type": "string"
+                      },
+                      {
+                        "const": "memory-record",
+                        "type": "string"
+                      },
+                      {
+                        "const": "catalog-snapshot",
+                        "type": "string"
+                      },
+                      {
+                        "const": "operation",
+                        "type": "string"
+                      },
+                      {
+                        "const": "notification",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "owner": {
+                    "$id": "ResourceOwner",
+                    "anyOf": [
+                      {
+                        "const": "hermes",
+                        "type": "string"
+                      },
+                      {
+                        "const": "agency",
+                        "type": "string"
+                      },
+                      {
+                        "const": "dmm",
+                        "type": "string"
+                      },
+                      {
+                        "const": "worker",
+                        "type": "string"
+                      },
+                      {
+                        "const": "chat",
+                        "type": "string"
+                      },
+                      {
+                        "const": "memory-v4",
+                        "type": "string"
+                      },
+                      {
+                        "const": "gateway",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "frameworkId": {
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "type": "string"
+                  },
+                  "nativeId": {
+                    "minLength": 1,
+                    "maxLength": 1024,
+                    "type": "string"
+                  },
+                  "displayLabel": {
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  "sourceVersion": {
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  "observedAt": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "links": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "relation",
+                        "canonicalId"
+                      ],
+                      "properties": {
+                        "relation": {
+                          "type": "string"
+                        },
+                        "canonicalId": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "truth": {
+                "$id": "TruthState",
+                "anyOf": [
+                  {
+                    "const": "current",
+                    "type": "string"
+                  },
+                  {
+                    "const": "stale",
+                    "type": "string"
+                  },
+                  {
+                    "const": "partial",
+                    "type": "string"
+                  },
+                  {
+                    "const": "empty",
+                    "type": "string"
+                  },
+                  {
+                    "const": "unavailable",
+                    "type": "string"
+                  },
+                  {
+                    "const": "unsupported",
+                    "type": "string"
+                  },
+                  {
+                    "const": "forbidden",
+                    "type": "string"
+                  },
+                  {
+                    "const": "failed",
+                    "type": "string"
+                  },
+                  {
+                    "const": "inconclusive",
+                    "type": "string"
+                  }
+                ]
               },
               "adapterId": {
                 "minLength": 1,
@@ -5139,22 +4441,322 @@
                 "patternProperties": {
                   "^(.*)$": {}
                 }
+              },
+              "authoritative": {
+                "const": false,
+                "type": "boolean"
+              },
+              "sourceRole": {
+                "const": "migration-only",
+                "type": "string"
               }
             }
+          }
+        ]
+      },
+      "IntegrationStatus": {
+        "$id": "IntegrationStatus",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "adapterId",
+          "owners",
+          "sourceRole",
+          "writeEnabled",
+          "status",
+          "resourceCount",
+          "warnings"
+        ],
+        "properties": {
+          "adapterId": {
+            "type": "string"
           },
-          "score": {
-            "type": "number"
-          },
-          "matchedFields": {
+          "owners": {
             "type": "array",
             "items": {
-              "type": "string"
+              "$id": "ResourceOwner",
+              "anyOf": [
+                {
+                  "const": "hermes",
+                  "type": "string"
+                },
+                {
+                  "const": "agency",
+                  "type": "string"
+                },
+                {
+                  "const": "dmm",
+                  "type": "string"
+                },
+                {
+                  "const": "worker",
+                  "type": "string"
+                },
+                {
+                  "const": "chat",
+                  "type": "string"
+                },
+                {
+                  "const": "memory-v4",
+                  "type": "string"
+                },
+                {
+                  "const": "gateway",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "sourceRole": {
+            "$id": "SourceRole",
+            "anyOf": [
+              {
+                "const": "authoritative",
+                "type": "string"
+              },
+              {
+                "const": "migration-only",
+                "type": "string"
+              }
+            ]
+          },
+          "writeEnabled": {
+            "type": "boolean"
+          },
+          "status": {
+            "$id": "TruthState",
+            "anyOf": [
+              {
+                "const": "current",
+                "type": "string"
+              },
+              {
+                "const": "stale",
+                "type": "string"
+              },
+              {
+                "const": "partial",
+                "type": "string"
+              },
+              {
+                "const": "empty",
+                "type": "string"
+              },
+              {
+                "const": "unavailable",
+                "type": "string"
+              },
+              {
+                "const": "unsupported",
+                "type": "string"
+              },
+              {
+                "const": "forbidden",
+                "type": "string"
+              },
+              {
+                "const": "failed",
+                "type": "string"
+              },
+              {
+                "const": "inconclusive",
+                "type": "string"
+              }
+            ]
+          },
+          "observedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "resourceCount": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$id": "Warning",
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "code",
+                "message"
+              ],
+              "properties": {
+                "code": {
+                  "minLength": 1,
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                "message": {
+                  "minLength": 1,
+                  "maxLength": 1000,
+                  "type": "string"
+                }
+              }
             }
           }
         }
       },
-      "UnifiedSearchResults": {
-        "$id": "UnifiedSearchResults",
+      "IntegrationStatusList": {
+        "$id": "IntegrationStatusList",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$id": "IntegrationStatus",
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "adapterId",
+                "owners",
+                "sourceRole",
+                "writeEnabled",
+                "status",
+                "resourceCount",
+                "warnings"
+              ],
+              "properties": {
+                "adapterId": {
+                  "type": "string"
+                },
+                "owners": {
+                  "type": "array",
+                  "items": {
+                    "$id": "ResourceOwner",
+                    "anyOf": [
+                      {
+                        "const": "hermes",
+                        "type": "string"
+                      },
+                      {
+                        "const": "agency",
+                        "type": "string"
+                      },
+                      {
+                        "const": "dmm",
+                        "type": "string"
+                      },
+                      {
+                        "const": "worker",
+                        "type": "string"
+                      },
+                      {
+                        "const": "chat",
+                        "type": "string"
+                      },
+                      {
+                        "const": "memory-v4",
+                        "type": "string"
+                      },
+                      {
+                        "const": "gateway",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "sourceRole": {
+                  "$id": "SourceRole",
+                  "anyOf": [
+                    {
+                      "const": "authoritative",
+                      "type": "string"
+                    },
+                    {
+                      "const": "migration-only",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "writeEnabled": {
+                  "type": "boolean"
+                },
+                "status": {
+                  "$id": "TruthState",
+                  "anyOf": [
+                    {
+                      "const": "current",
+                      "type": "string"
+                    },
+                    {
+                      "const": "stale",
+                      "type": "string"
+                    },
+                    {
+                      "const": "partial",
+                      "type": "string"
+                    },
+                    {
+                      "const": "empty",
+                      "type": "string"
+                    },
+                    {
+                      "const": "unavailable",
+                      "type": "string"
+                    },
+                    {
+                      "const": "unsupported",
+                      "type": "string"
+                    },
+                    {
+                      "const": "forbidden",
+                      "type": "string"
+                    },
+                    {
+                      "const": "failed",
+                      "type": "string"
+                    },
+                    {
+                      "const": "inconclusive",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "observedAt": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "resourceCount": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "warnings": {
+                  "type": "array",
+                  "items": {
+                    "$id": "Warning",
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": [
+                      "code",
+                      "message"
+                    ],
+                    "properties": {
+                      "code": {
+                        "minLength": 1,
+                        "maxLength": 100,
+                        "type": "string"
+                      },
+                      "message": {
+                        "minLength": 1,
+                        "maxLength": 1000,
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "UnifiedResourceList": {
+        "$id": "UnifiedResourceList",
         "additionalProperties": false,
         "type": "object",
         "required": [
@@ -5165,28 +4767,21 @@
           "items": {
             "type": "array",
             "items": {
-              "$id": "UnifiedSearchHit",
-              "additionalProperties": false,
-              "type": "object",
-              "required": [
-                "resource",
-                "score",
-                "matchedFields"
-              ],
-              "properties": {
-                "resource": {
-                  "$id": "UnifiedResource",
+              "$id": "UnifiedResource",
+              "anyOf": [
+                {
                   "additionalProperties": false,
                   "type": "object",
                   "required": [
                     "resource",
                     "truth",
-                    "authoritative",
                     "adapterId",
                     "fetchedAt",
                     "title",
                     "searchableText",
-                    "data"
+                    "data",
+                    "authoritative",
+                    "sourceRole"
                   ],
                   "properties": {
                     "resource": {
@@ -5391,9 +4986,255 @@
                         }
                       ]
                     },
+                    "adapterId": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "fetchedAt": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "title": {
+                      "minLength": 1,
+                      "maxLength": 500,
+                      "type": "string"
+                    },
+                    "searchableText": {
+                      "maxLength": 10000,
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "patternProperties": {
+                        "^(.*)$": {}
+                      }
+                    },
                     "authoritative": {
                       "const": true,
                       "type": "boolean"
+                    },
+                    "sourceRole": {
+                      "const": "authoritative",
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "resource",
+                    "truth",
+                    "adapterId",
+                    "fetchedAt",
+                    "title",
+                    "searchableText",
+                    "data",
+                    "authoritative",
+                    "sourceRole"
+                  ],
+                  "properties": {
+                    "resource": {
+                      "$id": "ResourceRef",
+                      "additionalProperties": false,
+                      "type": "object",
+                      "required": [
+                        "canonicalId",
+                        "kind",
+                        "owner",
+                        "nativeId",
+                        "observedAt"
+                      ],
+                      "properties": {
+                        "canonicalId": {
+                          "minLength": 1,
+                          "maxLength": 1024,
+                          "type": "string"
+                        },
+                        "kind": {
+                          "$id": "ResourceKind",
+                          "anyOf": [
+                            {
+                              "const": "framework",
+                              "type": "string"
+                            },
+                            {
+                              "const": "profile",
+                              "type": "string"
+                            },
+                            {
+                              "const": "agent",
+                              "type": "string"
+                            },
+                            {
+                              "const": "provider",
+                              "type": "string"
+                            },
+                            {
+                              "const": "model",
+                              "type": "string"
+                            },
+                            {
+                              "const": "project",
+                              "type": "string"
+                            },
+                            {
+                              "const": "task",
+                              "type": "string"
+                            },
+                            {
+                              "const": "kanban-board",
+                              "type": "string"
+                            },
+                            {
+                              "const": "cronjob",
+                              "type": "string"
+                            },
+                            {
+                              "const": "chat-session",
+                              "type": "string"
+                            },
+                            {
+                              "const": "chat-message",
+                              "type": "string"
+                            },
+                            {
+                              "const": "chat-route",
+                              "type": "string"
+                            },
+                            {
+                              "const": "memory-record",
+                              "type": "string"
+                            },
+                            {
+                              "const": "catalog-snapshot",
+                              "type": "string"
+                            },
+                            {
+                              "const": "operation",
+                              "type": "string"
+                            },
+                            {
+                              "const": "notification",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "owner": {
+                          "$id": "ResourceOwner",
+                          "anyOf": [
+                            {
+                              "const": "hermes",
+                              "type": "string"
+                            },
+                            {
+                              "const": "agency",
+                              "type": "string"
+                            },
+                            {
+                              "const": "dmm",
+                              "type": "string"
+                            },
+                            {
+                              "const": "worker",
+                              "type": "string"
+                            },
+                            {
+                              "const": "chat",
+                              "type": "string"
+                            },
+                            {
+                              "const": "memory-v4",
+                              "type": "string"
+                            },
+                            {
+                              "const": "gateway",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "frameworkId": {
+                          "minLength": 1,
+                          "maxLength": 200,
+                          "type": "string"
+                        },
+                        "nativeId": {
+                          "minLength": 1,
+                          "maxLength": 1024,
+                          "type": "string"
+                        },
+                        "displayLabel": {
+                          "maxLength": 500,
+                          "type": "string"
+                        },
+                        "sourceVersion": {
+                          "maxLength": 500,
+                          "type": "string"
+                        },
+                        "observedAt": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "links": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "relation",
+                              "canonicalId"
+                            ],
+                            "properties": {
+                              "relation": {
+                                "type": "string"
+                              },
+                              "canonicalId": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "truth": {
+                      "$id": "TruthState",
+                      "anyOf": [
+                        {
+                          "const": "current",
+                          "type": "string"
+                        },
+                        {
+                          "const": "stale",
+                          "type": "string"
+                        },
+                        {
+                          "const": "partial",
+                          "type": "string"
+                        },
+                        {
+                          "const": "empty",
+                          "type": "string"
+                        },
+                        {
+                          "const": "unavailable",
+                          "type": "string"
+                        },
+                        {
+                          "const": "unsupported",
+                          "type": "string"
+                        },
+                        {
+                          "const": "forbidden",
+                          "type": "string"
+                        },
+                        {
+                          "const": "failed",
+                          "type": "string"
+                        },
+                        {
+                          "const": "inconclusive",
+                          "type": "string"
+                        }
+                      ]
                     },
                     "adapterId": {
                       "minLength": 1,
@@ -5417,8 +5258,1239 @@
                       "patternProperties": {
                         "^(.*)$": {}
                       }
+                    },
+                    "authoritative": {
+                      "const": false,
+                      "type": "boolean"
+                    },
+                    "sourceRole": {
+                      "const": "migration-only",
+                      "type": "string"
                     }
                   }
+                }
+              ]
+            }
+          },
+          "meta": {
+            "$id": "ResponseMeta",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "requestId",
+              "correlationId",
+              "source",
+              "sourceStatus",
+              "freshness",
+              "generatedAt",
+              "warnings"
+            ],
+            "properties": {
+              "requestId": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "correlationId": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "source": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "owner",
+                  "adapterId"
+                ],
+                "properties": {
+                  "owner": {
+                    "$id": "ResourceOwner",
+                    "anyOf": [
+                      {
+                        "const": "hermes",
+                        "type": "string"
+                      },
+                      {
+                        "const": "agency",
+                        "type": "string"
+                      },
+                      {
+                        "const": "dmm",
+                        "type": "string"
+                      },
+                      {
+                        "const": "worker",
+                        "type": "string"
+                      },
+                      {
+                        "const": "chat",
+                        "type": "string"
+                      },
+                      {
+                        "const": "memory-v4",
+                        "type": "string"
+                      },
+                      {
+                        "const": "gateway",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "frameworkId": {
+                    "type": "string"
+                  },
+                  "adapterId": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                }
+              },
+              "sourceStatus": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "freshness": {
+                "$id": "TruthState",
+                "anyOf": [
+                  {
+                    "const": "current",
+                    "type": "string"
+                  },
+                  {
+                    "const": "stale",
+                    "type": "string"
+                  },
+                  {
+                    "const": "partial",
+                    "type": "string"
+                  },
+                  {
+                    "const": "empty",
+                    "type": "string"
+                  },
+                  {
+                    "const": "unavailable",
+                    "type": "string"
+                  },
+                  {
+                    "const": "unsupported",
+                    "type": "string"
+                  },
+                  {
+                    "const": "forbidden",
+                    "type": "string"
+                  },
+                  {
+                    "const": "failed",
+                    "type": "string"
+                  },
+                  {
+                    "const": "inconclusive",
+                    "type": "string"
+                  }
+                ]
+              },
+              "observedAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "generatedAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "$id": "Warning",
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "minLength": 1,
+                      "maxLength": 100,
+                      "type": "string"
+                    },
+                    "message": {
+                      "minLength": 1,
+                      "maxLength": 1000,
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "page": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "hasMore"
+                ],
+                "properties": {
+                  "nextCursor": {
+                    "type": "string"
+                  },
+                  "hasMore": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "UnifiedSearchHit": {
+        "$id": "UnifiedSearchHit",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "resource",
+          "score",
+          "matchedFields"
+        ],
+        "properties": {
+          "resource": {
+            "$id": "UnifiedResource",
+            "anyOf": [
+              {
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "resource",
+                  "truth",
+                  "adapterId",
+                  "fetchedAt",
+                  "title",
+                  "searchableText",
+                  "data",
+                  "authoritative",
+                  "sourceRole"
+                ],
+                "properties": {
+                  "resource": {
+                    "$id": "ResourceRef",
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": [
+                      "canonicalId",
+                      "kind",
+                      "owner",
+                      "nativeId",
+                      "observedAt"
+                    ],
+                    "properties": {
+                      "canonicalId": {
+                        "minLength": 1,
+                        "maxLength": 1024,
+                        "type": "string"
+                      },
+                      "kind": {
+                        "$id": "ResourceKind",
+                        "anyOf": [
+                          {
+                            "const": "framework",
+                            "type": "string"
+                          },
+                          {
+                            "const": "profile",
+                            "type": "string"
+                          },
+                          {
+                            "const": "agent",
+                            "type": "string"
+                          },
+                          {
+                            "const": "provider",
+                            "type": "string"
+                          },
+                          {
+                            "const": "model",
+                            "type": "string"
+                          },
+                          {
+                            "const": "project",
+                            "type": "string"
+                          },
+                          {
+                            "const": "task",
+                            "type": "string"
+                          },
+                          {
+                            "const": "kanban-board",
+                            "type": "string"
+                          },
+                          {
+                            "const": "cronjob",
+                            "type": "string"
+                          },
+                          {
+                            "const": "chat-session",
+                            "type": "string"
+                          },
+                          {
+                            "const": "chat-message",
+                            "type": "string"
+                          },
+                          {
+                            "const": "chat-route",
+                            "type": "string"
+                          },
+                          {
+                            "const": "memory-record",
+                            "type": "string"
+                          },
+                          {
+                            "const": "catalog-snapshot",
+                            "type": "string"
+                          },
+                          {
+                            "const": "operation",
+                            "type": "string"
+                          },
+                          {
+                            "const": "notification",
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "owner": {
+                        "$id": "ResourceOwner",
+                        "anyOf": [
+                          {
+                            "const": "hermes",
+                            "type": "string"
+                          },
+                          {
+                            "const": "agency",
+                            "type": "string"
+                          },
+                          {
+                            "const": "dmm",
+                            "type": "string"
+                          },
+                          {
+                            "const": "worker",
+                            "type": "string"
+                          },
+                          {
+                            "const": "chat",
+                            "type": "string"
+                          },
+                          {
+                            "const": "memory-v4",
+                            "type": "string"
+                          },
+                          {
+                            "const": "gateway",
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "frameworkId": {
+                        "minLength": 1,
+                        "maxLength": 200,
+                        "type": "string"
+                      },
+                      "nativeId": {
+                        "minLength": 1,
+                        "maxLength": 1024,
+                        "type": "string"
+                      },
+                      "displayLabel": {
+                        "maxLength": 500,
+                        "type": "string"
+                      },
+                      "sourceVersion": {
+                        "maxLength": 500,
+                        "type": "string"
+                      },
+                      "observedAt": {
+                        "format": "date-time",
+                        "type": "string"
+                      },
+                      "links": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "relation",
+                            "canonicalId"
+                          ],
+                          "properties": {
+                            "relation": {
+                              "type": "string"
+                            },
+                            "canonicalId": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "truth": {
+                    "$id": "TruthState",
+                    "anyOf": [
+                      {
+                        "const": "current",
+                        "type": "string"
+                      },
+                      {
+                        "const": "stale",
+                        "type": "string"
+                      },
+                      {
+                        "const": "partial",
+                        "type": "string"
+                      },
+                      {
+                        "const": "empty",
+                        "type": "string"
+                      },
+                      {
+                        "const": "unavailable",
+                        "type": "string"
+                      },
+                      {
+                        "const": "unsupported",
+                        "type": "string"
+                      },
+                      {
+                        "const": "forbidden",
+                        "type": "string"
+                      },
+                      {
+                        "const": "failed",
+                        "type": "string"
+                      },
+                      {
+                        "const": "inconclusive",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "adapterId": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "fetchedAt": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "title": {
+                    "minLength": 1,
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  "searchableText": {
+                    "maxLength": 10000,
+                    "type": "string"
+                  },
+                  "data": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^(.*)$": {}
+                    }
+                  },
+                  "authoritative": {
+                    "const": true,
+                    "type": "boolean"
+                  },
+                  "sourceRole": {
+                    "const": "authoritative",
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "resource",
+                  "truth",
+                  "adapterId",
+                  "fetchedAt",
+                  "title",
+                  "searchableText",
+                  "data",
+                  "authoritative",
+                  "sourceRole"
+                ],
+                "properties": {
+                  "resource": {
+                    "$id": "ResourceRef",
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": [
+                      "canonicalId",
+                      "kind",
+                      "owner",
+                      "nativeId",
+                      "observedAt"
+                    ],
+                    "properties": {
+                      "canonicalId": {
+                        "minLength": 1,
+                        "maxLength": 1024,
+                        "type": "string"
+                      },
+                      "kind": {
+                        "$id": "ResourceKind",
+                        "anyOf": [
+                          {
+                            "const": "framework",
+                            "type": "string"
+                          },
+                          {
+                            "const": "profile",
+                            "type": "string"
+                          },
+                          {
+                            "const": "agent",
+                            "type": "string"
+                          },
+                          {
+                            "const": "provider",
+                            "type": "string"
+                          },
+                          {
+                            "const": "model",
+                            "type": "string"
+                          },
+                          {
+                            "const": "project",
+                            "type": "string"
+                          },
+                          {
+                            "const": "task",
+                            "type": "string"
+                          },
+                          {
+                            "const": "kanban-board",
+                            "type": "string"
+                          },
+                          {
+                            "const": "cronjob",
+                            "type": "string"
+                          },
+                          {
+                            "const": "chat-session",
+                            "type": "string"
+                          },
+                          {
+                            "const": "chat-message",
+                            "type": "string"
+                          },
+                          {
+                            "const": "chat-route",
+                            "type": "string"
+                          },
+                          {
+                            "const": "memory-record",
+                            "type": "string"
+                          },
+                          {
+                            "const": "catalog-snapshot",
+                            "type": "string"
+                          },
+                          {
+                            "const": "operation",
+                            "type": "string"
+                          },
+                          {
+                            "const": "notification",
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "owner": {
+                        "$id": "ResourceOwner",
+                        "anyOf": [
+                          {
+                            "const": "hermes",
+                            "type": "string"
+                          },
+                          {
+                            "const": "agency",
+                            "type": "string"
+                          },
+                          {
+                            "const": "dmm",
+                            "type": "string"
+                          },
+                          {
+                            "const": "worker",
+                            "type": "string"
+                          },
+                          {
+                            "const": "chat",
+                            "type": "string"
+                          },
+                          {
+                            "const": "memory-v4",
+                            "type": "string"
+                          },
+                          {
+                            "const": "gateway",
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "frameworkId": {
+                        "minLength": 1,
+                        "maxLength": 200,
+                        "type": "string"
+                      },
+                      "nativeId": {
+                        "minLength": 1,
+                        "maxLength": 1024,
+                        "type": "string"
+                      },
+                      "displayLabel": {
+                        "maxLength": 500,
+                        "type": "string"
+                      },
+                      "sourceVersion": {
+                        "maxLength": 500,
+                        "type": "string"
+                      },
+                      "observedAt": {
+                        "format": "date-time",
+                        "type": "string"
+                      },
+                      "links": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "relation",
+                            "canonicalId"
+                          ],
+                          "properties": {
+                            "relation": {
+                              "type": "string"
+                            },
+                            "canonicalId": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "truth": {
+                    "$id": "TruthState",
+                    "anyOf": [
+                      {
+                        "const": "current",
+                        "type": "string"
+                      },
+                      {
+                        "const": "stale",
+                        "type": "string"
+                      },
+                      {
+                        "const": "partial",
+                        "type": "string"
+                      },
+                      {
+                        "const": "empty",
+                        "type": "string"
+                      },
+                      {
+                        "const": "unavailable",
+                        "type": "string"
+                      },
+                      {
+                        "const": "unsupported",
+                        "type": "string"
+                      },
+                      {
+                        "const": "forbidden",
+                        "type": "string"
+                      },
+                      {
+                        "const": "failed",
+                        "type": "string"
+                      },
+                      {
+                        "const": "inconclusive",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "adapterId": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "fetchedAt": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "title": {
+                    "minLength": 1,
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  "searchableText": {
+                    "maxLength": 10000,
+                    "type": "string"
+                  },
+                  "data": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^(.*)$": {}
+                    }
+                  },
+                  "authoritative": {
+                    "const": false,
+                    "type": "boolean"
+                  },
+                  "sourceRole": {
+                    "const": "migration-only",
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "score": {
+            "type": "number"
+          },
+          "matchedFields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "UnifiedSearchResults": {
+        "$id": "UnifiedSearchResults",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "meta"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$id": "UnifiedSearchHit",
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "resource",
+                "score",
+                "matchedFields"
+              ],
+              "properties": {
+                "resource": {
+                  "$id": "UnifiedResource",
+                  "anyOf": [
+                    {
+                      "additionalProperties": false,
+                      "type": "object",
+                      "required": [
+                        "resource",
+                        "truth",
+                        "adapterId",
+                        "fetchedAt",
+                        "title",
+                        "searchableText",
+                        "data",
+                        "authoritative",
+                        "sourceRole"
+                      ],
+                      "properties": {
+                        "resource": {
+                          "$id": "ResourceRef",
+                          "additionalProperties": false,
+                          "type": "object",
+                          "required": [
+                            "canonicalId",
+                            "kind",
+                            "owner",
+                            "nativeId",
+                            "observedAt"
+                          ],
+                          "properties": {
+                            "canonicalId": {
+                              "minLength": 1,
+                              "maxLength": 1024,
+                              "type": "string"
+                            },
+                            "kind": {
+                              "$id": "ResourceKind",
+                              "anyOf": [
+                                {
+                                  "const": "framework",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "profile",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "agent",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "provider",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "model",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "project",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "task",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "kanban-board",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "cronjob",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "chat-session",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "chat-message",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "chat-route",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "memory-record",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "catalog-snapshot",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "operation",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "notification",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "owner": {
+                              "$id": "ResourceOwner",
+                              "anyOf": [
+                                {
+                                  "const": "hermes",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "agency",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "dmm",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "worker",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "chat",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "memory-v4",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "gateway",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "frameworkId": {
+                              "minLength": 1,
+                              "maxLength": 200,
+                              "type": "string"
+                            },
+                            "nativeId": {
+                              "minLength": 1,
+                              "maxLength": 1024,
+                              "type": "string"
+                            },
+                            "displayLabel": {
+                              "maxLength": 500,
+                              "type": "string"
+                            },
+                            "sourceVersion": {
+                              "maxLength": 500,
+                              "type": "string"
+                            },
+                            "observedAt": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "links": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "required": [
+                                  "relation",
+                                  "canonicalId"
+                                ],
+                                "properties": {
+                                  "relation": {
+                                    "type": "string"
+                                  },
+                                  "canonicalId": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "truth": {
+                          "$id": "TruthState",
+                          "anyOf": [
+                            {
+                              "const": "current",
+                              "type": "string"
+                            },
+                            {
+                              "const": "stale",
+                              "type": "string"
+                            },
+                            {
+                              "const": "partial",
+                              "type": "string"
+                            },
+                            {
+                              "const": "empty",
+                              "type": "string"
+                            },
+                            {
+                              "const": "unavailable",
+                              "type": "string"
+                            },
+                            {
+                              "const": "unsupported",
+                              "type": "string"
+                            },
+                            {
+                              "const": "forbidden",
+                              "type": "string"
+                            },
+                            {
+                              "const": "failed",
+                              "type": "string"
+                            },
+                            {
+                              "const": "inconclusive",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "adapterId": {
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "fetchedAt": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "title": {
+                          "minLength": 1,
+                          "maxLength": 500,
+                          "type": "string"
+                        },
+                        "searchableText": {
+                          "maxLength": 10000,
+                          "type": "string"
+                        },
+                        "data": {
+                          "type": "object",
+                          "patternProperties": {
+                            "^(.*)$": {}
+                          }
+                        },
+                        "authoritative": {
+                          "const": true,
+                          "type": "boolean"
+                        },
+                        "sourceRole": {
+                          "const": "authoritative",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    {
+                      "additionalProperties": false,
+                      "type": "object",
+                      "required": [
+                        "resource",
+                        "truth",
+                        "adapterId",
+                        "fetchedAt",
+                        "title",
+                        "searchableText",
+                        "data",
+                        "authoritative",
+                        "sourceRole"
+                      ],
+                      "properties": {
+                        "resource": {
+                          "$id": "ResourceRef",
+                          "additionalProperties": false,
+                          "type": "object",
+                          "required": [
+                            "canonicalId",
+                            "kind",
+                            "owner",
+                            "nativeId",
+                            "observedAt"
+                          ],
+                          "properties": {
+                            "canonicalId": {
+                              "minLength": 1,
+                              "maxLength": 1024,
+                              "type": "string"
+                            },
+                            "kind": {
+                              "$id": "ResourceKind",
+                              "anyOf": [
+                                {
+                                  "const": "framework",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "profile",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "agent",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "provider",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "model",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "project",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "task",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "kanban-board",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "cronjob",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "chat-session",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "chat-message",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "chat-route",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "memory-record",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "catalog-snapshot",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "operation",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "notification",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "owner": {
+                              "$id": "ResourceOwner",
+                              "anyOf": [
+                                {
+                                  "const": "hermes",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "agency",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "dmm",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "worker",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "chat",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "memory-v4",
+                                  "type": "string"
+                                },
+                                {
+                                  "const": "gateway",
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            "frameworkId": {
+                              "minLength": 1,
+                              "maxLength": 200,
+                              "type": "string"
+                            },
+                            "nativeId": {
+                              "minLength": 1,
+                              "maxLength": 1024,
+                              "type": "string"
+                            },
+                            "displayLabel": {
+                              "maxLength": 500,
+                              "type": "string"
+                            },
+                            "sourceVersion": {
+                              "maxLength": 500,
+                              "type": "string"
+                            },
+                            "observedAt": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "links": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "required": [
+                                  "relation",
+                                  "canonicalId"
+                                ],
+                                "properties": {
+                                  "relation": {
+                                    "type": "string"
+                                  },
+                                  "canonicalId": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "truth": {
+                          "$id": "TruthState",
+                          "anyOf": [
+                            {
+                              "const": "current",
+                              "type": "string"
+                            },
+                            {
+                              "const": "stale",
+                              "type": "string"
+                            },
+                            {
+                              "const": "partial",
+                              "type": "string"
+                            },
+                            {
+                              "const": "empty",
+                              "type": "string"
+                            },
+                            {
+                              "const": "unavailable",
+                              "type": "string"
+                            },
+                            {
+                              "const": "unsupported",
+                              "type": "string"
+                            },
+                            {
+                              "const": "forbidden",
+                              "type": "string"
+                            },
+                            {
+                              "const": "failed",
+                              "type": "string"
+                            },
+                            {
+                              "const": "inconclusive",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "adapterId": {
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "fetchedAt": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "title": {
+                          "minLength": 1,
+                          "maxLength": 500,
+                          "type": "string"
+                        },
+                        "searchableText": {
+                          "maxLength": 10000,
+                          "type": "string"
+                        },
+                        "data": {
+                          "type": "object",
+                          "patternProperties": {
+                            "^(.*)$": {}
+                          }
+                        },
+                        "authoritative": {
+                          "const": false,
+                          "type": "boolean"
+                        },
+                        "sourceRole": {
+                          "const": "migration-only",
+                          "type": "string"
+                        }
+                      }
+                    }
+                  ]
                 },
                 "score": {
                   "type": "number"

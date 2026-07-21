@@ -1,5 +1,7 @@
 # UNIFY — Feasibility, Architecture, and Step-by-Step Building Plan
 
+> **SUPERSEDED ARCHITECTURE — HISTORICAL BASELINE ONLY.** This document predates the binding Hermes-source-of-truth decision. It must not be used to authorize legacy-backed production reads or writes. The binding replacement is [`HERMES-SOT-REBUILD-AND-IMPLEMENTATION-PLAN.md`](HERMES-SOT-REBUILD-AND-IMPLEMENTATION-PLAN.md).
+
 **Project:** Aquiero Unified Hermes Gateway and UNIUI
 **Repository:** `BartSchuster22/UNIFY` (private)
 **Target UI:** Mantine (`https://ui.mantine.dev/`) with an intentionally neutral default operator-console theme

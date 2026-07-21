@@ -308,20 +308,22 @@ export function buildApp(options: AppOptions) {
       });
     },
   );
-  app.get('/api/v1/chat/workspace', async (request) => {
+  app.get('/api/v1/chat/workspace', async (request, reply) => {
     const current = await session(request);
     auth.requirePermission(current, 'chat.read');
     if (!mutations)
       throw new GovernanceError('MUTATIONS_UNAVAILABLE', 503, 'Chat workspace is unavailable');
+    reply.header('x-unify-source-role', 'migration-only');
     return mutations.owners.chatWorkspace();
   });
   app.get<{ Params: { sessionId: string } }>(
     '/api/v1/chat/workspace/:sessionId',
-    async (request) => {
+    async (request, reply) => {
       const current = await session(request);
       auth.requirePermission(current, 'chat.read');
       if (!mutations)
         throw new GovernanceError('MUTATIONS_UNAVAILABLE', 503, 'Chat workspace is unavailable');
+      reply.header('x-unify-source-role', 'migration-only');
       return mutations.owners.chatWorkspace(request.params.sessionId);
     },
   );
@@ -339,6 +341,7 @@ export function buildApp(options: AppOptions) {
       'cache-control': 'no-cache, no-transform',
       connection: 'keep-alive',
       'x-accel-buffering': 'no',
+      'x-unify-source-role': 'migration-only',
     });
     reply.raw.write(': UNIFY CHAT realtime connected\n\n');
 
@@ -360,7 +363,9 @@ export function buildApp(options: AppOptions) {
         (frame) => {
           if (stopped) return;
           const eventId =
-            frame && typeof frame === 'object' && typeof (frame as { event_id?: unknown }).event_id === 'string'
+            frame &&
+            typeof frame === 'object' &&
+            typeof (frame as { event_id?: unknown }).event_id === 'string'
               ? (frame as { event_id: string }).event_id.replace(/[^a-zA-Z0-9_.:-]/g, '')
               : '';
           const prefix = eventId ? `id: ${eventId}\n` : '';
@@ -368,7 +373,9 @@ export function buildApp(options: AppOptions) {
         },
         (reason) => {
           if (stopped) return;
-          reply.raw.write(`event: upstream\ndata: ${JSON.stringify({ status: 'disconnected', reason })}\n\n`);
+          reply.raw.write(
+            `event: upstream\ndata: ${JSON.stringify({ status: 'disconnected', reason })}\n\n`,
+          );
           reply.raw.end();
           stop();
         },
@@ -397,43 +404,64 @@ export function buildApp(options: AppOptions) {
       `attachment; filename="${file.filename.replace(/["\\]/g, '_')}"`,
     );
     reply.header('cache-control', 'private, no-store');
+    reply.header('x-unify-source-role', 'migration-only');
     return reply.send(file.body);
   });
-  app.get('/api/v1/profiles/agency-context', async (request) => {
+  app.get('/api/v1/profiles/agency-context', async (request, reply) => {
     const current = await session(request);
     auth.requirePermission(current, 'profiles.read');
     if (!mutations)
-      throw new GovernanceError('MUTATIONS_UNAVAILABLE', 503, 'Agency profile access is unavailable');
+      throw new GovernanceError(
+        'MUTATIONS_UNAVAILABLE',
+        503,
+        'Agency profile access is unavailable',
+      );
+    reply.header('x-unify-source-role', 'migration-only');
     return mutations.owners.agencyProfileInventory();
   });
   app.get<{ Params: { frameworkId: string } }>(
     '/api/v1/profiles/agency-context/:frameworkId',
-    async (request) => {
+    async (request, reply) => {
       const current = await session(request);
       auth.requirePermission(current, 'profiles.read');
       if (!mutations)
-        throw new GovernanceError('MUTATIONS_UNAVAILABLE', 503, 'Agency profile access is unavailable');
+        throw new GovernanceError(
+          'MUTATIONS_UNAVAILABLE',
+          503,
+          'Agency profile access is unavailable',
+        );
+      reply.header('x-unify-source-role', 'migration-only');
       return mutations.owners.agencyProfileContext(request.params.frameworkId);
     },
   );
   app.get<{ Params: { frameworkId: string; profileId: string } }>(
     '/api/v1/profiles/agency-context/:frameworkId/:profileId',
-    async (request) => {
+    async (request, reply) => {
       const current = await session(request);
       auth.requirePermission(current, 'profiles.read');
       if (!mutations)
-        throw new GovernanceError('MUTATIONS_UNAVAILABLE', 503, 'Agency profile access is unavailable');
+        throw new GovernanceError(
+          'MUTATIONS_UNAVAILABLE',
+          503,
+          'Agency profile access is unavailable',
+        );
+      reply.header('x-unify-source-role', 'migration-only');
       return mutations.owners.agencyProfileContext(
         request.params.frameworkId,
         request.params.profileId,
       );
     },
   );
-  app.get('/api/v1/models/dmm-context', async (request) => {
+  app.get('/api/v1/models/dmm-context', async (request, reply) => {
     const current = await session(request);
     auth.requirePermission(current, 'models.read');
     if (!mutations)
-      throw new GovernanceError('MUTATIONS_UNAVAILABLE', 503, 'DMM inventory access is unavailable');
+      throw new GovernanceError(
+        'MUTATIONS_UNAVAILABLE',
+        503,
+        'DMM inventory access is unavailable',
+      );
+    reply.header('x-unify-source-role', 'migration-only');
     return mutations.owners.dmmInventory();
   });
   app.get('/api/v1/integrations', async (request) => {

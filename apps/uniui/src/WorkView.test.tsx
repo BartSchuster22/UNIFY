@@ -5,7 +5,12 @@ import { gateway } from './api';
 import type { UnifiedResource } from './types';
 import { WorkView } from './WorkView';
 
-function resource(kind: string, nativeId: string, title: string, data: Record<string, unknown>): UnifiedResource {
+function resource(
+  kind: string,
+  nativeId: string,
+  title: string,
+  data: Record<string, unknown>,
+): UnifiedResource {
   return {
     resource: {
       canonicalId: `worker:${kind}:${nativeId}`,
@@ -41,14 +46,33 @@ const items = [
     status: 'active',
     countsByLane: { triage: 1, todo: 0, ready: 0, running: 1, blocked: 1, done: 0, archived: 0 },
   }),
-  resource('task', 'TASK-1', 'Blocked release', { nativeId: 'TASK-1', board: 'alpha', lane: 'blocked', blockedReason: 'Needs approval' }),
-  resource('task', 'TASK-2', 'Running checks', { nativeId: 'TASK-2', board: 'alpha', lane: 'running', assignee: 'Herman' }),
+  resource('task', 'TASK-1', 'Blocked release', {
+    nativeId: 'TASK-1',
+    board: 'alpha',
+    lane: 'blocked',
+    blockedReason: 'Needs approval',
+  }),
+  resource('task', 'TASK-2', 'Running checks', {
+    nativeId: 'TASK-2',
+    board: 'alpha',
+    lane: 'running',
+    assignee: 'Herman',
+  }),
   resource('task', 'TASK-3', 'New intake', { nativeId: 'TASK-3', board: 'alpha', lane: 'triage' }),
-  resource('cronjob', 'cron-1', 'Daily checks', { nativeId: 'cron-1', status: 'paused', paused: true, schedule: { kind: 'every', every: 'every 1d' } }),
+  resource('cronjob', 'cron-1', 'Daily checks', {
+    nativeId: 'cron-1',
+    status: 'paused',
+    paused: true,
+    schedule: { kind: 'every', every: 'every 1d' },
+  }),
 ];
 
 function renderWork(canManage = true) {
-  return render(<MantineProvider><WorkView canManage={canManage} /></MantineProvider>);
+  return render(
+    <MantineProvider>
+      <WorkView canManage={canManage} />
+    </MantineProvider>,
+  );
 }
 
 describe('UNIFY Work & Kanban', () => {
@@ -56,11 +80,23 @@ describe('UNIFY Work & Kanban', () => {
     window.history.replaceState(null, '', '/?view=work');
     vi.spyOn(gateway, 'resources').mockResolvedValue({
       items,
-      meta: { requestId: 'r1', freshness: 'current', generatedAt: '2026-07-20T12:00:00.000Z', observedAt: '2026-07-20T12:00:00.000Z', warnings: [] },
+      meta: {
+        requestId: 'r1',
+        freshness: 'current',
+        generatedAt: '2026-07-20T12:00:00.000Z',
+        observedAt: '2026-07-20T12:00:00.000Z',
+        warnings: [],
+      },
     });
     vi.spyOn(gateway, 'mutate').mockResolvedValue({
       replayed: false,
-      operation: { operationId: 'op-1', operationType: 'worker.project.create', state: 'succeeded', mode: 'execute', updatedAt: '2026-07-20T12:00:00.000Z' },
+      operation: {
+        operationId: 'op-1',
+        operationType: 'worker.project.create',
+        state: 'succeeded',
+        mode: 'execute',
+        updatedAt: '2026-07-20T12:00:00.000Z',
+      },
       result: { ok: true },
     });
   });
@@ -73,7 +109,9 @@ describe('UNIFY Work & Kanban', () => {
 
   it('shows the Worker operational attention, Kanban and Cronjobs overview', async () => {
     renderWork();
-    expect(await screen.findByRole('heading', { name: '2 items need attention' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: '2 items need attention' }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '1 running' })).toBeInTheDocument();
     expect(screen.getByText('Blocked release')).toBeInTheDocument();
     expect(screen.getByText('Daily checks')).toBeInTheDocument();
@@ -120,10 +158,16 @@ describe('UNIFY Work & Kanban', () => {
     expect(screen.getByRole('button', { name: 'Resume' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'New Cronjob' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('radio', { name: 'Settings' }));
-    expect(await screen.findByRole('heading', { name: 'Notification rules setup' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Notification rules setup' }),
+    ).toBeInTheDocument();
     fireEvent.click(screen.getByLabelText('Telegram notifications'));
-    fireEvent.change(screen.getByLabelText('Telegram destination'), { target: { value: '1371039817' } });
+    fireEvent.change(screen.getByLabelText('Telegram destination'), {
+      target: { value: '1371039817' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Save notification rules' }));
-    expect(JSON.parse(localStorage.getItem('unify-worker-notification-rules') ?? '{}')).toMatchObject({ telegram: true, telegramDestination: '1371039817' });
+    expect(
+      JSON.parse(localStorage.getItem('unify-worker-notification-rules') ?? '{}'),
+    ).toMatchObject({ telegram: true, telegramDestination: '1371039817' });
   });
 });

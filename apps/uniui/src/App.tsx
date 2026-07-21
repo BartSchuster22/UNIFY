@@ -424,19 +424,19 @@ function View({
       return (
         <ResourcesView
           title="Frameworks"
-          description="Authoritative Agency framework inventory."
+          description="Migration-only Agency framework snapshot; not Hermes source of truth."
           owner="agency"
           kinds={['framework']}
         />
       );
     case 'models':
-      return <ModelsView canManageCredentials={principal.permissions.includes('credentials.manage')} />;
+      return <ModelsView canManageCredentials={false} />;
     case 'profiles':
-      return <ProfilesView canManage={principal.permissions.includes('profiles.manage')} canManageModels={principal.permissions.includes('models.manage')} canDelete={principal.permissions.includes('profiles.delete')} />;
+      return <ProfilesView canManage={false} canManageModels={false} canDelete={false} />;
     case 'work':
-      return <WorkView canManage={principal.permissions.includes('work.manage')} />;
+      return <WorkView canManage={false} />;
     case 'chat':
-      return <ChatView canUse={principal.permissions.includes('chat.use')} />;
+      return <ChatView canUse={false} />;
     case 'memory':
       return <MemoryView />;
     case 'audit':
@@ -811,8 +811,8 @@ function MutationConsole({ principal }: { principal: Principal }) {
   return (
     <>
       <PageHeading
-        title="Safety-gated actions"
-        description="Validated, permission-checked, CSRF-protected, idempotent owner mutations with audit and redacted evidence."
+        title="Migration validation console"
+        description="Legacy adapters are migration-only. Validate and dry-run remain available; execute is contained until a verified direct Hermes control path exists."
       />
       {!preset ? (
         <Alert color="red" title="No mutation permissions">
@@ -875,7 +875,6 @@ function MutationConsole({ principal }: { principal: Principal }) {
                 data={[
                   { label: 'Validate', value: 'validate' },
                   { label: 'Dry run', value: 'dry-run' },
-                  { label: 'Execute', value: 'execute' },
                 ]}
               />
               <Checkbox
@@ -884,12 +883,7 @@ function MutationConsole({ principal }: { principal: Principal }) {
                 label="I explicitly confirm this destructive operation"
                 color="red"
               />
-              {mode === 'execute' && (
-                <Alert color={preset.destructive ? 'red' : 'orange'} title="Owner write">
-                  Execute calls the authoritative owner now. Retries use an immutable idempotency
-                  record.
-                </Alert>
-              )}
+
               {failure && (
                 <Alert color="red" title={failure.code}>
                   {failure.message}
@@ -1317,7 +1311,6 @@ function ResourceTable({ items }: { items: UnifiedResource[] }) {
     </ScrollArea>
   );
 }
-
 
 function MemoryView() {
   const [draft, setDraft] = useState('');

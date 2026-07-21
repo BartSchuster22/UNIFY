@@ -1,6 +1,11 @@
 import { Value } from '@sinclair/typebox/value';
 import { describe, expect, it } from 'vitest';
-import { CapabilityManifestSchema, ResourceRefSchema, buildOpenApiDocument } from './index.js';
+import {
+  CapabilityManifestSchema,
+  ResourceRefSchema,
+  UnifiedResourceSchema,
+  buildOpenApiDocument,
+} from './index.js';
 
 describe('canonical contracts', () => {
   it('requires framework-scoped profile identity fields', () => {
@@ -24,6 +29,27 @@ describe('canonical contracts', () => {
       capabilities: { 'profiles.delete': { supported: false, reason: 'unsupported' } },
     };
     expect(Value.Check(CapabilityManifestSchema, manifest)).toBe(true);
+  });
+  it('cannot label migration-only resources authoritative', () => {
+    const resource = {
+      resource: {
+        canonicalId: 'migration:chat:session-1',
+        kind: 'chat-session',
+        owner: 'chat',
+        nativeId: 'session-1',
+        observedAt: '2026-07-19T00:00:00Z',
+      },
+      truth: 'current',
+      authoritative: false,
+      sourceRole: 'migration-only',
+      adapterId: 'chat-read-v1',
+      fetchedAt: '2026-07-19T00:00:00Z',
+      title: 'Session 1',
+      searchableText: 'Session 1',
+      data: {},
+    };
+    expect(Value.Check(UnifiedResourceSchema, resource)).toBe(true);
+    expect(Value.Check(UnifiedResourceSchema, { ...resource, authoritative: true })).toBe(false);
   });
   it('emits OpenAPI 3.1 with auth security schemes', () => {
     const document = buildOpenApiDocument() as {

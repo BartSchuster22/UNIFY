@@ -1,5 +1,7 @@
 # Canonical Resource Identity and Mapping
 
+> **HERMES-SOURCE-OF-TRUTH QUALIFICATION:** `agency`, `dmm`, `worker`, `chat`, and `memory-v4` values below are permitted only as legacy migration provenance. Current framework-domain resources use `owner: hermes` plus an exact `frameworkId`; Gateway access-plane records use `owner: gateway`.
+
 ## Goals
 
 - Prevent collisions across Hermes instances and domain services.

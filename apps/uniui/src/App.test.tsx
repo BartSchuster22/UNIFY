@@ -57,9 +57,46 @@ function authenticatedFetch(input: RequestInfo | URL): Promise<Response> {
   if (url.includes('/notifications')) return response({ items: [], meta });
   if (url.includes('/chat/workspace'))
     return response({
-      agents: { agents: [{ id: 'hermes.herman', label: 'Herman', status: 'active', description: null }] },
-      sessions: { sessions: [{ id: 's1', agent_id: 'hermes.herman', source: 'dashboard_native', external_identity: null, session_key: 'native:s1', channel_label: 'UNIFY', title: 'Operator chat', status: 'active', last_seq: 1, created_at: '2026-07-19T00:00:00.000Z', updated_at: '2026-07-19T00:00:00.000Z', surface: { writable: true, attachments: true } }] },
-      ...(url.endsWith('/chat/workspace/s1') ? { messages: { messages: [{ id: 'm1', session_id: 's1', agent_id: 'hermes.herman', sender_type: 'agent', blocks: [{ kind: 'text', text: 'Verified response' }], lifecycle_status: 'complete', external_created_at: null, seq: 1, created_at: '2026-07-19T00:00:00.000Z' }] } } : {}),
+      agents: {
+        agents: [{ id: 'hermes.herman', label: 'Herman', status: 'active', description: null }],
+      },
+      sessions: {
+        sessions: [
+          {
+            id: 's1',
+            agent_id: 'hermes.herman',
+            source: 'dashboard_native',
+            external_identity: null,
+            session_key: 'native:s1',
+            channel_label: 'UNIFY',
+            title: 'Operator chat',
+            status: 'active',
+            last_seq: 1,
+            created_at: '2026-07-19T00:00:00.000Z',
+            updated_at: '2026-07-19T00:00:00.000Z',
+            surface: { writable: true, attachments: true },
+          },
+        ],
+      },
+      ...(url.endsWith('/chat/workspace/s1')
+        ? {
+            messages: {
+              messages: [
+                {
+                  id: 'm1',
+                  session_id: 's1',
+                  agent_id: 'hermes.herman',
+                  sender_type: 'agent',
+                  blocks: [{ kind: 'text', text: 'Verified response' }],
+                  lifecycle_status: 'complete',
+                  external_created_at: null,
+                  seq: 1,
+                  created_at: '2026-07-19T00:00:00.000Z',
+                },
+              ],
+            },
+          }
+        : {}),
     });
   if (url.includes('kind=chat-session'))
     return response({
@@ -177,13 +214,13 @@ describe('Mantine UNIUI gates', () => {
     expect(screen.getByText('No records')).toBeInTheDocument();
   });
 
-  it('renders the authoritative agent, session and message CHAT workspace', async () => {
+  it('renders the migration-only agent, session and message CHAT workspace', async () => {
     vi.stubGlobal('fetch', vi.fn(authenticatedFetch));
     render(<App />);
     await screen.findByRole('heading', { name: 'Operational overview' });
     await userEvent.click(screen.getByRole('button', { name: 'Toggle navigation' }));
     await userEvent.click(await screen.findByText('Chat'));
-    expect(await screen.findByRole('heading', { name: 'CHAT' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Chat' })).toBeInTheDocument();
     await waitFor(() =>
       expect(screen.getByRole('log', { name: 'Chat messages' })).toBeInTheDocument(),
     );

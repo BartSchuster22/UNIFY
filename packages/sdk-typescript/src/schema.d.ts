@@ -680,8 +680,6 @@ export interface components {
                 }[];
             };
             truth: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
-            /** @constant */
-            authoritative: true;
             adapterId: string;
             /** Format: date-time */
             fetchedAt: string;
@@ -690,10 +688,45 @@ export interface components {
             data: {
                 [key: string]: unknown;
             };
+            /** @constant */
+            authoritative: true;
+            /** @constant */
+            sourceRole: "authoritative";
+        } | {
+            resource: {
+                canonicalId: string;
+                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                frameworkId?: string;
+                nativeId: string;
+                displayLabel?: string;
+                sourceVersion?: string;
+                /** Format: date-time */
+                observedAt: string;
+                links?: {
+                    relation: string;
+                    canonicalId: string;
+                }[];
+            };
+            truth: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
+            adapterId: string;
+            /** Format: date-time */
+            fetchedAt: string;
+            title: string;
+            searchableText: string;
+            data: {
+                [key: string]: unknown;
+            };
+            /** @constant */
+            authoritative: false;
+            /** @constant */
+            sourceRole: "migration-only";
         };
         IntegrationStatus: {
             adapterId: string;
             owners: ("hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway")[];
+            sourceRole: "authoritative" | "migration-only";
+            writeEnabled: boolean;
             status: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
             /** Format: date-time */
             observedAt?: string;
@@ -707,6 +740,8 @@ export interface components {
             items: {
                 adapterId: string;
                 owners: ("hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway")[];
+                sourceRole: "authoritative" | "migration-only";
+                writeEnabled: boolean;
                 status: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
                 /** Format: date-time */
                 observedAt?: string;
@@ -718,7 +753,7 @@ export interface components {
             }[];
         };
         UnifiedResourceList: {
-            items: {
+            items: ({
                 resource: {
                     canonicalId: string;
                     kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
@@ -735,8 +770,6 @@ export interface components {
                     }[];
                 };
                 truth: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
-                /** @constant */
-                authoritative: true;
                 adapterId: string;
                 /** Format: date-time */
                 fetchedAt: string;
@@ -745,7 +778,40 @@ export interface components {
                 data: {
                     [key: string]: unknown;
                 };
-            }[];
+                /** @constant */
+                authoritative: true;
+                /** @constant */
+                sourceRole: "authoritative";
+            } | {
+                resource: {
+                    canonicalId: string;
+                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    frameworkId?: string;
+                    nativeId: string;
+                    displayLabel?: string;
+                    sourceVersion?: string;
+                    /** Format: date-time */
+                    observedAt: string;
+                    links?: {
+                        relation: string;
+                        canonicalId: string;
+                    }[];
+                };
+                truth: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
+                adapterId: string;
+                /** Format: date-time */
+                fetchedAt: string;
+                title: string;
+                searchableText: string;
+                data: {
+                    [key: string]: unknown;
+                };
+                /** @constant */
+                authoritative: false;
+                /** @constant */
+                sourceRole: "migration-only";
+            })[];
             meta: {
                 requestId: string;
                 correlationId: string;
@@ -788,8 +854,6 @@ export interface components {
                     }[];
                 };
                 truth: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
-                /** @constant */
-                authoritative: true;
                 adapterId: string;
                 /** Format: date-time */
                 fetchedAt: string;
@@ -798,6 +862,39 @@ export interface components {
                 data: {
                     [key: string]: unknown;
                 };
+                /** @constant */
+                authoritative: true;
+                /** @constant */
+                sourceRole: "authoritative";
+            } | {
+                resource: {
+                    canonicalId: string;
+                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    frameworkId?: string;
+                    nativeId: string;
+                    displayLabel?: string;
+                    sourceVersion?: string;
+                    /** Format: date-time */
+                    observedAt: string;
+                    links?: {
+                        relation: string;
+                        canonicalId: string;
+                    }[];
+                };
+                truth: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
+                adapterId: string;
+                /** Format: date-time */
+                fetchedAt: string;
+                title: string;
+                searchableText: string;
+                data: {
+                    [key: string]: unknown;
+                };
+                /** @constant */
+                authoritative: false;
+                /** @constant */
+                sourceRole: "migration-only";
             };
             score: number;
             matchedFields: string[];
@@ -821,8 +918,6 @@ export interface components {
                         }[];
                     };
                     truth: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
-                    /** @constant */
-                    authoritative: true;
                     adapterId: string;
                     /** Format: date-time */
                     fetchedAt: string;
@@ -831,6 +926,39 @@ export interface components {
                     data: {
                         [key: string]: unknown;
                     };
+                    /** @constant */
+                    authoritative: true;
+                    /** @constant */
+                    sourceRole: "authoritative";
+                } | {
+                    resource: {
+                        canonicalId: string;
+                        kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                        owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                        frameworkId?: string;
+                        nativeId: string;
+                        displayLabel?: string;
+                        sourceVersion?: string;
+                        /** Format: date-time */
+                        observedAt: string;
+                        links?: {
+                            relation: string;
+                            canonicalId: string;
+                        }[];
+                    };
+                    truth: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
+                    adapterId: string;
+                    /** Format: date-time */
+                    fetchedAt: string;
+                    title: string;
+                    searchableText: string;
+                    data: {
+                        [key: string]: unknown;
+                    };
+                    /** @constant */
+                    authoritative: false;
+                    /** @constant */
+                    sourceRole: "migration-only";
                 };
                 score: number;
                 matchedFields: string[];

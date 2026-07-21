@@ -1,14 +1,16 @@
 # Production Rollout and Domain Cutover
 
+> **PHASE 0 CONTAINMENT:** Legacy-backed mutation activation is disabled. This runbook now documents read-only operation only. Do not run the historical activation commands until a capability uses a verified direct `hermes-control` adapter and passes the rebuild plan's phase exit gate.
+
 ## Safety model
 
-UNIFY starts **read-only**. The Gateway is the only public API boundary and legacy owner services remain deployed. A domain can execute only when all three controls agree:
+UNIFY is **read-only** while current operations still target migration-only legacy adapters. The Gateway rejects every such execute request with `LEGACY_WRITE_CONTAINED`, even if historical canary variables are set. Future direct-Hermes execution will require all three controls below in addition to a verified `hermes-control` execution path:
 
 1. `DEPLOYMENT_MODE=mutation-canary`;
 2. the domain is present in `MUTATION_DOMAINS`;
 3. `MUTATION_ACCEPTANCE_REFS` contains a syntactically valid written acceptance reference for that domain.
 
-Supported independent domains are `profiles`, `dmm`, `worker`, `chat`, and `memory-v4`. Validation and dry-run remain available when execution is disabled. Unknown modes/domains, enabled domains without acceptance, and execute requests in read-only mode fail closed.
+Historical configuration recognizes `profiles`, `dmm`, `worker`, `chat`, and `memory-v4`; recognition does not authorize execution. Validation and dry-run remain available for migration diagnostics. Unknown modes/domains, enabled domains without acceptance, read-only execution and every migration-legacy execute path fail closed.
 
 ## Read-only production deployment
 
@@ -29,7 +31,7 @@ sudo caddy validate --config /etc/caddy/Caddyfile
 sudo systemctl reload caddy
 ```
 
-Verify HTTPS, security headers, sensitive-path rejection, anonymous API rejection, container health, and authenticated `GET /api/v1/cutover/status`. The expected initial state is `read-only`, no enabled domains, `legacyServicesRetained: true`, and a representative execute request rejected with `DEPLOYMENT_READ_ONLY`.
+Verify HTTPS, security headers, sensitive-path rejection, anonymous API rejection, container health, and authenticated `GET /api/v1/cutover/status`. The required state is `read-only`, no enabled domains, `legacyServicesRetained: true`, `legacyWritesContained: true`, and a representative execute request rejected with `LEGACY_WRITE_CONTAINED`.
 
 ## Written acceptance checklist
 
@@ -46,9 +48,9 @@ A domain acceptance reference must resolve to evidence that records:
 
 A generic milestone, ticket number without evidence, or verbal approval is not sufficient.
 
-## Plan, activate, and inspect
+## Historical activation commands — disabled
 
-Plan-only commands produce sanitized evidence without changing production:
+The following commands are retained as historical syntax only. Do not use `--apply` while the domain path is migration-only. Plan-only output does not authorize execution:
 
 ```bash
 node scripts/cutover-domain.mjs activate chat evidence/acceptance/chat-YYYY-MM-DD

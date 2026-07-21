@@ -1,5 +1,7 @@
 # Phase 7 — Production Hardening and Governed Cutover Evidence
 
+> **HISTORICAL EVIDENCE — NOT CURRENT QA10.** The recorded checks proved the earlier legacy-backed implementation only. They do not establish Hermes-source-of-truth QA10, and the former CHAT canary is not an accepted production cutover. The binding architecture and QA gates are in [`../plans/HERMES-SOT-REBUILD-AND-IMPLEMENTATION-PLAN.md`](../plans/HERMES-SOT-REBUILD-AND-IMPLEMENTATION-PLAN.md).
+
 **Completion date:** 2026-07-20
 
 **Repository:** `BartSchuster22/UNIFY`
@@ -8,7 +10,7 @@
 
 ## Verdict
 
-**Phase 7 is complete.** UNIFY has a hardened public edge and runtime, bounded performance and resilience controls, encrypted and rehearsed Gateway backup/restore, a fail-closed read-only production deployment, independently gated per-domain mutation activation and rollback, and machine-checked legacy-route retention controls.
+**Historical Phase 7 implementation tasks were completed, but Hermes-source-of-truth QA10 was not.** The retained edge, runtime, backup and fail-closed controls remain useful evidence; legacy-backed domain activation does not.
 
 No legacy service or route was deleted. The production Gateway was returned to `read-only` after the Chat canary exercise.
 

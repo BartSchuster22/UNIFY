@@ -11,6 +11,8 @@ export interface IntegrationWarning {
 export interface IntegrationSnapshot {
   adapterId: string;
   owners: IntegrationOwner[];
+  sourceRole: 'authoritative' | 'migration-only';
+  writeEnabled: boolean;
   status: 'current' | 'partial' | 'empty' | 'unavailable' | 'failed';
   observedAt: string;
   resources: UnifiedResource[];
@@ -20,6 +22,8 @@ export interface IntegrationSnapshot {
 export interface SourceAdapter {
   readonly id: string;
   readonly owners: IntegrationOwner[];
+  readonly sourceRole: 'migration-only';
+  readonly writeEnabled: false;
   snapshot(signal?: AbortSignal): Promise<IntegrationSnapshot>;
   search?(query: string, signal?: AbortSignal): Promise<UnifiedResource[]>;
 }

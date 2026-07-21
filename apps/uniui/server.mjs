@@ -86,7 +86,9 @@ async function proxy(req, res) {
   const body = chunks.length ? Buffer.concat(chunks) : undefined;
   const controller = new AbortController();
   req.once('aborted', () => controller.abort());
-  res.once('close', () => { if (!res.writableEnded) controller.abort(); });
+  res.once('close', () => {
+    if (!res.writableEnded) controller.abort();
+  });
   const upstream = await fetch(`${gateway}${req.url}`, {
     method: req.method,
     headers,
@@ -115,7 +117,9 @@ async function proxy(req, res) {
     res.end();
     return;
   }
-  Readable.fromWeb(upstream.body).on('error', () => res.destroy()).pipe(res);
+  Readable.fromWeb(upstream.body)
+    .on('error', () => res.destroy())
+    .pipe(res);
 }
 server.listen(port, host, () => console.log(`Focused web shell listening on ${host}:${port}`));
 for (const signal of ['SIGTERM', 'SIGINT'])

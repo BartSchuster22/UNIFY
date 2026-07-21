@@ -50,7 +50,7 @@ describe('Chat PWA', () => {
     const { container } = render(<App />);
     expect(await screen.findByRole('heading', { name: 'Chat' })).toBeInTheDocument();
     expect(await screen.findByText('Support')).toBeInTheDocument();
-    expect(screen.getByText('Read-only account')).toBeInTheDocument();
+    expect(screen.getByText('Migration-only read view')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Send' })).not.toBeInTheDocument();
     await waitFor(async () =>
       expect(

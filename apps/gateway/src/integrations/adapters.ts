@@ -95,6 +95,8 @@ class SourceClient {
 export class ConfiguredReadAdapter implements SourceAdapter {
   readonly id: string;
   readonly owners: IntegrationOwner[];
+  readonly sourceRole = 'migration-only' as const;
+  readonly writeEnabled = false as const;
   protected readonly definition: AdapterDefinition;
   protected readonly client: SourceClient | undefined;
 
@@ -140,7 +142,16 @@ export class ConfiguredReadAdapter implements SourceAdapter {
       : resources.length
         ? 'current'
         : 'empty';
-    return { adapterId: this.id, owners: this.owners, status, observedAt, resources, warnings };
+    return {
+      adapterId: this.id,
+      owners: this.owners,
+      sourceRole: this.sourceRole,
+      writeEnabled: this.writeEnabled,
+      status,
+      observedAt,
+      resources,
+      warnings,
+    };
   }
 }
 
@@ -358,7 +369,8 @@ function normalize(input: {
   return {
     resource,
     truth: 'current',
-    authoritative: true,
+    authoritative: false,
+    sourceRole: 'migration-only',
     adapterId: input.adapterId,
     fetchedAt: input.observedAt,
     title,
@@ -392,6 +404,8 @@ function unavailable(
   return {
     adapterId: adapter.id,
     owners: adapter.owners,
+    sourceRole: adapter.sourceRole,
+    writeEnabled: adapter.writeEnabled,
     status: 'unavailable',
     observedAt,
     resources: [],

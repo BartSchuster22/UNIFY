@@ -2,10 +2,11 @@ services:
   gateway:
     environment:
       NODE_ENV: production
-      RELEASE_ID: ${RELEASE_ID:-unify-chat-qa10-production}
-      DEPLOYMENT_MODE: ${DEPLOYMENT_MODE:-mutation-canary}
-      MUTATION_DOMAINS: ${MUTATION_DOMAINS:-chat}
-      MUTATION_ACCEPTANCE_REFS: ${MUTATION_ACCEPTANCE_REFS:-chat=qa10:unify-chat-2026-07-20}
+      RELEASE_ID: ${RELEASE_ID:-unify-hermes-rebuild-phase0}
+      # Phase 0 containment: no legacy-backed adapter may execute production writes.
+      DEPLOYMENT_MODE: read-only
+      MUTATION_DOMAINS: ''
+      MUTATION_ACCEPTANCE_REFS: ''
   uniui:
     environment:
       HOST: 127.0.0.1

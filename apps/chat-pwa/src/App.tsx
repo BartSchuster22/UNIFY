@@ -10,11 +10,11 @@ export function App() {
   return (
     <FocusedApplication
       name="Aquiero Chat"
-      description="Focused conversations"
+      description="Migration-only legacy conversation viewer"
       client={client}
       requiredPermission="chat.read"
     >
-      {(principal) => <ChatPage canSend={principal.permissions.includes('chat.send')} />}
+      {() => <ChatPage canSend={false} />}
     </FocusedApplication>
   );
 }
@@ -90,13 +90,16 @@ function ChatPage({ canSend }: { canSend: boolean }) {
         <Group justify="space-between" align="end">
           <Box>
             <Title order={1}>Chat</Title>
-            <Text c="dimmed">Responsive, authenticated message history and safe sending.</Text>
+            <Text c="dimmed">
+              Migration-only CHAT history snapshot. Sending is contained until direct Hermes control
+              is verified.
+            </Text>
           </Box>
           {selectedTitle && <Text size="sm">Selected: {selectedTitle}</Text>}
         </Group>
         {!canSend && (
-          <Alert color="blue" title="Read-only account">
-            Your account can read Chat but cannot send messages.
+          <Alert color="blue" title="Migration-only read view">
+            Legacy CHAT data is available for parity only. This application cannot send messages.
           </Alert>
         )}
         <AsyncState

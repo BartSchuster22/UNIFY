@@ -1,5 +1,9 @@
 import { GovernanceError } from '../governance/service.js';
-import type { MutationInput, MutationTarget } from '../mutations/owner-client.js';
+import {
+  mutationDefinitions,
+  type MutationInput,
+  type MutationTarget,
+} from '../mutations/owner-client.js';
 
 export const mutationDomains = ['profiles', 'dmm', 'worker', 'chat', 'memory-v4'] as const;
 export type MutationDomain = (typeof mutationDomains)[number];
@@ -52,6 +56,13 @@ export class CutoverPolicy {
 
   assertAllowed(input: MutationInput): void {
     if (input.mode !== 'execute') return;
+    const definition = mutationDefinitions[input.operationType];
+    if (!definition || definition.executionPath !== 'hermes-control')
+      throw new GovernanceError(
+        'LEGACY_WRITE_CONTAINED',
+        403,
+        'Execution is blocked because this operation still targets a migration-only legacy adapter',
+      );
     const domain = ownerDomain[input.target.owner];
     if (this.mode === 'read-only')
       throw new GovernanceError(
@@ -67,16 +78,22 @@ export class CutoverPolicy {
       );
   }
 
-  status(): { mode: DeploymentMode; domains: DomainStatus[]; legacyServicesRetained: true } {
+  status(): {
+    mode: DeploymentMode;
+    domains: DomainStatus[];
+    legacyServicesRetained: true;
+    legacyWritesContained: true;
+  } {
     return {
       mode: this.mode,
       domains: mutationDomains.map((domain) => ({
         domain,
-        executeEnabled: this.#enabled.has(domain),
+        executeEnabled: false,
         acceptanceRef: this.#acceptance.get(domain) ?? null,
         rollback: 'remove-domain-and-redeploy',
       })),
       legacyServicesRetained: true,
+      legacyWritesContained: true,
     };
   }
 }

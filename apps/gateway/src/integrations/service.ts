@@ -111,6 +111,8 @@ export class IntegrationService {
       return {
         adapterId: adapter.id,
         owners: adapter.owners,
+        sourceRole: adapter.sourceRole,
+        writeEnabled: adapter.writeEnabled,
         status: snapshot?.status ?? 'unavailable',
         ...(snapshot ? { observedAt: snapshot.observedAt } : {}),
         resourceCount: snapshot?.resources.length ?? 0,
@@ -136,6 +138,8 @@ export class IntegrationService {
         actual = {
           adapterId: adapter.id,
           owners: adapter.owners,
+          sourceRole: adapter.sourceRole,
+          writeEnabled: adapter.writeEnabled,
           status: 'unavailable',
           observedAt: new Date().toISOString(),
           resources: [],
@@ -163,6 +167,8 @@ export class IntegrationService {
       snapshot = {
         adapterId: adapter.id,
         owners: adapter.owners,
+        sourceRole: adapter.sourceRole,
+        writeEnabled: adapter.writeEnabled,
         status: 'failed',
         observedAt: new Date().toISOString(),
         resources: [],

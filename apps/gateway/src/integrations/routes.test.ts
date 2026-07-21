@@ -77,11 +77,15 @@ class Store implements AuthStore {
 class AgencyAdapter implements SourceAdapter {
   readonly id = 'agency-test';
   readonly owners: Array<'agency'> = ['agency'];
+  readonly sourceRole = 'migration-only' as const;
+  readonly writeEnabled = false as const;
   async snapshot(): Promise<IntegrationSnapshot> {
     const at = new Date().toISOString();
     return {
       adapterId: this.id,
       owners: this.owners,
+      sourceRole: this.sourceRole,
+      writeEnabled: this.writeEnabled,
       status: 'current',
       observedAt: at,
       warnings: [{ code: 'AGENCY_ATTENTION', message: 'Agency needs attention' }],
@@ -95,7 +99,8 @@ class AgencyAdapter implements SourceAdapter {
             observedAt: at,
           },
           truth: 'current',
-          authoritative: true,
+          authoritative: false,
+          sourceRole: 'migration-only',
           adapterId: this.id,
           fetchedAt: at,
           title: 'Hermes',
@@ -111,7 +116,8 @@ class AgencyAdapter implements SourceAdapter {
             observedAt: at,
           },
           truth: 'current',
-          authoritative: true,
+          authoritative: false,
+          sourceRole: 'migration-only',
           adapterId: this.id,
           fetchedAt: at,
           title: 'Isolated',
@@ -126,11 +132,15 @@ class AgencyAdapter implements SourceAdapter {
 class LargeAgencyAdapter implements SourceAdapter {
   readonly id = 'agency-large-fixture';
   readonly owners: Array<'agency'> = ['agency'];
+  readonly sourceRole = 'migration-only' as const;
+  readonly writeEnabled = false as const;
   async snapshot(): Promise<IntegrationSnapshot> {
     const at = new Date().toISOString();
     return {
       adapterId: this.id,
       owners: this.owners,
+      sourceRole: this.sourceRole,
+      writeEnabled: this.writeEnabled,
       status: 'current',
       observedAt: at,
       warnings: [],
@@ -143,7 +153,8 @@ class LargeAgencyAdapter implements SourceAdapter {
           observedAt: at,
         },
         truth: 'current' as const,
-        authoritative: true,
+        authoritative: false,
+        sourceRole: 'migration-only' as const,
         adapterId: this.id,
         fetchedAt: at,
         title: `Framework ${index}`,
@@ -292,6 +303,7 @@ describe('read-only integration routes', () => {
     expect(status.json()).toMatchObject({
       mode: 'read-only',
       legacyServicesRetained: true,
+      legacyWritesContained: true,
       domains: expect.arrayContaining([
         expect.objectContaining({ domain: 'chat', executeEnabled: false }),
       ]),
@@ -313,7 +325,7 @@ describe('read-only integration routes', () => {
       },
     });
     expect(execution.statusCode).toBe(403);
-    expect(execution.json()).toMatchObject({ error: { code: 'DEPLOYMENT_READ_ONLY' } });
+    expect(execution.json()).toMatchObject({ error: { code: 'LEGACY_WRITE_CONTAINED' } });
     await app.close();
   });
 
@@ -326,7 +338,13 @@ describe('read-only integration routes', () => {
     });
     expect(resources.statusCode).toBe(200);
     expect(resources.json()).toMatchObject({
-      items: [{ authoritative: true, resource: { owner: 'agency', kind: 'framework' } }],
+      items: [
+        {
+          authoritative: false,
+          sourceRole: 'migration-only',
+          resource: { owner: 'agency', kind: 'framework' },
+        },
+      ],
       meta: { freshness: 'current', page: { hasMore: true } },
     });
     const cursor = resources.json().meta.page.nextCursor as string;

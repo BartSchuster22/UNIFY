@@ -26,7 +26,8 @@ function resource(
       observedAt: now,
     },
     truth: 'current',
-    authoritative: true,
+    authoritative: false,
+    sourceRole: 'migration-only',
     adapterId: `${owner}-test`,
     fetchedAt: now,
     title,
@@ -38,6 +39,8 @@ function resource(
 class SequenceAdapter implements SourceAdapter {
   readonly id = 'worker-test';
   readonly owners: Array<'worker'> = ['worker'];
+  readonly sourceRole = 'migration-only' as const;
+  readonly writeEnabled = false as const;
   calls = 0;
   constructor(readonly sequences: UnifiedResource[][]) {}
   async snapshot(): Promise<IntegrationSnapshot> {
@@ -45,6 +48,8 @@ class SequenceAdapter implements SourceAdapter {
     return {
       adapterId: this.id,
       owners: [...this.owners],
+      sourceRole: this.sourceRole,
+      writeEnabled: this.writeEnabled,
       status: resources.length ? 'current' : 'empty',
       observedAt: new Date().toISOString(),
       resources,
@@ -53,7 +58,7 @@ class SequenceAdapter implements SourceAdapter {
   }
 }
 
-describe('authoritative read adapters', () => {
+describe('migration-only legacy read adapters', () => {
   it('logs in, normalizes collision-safe identity, and recursively redacts secrets', async () => {
     const fetch = vi.fn<typeof globalThis.fetch>(async (input, init) => {
       const url = String(input);
@@ -85,6 +90,8 @@ describe('authoritative read adapters', () => {
     });
     const snapshot = await adapter.snapshot();
     expect(snapshot.status).toBe('current');
+    expect(snapshot).toMatchObject({ sourceRole: 'migration-only', writeEnabled: false });
+    expect(snapshot.resources.every((item) => !item.authoritative)).toBe(true);
     expect(snapshot.resources).toHaveLength(2);
     expect(new Set(snapshot.resources.map((item) => item.resource.canonicalId)).size).toBe(2);
     expect(snapshot.resources[0]?.data).toMatchObject({ credential: '[REDACTED]' });
