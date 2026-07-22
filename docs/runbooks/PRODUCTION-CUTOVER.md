@@ -1,28 +1,42 @@
-# Production Rollout and Domain Cutover
-
-> **PHASE 0 CONTAINMENT:** Legacy-backed mutation activation is disabled. This runbook now documents read-only operation only. Do not run the historical activation commands until a capability uses a verified direct `hermes-control` adapter and passes the rebuild plan's phase exit gate.
+# Production Rollout, Capability Canary, and Rollback
 
 ## Safety model
 
-UNIFY is **read-only** while current operations still target migration-only legacy adapters. The Gateway rejects every such execute request with `LEGACY_WRITE_CONTAINED`, even if historical canary variables are set. Future direct-Hermes execution will require all three controls below in addition to a verified `hermes-control` execution path:
+Production execution is permitted only for a verified Hermes-native operation when all of these controls agree:
 
 1. `DEPLOYMENT_MODE=mutation-canary`;
-2. the domain is present in `MUTATION_DOMAINS`;
-3. `MUTATION_ACCEPTANCE_REFS` contains a syntactically valid written acceptance reference for that domain.
+2. the native mutation domain is listed in `MUTATION_DOMAINS`;
+3. `MUTATION_ACCEPTANCE_REFS` contains a written evidence reference;
+4. the operation targets `owner=hermes` and the exact registered `frameworkId`;
+5. the Hermes capability manifest reports the capability as supported;
+6. named-user RBAC, CSRF, idempotency, validation, and mutation governance pass.
 
-Historical configuration recognizes `profiles`, `dmm`, `worker`, `chat`, and `memory-v4`; recognition does not authorize execution. Validation and dry-run remain available for migration diagnostics. Unknown modes/domains, enabled domains without acceptance, read-only execution and every migration-legacy execute path fail closed.
+Legacy-owner writes remain contained even when a similarly named native domain is enabled. Hermes remains source of truth during rollback; rollback never restores a legacy writer.
 
-## Read-only production deployment
+Current accepted execute domains:
+
+- `work` → `phase6/hermes-work`;
+- `chat` → `task8/hermes-internal-conversations`.
+
+Profiles and providers are Hermes-native reads. Their execute capabilities remain visibly unsupported where Hermes has no safe idempotent non-interactive interface. External conversation delivery remains excluded with `SECOND_CONSUMER_FORBIDDEN` so UNIFY never becomes a second channel consumer.
+
+## Deployment
 
 ```bash
 pnpm compose:secrets
 docker compose -f compose.yaml -f compose.production.yaml config --quiet
-docker compose build gateway uniui chat-pwa alerts-pwa
+docker compose -f compose.yaml -f compose.production.yaml build gateway uniui
 docker compose -f compose.yaml -f compose.production.yaml \
-  up -d --wait postgres gateway uniui chat-pwa alerts-pwa
+  up -d --wait postgres gateway uniui
+
+sudo install -o root -g root -m 0644 \
+  deploy/unify-hermes-control-adapter.service \
+  /etc/systemd/system/unify-hermes-control-adapter.service
+sudo systemctl daemon-reload
+sudo systemctl restart unify-hermes-control-adapter
 ```
 
-Install and validate the tracked edge rule before reload:
+Validate the tracked edge configuration before any Caddy reload:
 
 ```bash
 sudo install -o root -g root -m 0644 deploy/caddy/uniui-aquiero.caddy \
@@ -31,50 +45,101 @@ sudo caddy validate --config /etc/caddy/Caddyfile
 sudo systemctl reload caddy
 ```
 
-Verify HTTPS, security headers, sensitive-path rejection, anonymous API rejection, container health, and authenticated `GET /api/v1/cutover/status`. The required state is `read-only`, no enabled domains, `legacyServicesRetained: true`, `legacyWritesContained: true`, and a representative execute request rejected with `LEGACY_WRITE_CONTAINED`.
+## Written acceptance
 
-## Written acceptance checklist
+Every enabled execute domain must resolve to retained evidence recording:
 
-A domain acceptance reference must resolve to evidence that records:
-
-- named approver and timestamp;
-- read/shadow parity and known differences;
-- owner authentication and exact-target authorization;
-- validate, dry-run, confirmation, idempotency, concurrency, readback, and audit results;
-- owner outage and recovery behavior;
-- successful rollback rehearsal;
-- legacy consumers and public routes that remain active;
+- activation timestamp and approver;
+- Hermes framework ID, release, and commit;
+- readback, provenance, and known differences;
+- authentication, authorization, validate/dry-run, idempotency, and audit results;
+- outage and recovery behavior;
+- rollback rehearsal;
+- external consumers that remain independently active;
 - monitoring owner and abort thresholds.
 
-A generic milestone, ticket number without evidence, or verbal approval is not sufficient.
+A generic milestone or verbal claim is not an acceptance reference.
 
-## Historical activation commands — disabled
+## Capability-level production canaries
 
-The following commands are retained as historical syntax only. Do not use `--apply` while the domain path is migration-only. Plan-only output does not authorize execution:
+The tracked policy is `config/production-canary-policy.json`. It defines accepted families, exact Hermes commit, evidence references, abort thresholds, rollback procedures, a 15-minute probe interval, and the mandatory 14-day stable window.
 
-```bash
-node scripts/cutover-domain.mjs activate chat evidence/acceptance/chat-YYYY-MM-DD
-node scripts/cutover-domain.mjs rollback chat
-```
-
-Activation is explicit:
+Run a one-shot probe without recording:
 
 ```bash
-node scripts/cutover-domain.mjs activate chat evidence/acceptance/chat-YYYY-MM-DD --apply
+sudo CANARY_STATE_DIR=/var/lib/unify-production-canary \
+  node scripts/production-canary.mjs --verify-local
 ```
 
-The script writes mode/domain/reference state under mode-`0600` `.secrets/`, recreates only Gateway with the production overlay, waits for health, and writes ignored evidence under `artifacts/cutover/`. It does not delete or stop a legacy service. Inspect authenticated cutover status and perform only the accepted canary/readback workflow.
-
-## Rollback
-
-At the first abort signal, remove only the affected domain:
+Install continuous monitoring:
 
 ```bash
-node scripts/cutover-domain.mjs rollback chat --apply
+sudo install -o root -g root -m 0644 deploy/unify-production-canary.service \
+  /etc/systemd/system/unify-production-canary.service
+sudo install -o root -g root -m 0644 deploy/unify-production-canary.timer \
+  /etc/systemd/system/unify-production-canary.timer
+sudo systemctl daemon-reload
+sudo systemctl enable --now unify-production-canary.timer
+sudo systemctl start unify-production-canary.service
 ```
 
-Rollback recreates Gateway, waits for health, records before/after state, and preserves all owner services and data. If no domains remain, mode returns to `read-only`. Verify a representative execute returns `DEPLOYMENT_READ_ONLY`, reads still work, and the owner remains independently reachable.
+Inspect retained evidence:
 
-## Legacy deprecation
+```bash
+systemctl list-timers unify-production-canary.timer
+sudo journalctl -u unify-production-canary.service
+sudo jq . /var/lib/unify-production-canary/state.json
+sudo tail -n 1 /var/lib/unify-production-canary/observations.jsonl | jq .
+```
 
-`deploy/legacy-routes.json` is the machine-readable inventory. `pnpm legacy:check` fails if a domain or route is absent, service deletion becomes permitted, or deprecation lacks dates. Deprecation requires the checklist in that file, at least 14 stable days, and at least 90 days' removal notice. Deprecation is not deletion; data and services require a separate approved retirement procedure.
+Each run checks capabilities serially and records:
+
+- public and authenticated readiness;
+- exact framework provenance and freshness;
+- capability status and unsupported boundaries;
+- profile, provider, work, conversation, and event reads;
+- execute-domain acceptance state;
+- external-session exclusion;
+- replay-gap and duplicate-event counts;
+- request error rate and latency;
+- authenticated logout so the monitor does not accumulate sessions.
+
+A failed capability observation resets that capability's stable-window start. The stable window passes only after every accepted family has 14 uninterrupted days with zero probe failures.
+
+## Rollback rehearsal
+
+For the capability under rehearsal:
+
+1. stop the canary timer so the intentional disablement does not count as an outage;
+2. remove only that execute domain and acceptance reference from a temporary Compose override;
+3. recreate Gateway;
+4. prove Hermes-native reads remain HTTP `200`;
+5. prove representative execute returns HTTP `403` with `MUTATION_DOMAIN_DISABLED`;
+6. restore production Compose without the temporary override;
+7. verify readiness and authenticated cutover state;
+8. restart the stable window only after all rehearsals are complete.
+
+Rollback does not stop Hermes, mutate Hermes state, enable a legacy writer, or start a second external-channel consumer.
+
+## Abort procedure
+
+At the first abort signal:
+
+1. disable only the affected execute domain;
+2. preserve Hermes reads or show truthful unavailable/stale state;
+3. recreate Gateway and confirm execution is rejected;
+4. repair or restore Hermes, or revert the UNIFY Hermes adapter;
+5. reconcile and read back Hermes state;
+6. restart that capability's 14-day stable window only after the fault is resolved.
+
+Do not reactivate Agency, DMM, Worker, or CHAT as source of truth.
+
+## Legacy retirement dependency
+
+Task 9 does not authorize legacy retirement. Retirement still requires:
+
+- completed 14-day stable windows;
+- zero UNIFY runtime calls to legacy APIs for accepted domains;
+- final backup/restore evidence;
+- credential and edge-route revocation;
+- explicit Task 10 retirement approval.

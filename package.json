@@ -25,11 +25,13 @@
     "backup": "bash scripts/backup-gateway.sh",
     "restore:rehearse": "bash scripts/rehearse-restore.sh",
     "performance:smoke": "node scripts/performance-smoke.mjs",
+    "canary:self-test": "node scripts/production-canary.mjs --self-test",
+    "canary:production": "node scripts/production-canary.mjs --verify-local",
     "audit:verify": "docker compose exec -T gateway node dist/cli/verify-audit.js",
     "security:audit": "pnpm audit --prod --audit-level high",
     "security:sbom": "node scripts/generate-sbom.mjs",
     "legacy:check": "node scripts/check-legacy-routes.mjs",
-    "qa": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm contracts:check && pnpm legacy:check && pnpm format:check",
+    "qa": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm contracts:check && pnpm legacy:check && pnpm canary:self-test && pnpm format:check",
     "clean": "pnpm -r --if-present clean"
   },
   "devDependencies": {

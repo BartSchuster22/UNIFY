@@ -104,7 +104,7 @@ for (const name of ['apps/uniui/src/ProfilesView.tsx', 'apps/uniui/src/ModelsVie
 const historicalDocumentMarkers = new Map([
   ['docs/plans/BUILDING-PLAN.md', /SUPERSEDED ARCHITECTURE/],
   ['docs/evidence/PHASE-7-REPORT.md', /HISTORICAL EVIDENCE/],
-  ['docs/runbooks/PRODUCTION-CUTOVER.md', /PHASE 0 CONTAINMENT/],
+  ['docs/runbooks/PRODUCTION-CUTOVER.md', /Capability-level production canaries/],
   ['docs/adapters/READ-ONLY-INTEGRATIONS.md', /MIGRATION-ONLY/],
   ['docs/architecture/RESOURCE-IDENTITY.md', /HERMES-SOURCE-OF-TRUTH QUALIFICATION/],
 ]);

@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "frameworkId": "hermes-main",
+  "frameworkCommit": "9e54eee44f1cbbe62247a36546e51ff8940373c6",
+  "stableWindowDays": 14,
+  "intervalMinutes": 15,
+  "thresholds": {
+    "maxProbeLatencyMs": 5000,
+    "maxHealthLatencyMs": 2000,
+    "maxErrorRate": 0,
+    "maxReplayGaps": 0,
+    "maxDuplicateEvents": 0,
+    "maxExternalSessionLeaks": 0,
+    "maxLegacyRuntimeCalls": 0
+  },
+  "capabilityFamilies": [
+    {
+      "id": "profiles.read",
+      "activationEvidence": "docs/evidence/HERMES-SOT-PHASES-4-5-REPORT.md",
+      "probes": ["profiles"]
+    },
+    {
+      "id": "providers.read",
+      "activationEvidence": "docs/evidence/HERMES-SOT-PHASES-4-5-REPORT.md",
+      "probes": ["providers"]
+    },
+    {
+      "id": "work.read",
+      "activationEvidence": "docs/evidence/HERMES-SOT-PHASE-6-REPORT.md",
+      "probes": ["work.projects", "work.boards", "work.cron"]
+    },
+    {
+      "id": "work.execute",
+      "activationEvidence": "docs/evidence/HERMES-SOT-PHASE-6-REPORT.md",
+      "probes": ["cutover.work", "events.work"]
+    },
+    {
+      "id": "conversations.read",
+      "activationEvidence": "docs/evidence/HERMES-SOT-TASK-8-REPORT.md",
+      "probes": ["conversations.sessions", "conversations.messages"]
+    },
+    {
+      "id": "conversations.execute",
+      "activationEvidence": "docs/evidence/HERMES-SOT-TASK-8-REPORT.md",
+      "probes": ["cutover.chat", "events.conversations", "external.boundary"]
+    }
+  ],
+  "unsupportedBoundaries": {
+    "profiles.execute": "NO_IDEMPOTENT_NONINTERACTIVE_INTERFACE",
+    "providers.credentials.execute": "NO_IDEMPOTENT_NONINTERACTIVE_INTERFACE",
+    "conversations.delivery.execute": "SECOND_CONSUMER_FORBIDDEN"
+  },
+  "rollback": {
+    "work.execute": "Remove work from MUTATION_DOMAINS, preserve Hermes as source of truth, recreate Gateway, reconcile/read back Hermes.",
+    "conversations.execute": "Remove chat from MUTATION_DOMAINS, preserve Hermes as source of truth, recreate Gateway, reconcile/read back Hermes. Never activate a second external-channel consumer."
+  }
+}

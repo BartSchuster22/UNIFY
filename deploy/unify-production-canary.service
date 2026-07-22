@@ -1,0 +1,29 @@
+[Unit]
+Description=UNIFY capability-level production canary
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=herman
+Group=herman
+StateDirectory=unify-production-canary
+StateDirectoryMode=0700
+LoadCredential=password:/srv/unify/.secrets/bootstrap_admin_password
+Environment=CANARY_BASE_URL=https://uniui.aquiero.com
+Environment=CANARY_PASSWORD_FILE=/run/credentials/unify-production-canary.service/password
+Environment=CANARY_STATE_DIR=%S/unify-production-canary
+Environment=CANARY_USERNAME=admin
+ExecStart=/home/herman/.hermes/node/bin/node /srv/unify/scripts/production-canary.mjs --record --quiet
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target
