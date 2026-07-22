@@ -239,6 +239,7 @@ export const mutationDefinitions: Record<string, MutationDefinition> = {
 export class MutationOwnerClient {
   readonly #config: OwnerConfig;
   readonly #sessions = new Map<'agency' | 'dmm' | 'chat', Session>();
+  readonly #unifyChatSessionIds = new Set<string>();
 
   constructor(config: OwnerConfig) {
     this.#config = config;
@@ -332,20 +333,31 @@ export class MutationOwnerClient {
     sessions: unknown;
     messages?: unknown;
   }> {
-    const [agents, sessions, rawMessages] = await Promise.all([
+    const [rawAgents, rawSessions] = await Promise.all([
       this.json('chat', 'GET', '/api/agents', undefined),
       this.json('chat', 'GET', '/api/chat/sessions', undefined),
-      sessionId
-        ? this.json(
-            'chat',
-            'GET',
-            `/api/chat/sessions/${encodeURIComponent(validSegment(sessionId, 'sessionId'))}/messages`,
-            undefined,
-            false,
-            16 * 1024 * 1024,
-          )
-        : Promise.resolve(undefined),
     ]);
+    const agents = sanitizeUnifyChatAgents(rawAgents);
+    const { value: sessions, ids } = filterUnifyChatSessions(rawSessions);
+    this.#unifyChatSessionIds.clear();
+    for (const id of ids) this.#unifyChatSessionIds.add(id);
+    const validatedSessionId = sessionId ? validSegment(sessionId, 'sessionId') : undefined;
+    if (validatedSessionId && !ids.has(validatedSessionId))
+      throw new GovernanceError(
+        'CHAT_SESSION_NOT_FOUND',
+        404,
+        'CHAT session is unavailable in UNIFY',
+      );
+    const rawMessages = validatedSessionId
+      ? await this.json(
+          'chat',
+          'GET',
+          `/api/chat/sessions/${encodeURIComponent(validatedSessionId)}/messages`,
+          undefined,
+          false,
+          16 * 1024 * 1024,
+        )
+      : undefined;
     const messages = rawMessages === undefined ? undefined : latestChatMessages(rawMessages, 500);
     return { agents, sessions, ...(messages === undefined ? {} : { messages }) };
   }
@@ -378,7 +390,8 @@ export class MutationOwnerClient {
     });
     socket.on('message', (data) => {
       try {
-        onFrame(JSON.parse(data.toString()));
+        const frame: unknown = JSON.parse(data.toString());
+        if (this.isUnifyChatFrame(frame)) onFrame(frame);
       } catch {
         // Ignore malformed owner frames; the stream remains usable.
       }
@@ -390,6 +403,22 @@ export class MutationOwnerClient {
       if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)
         socket.close();
     };
+  }
+
+  private isUnifyChatFrame(frame: unknown): boolean {
+    if (!frame || typeof frame !== 'object' || Array.isArray(frame)) return false;
+    const value = frame as Record<string, unknown>;
+    const payload = recordOrUndefined(value.payload);
+    const session = recordOrUndefined(payload?.session);
+    const source = stringOrUndefined(value.source) ?? stringOrUndefined(session?.source);
+    const sessionId =
+      stringOrUndefined(value.session_id) ??
+      stringOrUndefined(payload?.session_id) ??
+      stringOrUndefined(session?.id);
+    if (source && source !== 'dashboard_native') return false;
+    if (source === 'dashboard_native' && sessionId) this.#unifyChatSessionIds.add(sessionId);
+    if (sessionId) return this.#unifyChatSessionIds.has(sessionId);
+    return value.type === 'realtime.connected' || value.type === 'realtime.subscribed';
   }
 
   validate(input: MutationInput): MutationDefinition {
@@ -454,6 +483,19 @@ export class MutationOwnerClient {
     if (action === 'chat.session.create') {
       string(payload.agent_id, 'agent_id');
       string(payload.title, 'title');
+      if (payload.source !== undefined && payload.source !== 'dashboard_native')
+        throw new GovernanceError(
+          'EXTERNAL_CHAT_EXCLUDED',
+          422,
+          'External-channel sessions are excluded from UNIFY',
+        );
+      for (const field of ['external_identity', 'channel_label', 'surface', 'route'])
+        if (payload[field] !== undefined)
+          throw new GovernanceError(
+            'EXTERNAL_CHAT_EXCLUDED',
+            422,
+            'External-channel session metadata is excluded from UNIFY',
+          );
     }
     if (action === 'chat.upload') {
       const name = string(payload.name, 'name');
@@ -594,10 +636,12 @@ export class MutationOwnerClient {
       return this.json('worker', 'POST', `/api/cron/jobs/${id}/${cronAction}`, payload);
     }
 
-    if (action === 'chat.message.send')
+    if (action === 'chat.message.send') {
+      await this.assertUnifyChatSession(target.nativeId);
       return dryRun
         ? { valid: true, dryRun: true }
         : this.json('chat', 'POST', `/api/chat/sessions/${id}/messages`, payload);
+    }
     if (action === 'chat.session.create')
       return dryRun
         ? { valid: true, dryRun: true }
@@ -624,6 +668,10 @@ export class MutationOwnerClient {
     }
 
     throw new GovernanceError('MUTATION_UNSUPPORTED', 422, 'Mutation type is not supported');
+  }
+
+  private async assertUnifyChatSession(sessionId: string): Promise<void> {
+    await this.chatWorkspace(sessionId);
   }
 
   async download(path: string): Promise<{ body: Buffer; contentType: string; filename: string }> {
@@ -744,6 +792,62 @@ export class MutationOwnerClient {
               : this.#config.memoryUrl,
     );
   }
+}
+
+function filterUnifyChatSessions(value: unknown): { value: unknown; ids: Set<string> } {
+  const ids = new Set<string>();
+  const filter = (items: unknown[]): unknown[] =>
+    items.filter((item) => {
+      const session = recordOrUndefined(item);
+      const internal = session?.source === 'dashboard_native';
+      if (internal) {
+        const id = stringOrUndefined(session.id);
+        if (id) ids.add(id);
+      }
+      return internal;
+    });
+  if (Array.isArray(value)) return { value: filter(value), ids };
+  const response = recordOrUndefined(value);
+  if (!response) return { value, ids };
+  for (const key of ['sessions', 'items', 'data']) {
+    if (Array.isArray(response[key]))
+      return { value: { ...response, [key]: filter(response[key]) }, ids };
+  }
+  return { value, ids };
+}
+
+function sanitizeUnifyChatAgents(value: unknown): unknown {
+  const sanitize = (items: unknown[]): unknown[] =>
+    items.map((item) => {
+      const agent = recordOrUndefined(item);
+      if (!agent) return item;
+      const capabilities = recordOrUndefined(agent.capabilities);
+      const safeAgent = { ...agent };
+      delete safeAgent.channel_bindings;
+      const safeCapabilities = capabilities ? { ...capabilities } : undefined;
+      if (safeCapabilities) delete safeCapabilities.external_channels;
+      return {
+        ...safeAgent,
+        ...(safeCapabilities ? { capabilities: safeCapabilities } : {}),
+      };
+    });
+  if (Array.isArray(value)) return sanitize(value);
+  const response = recordOrUndefined(value);
+  if (!response) return value;
+  for (const key of ['agents', 'items', 'data']) {
+    if (Array.isArray(response[key])) return { ...response, [key]: sanitize(response[key]) };
+  }
+  return value;
+}
+
+function recordOrUndefined(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined;
+}
+
+function stringOrUndefined(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() ? value.trim() : undefined;
 }
 
 function latestChatMessages(value: unknown, limit: number): unknown {

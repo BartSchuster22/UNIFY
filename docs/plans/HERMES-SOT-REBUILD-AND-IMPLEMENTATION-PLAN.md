@@ -29,7 +29,7 @@
 7. UNIFY PostgreSQL stores access-plane state and derived projections only, never a competing domain ledger.
 8. HTTP success is not sufficient for mutation success; UNIFY verifies with Hermes readback or a terminal Hermes event.
 9. Framework outage is reported as unavailable/stale, never as an authoritative empty state.
-10. External-channel ingestion and delivery remain singular inside Hermes Gateway; UNIFY never runs a second Telegram/Discord/etc. consumer.
+10. External-channel conversations and delivery are outside UNIFY scope; UNIFY never displays them or runs a Telegram/Discord/etc. consumer, mirror or sender.
 11. Legacy retirement is complete only when removing the legacy service, database and credentials has no effect on UNIFY behavior.
 12. A compatibility bridge is explicitly labeled `migration-only`, feature-flagged, observable and time-bounded.
 13. Hermes Agent is an immutable external framework. UNIFY-specific APIs, adapters, schemas, authentication, events and compatibility logic must never be added to the Hermes codebase.
@@ -423,8 +423,8 @@ UNIFY UI is the only operator control interface after cutover. It does not know 
 - Disable controls based on both RBAC and exact framework capability.
 - Never show success before verified readback or a terminal asynchronous state.
 - Preserve operation progress across reloads.
-- Show external conversation source/route and writability without exposing raw routing secrets.
-- New incoming messages update in realtime without stealing scroll position.
+- Exclude every external-channel conversation, route, binding and delivery capability from UNIFY responses and UI.
+- New internal messages update in realtime without stealing scroll position.
 - Reconnect status is visible; polling fallback is disclosed if active.
 - Large collections use cursor loading and virtualization.
 - Mobile, keyboard, screen-reader and reduced-motion behavior are release gates.
@@ -436,7 +436,7 @@ UNIFY UI is the only operator control interface after cutover. It does not know 
 | Profiles/Agents | Create, inspect, edit identity, route models, start/stop/restart, health, usage, protected delete |
 | Models/Providers | Actual registry, credential status, validate/save/delete credential, selectable models, fallback routing |
 | Work | Projects, agents, activation/schedule, boards, tasks, dependencies, comments, runs, cron, approvals |
-| Chat | Agents, existing native/external sessions, paginated messages, new session, send, attachments, approvals, stop, realtime lifecycle |
+| Chat | Agents, internal native sessions, paginated messages, new internal session, send, attachments, approvals, stop, realtime lifecycle |
 | Operations | Validation, preflight, confirmation, execution, verification, rollback and evidence |
 | Settings | Framework registrations, health/capabilities, access policy and UI preferences |
 
@@ -486,14 +486,13 @@ Agency primarily wraps Hermes profile state. Do not migrate Agency copies as can
 
 ### 6.5 CHAT
 
-1. Inventory CHAT sessions and map them to Hermes sessions using explicit source/platform/chat/thread/profile identifiers—not titles.
-2. Detect conversations already represented in Hermes SessionDB; do not duplicate them.
-3. Import genuinely CHAT-only native sessions/messages into Hermes with original timestamps and migration provenance.
-4. Reconstruct external route aliases from Hermes Gateway metadata; never copy raw secrets into UNIFY.
-5. Reconcile message order, sender roles, attachments, lifecycle and delivery state.
-6. Verify Telegram/thread identity and one-writer webhook ownership.
-7. Exercise incoming external message -> Hermes persistence -> UNIFY realtime -> UNIFY reply -> Hermes external delivery.
-8. Freeze CHAT writes, run Hermes-only communication, then disconnect CHAT.
+1. Inventory only CHAT sessions with `source=dashboard_native`; external-channel sessions are not UNIFY migration inputs.
+2. Detect internal conversations already represented in Hermes SessionDB; do not duplicate them.
+3. Import genuinely CHAT-only internal sessions/messages into Hermes with original timestamps and migration provenance.
+4. Do not import external route aliases, channel bindings, mirrored messages, relay state or transport credentials.
+5. Reconcile internal message order, sender roles, attachments and lifecycle.
+6. Prove external sessions, history, events and writes fail closed at the UNIFY boundary.
+7. Freeze CHAT-backed internal writes, run Hermes-only internal communication, then disconnect CHAT from UNIFY without stopping CHAT's independent external-channel operation.
 
 ### 6.6 Migration evidence
 
@@ -603,18 +602,18 @@ No phase is complete because code exists. Each phase must satisfy its exit gate 
 
 - Work QA10 passes with Worker stopped; no duplicate dispatch or schedule execution.
 
-### Phase 6 — Conversations cutover
+### Phase 6 — Internal conversations cutover
 
 **Work**
 
-- Replace CHAT reads, mutations and WebSocket bridge with Hermes sessions/runs/events/delivery.
-- Migrate/reconcile session and route aliases.
+- Replace CHAT internal reads, mutations and WebSocket bridge with Hermes sessions/runs/events.
+- Migrate/reconcile internal session aliases only.
 - Implement cursor history and attachments.
-- Verify native and external conversations end-to-end.
+- Verify native internal conversations end-to-end and verify external-channel exclusion.
 
 **Exit gate**
 
-- Chat QA10 passes with CHAT stopped; incoming and outgoing external messages continue through Hermes.
+- Internal Chat QA10 passes with the UNIFY-to-CHAT dependency stopped. CHAT's independent external-channel operation is not a UNIFY acceptance dependency.
 
 ### Phase 7 — Unified UI and operational hardening
 
@@ -682,7 +681,7 @@ A domain is not production-ready until all ten gates pass.
 
 - Permission, capability, exact target, validation, dry-run/preflight, confirmation, idempotency, concurrency, execution and verified readback are tested.
 - Destructive operations require stronger confirmation and rollback evidence.
-- Duplicate/replayed requests do not duplicate framework state or external delivery.
+- Duplicate/replayed requests do not duplicate framework state.
 
 ### QA4 — Realtime correctness
 
@@ -708,7 +707,7 @@ A domain is not production-ready until all ten gates pass.
 
 ### QA7 — Data integrity and migration
 
-- Counts, hashes, identity mappings, ordering, dependencies, schedules and external routes reconcile.
+- Counts, hashes, identity mappings, ordering, dependencies and schedules reconcile for in-scope resources.
 - Conflicts are resolved explicitly.
 - Backups restore successfully.
 - There is no dual writer or duplicate scheduler/webhook consumer.
@@ -746,7 +745,7 @@ A domain is not production-ready until all ten gates pass.
 | Adapter integration | Real pinned Hermes instance for every read/write/event family |
 | Migration | Repeatable import, dedupe, conflicts, hashes, rollback/quarantine |
 | Event | Disconnect/reconnect, replay, replay gap, ordering, duplicate event, backpressure |
-| Chat delivery | Existing Telegram/thread receive and answer, exactly-once external send, failed delivery truth |
+| Chat scope boundary | External sessions, routes, messages, events, bindings and delivery remain inaccessible from UNIFY |
 | Work execution | Claims, dependencies, block/unblock, attempts, schedule, no duplicate dispatcher |
 | Provider security | Credential never returned/logged; validate/save/delete semantics; provider isolation |
 | E2E | Named-user workflows through public UNIFY only |

@@ -2,7 +2,7 @@
 
 ## Scope
 
-The model covers the public UNIUI origin, Gateway REST/SSE/WebSocket APIs, Gateway PostgreSQL, adapters, exact Hermes instances, AGENCY, DMM, WORKER, CHAT, MemoryV4, focused applications and external notification/channel boundaries.
+The model covers the public UNIUI origin, Gateway REST/SSE/WebSocket APIs, Gateway PostgreSQL, adapters, exact Hermes instances, AGENCY, DMM, WORKER, CHAT, MemoryV4 and focused applications. External chat systems are outside the UNIFY product boundary; attempts to expose them are in scope as boundary violations.
 
 ## Trust boundaries
 
@@ -11,7 +11,7 @@ The model covers the public UNIUI origin, Gateway REST/SSE/WebSocket APIs, Gatew
 3. Gateway to PostgreSQL and optional event broker.
 4. Gateway to each downstream service with distinct credentials.
 5. Downstream service to exact Hermes framework.
-6. Chat to external surfaces and relays.
+6. UNIFY Chat boundary to excluded external-session, mirror, route and relay data.
 7. Build/CI system to image registry and deployment host.
 8. Operator evidence/log access boundary.
 
@@ -21,7 +21,7 @@ The model covers the public UNIUI origin, Gateway REST/SSE/WebSocket APIs, Gatew
 - Downstream service credentials and DMM vault material.
 - Profile identity/routing/runtime state.
 - Worker project/policy/approval and Hermes Kanban/cron state.
-- Chat content, attachments, routes and external-channel identities.
+- Internal Chat content and attachments; exclusion of external-channel routes and identities.
 - Memory content, scopes, provenance and retrieval audit.
 - Operation, idempotency and audit evidence.
 - Framework mappings, deployment configuration, backups and release provenance.
@@ -41,7 +41,7 @@ The model covers the public UNIUI origin, Gateway REST/SSE/WebSocket APIs, Gatew
 | T09 | Privilege escalation | Cross-role/domain access | Deny-by-default RBAC, resource scopes, server/event authorization matrix, audit denied decisions | Auth foundation |
 | T10 | Unauthorized SSE/WS subscription | Data leakage | Authenticate handshake, per-event scope filter, cursor bound to principal, reauthorize on permission change | Realtime phase |
 | T11 | Event command injection | Unauthorized execution | Event transports carry no execution commands; mutations only via authenticated HTTP operation API | Realtime phase |
-| T12 | Duplicate webhook/relay ownership | Duplicate assistant turns/messages | Singular ownership registry, mirror dedupe, never execute from mirror-only ingest, ownership contract tests | Chat integration |
+| T12 | External chat data or controls cross the UNIFY boundary | Data leakage, unauthorized delivery, duplicate execution | Fail-closed source/session filters, no route or channel-binding fields, realtime filtering, negative read/write tests | Chat integration |
 | T13 | Malicious upload/path/content | RCE, exfiltration, storage abuse | Multipart limits, filename normalization, content sniffing policy, malware seam, private storage, signed/authorized download | Chat mutation phase |
 | T14 | Public attachment URL | Private data leak | Authenticated download or short-lived signed URL, authorization on every access | Chat mutation phase |
 | T15 | Memory sibling-scope leak | Sensitive memory disclosure | Named principals, consistent list/get/search semantics, indistinguishable forbidden/not-found policy, negative isolation tests | Memory read integration |
@@ -62,7 +62,7 @@ The model covers the public UNIUI origin, Gateway REST/SSE/WebSocket APIs, Gatew
 - Authorization is enforced at REST and event subscription boundaries.
 - A connected browser is not proof of upstream health.
 - An HTTP success response is not proof of a verified mutation.
-- A mirrored inbound event is not permission to start another assistant turn.
+- External-channel sessions, messages, routes, events and delivery controls never reach a UNIFY client.
 - No arbitrary MemoryV4 canonical/live write is exposed before governance enforcement.
 - Public health endpoints reveal no sensitive configuration.
 

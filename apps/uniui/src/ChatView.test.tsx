@@ -12,7 +12,7 @@ const agents = [
     description: null,
     runtime_agent_id: 'herman',
     display_metadata: { model_label: 'gpt-5.6' },
-    capabilities: { text: true, attachments: true, external_channels: true },
+    capabilities: { text: true, attachments: true },
   },
   {
     id: 'hermes.chatboard',
@@ -21,28 +21,33 @@ const agents = [
     description: null,
     runtime_agent_id: 'chatboard',
     display_metadata: { model_label: 'gpt-5.5' },
-    capabilities: { text: true, attachments: true, external_channels: true },
+    capabilities: { text: true, attachments: true },
   },
 ];
-const telegramSession = {
-  id: 'ses-tg',
+const hermanSession = {
+  id: 'ses-herman',
   agent_id: 'hermes.herman',
-  source: 'telegram',
-  external_identity: 'telegram:1371039817',
-  session_key: 'hermes.herman::telegram::1371039817',
-  channel_label: 'Telegram: Canarias Libre',
-  title: 'Herman · Telegram Canarias Libre',
+  source: 'dashboard_native',
+  external_identity: null,
+  session_key: 'hermes.herman::native::primary',
+  channel_label: 'Dashboard',
+  title: 'Herman primary chat',
   status: 'active',
   last_seq: 30,
   created_at: '2026-07-01T10:00:00Z',
   updated_at: '2026-07-20T18:00:00Z',
   surface: {
     writable: true,
-    attachments: false,
-    route_kind: 'telegram_user_relay',
-    default_delivery: 'user_relay',
-    requires_relay: true,
+    attachments: true,
+    route_kind: 'runtime',
   },
+};
+const excludedExternalSession = {
+  ...hermanSession,
+  id: 'ses-external',
+  source: 'telegram',
+  title: 'Excluded external conversation',
+  updated_at: '2026-07-21T18:00:00Z',
 };
 const nativeSession = {
   id: 'ses-native',
@@ -74,13 +79,13 @@ const codingSession = {
 };
 const messages = Array.from({ length: 25 }, (_, index) => ({
   id: `msg-${index}`,
-  session_id: 'ses-tg',
+  session_id: 'ses-herman',
   agent_id: 'hermes.herman',
   sender_type: index % 2 ? 'agent' : 'user',
   blocks: [
     {
       kind: 'text',
-      text: index === 24 ? 'Latest mirrored Telegram reply' : `Message ${index + 1}`,
+      text: index === 24 ? 'Latest internal agent reply' : `Message ${index + 1}`,
     },
   ],
   lifecycle_status: 'complete',
@@ -90,7 +95,9 @@ const messages = Array.from({ length: 25 }, (_, index) => ({
 }));
 const workspace = {
   agents: { agents },
-  sessions: { sessions: [telegramSession, nativeSession, codingSession] },
+  sessions: {
+    sessions: [excludedExternalSession, hermanSession, nativeSession, codingSession],
+  },
 };
 let realtimeMessages = [...messages];
 
@@ -130,7 +137,7 @@ describe('UNIFY CHAT workspace', () => {
       'fetch',
       vi.fn(async (input: RequestInfo | URL) => {
         const url = String(input);
-        const body = url.includes('/chat/workspace/ses-tg')
+        const body = url.includes('/chat/workspace/ses-herman')
           ? { ...workspace, messages: { messages: realtimeMessages } }
           : url.includes('/chat/workspace/ses-code')
             ? {
@@ -152,7 +159,7 @@ describe('UNIFY CHAT workspace', () => {
                   sessions: {
                     sessions: [
                       { ...nativeSession, id: 'ses-created', title: 'Fresh session' },
-                      telegramSession,
+                      hermanSession,
                       nativeSession,
                       codingSession,
                     ],
@@ -189,30 +196,28 @@ describe('UNIFY CHAT workspace', () => {
   it('shows the agent rail, filters the session rail, and opens session content', async () => {
     renderChat();
     expect(await screen.findByRole('complementary', { name: 'Chat agents' })).toBeInTheDocument();
-    expect(
-      (await screen.findAllByText('Herman · Telegram Canarias Libre')).length,
-    ).toBeGreaterThanOrEqual(1);
-    expect(await screen.findByText('Latest mirrored Telegram reply')).toBeInTheDocument();
-    expect(screen.getByText('telegram')).toBeInTheDocument();
+    expect((await screen.findAllByText('Herman primary chat')).length).toBeGreaterThanOrEqual(1);
+    expect(await screen.findByText('Latest internal agent reply')).toBeInTheDocument();
+    expect(screen.queryByText('Excluded external conversation')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Chatboard/ }));
     expect((await screen.findAllByText('Coding session')).length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText('Herman planning')).not.toBeInTheDocument();
     expect(await screen.findByText('Coding content')).toBeInTheDocument();
   });
 
-  it('sends through the selected mirrored Telegram session using the fixed composer', async () => {
+  it('sends through the selected internal session using the fixed composer', async () => {
     renderChat();
-    await screen.findByText('Latest mirrored Telegram reply');
+    await screen.findByText('Latest internal agent reply');
     fireEvent.change(screen.getByLabelText('Message'), {
-      target: { value: 'Reply through Telegram relay' },
+      target: { value: 'Reply to the internal session' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
     await waitFor(() =>
       expect(gateway.mutate).toHaveBeenCalledWith(
         expect.objectContaining({
           operationType: 'chat.message.send',
-          target: expect.objectContaining({ nativeId: 'ses-tg' }),
-          payload: { blocks: [{ kind: 'text', text: 'Reply through Telegram relay' }] },
+          target: expect.objectContaining({ nativeId: 'ses-herman' }),
+          payload: { blocks: [{ kind: 'text', text: 'Reply to the internal session' }] },
           mode: 'execute',
         }),
       ),
@@ -221,7 +226,7 @@ describe('UNIFY CHAT workspace', () => {
 
   it('receives authoritative realtime events and reconciles the selected session immediately', async () => {
     renderChat();
-    await screen.findByText('Latest mirrored Telegram reply');
+    await screen.findByText('Latest internal agent reply');
     MockEventSource.latest?.onopen?.(new Event('open'));
     expect(await screen.findByText('Realtime connected')).toBeInTheDocument();
     realtimeMessages = [
@@ -237,7 +242,7 @@ describe('UNIFY CHAT workspace', () => {
     MockEventSource.latest?.emit(
       'chat',
       new MessageEvent('chat', {
-        data: JSON.stringify({ type: 'message.created', session_id: 'ses-tg' }),
+        data: JSON.stringify({ type: 'message.created', session_id: 'ses-herman' }),
       }),
     );
     expect(await screen.findByText('Incoming realtime answer')).toBeInTheDocument();
@@ -245,7 +250,7 @@ describe('UNIFY CHAT workspace', () => {
 
   it('creates a new session for the selected agent from the session rail', async () => {
     renderChat();
-    await screen.findByText('Latest mirrored Telegram reply');
+    await screen.findByText('Latest internal agent reply');
     fireEvent.click(screen.getByRole('button', { name: 'Add new session' }));
     const title = await screen.findByLabelText('Session title');
     fireEvent.change(title, { target: { value: 'Fresh session' } });
@@ -263,7 +268,7 @@ describe('UNIFY CHAT workspace', () => {
 
   it('offers a centered Latest messages control after the operator scrolls up', async () => {
     renderChat();
-    await screen.findByText('Latest mirrored Telegram reply');
+    await screen.findByText('Latest internal agent reply');
     const log = screen.getByRole('log', { name: 'Chat messages' });
     Object.defineProperties(log, {
       scrollHeight: { configurable: true, value: 1200 },

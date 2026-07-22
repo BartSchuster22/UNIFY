@@ -159,6 +159,25 @@ describe('MutationOwnerClient', () => {
             ok: true,
             messages: Array.from({ length: 505 }, (_, index) => ({ id: `m${index}` })),
           });
+        if (url.endsWith('/api/chat/sessions'))
+          return Response.json({
+            ok: true,
+            sessions: [
+              { id: 'ses_123', source: 'dashboard_native', title: 'Internal' },
+              { id: 'ses_external', source: 'telegram', title: 'Telegram' },
+            ],
+          });
+        if (url.endsWith('/api/agents'))
+          return Response.json({
+            ok: true,
+            agents: [
+              {
+                id: 'hermes.herman',
+                capabilities: { text: true, external_channels: true },
+                channel_bindings: [{ channel: 'telegram' }],
+              },
+            ],
+          });
         return Response.json({ ok: true });
       }),
     );
@@ -172,6 +191,23 @@ describe('MutationOwnerClient', () => {
     expect(history).toMatchObject({ total: 505, truncated: true });
     expect(history.messages).toHaveLength(500);
     expect(history.messages[0]?.id).toBe('m5');
+    expect(workspace.sessions).toEqual({
+      ok: true,
+      sessions: [{ id: 'ses_123', source: 'dashboard_native', title: 'Internal' }],
+    });
+    expect(workspace.agents).toEqual({
+      ok: true,
+      agents: [
+        {
+          id: 'hermes.herman',
+          capabilities: { text: true },
+        },
+      ],
+    });
+    await expect(owners.chatWorkspace('ses_external')).rejects.toMatchObject({
+      code: 'CHAT_SESSION_NOT_FOUND',
+      statusCode: 404,
+    });
     for (const path of ['/api/agents', '/api/chat/sessions', '/api/chat/sessions/ses_123/messages'])
       expect(
         calls.some((url) => url.endsWith(path)),
@@ -211,9 +247,27 @@ describe('MutationOwnerClient', () => {
     });
     socket.emit(
       'message',
-      Buffer.from(JSON.stringify({ type: 'message.created', session_id: 'ses_123' })),
+      Buffer.from(
+        JSON.stringify({
+          type: 'message.created',
+          session_id: 'ses_123',
+          source: 'dashboard_native',
+        }),
+      ),
     );
-    expect(frames).toEqual([{ type: 'message.created', session_id: 'ses_123' }]);
+    socket.emit(
+      'message',
+      Buffer.from(
+        JSON.stringify({
+          type: 'message.created',
+          session_id: 'ses_external',
+          source: 'telegram',
+        }),
+      ),
+    );
+    expect(frames).toEqual([
+      { type: 'message.created', session_id: 'ses_123', source: 'dashboard_native' },
+    ]);
     stop();
     socket.emit('close');
     expect(disconnects).toEqual([]);
@@ -237,6 +291,11 @@ describe('MutationOwnerClient', () => {
         }
         if (url.endsWith('/auth/login'))
           return new Response('{}', { headers: { 'set-cookie': 'chat=session; Secure' } });
+        if (url.endsWith('/api/chat/sessions') && init.method === 'GET')
+          return Response.json({
+            ok: true,
+            sessions: [{ id: 'session-1', source: 'dashboard_native', title: 'Internal' }],
+          });
         return Response.json({ ok: true });
       }),
     );
@@ -325,6 +384,52 @@ describe('MutationOwnerClient', () => {
     expect(worker.init.headers).toMatchObject({ authorization: 'Bearer worker-token' });
     const memory = calls.find((call) => call.url.endsWith('/entities/project/unify/records'))!;
     expect(memory.init.headers).toMatchObject({ authorization: 'Bearer memory-token' });
+  });
+
+  it('rejects external CHAT session creation before contacting CHAT', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    const owners = new MutationOwnerClient(config);
+    await expect(
+      owners.execute(
+        input('chat.session.create', 'chat', 'chat-session', 'new', {
+          agent_id: 'hermes.herman',
+          title: 'Telegram session',
+          source: 'telegram',
+          external_identity: 'telegram:123',
+        }),
+      ),
+    ).rejects.toMatchObject({ code: 'EXTERNAL_CHAT_EXCLUDED', statusCode: 422 });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('rejects message delivery to an external CHAT session', async () => {
+    const calls: string[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (request: string | URL | Request, init: RequestInit = {}) => {
+        const url = String(request);
+        calls.push(`${init.method ?? 'GET'} ${url}`);
+        if (url.endsWith('/auth/login'))
+          return new Response('{}', { headers: { 'set-cookie': 'chat=session; Secure' } });
+        if (url.endsWith('/api/chat/sessions'))
+          return Response.json({
+            ok: true,
+            sessions: [{ id: 'ses_external', source: 'telegram', title: 'Telegram' }],
+          });
+        if (url.endsWith('/api/agents')) return Response.json({ ok: true, agents: [] });
+        return Response.json({ ok: true });
+      }),
+    );
+    const owners = new MutationOwnerClient(config);
+    await expect(
+      owners.execute(
+        input('chat.message.send', 'chat', 'chat-session', 'ses_external', {
+          blocks: [{ kind: 'text', text: 'must not send externally' }],
+        }),
+      ),
+    ).rejects.toMatchObject({ code: 'CHAT_SESSION_NOT_FOUND', statusCode: 404 });
+    expect(calls.some((call) => call.includes('/ses_external/messages'))).toBe(false);
   });
 
   it('rejects malformed base64 before contacting Chat', async () => {

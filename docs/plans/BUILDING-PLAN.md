@@ -1,6 +1,6 @@
 # UNIFY — Feasibility, Architecture, and Step-by-Step Building Plan
 
-> **SUPERSEDED ARCHITECTURE — HISTORICAL BASELINE ONLY.** This document predates the binding Hermes-source-of-truth decision. It must not be used to authorize legacy-backed production reads or writes. The binding replacement is [`HERMES-SOT-REBUILD-AND-IMPLEMENTATION-PLAN.md`](HERMES-SOT-REBUILD-AND-IMPLEMENTATION-PLAN.md).
+> **SUPERSEDED ARCHITECTURE — HISTORICAL BASELINE ONLY.** This document predates the binding Hermes-source-of-truth decision. It must not be used to authorize legacy-backed production reads or writes. The binding replacement is [`HERMES-SOT-REBUILD-AND-IMPLEMENTATION-PLAN.md`](HERMES-SOT-REBUILD-AND-IMPLEMENTATION-PLAN.md). External-channel chat display and interaction are explicitly excluded by [`../architecture/CHAT-EXTERNAL-CHANNEL-EXCLUSION.md`](../architecture/CHAT-EXTERNAL-CHANNEL-EXCLUSION.md); historical Telegram references below are not current requirements.
 
 **Project:** Aquiero Unified Hermes Gateway and UNIUI
 **Repository:** `BartSchuster22/UNIFY` (private)

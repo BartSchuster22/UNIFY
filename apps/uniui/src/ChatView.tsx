@@ -16,17 +16,11 @@ import {
   Title,
   Tooltip,
 } from '@mantine/core';
-import {
-  IconArrowDown,
-  IconBrandTelegram,
-  IconMessagePlus,
-  IconRefresh,
-  IconSend,
-} from '@tabler/icons-react';
+import { IconArrowDown, IconMessagePlus, IconRefresh, IconSend } from '@tabler/icons-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { api, gateway } from './api';
 
-type Source = 'dashboard_native' | 'telegram' | 'whatsapp';
+type Source = 'dashboard_native';
 type MessageBlock =
   | { kind: 'text'; text: string }
   | { kind: 'image'; url: string; alt?: string; name?: string }
@@ -39,13 +33,7 @@ type Agent = {
   framework_id?: string;
   runtime_agent_id?: string;
   display_metadata?: { model_label?: string; provider_label?: string; framework_label?: string };
-  capabilities?: { text: boolean; attachments: boolean; external_channels: boolean };
-  channel_bindings?: Array<{
-    id: string;
-    channel: 'telegram' | 'whatsapp';
-    status: string;
-    label: string;
-  }>;
+  capabilities?: { text: boolean; attachments: boolean };
 };
 type Session = {
   id: string;
@@ -84,7 +72,15 @@ type Workspace = {
   messages?: { messages: Message[]; total?: number; truncated?: boolean };
 };
 type Notice = { color: 'red' | 'yellow' | 'blue' | 'green'; message: string };
-type RealtimeFrame = { type?: string; session_id?: string; agent_id?: string };
+type RealtimeFrame = {
+  type?: string;
+  session_id?: string;
+  agent_id?: string;
+  source?: string;
+};
+
+const internalSessions = (sessions: Session[] | undefined): Session[] =>
+  (sessions ?? []).filter((session) => session.source === 'dashboard_native');
 
 export function ChatView({ canUse }: { canUse: boolean }) {
   const [agents, setAgents] = useState<Agent[]>([]);
@@ -140,7 +136,7 @@ export function ChatView({ canUse }: { canUse: boolean }) {
     try {
       const body = await api<Workspace>(`/chat/workspace/${encodeURIComponent(id)}`);
       setAgents(body.agents.agents ?? []);
-      setSessions(body.sessions.sessions ?? []);
+      setSessions(internalSessions(body.sessions.sessions));
       setMessages((body.messages?.messages ?? []).sort((a, b) => a.seq - b.seq));
       setMessageTotal(body.messages?.total ?? body.messages?.messages.length ?? 0);
       setHistoryTruncated(body.messages?.truncated ?? false);
@@ -159,7 +155,7 @@ export function ChatView({ canUse }: { canUse: boolean }) {
   const refreshRails = async () => {
     const body = await api<Workspace>('/chat/workspace');
     setAgents(body.agents.agents ?? []);
-    setSessions(body.sessions.sessions ?? []);
+    setSessions(internalSessions(body.sessions.sessions));
   };
 
   const load = async () => {
@@ -167,7 +163,7 @@ export function ChatView({ canUse }: { canUse: boolean }) {
     try {
       const body = await api<Workspace>('/chat/workspace');
       const nextAgents = body.agents.agents ?? [];
-      const nextSessions = [...(body.sessions.sessions ?? [])].sort((a, b) =>
+      const nextSessions = internalSessions(body.sessions.sessions).sort((a, b) =>
         b.updated_at.localeCompare(a.updated_at),
       );
       setAgents(nextAgents);
@@ -234,6 +230,7 @@ export function ChatView({ canUse }: { canUse: boolean }) {
     source.addEventListener('chat', (event) => {
       try {
         const frame = JSON.parse((event as MessageEvent<string>).data) as RealtimeFrame;
+        if (frame.source && frame.source !== 'dashboard_native') return;
         if (
           frame.type === 'realtime.replay_gap' ||
           frame.type?.startsWith('message.') ||
@@ -294,7 +291,7 @@ export function ChatView({ canUse }: { canUse: boolean }) {
       const result = response.result as { session?: Session };
       const created = result.session;
       setNewOpen(false);
-      if (created) {
+      if (created?.source === 'dashboard_native') {
         setSessions((current) => [
           created,
           ...current.filter((session) => session.id !== created.id),
@@ -352,11 +349,11 @@ export function ChatView({ canUse }: { canUse: boolean }) {
       <Group justify="space-between" align="flex-start">
         <div>
           <Text size="xs" fw={800} tt="uppercase">
-            Migration comparison · read-only
+            Internal chat · migration boundary
           </Text>
           <Title order={1}>Chat</Title>
           <Text c="dimmed">
-            Legacy CHAT snapshot and relay are migration scaffolding, not Hermes conversation truth.
+            Internal agent conversations only. External-channel chats are excluded from UNIFY.
           </Text>
         </div>
         <Group gap="xs">
@@ -452,7 +449,6 @@ export function ChatView({ canUse }: { canUse: boolean }) {
                 >
                   <span className="unify-chat-session-title">{session.title}</span>
                   <span className="unify-chat-session-meta">
-                    {session.source === 'telegram' ? <IconBrandTelegram size={13} /> : null}
                     {session.channel_label} · {relativeTime(session.updated_at)}
                   </span>
                 </button>
@@ -472,18 +468,12 @@ export function ChatView({ canUse }: { canUse: boolean }) {
                 <div>
                   <Group gap="xs">
                     <Text fw={800}>{activeSession.title}</Text>
-                    <Badge
-                      variant="light"
-                      color={activeSession.source === 'telegram' ? 'blue' : 'gray'}
-                    >
-                      {activeSession.source === 'dashboard_native' ? 'UNIFY' : activeSession.source}
+                    <Badge variant="light" color="gray">
+                      UNIFY
                     </Badge>
                   </Group>
                   <Text size="xs" c="dimmed">
                     {activeAgent?.label ?? activeSession.agent_id} · {activeSession.channel_label}
-                    {activeSession.surface?.route_kind
-                      ? ` · ${activeSession.surface.route_kind}`
-                      : ''}
                   </Text>
                 </div>
                 <Text size="xs" c="dimmed">
