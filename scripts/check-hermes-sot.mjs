@@ -49,15 +49,15 @@ for (const path of files) {
 const production = await readFile(resolve(root, 'compose.production.yaml'), 'utf8');
 for (const required of [
   /DEPLOYMENT_MODE:\s*mutation-canary\b/,
-  /MUTATION_DOMAINS:\s*work\b/,
-  /MUTATION_ACCEPTANCE_REFS:\s*work=phase6\/hermes-work\b/,
+  /MUTATION_DOMAINS:\s*work,chat\b/,
+  /MUTATION_ACCEPTANCE_REFS:\s*work=phase6\/hermes-work,chat=task8\/hermes-internal-conversations\b/,
 ]) {
   if (!required.test(production))
     violations.push(
-      'compose.production.yaml: production must enable only accepted Hermes Work mutations',
+      'compose.production.yaml: production must enable only accepted Hermes Work and internal-conversation mutations',
     );
 }
-if (/MUTATION_DOMAINS:\s*[^\n]*(?:profiles|dmm|worker|chat|memory-v4)/i.test(production))
+if (/MUTATION_DOMAINS:\s*[^\n]*(?:profiles|dmm|worker|memory-v4)/i.test(production))
   violations.push('compose.production.yaml: legacy mutation domains are forbidden');
 
 const mutations = await readFile(

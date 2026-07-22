@@ -4,6 +4,8 @@ import {
   PINNED_HERMES_COMMIT,
   PINNED_HERMES_RELEASE,
   type FrameworkScope,
+  type HermesConversationCommand,
+  type HermesConversationOperation,
   type HermesControlCommand,
   type HermesWorkCommand,
   type HermesWorkOperation,
@@ -120,6 +122,39 @@ export class HermesGatewayService {
           'FRAMEWORK_VERIFICATION_FAILED',
           502,
           'Hermes work command did not return the expected terminal status',
+        );
+      return projectEnvelope(result);
+    });
+  }
+
+  async conversation(
+    frameworkId: string,
+    operation: HermesConversationOperation,
+    targetId: string,
+    payload: Record<string, unknown>,
+    mode: 'validate' | 'dry-run' | 'execute',
+    context: GatewayCommandContext,
+  ) {
+    const command: HermesConversationCommand = {
+      mode,
+      idempotencyKey: gatewayIdempotencyKey(context.actorUserId, context.idempotencyKey),
+      requestId: context.operationId,
+      correlationId: context.operationId,
+      actor: { type: 'user', id: context.actorUserId },
+      payload,
+      operation,
+      targetId,
+    };
+    return this.call(frameworkId, 'control:execute', async (client) => {
+      const result = await client.conversation(command);
+      assertProvenance(frameworkId, result);
+      const expectedStatus =
+        mode === 'validate' ? 'validated' : mode === 'dry-run' ? 'dry-run' : 'completed';
+      if (result.data.status !== expectedStatus)
+        throw new GovernanceError(
+          'FRAMEWORK_VERIFICATION_FAILED',
+          502,
+          'Hermes conversation command did not return the expected terminal status',
         );
       return projectEnvelope(result);
     });

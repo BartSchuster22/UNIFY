@@ -2057,13 +2057,13 @@ export interface components {
                 };
             };
         };
-        HermesControlErrorCode: "invalid_request" | "unauthenticated" | "forbidden" | "not_found" | "conflict" | "source_version_mismatch" | "idempotency_conflict" | "unsupported_contract_version" | "unsupported_framework_version" | "capability_unsupported" | "capability_unavailable" | "replay_gap" | "rate_limited" | "internal_error";
+        HermesControlErrorCode: "invalid_request" | "unauthenticated" | "forbidden" | "not_found" | "conflict" | "source_version_mismatch" | "idempotency_conflict" | "unsupported_contract_version" | "unsupported_framework_version" | "capability_unsupported" | "capability_unavailable" | "SECOND_CONSUMER_FORBIDDEN" | "replay_gap" | "rate_limited" | "internal_error";
         HermesControlErrorResponse: {
             /** @constant */
             contractVersion: "hermes-control/v1";
             frameworkId?: string;
             error: {
-                code: "invalid_request" | "unauthenticated" | "forbidden" | "not_found" | "conflict" | "source_version_mismatch" | "idempotency_conflict" | "unsupported_contract_version" | "unsupported_framework_version" | "capability_unsupported" | "capability_unavailable" | "replay_gap" | "rate_limited" | "internal_error";
+                code: "invalid_request" | "unauthenticated" | "forbidden" | "not_found" | "conflict" | "source_version_mismatch" | "idempotency_conflict" | "unsupported_contract_version" | "unsupported_framework_version" | "capability_unsupported" | "capability_unavailable" | "SECOND_CONSUMER_FORBIDDEN" | "replay_gap" | "rate_limited" | "internal_error";
                 message: string;
                 requestId: string;
                 retryable: boolean;
@@ -2118,6 +2118,44 @@ export interface components {
                 status: "validated" | "dry-run" | "completed";
                 replayed: boolean;
                 operation: "project.create" | "project.rename" | "project.archive" | "task.create" | "task.start" | "task.block" | "task.unblock" | "task.complete" | "cron.create" | "cron.run" | "cron.pause" | "cron.resume" | "cron.delete";
+                targetId: string;
+                result: {
+                    [key: string]: unknown;
+                };
+                emittedEvents: number;
+            };
+        };
+        HermesConversationOperation: "session.create" | "message.send";
+        HermesConversationCommand: {
+            mode: "validate" | "dry-run" | "execute";
+            idempotencyKey: string;
+            expectedSourceVersion?: string;
+            requestId: string;
+            correlationId: string;
+            actor: {
+                type: "user" | "service";
+                id: string;
+            };
+            payload: {
+                [key: string]: unknown;
+            };
+            operation: "session.create" | "message.send";
+            targetId: string;
+        };
+        HermesConversationResult: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                operationId: string;
+                status: "validated" | "dry-run" | "completed";
+                replayed: boolean;
+                operation: "session.create" | "message.send";
                 targetId: string;
                 result: {
                     [key: string]: unknown;

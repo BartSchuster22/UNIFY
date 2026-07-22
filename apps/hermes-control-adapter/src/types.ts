@@ -2,6 +2,7 @@ import type {
   HermesBoard,
   HermesCronjob,
   HermesControlCommand,
+  HermesConversationCommand,
   HermesEventEnvelope,
   HermesMessage,
   HermesProfile,
@@ -27,6 +28,7 @@ export interface AdapterSource {
   tasks(boardId: string): Promise<Snapshot<HermesTask>>;
   cronjobs(): Promise<Snapshot<HermesCronjob>>;
   executeWork(command: HermesWorkCommand): Promise<Record<string, unknown>>;
+  executeConversation(command: HermesConversationCommand): Promise<Record<string, unknown>>;
   sessions(): Promise<Snapshot<HermesSession>>;
   messages(sessionId: string): Promise<Snapshot<HermesMessage>>;
   health(): Promise<Record<string, 'healthy' | 'degraded' | 'unavailable'>>;
@@ -47,7 +49,7 @@ export interface IdempotentCommitInput {
   capability: string;
   idempotencyKey: string;
   requestHash: string;
-  command: HermesControlCommand | HermesWorkCommand;
+  command: HermesControlCommand | HermesWorkCommand | HermesConversationCommand;
   response: Record<string, unknown>;
   events: DerivedEventInput[];
 }

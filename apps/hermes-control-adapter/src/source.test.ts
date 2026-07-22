@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { HermesNativeSource, validateApiBaseUrl, type CommandRunner } from './source.js';
+import {
+  HermesNativeSource,
+  SecondConsumerForbiddenError,
+  validateApiBaseUrl,
+  type CommandRunner,
+} from './source.js';
 
 class FixtureRunner implements CommandRunner {
   constructor(private readonly outputs: Record<string, string>) {}
@@ -147,6 +152,8 @@ describe('HermesNativeSource', () => {
           JSON.stringify({ messages: [{ id: 'm-1', role: 'user', content: 'hello' }] }),
           { status: 200, headers: { 'content-type': 'application/json' } },
         );
+      if (url.endsWith('/api/sessions/s-1'))
+        return Response.json({ session: { id: 's-1', source: 'cli' } });
       return new Response('{}', { status: 404 });
     };
     const source = new HermesNativeSource({
@@ -159,6 +166,28 @@ describe('HermesNativeSource', () => {
 
     const unavailable = new HermesNativeSource({ runner: new FixtureRunner({}) });
     await expect(unavailable.sessions()).rejects.toThrow('not configured');
+  });
+
+  it('fails closed for external-channel session lists and message histories', async () => {
+    const source = new HermesNativeSource({
+      runner: new FixtureRunner({}),
+      apiBaseUrl: 'https://hermes.test',
+      fetchImpl: async (input) => {
+        const url = String(input);
+        if (url.endsWith('/api/sessions'))
+          return Response.json({
+            data: [
+              { id: 'external', source: 'telegram' },
+              { id: 'internal', source: 'api_server' },
+            ],
+          });
+        if (url.endsWith('/api/sessions/external'))
+          return Response.json({ session: { id: 'external', source: 'telegram' } });
+        return new Response('{}', { status: 404 });
+      },
+    });
+    expect((await source.sessions()).items.map((item) => item.id)).toEqual(['internal']);
+    await expect(source.messages('external')).rejects.toBeInstanceOf(SecondConsumerForbiddenError);
   });
 
   it('rejects unsafe Hermes API endpoints before issuing a request', () => {

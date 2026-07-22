@@ -111,6 +111,21 @@ export const workMutationDefinitions: Record<string, MutationDefinition> = {
   },
 };
 
+export const conversationMutationDefinitions: Record<string, MutationDefinition> = {
+  'chat.session.create': {
+    owner: 'hermes',
+    kind: 'session',
+    permission: 'chat.use',
+    executionPath: 'hermes-control',
+  },
+  'chat.message.send': {
+    owner: 'hermes',
+    kind: 'session',
+    permission: 'chat.use',
+    executionPath: 'hermes-control',
+  },
+};
+
 export interface LegacyMutationOwnerClient {
   definition(operationType: string): MutationDefinition;
   validate(input: MutationInput): MutationDefinition;

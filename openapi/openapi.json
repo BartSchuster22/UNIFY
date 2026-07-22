@@ -13198,6 +13198,10 @@
             "type": "string"
           },
           {
+            "const": "SECOND_CONSUMER_FORBIDDEN",
+            "type": "string"
+          },
+          {
             "const": "replay_gap",
             "type": "string"
           },
@@ -13285,6 +13289,10 @@
                   },
                   {
                     "const": "capability_unavailable",
+                    "type": "string"
+                  },
+                  {
+                    "const": "SECOND_CONSUMER_FORBIDDEN",
                     "type": "string"
                   },
                   {
@@ -13749,6 +13757,234 @@
                   },
                   {
                     "const": "cron.delete",
+                    "type": "string"
+                  }
+                ]
+              },
+              "targetId": {
+                "minLength": 1,
+                "maxLength": 300,
+                "type": "string"
+              },
+              "result": {
+                "type": "object",
+                "patternProperties": {
+                  "^(.*)$": {}
+                }
+              },
+              "emittedEvents": {
+                "minimum": 0,
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "HermesConversationOperation": {
+        "$id": "HermesConversationOperation",
+        "anyOf": [
+          {
+            "const": "session.create",
+            "type": "string"
+          },
+          {
+            "const": "message.send",
+            "type": "string"
+          }
+        ]
+      },
+      "HermesConversationCommand": {
+        "$id": "HermesConversationCommand",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "mode",
+          "idempotencyKey",
+          "requestId",
+          "correlationId",
+          "actor",
+          "payload",
+          "operation",
+          "targetId"
+        ],
+        "properties": {
+          "mode": {
+            "anyOf": [
+              {
+                "const": "validate",
+                "type": "string"
+              },
+              {
+                "const": "dry-run",
+                "type": "string"
+              },
+              {
+                "const": "execute",
+                "type": "string"
+              }
+            ]
+          },
+          "idempotencyKey": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "expectedSourceVersion": {
+            "minLength": 1,
+            "maxLength": 256,
+            "type": "string"
+          },
+          "requestId": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "correlationId": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "actor": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "type",
+              "id"
+            ],
+            "properties": {
+              "type": {
+                "anyOf": [
+                  {
+                    "const": "user",
+                    "type": "string"
+                  },
+                  {
+                    "const": "service",
+                    "type": "string"
+                  }
+                ]
+              },
+              "id": {
+                "minLength": 1,
+                "maxLength": 200,
+                "type": "string"
+              }
+            }
+          },
+          "payload": {
+            "type": "object",
+            "patternProperties": {
+              "^(.*)$": {}
+            }
+          },
+          "operation": {
+            "$id": "HermesConversationOperation",
+            "anyOf": [
+              {
+                "const": "session.create",
+                "type": "string"
+              },
+              {
+                "const": "message.send",
+                "type": "string"
+              }
+            ]
+          },
+          "targetId": {
+            "minLength": 1,
+            "maxLength": 300,
+            "type": "string"
+          }
+        }
+      },
+      "HermesConversationResult": {
+        "$id": "HermesConversationResult",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contractVersion",
+          "frameworkId",
+          "frameworkVersion",
+          "frameworkCommit",
+          "sourceVersion",
+          "observedAt",
+          "data"
+        ],
+        "properties": {
+          "contractVersion": {
+            "$id": "HermesContractVersion",
+            "const": "hermes-control/v1",
+            "type": "string"
+          },
+          "frameworkId": {
+            "$id": "HermesFrameworkId",
+            "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+            "type": "string"
+          },
+          "frameworkVersion": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          },
+          "frameworkCommit": {
+            "pattern": "^[a-f0-9]{40}$",
+            "type": "string"
+          },
+          "sourceVersion": {
+            "minLength": 1,
+            "maxLength": 256,
+            "type": "string"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "data": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "operationId",
+              "status",
+              "replayed",
+              "operation",
+              "targetId",
+              "result",
+              "emittedEvents"
+            ],
+            "properties": {
+              "operationId": {
+                "minLength": 1,
+                "maxLength": 200,
+                "type": "string"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "const": "validated",
+                    "type": "string"
+                  },
+                  {
+                    "const": "dry-run",
+                    "type": "string"
+                  },
+                  {
+                    "const": "completed",
+                    "type": "string"
+                  }
+                ]
+              },
+              "replayed": {
+                "type": "boolean"
+              },
+              "operation": {
+                "$id": "HermesConversationOperation",
+                "anyOf": [
+                  {
+                    "const": "session.create",
+                    "type": "string"
+                  },
+                  {
+                    "const": "message.send",
                     "type": "string"
                   }
                 ]

@@ -1,12 +1,12 @@
 import {
   Alert,
-  Avatar,
   Badge,
-  Box,
   Button,
+  Card,
+  Code,
+  FileInput,
   Group,
   Loader,
-  Modal,
   Paper,
   ScrollArea,
   Stack,
@@ -14,650 +14,366 @@ import {
   Textarea,
   TextInput,
   Title,
-  Tooltip,
 } from '@mantine/core';
-import { IconArrowDown, IconMessagePlus, IconRefresh, IconSend } from '@tabler/icons-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { IconRefresh } from '@tabler/icons-react';
+import { useCallback, useEffect, useState } from 'react';
 import { api, gateway } from './api';
 
-type Source = 'dashboard_native';
-type MessageBlock =
-  | { kind: 'text'; text: string }
-  | { kind: 'image'; url: string; alt?: string; name?: string }
-  | { kind: 'file'; url: string; name: string };
-type Agent = {
-  id: string;
-  label: string;
-  status: 'active' | 'disabled' | 'error';
-  description: string | null;
-  framework_id?: string;
-  runtime_agent_id?: string;
-  display_metadata?: { model_label?: string; provider_label?: string; framework_label?: string };
-  capabilities?: { text: boolean; attachments: boolean };
-};
+const FRAMEWORK_ID = 'hermes-main';
+const INTERNAL_SOURCES = ['api_server', 'cli', 'tui', 'terminal', 'acp', 'local'];
+
+type Profile = { id: string; displayName: string; active: boolean; model?: string };
 type Session = {
   id: string;
-  agent_id: string;
-  source: Source;
-  external_identity: string | null;
-  session_key: string;
-  channel_label: string;
-  title: string;
-  status: 'active' | 'archived';
-  last_seq: number;
-  created_at: string;
-  updated_at: string;
-  surface?: {
-    writable: boolean;
-    attachments: boolean;
-    route_kind?: string;
-    default_delivery?: string;
-    reason?: string;
-  };
+  title?: string;
+  source?: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 type Message = {
   id: string;
-  session_id: string;
-  agent_id: string;
-  sender_type: 'user' | 'agent' | 'system';
-  blocks: MessageBlock[];
-  lifecycle_status: 'pending' | 'streaming' | 'complete' | 'failed';
-  external_created_at: string | null;
-  seq: number;
-  created_at: string;
+  sessionId: string;
+  role: string;
+  content?: string;
+  createdAt?: string;
 };
-type Workspace = {
-  agents: { agents: Agent[] };
-  sessions: { sessions: Session[] };
-  messages?: { messages: Message[]; total?: number; truncated?: boolean };
+type Meta = {
+  frameworkId: string;
+  frameworkCommit: string;
+  sourceVersion: string;
+  observedAt: string;
+  freshness: string;
 };
-type Notice = { color: 'red' | 'yellow' | 'blue' | 'green'; message: string };
-type RealtimeFrame = {
-  type?: string;
-  session_id?: string;
-  agent_id?: string;
-  source?: string;
-};
-
-const internalSessions = (sessions: Session[] | undefined): Session[] =>
-  (sessions ?? []).filter((session) => session.source === 'dashboard_native');
+type Collection<T> = { meta: Meta; items: T[]; page: { hasMore: boolean; nextCursor?: string } };
+type Capability = { status: string; reasonCode?: string; modes?: string[] };
+type Capabilities = { meta: Meta; data: { capabilities: Record<string, Capability> } };
 
 export function ChatView({ canUse }: { canUse: boolean }) {
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [messageTotal, setMessageTotal] = useState(0);
-  const [historyTruncated, setHistoryTruncated] = useState(false);
-  const [agentId, setAgentId] = useState('');
-  const [sessionId, setSessionId] = useState('');
+  const [profiles, setProfiles] = useState<Collection<Profile> | null>(null);
+  const [sessions, setSessions] = useState<Collection<Session> | null>(null);
+  const [messages, setMessages] = useState<Collection<Message> | null>(null);
+  const [capabilities, setCapabilities] = useState<Capabilities | null>(null);
+  const [selectedSessionId, setSelectedSessionId] = useState('');
   const [loading, setLoading] = useState(true);
-  const [loadingMessages, setLoadingMessages] = useState(false);
-  const [notice, setNotice] = useState<Notice | null>(null);
+  const [mutating, setMutating] = useState(false);
+  const [failure, setFailure] = useState('');
+  const [title, setTitle] = useState('');
   const [draft, setDraft] = useState('');
-  const [sending, setSending] = useState(false);
-  const [newOpen, setNewOpen] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
-  const [creating, setCreating] = useState(false);
-  const [showLatest, setShowLatest] = useState(false);
-  const [realtimeStatus, setRealtimeStatus] = useState<'connecting' | 'connected' | 'offline'>(
-    'connecting',
-  );
-  const messageViewport = useRef<HTMLDivElement | null>(null);
-  const selectedSessionRef = useRef('');
-  const reconcileTimer = useRef<number | undefined>(undefined);
-  selectedSessionRef.current = sessionId;
+  const [attachment, setAttachment] = useState<File | null>(null);
 
-  const sortedSessions = useMemo(
-    () => [...sessions].sort((a, b) => b.updated_at.localeCompare(a.updated_at)),
-    [sessions],
-  );
-  const agentSessions = sortedSessions.filter((session) => session.agent_id === agentId);
-  const activeAgent = agents.find((agent) => agent.id === agentId);
-  const activeSession = sessions.find((session) => session.id === sessionId);
-
-  const scrollToLatest = (behavior: ScrollBehavior = 'smooth') => {
-    const viewport = messageViewport.current;
-    if (viewport) {
-      if (typeof viewport.scrollTo === 'function')
-        viewport.scrollTo({ top: viewport.scrollHeight, behavior });
-      else viewport.scrollTop = viewport.scrollHeight;
-    }
-    setShowLatest(false);
-  };
-
-  const loadSession = async (id: string, quiet = false) => {
-    if (!id) {
-      setMessages([]);
-      setMessageTotal(0);
-      setHistoryTruncated(false);
-      return;
-    }
-    if (!quiet) setLoadingMessages(true);
+  const loadMessages = useCallback(async (sessionId: string) => {
+    setFailure('');
     try {
-      const body = await api<Workspace>(`/chat/workspace/${encodeURIComponent(id)}`);
-      setAgents(body.agents.agents ?? []);
-      setSessions(internalSessions(body.sessions.sessions));
-      setMessages((body.messages?.messages ?? []).sort((a, b) => a.seq - b.seq));
-      setMessageTotal(body.messages?.total ?? body.messages?.messages.length ?? 0);
-      setHistoryTruncated(body.messages?.truncated ?? false);
-      setNotice(null);
-    } catch (cause) {
-      if (!quiet)
-        setNotice({
-          color: 'red',
-          message: cause instanceof Error ? cause.message : 'CHAT session unavailable',
-        });
-    } finally {
-      if (!quiet) setLoadingMessages(false);
-    }
-  };
-
-  const refreshRails = async () => {
-    const body = await api<Workspace>('/chat/workspace');
-    setAgents(body.agents.agents ?? []);
-    setSessions(internalSessions(body.sessions.sessions));
-  };
-
-  const load = async () => {
-    setLoading(true);
-    try {
-      const body = await api<Workspace>('/chat/workspace');
-      const nextAgents = body.agents.agents ?? [];
-      const nextSessions = internalSessions(body.sessions.sessions).sort((a, b) =>
-        b.updated_at.localeCompare(a.updated_at),
+      setMessages(
+        await api<Collection<Message>>(
+          `/frameworks/${FRAMEWORK_ID}/conversations/sessions/${encodeURIComponent(sessionId)}/messages?limit=500`,
+        ),
       );
-      setAgents(nextAgents);
-      setSessions(nextSessions);
-      setNotice(null);
-      const selectedAgent = nextAgents.some((agent) => agent.id === agentId)
-        ? agentId
-        : (nextSessions[0]?.agent_id ?? nextAgents[0]?.id ?? '');
-      setAgentId(selectedAgent);
-      const selectedSession =
-        nextSessions.find(
-          (session) => session.id === sessionId && session.agent_id === selectedAgent,
-        )?.id ??
-        nextSessions.find((session) => session.agent_id === selectedAgent)?.id ??
-        '';
-      setSessionId(selectedSession);
-      if (selectedSession) await loadSession(selectedSession);
-      else {
-        setMessages([]);
-        setMessageTotal(0);
-        setHistoryTruncated(false);
-      }
     } catch (cause) {
-      setNotice({
-        color: 'red',
-        message: cause instanceof Error ? cause.message : 'CHAT workspace unavailable',
-      });
+      setMessages(null);
+      setFailure(cause instanceof Error ? cause.message : 'Message history unavailable');
+    }
+  }, []);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setFailure('');
+    try {
+      const [profileResponse, sessionResponse, capabilityResponse] = await Promise.all([
+        api<Collection<Profile>>(`/frameworks/${FRAMEWORK_ID}/profiles?limit=100`),
+        api<Collection<Session>>(`/frameworks/${FRAMEWORK_ID}/conversations/sessions?limit=500`),
+        api<Capabilities>(`/frameworks/${FRAMEWORK_ID}/capabilities`),
+      ]);
+      const internalSessions = {
+        ...sessionResponse,
+        items: sessionResponse.items.filter((item) => INTERNAL_SOURCES.includes(item.source ?? '')),
+      };
+      setProfiles(profileResponse);
+      setSessions(internalSessions);
+      setCapabilities(capabilityResponse);
+      const nextId = internalSessions.items.some((item) => item.id === selectedSessionId)
+        ? selectedSessionId
+        : (internalSessions.items[0]?.id ?? '');
+      setSelectedSessionId(nextId);
+      if (nextId) await loadMessages(nextId);
+      else setMessages(null);
+    } catch (cause) {
+      setFailure(cause instanceof Error ? cause.message : 'Hermes conversations unavailable');
     } finally {
       setLoading(false);
     }
-  };
+  }, [loadMessages, selectedSessionId]);
 
   useEffect(() => {
     void load();
-  }, []);
-  useEffect(() => {
-    const timer = window.setInterval(
-      () => {
-        const id = selectedSessionRef.current;
-        if (id) void loadSession(id, true);
-        else void refreshRails().catch(() => undefined);
-      },
-      realtimeStatus === 'connected' ? 30_000 : 4_000,
-    );
-    return () => window.clearInterval(timer);
-  }, [realtimeStatus]);
-  useEffect(() => {
-    if (typeof EventSource === 'undefined') {
-      setRealtimeStatus('offline');
-      return;
-    }
-    const source = new EventSource('/api/v1/chat/events');
-    const reconcile = (frame: RealtimeFrame) => {
-      if (reconcileTimer.current) window.clearTimeout(reconcileTimer.current);
-      reconcileTimer.current = window.setTimeout(() => {
-        void refreshRails().catch(() => undefined);
-        const selected = selectedSessionRef.current;
-        if (selected && (!frame.session_id || frame.session_id === selected))
-          void loadSession(selected, true);
-      }, 80);
-    };
-    source.onopen = () => setRealtimeStatus('connected');
-    source.onerror = () => setRealtimeStatus('offline');
-    source.addEventListener('chat', (event) => {
-      try {
-        const frame = JSON.parse((event as MessageEvent<string>).data) as RealtimeFrame;
-        if (frame.source && frame.source !== 'dashboard_native') return;
-        if (
-          frame.type === 'realtime.replay_gap' ||
-          frame.type?.startsWith('message.') ||
-          frame.type?.startsWith('session.')
-        )
-          reconcile(frame);
-      } catch {
-        // Ignore malformed realtime frames.
-      }
-    });
-    source.addEventListener('upstream', () => setRealtimeStatus('offline'));
-    return () => {
-      source.close();
-      if (reconcileTimer.current) window.clearTimeout(reconcileTimer.current);
-    };
-  }, []);
-  useEffect(() => {
-    if (!showLatest) window.requestAnimationFrame(() => scrollToLatest('auto'));
-  }, [messages.length, sessionId, loadingMessages]);
+  }, [load]);
 
-  const selectAgent = (id: string) => {
-    setAgentId(id);
-    setNotice(null);
-    const next = sortedSessions.find((session) => session.agent_id === id)?.id ?? '';
-    setSessionId(next);
-    setMessages([]);
-    setMessageTotal(0);
-    setHistoryTruncated(false);
-    setShowLatest(false);
-    if (next) void loadSession(next);
-  };
-  const selectSession = (id: string) => {
-    setSessionId(id);
-    setMessages([]);
-    setMessageTotal(0);
-    setHistoryTruncated(false);
-    setNotice(null);
-    setShowLatest(false);
-    void loadSession(id);
-  };
-  const openNew = () => {
-    if (!activeAgent) return;
-    setNewTitle(`${activeAgent.label} · ${new Date().toLocaleString()}`);
-    setNewOpen(true);
-  };
-  const createSession = async () => {
-    if (!activeAgent || !newTitle.trim() || creating) return;
-    setCreating(true);
-    setNotice(null);
+  const readCapability = capabilities?.data.capabilities['conversations.sessions.read'];
+  const executeCapability = capabilities?.data.capabilities['conversations.execute'];
+  const canExecute = executeCapability?.status === 'supported' && canUse;
+  const observed = sessions?.meta ?? profiles?.meta;
+
+  async function createSession() {
+    if (!canExecute || !title.trim()) return;
+    setMutating(true);
+    setFailure('');
     try {
-      const response = await gateway.mutate({
+      await gateway.mutate({
         operationType: 'chat.session.create',
-        target: { owner: 'chat', kind: 'chat-session', nativeId: 'new' },
-        payload: { agent_id: activeAgent.id, title: newTitle.trim() },
+        target: {
+          owner: 'hermes',
+          kind: 'session',
+          nativeId: 'new',
+          frameworkId: FRAMEWORK_ID,
+        },
+        payload: { title: title.trim() },
         mode: 'execute',
         confirmed: false,
       });
-      const result = response.result as { session?: Session };
-      const created = result.session;
-      setNewOpen(false);
-      if (created?.source === 'dashboard_native') {
-        setSessions((current) => [
-          created,
-          ...current.filter((session) => session.id !== created.id),
-        ]);
-        setSessionId(created.id);
-        await loadSession(created.id);
-      } else await load();
+      setTitle('');
+      await load();
     } catch (cause) {
-      setNotice({
-        color: 'red',
-        message: cause instanceof Error ? cause.message : 'Session creation failed',
-      });
+      setFailure(cause instanceof Error ? cause.message : 'Session creation failed');
     } finally {
-      setCreating(false);
+      setMutating(false);
     }
-  };
-  const send = async () => {
-    const text = draft.trim();
-    if (!text || !activeSession || sending || !canUse || activeSession.surface?.writable === false)
-      return;
-    setSending(true);
-    setNotice(null);
-    setDraft('');
+  }
+
+  async function sendMessage() {
+    if (!canExecute || !selectedSessionId || (!draft.trim() && !attachment)) return;
+    setMutating(true);
+    setFailure('');
     try {
-      const response = await gateway.mutate({
+      let message: unknown = draft.trim();
+      if (attachment) {
+        if (!attachment.type.startsWith('image/'))
+          throw new Error('Only image attachments are supported');
+        if (attachment.size > 1_500_000)
+          throw new Error('Image attachment must be 1.5 MB or smaller');
+        message = [
+          ...(draft.trim() ? [{ type: 'text', text: draft.trim() }] : []),
+          { type: 'image_url', image_url: { url: await fileDataUrl(attachment) } },
+        ];
+      }
+      await gateway.mutate({
         operationType: 'chat.message.send',
-        target: { owner: 'chat', kind: 'chat-session', nativeId: activeSession.id },
-        payload: { blocks: [{ kind: 'text', text }] },
+        target: {
+          owner: 'hermes',
+          kind: 'session',
+          nativeId: selectedSessionId,
+          frameworkId: FRAMEWORK_ID,
+        },
+        payload: { message },
         mode: 'execute',
         confirmed: false,
       });
-      const result = response.result as { message?: Message };
-      if (result.message) setMessages((current) => mergeMessages(current, [result.message!]));
-      await loadSession(activeSession.id, true);
-      window.requestAnimationFrame(() => scrollToLatest());
+      setDraft('');
+      setAttachment(null);
+      await loadMessages(selectedSessionId);
     } catch (cause) {
-      setDraft(text);
-      setNotice({
-        color: 'red',
-        message: cause instanceof Error ? cause.message : 'Message send failed',
-      });
+      setFailure(cause instanceof Error ? cause.message : 'Message send failed');
     } finally {
-      setSending(false);
+      setMutating(false);
     }
-  };
-  const writable = Boolean(
-    activeSession &&
-    activeSession.status === 'active' &&
-    activeSession.surface?.writable !== false &&
-    canUse,
-  );
+  }
 
   return (
-    <Stack gap="sm">
+    <Stack gap="md">
       <Group justify="space-between" align="flex-start">
         <div>
           <Text size="xs" fw={800} tt="uppercase">
-            Internal chat · migration boundary
+            Hermes-native control contract
           </Text>
-          <Title order={1}>Chat</Title>
+          <Title order={1}>Internal conversations</Title>
           <Text c="dimmed">
-            Internal agent conversations only. External-channel chats are excluded from UNIFY.
+            Internal Hermes sessions only. External-channel conversations are excluded from UNIFY.
           </Text>
         </div>
-        <Group gap="xs">
-          <Badge
-            color={
-              realtimeStatus === 'connected'
-                ? 'green'
-                : realtimeStatus === 'connecting'
-                  ? 'yellow'
-                  : 'red'
-            }
-            variant="light"
-          >
-            Realtime {realtimeStatus}
-          </Badge>
-          <Button
-            variant="light"
-            leftSection={<IconRefresh size={16} />}
-            onClick={() => void load()}
-            loading={loading}
-          >
-            Refresh
-          </Button>
-        </Group>
+        <Button
+          variant="light"
+          leftSection={<IconRefresh size={16} />}
+          loading={loading}
+          onClick={() => void load()}
+        >
+          Recheck
+        </Button>
       </Group>
-      {notice ? <Alert color={notice.color}>{notice.message}</Alert> : null}
-      <Paper withBorder className="unify-chat-workspace">
-        <aside className="unify-chat-agents" aria-label="Chat agents">
-          <div className="unify-chat-rail-head">
-            <Text fw={800}>Agents</Text>
-            <Badge variant="light">{agents.length}</Badge>
-          </div>
-          <ScrollArea className="unify-chat-rail-scroll">
-            <Stack gap={6} p="xs">
-              {agents.map((agent) => (
-                <button
-                  type="button"
-                  key={agent.id}
-                  className={`unify-chat-rail-item ${agent.id === agentId ? 'active' : ''}`}
-                  onClick={() => selectAgent(agent.id)}
-                >
-                  <Avatar size="sm" radius="xl">
-                    {agent.label.slice(0, 2).toUpperCase()}
-                  </Avatar>
-                  <span>
-                    <strong>{agent.label}</strong>
-                    <small>
-                      {agent.display_metadata?.model_label ?? agent.runtime_agent_id ?? agent.id}
-                    </small>
-                  </span>
-                  <Badge size="xs" color={agent.status === 'active' ? 'green' : 'gray'}>
-                    {agent.status}
+
+      <Group gap="xs">
+        <Badge color={readCapability?.status === 'supported' ? 'teal' : 'orange'}>
+          Read {readCapability?.status ?? 'checking'}
+        </Badge>
+        <Badge color={canExecute ? 'teal' : 'gray'}>
+          Send {executeCapability?.status ?? 'checking'}
+        </Badge>
+        {observed ? <Badge variant="light">Source {observed.freshness}</Badge> : null}
+      </Group>
+      {!canExecute ? (
+        <Alert color="blue" title="Message sending is disabled">
+          {executeCapability?.reasonCode
+            ? `Hermes reports ${executeCapability.reasonCode}. No fallback writer is used.`
+            : 'The current capability or permission does not allow conversation execution.'}
+        </Alert>
+      ) : null}
+      {failure ? (
+        <Alert color="red" title="Conversation operation unavailable">
+          {failure}
+        </Alert>
+      ) : null}
+      {loading && !sessions ? <Loader aria-label="Loading internal conversations" /> : null}
+
+      <Group align="stretch" wrap="nowrap" className="chat-grid">
+        <Card withBorder miw={210} style={{ flex: '0 0 240px' }}>
+          <Text fw={800} mb="sm">
+            Profiles
+          </Text>
+          <Stack gap="xs">
+            <TextInput
+              label="New internal session"
+              placeholder="Session title"
+              value={title}
+              onChange={(event) => setTitle(event.currentTarget.value)}
+              disabled={!canExecute || mutating}
+            />
+            <Button
+              size="xs"
+              onClick={() => void createSession()}
+              disabled={!canExecute || !title.trim()}
+              loading={mutating}
+            >
+              Create session
+            </Button>
+            {profiles?.items.map((profile) => (
+              <Paper withBorder p="sm" key={profile.id}>
+                <Group justify="space-between" gap="xs">
+                  <Text fw={700}>{profile.displayName}</Text>
+                  <Badge size="xs" color={profile.active ? 'teal' : 'gray'}>
+                    {profile.active ? 'active' : 'available'}
                   </Badge>
-                </button>
-              ))}
-              {!agents.length && !loading ? (
-                <Text size="sm" c="dimmed" p="sm">
-                  No CHAT agents registered.
-                </Text>
-              ) : null}
-            </Stack>
-          </ScrollArea>
-        </aside>
-        <aside className="unify-chat-sessions" aria-label="Agent sessions">
-          <div className="unify-chat-rail-head">
-            <div>
-              <Text fw={800}>Sessions</Text>
-              <Text size="xs" c="dimmed">
-                {activeAgent?.label ?? 'Select an agent'}
-              </Text>
-            </div>
-            <Tooltip label="Add new session">
-              <Button
-                aria-label="Add new session"
-                size="compact-sm"
-                px="xs"
-                leftSection={<IconMessagePlus size={15} />}
-                disabled={!activeAgent || activeAgent.status !== 'active' || !canUse}
-                onClick={openNew}
-              >
-                New
-              </Button>
-            </Tooltip>
-          </div>
-          <ScrollArea className="unify-chat-rail-scroll">
-            <Stack gap={6} p="xs">
-              {agentSessions.map((session) => (
-                <button
-                  type="button"
-                  key={session.id}
-                  className={`unify-chat-session-item ${session.id === sessionId ? 'active' : ''}`}
-                  onClick={() => selectSession(session.id)}
-                >
-                  <span className="unify-chat-session-title">{session.title}</span>
-                  <span className="unify-chat-session-meta">
-                    {session.channel_label} · {relativeTime(session.updated_at)}
-                  </span>
-                </button>
-              ))}
-              {activeAgent && !agentSessions.length ? (
-                <Text size="sm" c="dimmed" p="sm">
-                  No sessions for this agent. Add the first session above.
-                </Text>
-              ) : null}
-            </Stack>
-          </ScrollArea>
-        </aside>
-        <section className="unify-chat-conversation" aria-label="Selected chat session">
-          {activeSession ? (
-            <>
-              <header className="unify-chat-header">
-                <div>
-                  <Group gap="xs">
-                    <Text fw={800}>{activeSession.title}</Text>
-                    <Badge variant="light" color="gray">
-                      UNIFY
-                    </Badge>
-                  </Group>
-                  <Text size="xs" c="dimmed">
-                    {activeAgent?.label ?? activeSession.agent_id} · {activeSession.channel_label}
-                  </Text>
-                </div>
+                </Group>
                 <Text size="xs" c="dimmed">
-                  {historyTruncated
-                    ? `Latest ${messages.length} of ${messageTotal} messages`
-                    : `${messages.length} messages`}
+                  {profile.model ?? 'Model not reported'}
                 </Text>
-              </header>
-              <div
-                ref={messageViewport}
-                className="unify-chat-messages"
-                role="log"
-                aria-label="Chat messages"
-                onScroll={(event) => {
-                  const node = event.currentTarget;
-                  setShowLatest(node.scrollHeight - node.scrollTop - node.clientHeight > 120);
+              </Paper>
+            ))}
+            {!loading && profiles?.items.length === 0 ? (
+              <Text c="dimmed">No Hermes profile reported.</Text>
+            ) : null}
+          </Stack>
+        </Card>
+
+        <Card withBorder miw={240} style={{ flex: '0 0 280px' }}>
+          <Text fw={800} mb="sm">
+            Internal sessions
+          </Text>
+          <Stack gap="xs">
+            {sessions?.items.map((session) => (
+              <Button
+                key={session.id}
+                variant={selectedSessionId === session.id ? 'light' : 'subtle'}
+                justify="flex-start"
+                h="auto"
+                py="sm"
+                onClick={() => {
+                  setSelectedSessionId(session.id);
+                  void loadMessages(session.id);
                 }}
               >
-                {loadingMessages ? (
-                  <Group justify="center" py="xl">
-                    <Loader size="sm" />
-                    <Text>Loading latest messages…</Text>
-                  </Group>
-                ) : null}
-                {!loadingMessages && !messages.length ? (
-                  <Text ta="center" c="dimmed" py="xl">
-                    No messages yet. Send the first one.
+                <Stack gap={2} align="flex-start">
+                  <Text fw={700} size="sm">
+                    {session.title || session.id}
                   </Text>
-                ) : null}
-                {messages.map((message) => (
-                  <MessageBubble key={message.id} message={message} />
-                ))}
-              </div>
-              <div className="unify-chat-composer-wrap">
-                {showLatest ? (
-                  <Button
-                    className="unify-chat-latest"
-                    radius="xl"
-                    size="compact-sm"
-                    leftSection={<IconArrowDown size={15} />}
-                    onClick={() => scrollToLatest()}
-                  >
-                    Latest messages
-                  </Button>
-                ) : null}
-                {activeSession.surface?.writable === false ? (
-                  <Alert color="yellow" py="xs">
-                    This mirrored session is read-only:{' '}
-                    {activeSession.surface.reason ?? 'CHAT has no writable route'}.
-                  </Alert>
-                ) : null}
-                {!canUse ? (
-                  <Alert color="yellow" py="xs">
-                    Your UNIFY role does not include chat.use.
-                  </Alert>
-                ) : null}
-                <Group align="flex-end" gap="xs" wrap="nowrap">
-                  <Textarea
-                    aria-label="Message"
-                    placeholder={
-                      writable ? `Message ${activeAgent?.label ?? 'agent'}` : 'Sending unavailable'
-                    }
-                    value={draft}
-                    onChange={(event) => setDraft(event.currentTarget.value)}
-                    disabled={!writable || sending}
-                    rows={2}
-                    className="unify-chat-input"
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' && !event.shiftKey) {
-                        event.preventDefault();
-                        void send();
-                      }
-                    }}
-                  />
-                  <Button
-                    aria-label="Send message"
-                    leftSection={<IconSend size={16} />}
-                    disabled={!writable || !draft.trim()}
-                    loading={sending}
-                    onClick={() => void send()}
-                  >
-                    Send
-                  </Button>
-                </Group>
-              </div>
-            </>
-          ) : (
-            <Box className="unify-chat-empty">
-              <Text fw={700}>Select a session</Text>
-              <Text c="dimmed">Choose an agent and session, or add a new session.</Text>
-            </Box>
-          )}
-        </section>
-      </Paper>
-      <Modal
-        opened={newOpen}
-        onClose={() => setNewOpen(false)}
-        title={`New session · ${activeAgent?.label ?? ''}`}
-        centered
-      >
-        <Stack>
-          <TextInput
-            label="Session title"
-            value={newTitle}
-            onChange={(event) => setNewTitle(event.currentTarget.value)}
-            autoFocus
-          />
-          <Button
-            leftSection={<IconMessagePlus size={16} />}
-            disabled={!newTitle.trim()}
-            loading={creating}
-            onClick={() => void createSession()}
-          >
-            Create session
-          </Button>
-        </Stack>
-      </Modal>
+                  <Text size="xs" c="dimmed">
+                    {session.source ?? 'internal'} ·{' '}
+                    {session.updatedAt
+                      ? new Date(session.updatedAt).toLocaleString()
+                      : 'time unavailable'}
+                  </Text>
+                </Stack>
+              </Button>
+            ))}
+            {!loading && sessions?.items.length === 0 ? (
+              <Text c="dimmed">
+                No internal session exists. External sessions are intentionally absent.
+              </Text>
+            ) : null}
+          </Stack>
+        </Card>
+
+        <Card withBorder style={{ flex: 1, minWidth: 320 }}>
+          <Group justify="space-between" mb="sm">
+            <Text fw={800}>Conversation</Text>
+            {selectedSessionId ? <Code>{selectedSessionId}</Code> : null}
+          </Group>
+          <ScrollArea h={430}>
+            <Stack gap="sm">
+              {messages?.items.map((message) => (
+                <Paper withBorder p="sm" key={message.id}>
+                  <Group justify="space-between" mb="xs">
+                    <Badge variant="light">{message.role}</Badge>
+                    <Text size="xs" c="dimmed">
+                      {message.createdAt
+                        ? new Date(message.createdAt).toLocaleString()
+                        : 'time unavailable'}
+                    </Text>
+                  </Group>
+                  <Text style={{ whiteSpace: 'pre-wrap' }}>
+                    {message.content || '[non-text content]'}
+                  </Text>
+                </Paper>
+              ))}
+              {selectedSessionId && messages?.items.length === 0 ? (
+                <Text c="dimmed">The selected internal session has no messages.</Text>
+              ) : null}
+              {!selectedSessionId ? (
+                <Text c="dimmed">Select or create an internal session.</Text>
+              ) : null}
+            </Stack>
+          </ScrollArea>
+          <Stack gap="xs" mt="md">
+            <Textarea
+              label="Message"
+              placeholder="Send to this internal Hermes session"
+              value={draft}
+              onChange={(event) => setDraft(event.currentTarget.value)}
+              disabled={!canExecute || !selectedSessionId || mutating}
+              minRows={2}
+            />
+            <FileInput
+              label="Image attachment"
+              accept="image/*"
+              value={attachment}
+              onChange={setAttachment}
+              clearable
+              disabled={!canExecute || !selectedSessionId || mutating}
+              description="Images only, up to 1.5 MB"
+            />
+            <Button
+              onClick={() => void sendMessage()}
+              disabled={!canExecute || !selectedSessionId || (!draft.trim() && !attachment)}
+              loading={mutating}
+            >
+              Send message
+            </Button>
+          </Stack>
+          {observed ? (
+            <Text size="xs" c="dimmed" mt="md">
+              Framework <Code>{observed.frameworkId}</Code> · commit{' '}
+              <Code>{observed.frameworkCommit}</Code> · source <Code>{observed.sourceVersion}</Code>{' '}
+              · observed {new Date(observed.observedAt).toLocaleString()}
+            </Text>
+          ) : null}
+        </Card>
+      </Group>
     </Stack>
   );
 }
 
-function MessageBubble({ message }: { message: Message }) {
-  return (
-    <div className={`unify-chat-message ${message.sender_type}`}>
-      <div className="unify-chat-message-meta">
-        <strong>
-          {message.sender_type === 'agent'
-            ? 'Agent'
-            : message.sender_type === 'user'
-              ? 'You'
-              : 'System'}
-        </strong>
-        <span>
-          {formatTime(message.external_created_at ?? message.created_at)}
-          {message.lifecycle_status !== 'complete' ? ` · ${message.lifecycle_status}` : ''}
-        </span>
-      </div>
-      <div className="unify-chat-bubble">
-        {message.blocks.map((block, index) => (
-          <MessageBlockView key={`${message.id}:${index}`} block={block} />
-        ))}
-      </div>
-    </div>
-  );
-}
-function MessageBlockView({ block }: { block: MessageBlock }) {
-  if (block.kind === 'text')
-    return (
-      <Text component="div" className="unify-chat-text">
-        {block.text}
-      </Text>
-    );
-  const url = block.url.startsWith('/uploads/') ? gateway.chatDownloadUrl(block.url) : block.url;
-  if (block.kind === 'image')
-    return (
-      <a href={url} target="_blank" rel="noreferrer">
-        <img
-          className="unify-chat-image"
-          src={url}
-          alt={block.alt ?? block.name ?? 'Chat attachment'}
-        />
-      </a>
-    );
-  return (
-    <a href={url} target="_blank" rel="noreferrer">
-      Download {block.name}
-    </a>
-  );
-}
-function mergeMessages(current: Message[], incoming: Message[]) {
-  const items = new Map(current.map((message) => [message.id, message]));
-  for (const message of incoming) items.set(message.id, message);
-  return [...items.values()].sort((a, b) => a.seq - b.seq);
-}
-function relativeTime(value: string) {
-  const time = new Date(value).getTime();
-  const minutes = Math.max(0, Math.round((Date.now() - time) / 60000));
-  if (minutes < 1) return 'now';
-  if (minutes < 60) return `${minutes}m`;
-  const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours}h`;
-  return `${Math.round(hours / 24)}d`;
-}
-function formatTime(value: string) {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+function fileDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error('Image attachment could not be read'));
+    reader.readAsDataURL(file);
+  });
 }

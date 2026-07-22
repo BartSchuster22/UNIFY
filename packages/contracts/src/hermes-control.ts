@@ -337,6 +337,7 @@ export const HermesControlErrorCodeSchema = Type.Union(
     Type.Literal('unsupported_framework_version'),
     Type.Literal('capability_unsupported'),
     Type.Literal('capability_unavailable'),
+    Type.Literal('SECOND_CONSUMER_FORBIDDEN'),
     Type.Literal('replay_gap'),
     Type.Literal('rate_limited'),
     Type.Literal('internal_error'),
@@ -420,6 +421,38 @@ export const HermesWorkResultSchema = controlResponse(
       ]),
       replayed: Type.Boolean(),
       operation: HermesWorkOperationSchema,
+      targetId: Type.String({ minLength: 1, maxLength: 300 }),
+      result: Type.Record(Type.String(), Type.Unknown()),
+      emittedEvents: Type.Integer({ minimum: 0 }),
+    },
+    { additionalProperties: false },
+  ),
+);
+
+export const HermesConversationOperationSchema = Type.Union(
+  [Type.Literal('session.create'), Type.Literal('message.send')],
+  { $id: 'HermesConversationOperation' },
+);
+export const HermesConversationCommandSchema = Type.Object(
+  {
+    ...HermesControlCommandProperties,
+    operation: HermesConversationOperationSchema,
+    targetId: Type.String({ minLength: 1, maxLength: 300 }),
+  },
+  { $id: 'HermesConversationCommand', additionalProperties: false },
+);
+export const HermesConversationResultSchema = controlResponse(
+  'HermesConversationResult',
+  Type.Object(
+    {
+      operationId: Type.String({ minLength: 1, maxLength: 200 }),
+      status: Type.Union([
+        Type.Literal('validated'),
+        Type.Literal('dry-run'),
+        Type.Literal('completed'),
+      ]),
+      replayed: Type.Boolean(),
+      operation: HermesConversationOperationSchema,
       targetId: Type.String({ minLength: 1, maxLength: 300 }),
       result: Type.Record(Type.String(), Type.Unknown()),
       emittedEvents: Type.Integer({ minimum: 0 }),
@@ -686,6 +719,8 @@ export type HermesMessage = Static<typeof HermesMessageSchema>;
 export type HermesControlCommand = Static<typeof HermesControlCommandSchema>;
 export type HermesWorkOperation = Static<typeof HermesWorkOperationSchema>;
 export type HermesWorkCommand = Static<typeof HermesWorkCommandSchema>;
+export type HermesConversationOperation = Static<typeof HermesConversationOperationSchema>;
+export type HermesConversationCommand = Static<typeof HermesConversationCommandSchema>;
 export type HermesEventEnvelope = Static<typeof HermesEventEnvelopeSchema>;
 export type HermesReconcileResult = Static<typeof HermesReconcileResultSchema>;
 export type FrameworkScope = Static<typeof FrameworkScopeSchema>;
@@ -727,6 +762,9 @@ export const HermesControlSchemas = [
   HermesWorkOperationSchema,
   HermesWorkCommandSchema,
   HermesWorkResultSchema,
+  HermesConversationOperationSchema,
+  HermesConversationCommandSchema,
+  HermesConversationResultSchema,
   HermesEventEnvelopeSchema,
   HermesEventsResponseSchema,
   HermesReconcileResultSchema,

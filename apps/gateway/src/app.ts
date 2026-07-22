@@ -580,6 +580,14 @@ export function buildApp(options: AppOptions) {
     },
   );
   app.get<{ Params: { frameworkId: string } }>(
+    '/api/v1/frameworks/:frameworkId/health',
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'frameworks.read');
+      return requireHermesGateway().health(request.params.frameworkId);
+    },
+  );
+  app.get<{ Params: { frameworkId: string } }>(
     '/api/v1/frameworks/:frameworkId/capabilities',
     async (request) => {
       const current = await session(request);

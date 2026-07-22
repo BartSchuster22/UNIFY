@@ -4,6 +4,7 @@ import {
   HERMES_CONTROL_VERSION,
   HermesBoardsResponseSchema,
   HermesCapabilitiesResponseSchema,
+  HermesConversationResultSchema,
   HermesControlErrorResponseSchema,
   HermesEventsResponseSchema,
   HermesIdentityResponseSchema,
@@ -62,6 +63,10 @@ const source: AdapterSource = {
   }),
   cronjobs: async () => ({ items: [], sourceVersion: 'sha256:cronjobs' }),
   executeWork: async (command) => ({ operation: command.operation, targetId: command.targetId }),
+  executeConversation: async (command) => ({
+    operation: command.operation,
+    targetId: command.targetId,
+  }),
   sessions: async () => ({
     items: [{ id: 'session-1', title: 'Session' }],
     sourceVersion: 'sha256:sessions',
@@ -203,6 +208,28 @@ describe('Hermes control adapter', () => {
     });
   });
 
+  it('executes governed internal conversation commands with typed evidence', async () => {
+    const app = create();
+    const reply = await app.inject({
+      method: 'POST',
+      url: '/control/v1/commands/conversations',
+      headers: auth,
+      payload: {
+        ...command({ payload: { message: 'hello' } }),
+        operation: 'message.send',
+        targetId: 'session-1',
+      },
+    });
+    expect(reply.statusCode).toBe(200);
+    expect(Value.Check(HermesConversationResultSchema, reply.json())).toBe(true);
+    expect(reply.json().data).toMatchObject({
+      status: 'completed',
+      operation: 'message.send',
+      targetId: 'session-1',
+      replayed: false,
+    });
+  });
+
   it('reports source outage as unavailable rather than authoritative empty data', async () => {
     const unavailableSource: AdapterSource = {
       ...source,
@@ -219,6 +246,32 @@ describe('Hermes control adapter', () => {
     });
     expect(reply.statusCode).toBe(503);
     expect(reply.json().error).toMatchObject({ code: 'capability_unavailable', retryable: true });
+  });
+
+  it('rejects external-channel conversation execution as a forbidden second consumer', async () => {
+    const externalSource: AdapterSource = {
+      ...source,
+      executeConversation: async () => {
+        const { SecondConsumerForbiddenError } = await import('./source.js');
+        throw new SecondConsumerForbiddenError('External-channel sessions are excluded from UNIFY');
+      },
+    };
+    const app = create(externalSource);
+    const reply = await app.inject({
+      method: 'POST',
+      url: '/control/v1/commands/conversations',
+      headers: auth,
+      payload: {
+        ...command({ payload: { message: 'must not execute' } }),
+        operation: 'message.send',
+        targetId: 'telegram-session',
+      },
+    });
+    expect(reply.statusCode).toBe(403);
+    expect(reply.json().error).toMatchObject({
+      code: 'SECOND_CONSUMER_FORBIDDEN',
+      retryable: false,
+    });
   });
 
   it('reconciles without writing Hermes, deduplicates source versions, and replays idempotently', async () => {

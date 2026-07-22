@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -30,6 +30,15 @@ const meta = {
   warnings: [],
   page: { hasMore: false },
 };
+const hermesMeta = {
+  frameworkId: 'hermes-main',
+  frameworkVersion: '0.18.0',
+  frameworkCommit: '9e54eee44f1c',
+  sourceVersion: 'sha256:native',
+  observedAt: '2026-07-19T00:00:00.000Z',
+  freshness: 'current',
+};
+
 function response(body: unknown, status = 200) {
   return Promise.resolve(
     new Response(status === 204 ? null : JSON.stringify(body), {
@@ -38,110 +47,84 @@ function response(body: unknown, status = 200) {
     }),
   );
 }
+
 function authenticatedFetch(input: RequestInfo | URL): Promise<Response> {
   const url = String(input);
   if (url.endsWith('/auth/me')) return response(principal);
-  if (url.includes('/integrations'))
+  if (url.endsWith('/frameworks'))
     return response({
       items: [
         {
-          adapterId: 'agency',
-          owners: ['agency'],
-          status: 'current',
-          resourceCount: 1,
-          observedAt: '2026-07-19T00:00:00.000Z',
-          warnings: [],
+          frameworkId: 'hermes-main',
+          displayName: 'Hermes Main',
+          baseUrl: 'http://127.0.0.1:28082',
+          scopes: ['control:read', 'control:execute'],
+          contractVersion: '1.0.0',
+          frameworkVersion: '0.18.0',
+          frameworkCommit: '9e54eee44f1c',
+          status: 'verified',
+          enabled: true,
+        },
+      ],
+    });
+  if (url.includes('/frameworks/hermes-main/health'))
+    return response({
+      meta: hermesMeta,
+      data: {
+        status: 'healthy',
+        checks: { cli: { status: 'healthy' }, conversations: { status: 'healthy' } },
+      },
+    });
+  if (url.includes('/frameworks/hermes-main/capabilities'))
+    return response({
+      meta: hermesMeta,
+      data: {
+        capabilities: {
+          'conversations.sessions.read': { status: 'supported', modes: ['read'] },
+          'conversations.execute': { status: 'unsupported', reasonCode: 'NO_INTERFACE' },
+        },
+      },
+    });
+  if (url.includes('/frameworks/hermes-main/profiles'))
+    return response({
+      meta: hermesMeta,
+      page: { hasMore: false },
+      items: [{ id: 'default', displayName: 'Herman', active: true, model: 'gpt-5.6-sol' }],
+    });
+  if (url.includes('/conversations/sessions/s1/messages'))
+    return response({
+      meta: hermesMeta,
+      page: { hasMore: false },
+      items: [
+        {
+          id: 'm1',
+          sessionId: 's1',
+          role: 'assistant',
+          content: 'Verified response',
+          createdAt: '2026-07-19T00:00:00.000Z',
+        },
+      ],
+    });
+  if (url.includes('/conversations/sessions'))
+    return response({
+      meta: hermesMeta,
+      page: { hasMore: false },
+      items: [
+        {
+          id: 'external',
+          title: 'Excluded external conversation',
+          source: 'telegram',
+        },
+        {
+          id: 's1',
+          title: 'Operator chat',
+          source: 'api_server',
+          updatedAt: '2026-07-19T00:00:00.000Z',
         },
       ],
     });
   if (url.includes('/notifications')) return response({ items: [], meta });
-  if (url.includes('/chat/workspace'))
-    return response({
-      agents: {
-        agents: [{ id: 'hermes.herman', label: 'Herman', status: 'active', description: null }],
-      },
-      sessions: {
-        sessions: [
-          {
-            id: 's1',
-            agent_id: 'hermes.herman',
-            source: 'dashboard_native',
-            external_identity: null,
-            session_key: 'native:s1',
-            channel_label: 'UNIFY',
-            title: 'Operator chat',
-            status: 'active',
-            last_seq: 1,
-            created_at: '2026-07-19T00:00:00.000Z',
-            updated_at: '2026-07-19T00:00:00.000Z',
-            surface: { writable: true, attachments: true },
-          },
-        ],
-      },
-      ...(url.endsWith('/chat/workspace/s1')
-        ? {
-            messages: {
-              messages: [
-                {
-                  id: 'm1',
-                  session_id: 's1',
-                  agent_id: 'hermes.herman',
-                  sender_type: 'agent',
-                  blocks: [{ kind: 'text', text: 'Verified response' }],
-                  lifecycle_status: 'complete',
-                  external_created_at: null,
-                  seq: 1,
-                  created_at: '2026-07-19T00:00:00.000Z',
-                },
-              ],
-            },
-          }
-        : {}),
-    });
-  if (url.includes('kind=chat-session'))
-    return response({
-      items: [
-        {
-          resource: {
-            canonicalId: 'chat:session:s1',
-            kind: 'chat-session',
-            owner: 'chat',
-            nativeId: 's1',
-            observedAt: '2026-07-19T00:00:00.000Z',
-          },
-          truth: 'current',
-          authoritative: true,
-          adapterId: 'chat',
-          fetchedAt: '2026-07-19T00:00:00.000Z',
-          title: 'Operator chat',
-          searchableText: 'Operator chat',
-          data: {},
-        },
-      ],
-      meta,
-    });
-  if (url.includes('kind=chat-message'))
-    return response({
-      items: [
-        {
-          resource: {
-            canonicalId: 'chat:message:m1',
-            kind: 'chat-message',
-            owner: 'chat',
-            nativeId: 'm1',
-            observedAt: '2026-07-19T00:00:00.000Z',
-          },
-          truth: 'current',
-          authoritative: true,
-          adapterId: 'chat',
-          fetchedAt: '2026-07-19T00:00:00.000Z',
-          title: 'assistant',
-          searchableText: 'Verified response',
-          data: { role: 'assistant', content: 'Verified response', session_id: 's1' },
-        },
-      ],
-      meta,
-    });
+  if (url.includes('/operations')) return response({ items: [], meta });
   return response({ items: [], meta });
 }
 
@@ -150,6 +133,7 @@ beforeEach(() => {
   localStorage.clear();
   vi.restoreAllMocks();
 });
+
 describe('Mantine UNIUI gates', () => {
   it('presents an accessible named-user login when unauthenticated', async () => {
     vi.stubGlobal(
@@ -171,9 +155,7 @@ describe('Mantine UNIUI gates', () => {
   it('renders the permission-aware responsive shell and keyboard search gate', async () => {
     vi.stubGlobal('fetch', vi.fn(authenticatedFetch));
     const { container } = render(<App />);
-    expect(
-      await screen.findByRole('heading', { name: 'Operational overview' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Control plane' })).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'Primary navigation' })).toBeInTheDocument();
     expect(screen.queryByText('Safety actions')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Toggle navigation' })).toBeInTheDocument();
@@ -183,46 +165,44 @@ describe('Mantine UNIUI gates', () => {
     expect(results.violations).toEqual([]);
   });
 
-  it('shows Safety actions for an operation-specific mutation grant', async () => {
+  it('shows Safety actions for an operation-specific framework grant', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn((input: RequestInfo | URL) =>
         String(input).endsWith('/auth/me')
-          ? response({ ...principal, permissions: [...principal.permissions, 'work.manage'] })
+          ? response({ ...principal, permissions: [...principal.permissions, 'frameworks.manage'] })
           : authenticatedFetch(input),
       ),
     );
     render(<App />);
-    await screen.findByRole('heading', { name: 'Operational overview' });
+    await screen.findByRole('heading', { name: 'Control plane' });
     expect(screen.getByText('Safety actions')).toBeInTheDocument();
   });
 
-  it('announces a truthful empty owner state instead of hiding it', async () => {
+  it('announces a truthful empty framework registry instead of hiding it', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn((input: RequestInfo | URL) => {
-        if (String(input).includes('owner=agency'))
-          return response({ items: [], meta: { ...meta, freshness: 'empty' } });
-        return authenticatedFetch(input);
-      }),
+      vi.fn((input: RequestInfo | URL) =>
+        String(input).endsWith('/frameworks') ? response({ items: [] }) : authenticatedFetch(input),
+      ),
     );
     render(<App />);
-    await screen.findByRole('heading', { name: 'Operational overview' });
+    await screen.findByRole('heading', { name: 'Control plane' });
     await userEvent.click(screen.getByRole('button', { name: 'Toggle navigation' }));
     await userEvent.click(await screen.findByText('Frameworks'));
-    expect(await screen.findByText('Source state: empty')).toBeInTheDocument();
-    expect(screen.getByText('No records')).toBeInTheDocument();
+    expect(await screen.findByText('No framework registered')).toBeInTheDocument();
   });
 
-  it('renders the migration-only agent, session and message CHAT workspace', async () => {
+  it('renders Hermes-native internal conversation evidence and excludes external sessions', async () => {
     vi.stubGlobal('fetch', vi.fn(authenticatedFetch));
     render(<App />);
-    await screen.findByRole('heading', { name: 'Operational overview' });
+    await screen.findByRole('heading', { name: 'Control plane' });
     await userEvent.click(screen.getByRole('button', { name: 'Toggle navigation' }));
     await userEvent.click(await screen.findByText('Chat'));
-    expect(await screen.findByRole('heading', { name: 'Chat' })).toBeInTheDocument();
-    await waitFor(() =>
-      expect(screen.getByRole('log', { name: 'Chat messages' })).toBeInTheDocument(),
-    );
+    expect(
+      await screen.findByRole('heading', { name: 'Internal conversations' }),
+    ).toBeInTheDocument();
+    expect(await screen.findByText('Verified response')).toBeInTheDocument();
+    expect(screen.queryByText('Excluded external conversation')).not.toBeInTheDocument();
   });
 });

@@ -4,6 +4,7 @@ import { promisify } from 'node:util';
 import type {
   HermesBoard,
   HermesCronjob,
+  HermesConversationCommand,
   HermesMessage,
   HermesProfile,
   HermesProject,
@@ -460,7 +461,7 @@ export class HermesNativeSource implements AdapterSource {
   async sessions(): Promise<Snapshot<HermesSession>> {
     const body = await this.api('/api/sessions');
     const rows = arrayFrom(body, ['sessions', 'items', 'data']);
-    const items = rows.map((value) => {
+    const items = rows.filter(isInternalSession).map((value) => {
       const row = record(value);
       const item: HermesSession = { id: requiredString(row.id ?? row.session_id, 'session id') };
       assignOptional(item, 'title', optionalString(row.title ?? row.name));
@@ -474,6 +475,10 @@ export class HermesNativeSource implements AdapterSource {
 
   async messages(sessionId: string): Promise<Snapshot<HermesMessage>> {
     assertNativeId(sessionId);
+    const sessionBody = record(await this.api(`/api/sessions/${encodeURIComponent(sessionId)}`));
+    const session = record(sessionBody.session ?? sessionBody.data ?? sessionBody);
+    if (!isInternalSession(session))
+      throw new SecondConsumerForbiddenError('External-channel sessions are excluded from UNIFY');
     const body = await this.api(`/api/sessions/${encodeURIComponent(sessionId)}/messages`);
     const rows = arrayFrom(body, ['messages', 'items', 'data']);
     const items = rows.map((value, index) => {
@@ -488,6 +493,42 @@ export class HermesNativeSource implements AdapterSource {
       return item;
     });
     return snapshot(items);
+  }
+
+  async executeConversation(command: HermesConversationCommand): Promise<Record<string, unknown>> {
+    if (command.operation === 'session.create') {
+      const title = requiredString(command.payload.title, 'session title');
+      const model = optionalString(command.payload.model);
+      const result = record(
+        await this.api('/api/sessions', 'POST', { title, ...(model ? { model } : {}) }),
+      );
+      const session = record(result.session);
+      if (!isInternalSession(session))
+        throw new SecondConsumerForbiddenError('Hermes created a non-internal session');
+      return { session };
+    }
+
+    const sessionBody = record(
+      await this.api(`/api/sessions/${encodeURIComponent(command.targetId)}`),
+    );
+    const session = record(sessionBody.session ?? sessionBody.data ?? sessionBody);
+    if (!isInternalSession(session))
+      throw new SecondConsumerForbiddenError('External-channel sessions are excluded from UNIFY');
+    const message = command.payload.message;
+    if (
+      (typeof message !== 'string' || !message.trim()) &&
+      (!Array.isArray(message) || message.length === 0)
+    )
+      throw new Error('Conversation message is required');
+    const result = record(
+      await this.api(`/api/sessions/${encodeURIComponent(command.targetId)}/chat`, 'POST', {
+        message,
+      }),
+    );
+    return {
+      sessionId: requiredString(result.session_id ?? command.targetId, 'session id'),
+      message: record(result.message),
+    };
   }
 
   async health() {
@@ -510,18 +551,21 @@ export class HermesNativeSource implements AdapterSource {
     return checks;
   }
 
-  private async api(path: string) {
+  private async api(path: string, method: 'GET' | 'POST' = 'GET', body?: unknown) {
     if (!this.apiBaseUrl) throw new SourceUnavailableError('Hermes API is not configured');
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 5_000);
+    const timer = setTimeout(() => controller.abort(), method === 'POST' ? 180_000 : 5_000);
     try {
       const response = await this.fetchImpl(`${this.apiBaseUrl}${path}`, {
+        method,
         headers: {
           accept: 'application/json',
+          ...(body === undefined ? {} : { 'content-type': 'application/json' }),
           ...(this.options.apiToken ? { authorization: `Bearer ${this.options.apiToken}` } : {}),
         },
         signal: controller.signal,
         redirect: 'error',
+        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
       });
       if (!response.ok)
         throw new SourceUnavailableError(`Hermes API returned HTTP ${response.status}`);
@@ -536,6 +580,15 @@ export class HermesNativeSource implements AdapterSource {
 }
 
 export class SourceUnavailableError extends Error {}
+export class SecondConsumerForbiddenError extends Error {}
+
+const INTERNAL_SESSION_SOURCES = new Set(['api_server', 'cli', 'tui', 'terminal', 'acp', 'local']);
+
+function isInternalSession(value: unknown) {
+  const row = record(value);
+  const source = optionalString(row.source ?? row.platform);
+  return source !== undefined && INTERNAL_SESSION_SOURCES.has(source);
+}
 
 export function validateApiBaseUrl(value: string) {
   let url: URL;

@@ -1,10 +1,11 @@
-import type { HermesWorkOperation } from '@aquiero/contracts';
+import type { HermesConversationOperation, HermesWorkOperation } from '@aquiero/contracts';
 import { redactEvidence } from '../governance/canonical.js';
 import { GovernanceError } from '../governance/service.js';
 import type { GovernanceService } from '../governance/service.js';
 import type { OperationRecord } from '../governance/types.js';
 import type { HermesGatewayService } from '../hermes-control/service.js';
 import {
+  conversationMutationDefinitions,
   frameworkReconcileDefinition,
   workMutationDefinitions,
   type LegacyMutationOwnerClient,
@@ -60,6 +61,7 @@ export class MutationService {
     const definition = this.definition(operationType);
     if (definition.executionPath === 'hermes-control') {
       if (operationType === 'framework.reconcile') validateFrameworkCommand(input);
+      else if (operationType.startsWith('chat.')) validateConversationCommand(input, definition);
       else validateWorkCommand(input, definition);
     } else this.owners.validate(input);
     return input;
@@ -167,6 +169,8 @@ export class MutationService {
     if (operationType === 'framework.reconcile') return frameworkReconcileDefinition;
     const work = workMutationDefinitions[operationType];
     if (work) return work;
+    const conversation = conversationMutationDefinitions[operationType];
+    if (conversation) return conversation;
     return this.owners.definition(operationType);
   }
 
@@ -188,6 +192,17 @@ export class MutationService {
           families: input.payload.families,
           expectedSourceVersion: input.payload.expectedSourceVersion,
         },
+        context,
+      );
+    if (input.operationType.startsWith('chat.'))
+      return this.hermes.conversation(
+        input.target.frameworkId!,
+        (input.operationType === 'chat.session.create'
+          ? 'session.create'
+          : 'message.send') as HermesConversationOperation,
+        input.target.nativeId,
+        input.payload,
+        input.mode,
         context,
       );
     return this.hermes.work(
@@ -214,6 +229,37 @@ export class MutationService {
       target.frameworkId = requiredString(raw.frameworkId, 'target.frameworkId');
     return target;
   }
+}
+
+function validateConversationCommand(input: MutationInput, definition: MutationDefinition) {
+  if (
+    input.target.owner !== 'hermes' ||
+    input.target.kind !== definition.kind ||
+    input.target.frameworkId !== 'hermes-main'
+  )
+    throw new GovernanceError(
+      'MUTATION_TARGET_INVALID',
+      422,
+      'Conversation mutation must target a Hermes-owned session in hermes-main',
+    );
+  if (input.operationType === 'chat.session.create') {
+    if (input.target.nativeId !== 'new')
+      throw new GovernanceError(
+        'MUTATION_TARGET_INVALID',
+        422,
+        'Session creation must target nativeId new',
+      );
+    const title = input.payload.title;
+    if (typeof title !== 'string' || !title.trim())
+      throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'title is required');
+    return;
+  }
+  const message = input.payload.message;
+  if (
+    (typeof message !== 'string' || !message.trim()) &&
+    (!Array.isArray(message) || message.length === 0)
+  )
+    throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'message is required');
 }
 
 function validateWorkCommand(input: MutationInput, definition: MutationDefinition) {

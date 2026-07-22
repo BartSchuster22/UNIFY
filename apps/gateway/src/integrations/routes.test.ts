@@ -324,8 +324,8 @@ describe('read-only integration routes', () => {
         confirmed: false,
       },
     });
-    expect(execution.statusCode).toBe(403);
-    expect(execution.json()).toMatchObject({ error: { code: 'LEGACY_WRITE_CONTAINED' } });
+    expect(execution.statusCode).toBe(422);
+    expect(execution.json()).toMatchObject({ error: { code: 'MUTATION_TARGET_INVALID' } });
     await app.close();
   });
 

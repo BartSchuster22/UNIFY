@@ -2,15 +2,17 @@ import { randomUUID, timingSafeEqual } from 'node:crypto';
 import Fastify, { type FastifyRequest } from 'fastify';
 import {
   HERMES_CONTROL_VERSION,
+  HermesConversationCommandSchema,
   HermesControlCommandSchema,
   HermesWorkCommandSchema,
   PINNED_HERMES_COMMIT,
   PINNED_HERMES_RELEASE,
   type FrameworkScope,
+  type HermesConversationCommand,
   type HermesControlCommand,
   type HermesWorkCommand,
 } from '@aquiero/contracts';
-import { sourceVersion, SourceUnavailableError } from './source.js';
+import { SecondConsumerForbiddenError, sourceVersion, SourceUnavailableError } from './source.js';
 import { IdempotencyBusyError, IdempotencyConflictError } from './event-store.js';
 import type { AdapterEventStore, AdapterSource, CapabilityFamily } from './types.js';
 
@@ -55,7 +57,9 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
       frameworkId: options.frameworkId,
       eventType: request.url.startsWith('/control/v1/commands/work')
         ? 'hermes.adapter.command.work'
-        : 'hermes.adapter.command.reconcile',
+        : request.url.startsWith('/control/v1/commands/conversations')
+          ? 'hermes.adapter.command.conversations'
+          : 'hermes.adapter.command.reconcile',
       outcome,
       requestId: body.requestId ?? request.id,
       correlationId: body.correlationId ?? request.id,
@@ -180,7 +184,15 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
           ...(!scopes.has('control:execute') ? { reasonCode: 'SCOPE_NOT_CONFIGURED' } : {}),
           constraints: { authority: 'hermes-native', secondWriter: false },
         },
-        'conversations.execute': unsupported('PHASE_3_NOT_ACCEPTED'),
+        'conversations.execute': conversations
+          ? {
+              status: scopes.has('control:execute') ? 'supported' : 'forbidden',
+              modes: scopes.has('control:execute') ? ['validate', 'dry-run', 'execute'] : [],
+              requiredScopes: ['control:execute'],
+              ...(!scopes.has('control:execute') ? { reasonCode: 'SCOPE_NOT_CONFIGURED' } : {}),
+              constraints: { authority: 'hermes-native', externalChannels: false },
+            }
+          : unavailable('HERMES_API_NOT_CONFIGURED'),
         'conversations.delivery.execute': unsupported('SECOND_CONSUMER_FORBIDDEN'),
       },
     });
@@ -396,7 +408,88 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
     },
   );
 
+  app.post<{ Body: HermesConversationCommand }>(
+    '/control/v1/commands/conversations',
+    { schema: { body: HermesConversationCommandSchema } },
+    async (request) => {
+      requireScope(scopes, 'control:execute');
+      const command = request.body;
+      validateConversationPayload(command);
+      const operationId = randomUUID();
+      if (command.mode !== 'execute') {
+        const status = command.mode === 'validate' ? 'validated' : 'dry-run';
+        const result = response(options, sourceVersion(command), {
+          operationId,
+          status,
+          replayed: false,
+          operation: command.operation,
+          targetId: command.targetId,
+          result: {},
+          emittedEvents: 0,
+        });
+        await auditCommand(request, 'success', operationId, status);
+        return result;
+      }
+      const ownerResult = await options.source.executeConversation(command);
+      const version = sourceVersion(ownerResult);
+      const result = response(options, version, {
+        operationId,
+        status: 'completed',
+        replayed: false,
+        operation: command.operation,
+        targetId: command.targetId,
+        result: ownerResult,
+        emittedEvents: 0,
+      });
+      const committed = await options.events.commit({
+        frameworkId: options.frameworkId,
+        capability: 'conversations.execute',
+        idempotencyKey: command.idempotencyKey,
+        requestHash: sourceVersion(command),
+        command,
+        response: result,
+        events: [
+          {
+            family: 'conversations',
+            type: `conversations.${command.operation}`,
+            sourceVersion: version,
+            correlationId: command.correlationId,
+            operationId,
+            payload: { targetId: command.targetId },
+          },
+        ],
+      });
+      if (committed.replayed) {
+        const data = committed.response.data;
+        if (data && typeof data === 'object' && !Array.isArray(data))
+          (data as Record<string, unknown>).replayed = true;
+      }
+      await auditCommand(
+        request,
+        'success',
+        operationId,
+        committed.replayed ? 'replayed' : 'completed',
+      );
+      return committed.response;
+    },
+  );
+
   return app;
+}
+
+function validateConversationPayload(command: HermesConversationCommand) {
+  if (command.operation === 'session.create') {
+    const title = command.payload.title;
+    if (typeof title !== 'string' || !title.trim())
+      throw new AdapterError('invalid_request', 400, 'Session title is required');
+    return;
+  }
+  const message = command.payload.message;
+  if (
+    (typeof message !== 'string' || !message.trim()) &&
+    (!Array.isArray(message) || message.length === 0)
+  )
+    throw new AdapterError('invalid_request', 400, 'Conversation message is required');
 }
 
 function validateWorkPayload(command: HermesWorkCommand) {
@@ -592,6 +685,8 @@ function commandAuditFields(value: unknown) {
 
 function mapError(error: unknown) {
   if (error instanceof AdapterError) return error;
+  if (error instanceof SecondConsumerForbiddenError)
+    return new AdapterError('SECOND_CONSUMER_FORBIDDEN', 403, error.message);
   if (error instanceof SourceUnavailableError)
     return new AdapterError('capability_unavailable', 503, error.message, true);
   if (error instanceof IdempotencyConflictError)

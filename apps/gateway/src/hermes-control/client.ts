@@ -4,6 +4,7 @@ import type { Static, TSchema } from '@sinclair/typebox';
 import {
   HermesBoardsResponseSchema,
   HermesCapabilitiesResponseSchema,
+  HermesConversationResultSchema,
   HermesCronjobsResponseSchema,
   HermesControlErrorResponseSchema,
   HermesEventsResponseSchema,
@@ -17,6 +18,7 @@ import {
   HermesTasksResponseSchema,
   HermesWorkResultSchema,
   type HermesControlCommand,
+  type HermesConversationCommand,
   type HermesBoard,
   type HermesCronjob,
   type HermesEventEnvelope,
@@ -175,6 +177,18 @@ export class HermesControlClient {
     return this.request('POST', '/control/v1/commands/work', HermesWorkResultSchema, command);
   }
 
+  conversation(
+    command: HermesConversationCommand,
+  ): Promise<Static<typeof HermesConversationResultSchema>> {
+    return this.request(
+      'POST',
+      '/control/v1/commands/conversations',
+      HermesConversationResultSchema,
+      command,
+      185_000,
+    );
+  }
+
   reconcile(command: HermesControlCommand): Promise<HermesReconcileResponse> {
     return this.request(
       'POST',
@@ -189,12 +203,13 @@ export class HermesControlClient {
     path: string,
     schema: T,
     body?: unknown,
+    timeoutMs = this.timeoutMs,
   ): Promise<Static<T>> {
     this.assertCircuit();
     let lastError: unknown;
     for (let attempt = 0; attempt <= this.retries; attempt += 1) {
       try {
-        const result = await this.once(method, path, schema, body);
+        const result = await this.once(method, path, schema, body, timeoutMs);
         this.failures = 0;
         this.circuitOpenedAt = 0;
         return result;
@@ -221,9 +236,10 @@ export class HermesControlClient {
     path: string,
     schema: T,
     body?: unknown,
+    timeoutMs = this.timeoutMs,
   ): Promise<Static<T>> {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
       const response = await this.fetchImpl(`${this.options.baseUrl}${path}`, {
         method,

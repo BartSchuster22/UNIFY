@@ -13,7 +13,6 @@ import {
   Code,
   ColorSwatch,
   Divider,
-  FileInput,
   Group,
   Loader,
   MantineProvider,
@@ -38,7 +37,7 @@ import {
   Tooltip,
   createTheme,
 } from '@mantine/core';
-import { useDisclosure, useHotkeys, useMediaQuery } from '@mantine/hooks';
+import { useDisclosure, useHotkeys } from '@mantine/hooks';
 
 import { NotificationInbox } from '@aquiero/notification-components';
 import {
@@ -71,6 +70,7 @@ import { WorkView } from './WorkView';
 import { ProfilesView } from './ProfilesView';
 import { ModelsView } from './ModelsView';
 import { ChatView } from './ChatView';
+import { FrameworksView } from './FrameworksView';
 import type {
   ApiFailure,
   Collection,
@@ -421,22 +421,15 @@ function View({
     case 'overview':
       return <Overview />;
     case 'frameworks':
-      return (
-        <ResourcesView
-          title="Frameworks"
-          description="Migration-only Agency framework snapshot; not Hermes source of truth."
-          owner="agency"
-          kinds={['framework']}
-        />
-      );
+      return <FrameworksView />;
     case 'models':
       return <ModelsView canManageCredentials={false} />;
     case 'profiles':
       return <ProfilesView canManage={false} canManageModels={false} canDelete={false} />;
     case 'work':
-      return <WorkView canManage={false} />;
+      return <WorkView canManage={principal.permissions.includes('work.manage')} />;
     case 'chat':
-      return <ChatView canUse={false} />;
+      return <ChatView canUse={principal.permissions.includes('chat.use')} />;
     case 'memory':
       return <MemoryView />;
     case 'audit':
@@ -466,175 +459,12 @@ type ActionPreset = {
 
 const ACTION_PRESETS: ActionPreset[] = [
   {
-    value: 'worker.project.create',
-    label: 'Worker · Create project',
-    owner: 'worker',
-    kind: 'project',
-    permission: 'work.manage',
-    payload: { name: '', goal: '', agents: [] },
-  },
-  {
-    value: 'worker.project.update',
-    label: 'Worker · Update project',
-    owner: 'worker',
-    kind: 'project',
-    permission: 'work.manage',
-    payload: {},
-  },
-  {
-    value: 'worker.project.start',
-    label: 'Worker · Start project',
-    owner: 'worker',
-    kind: 'project',
-    permission: 'work.manage',
-    payload: {},
-  },
-  {
-    value: 'worker.project.stop',
-    label: 'Worker · Stop project',
-    owner: 'worker',
-    kind: 'project',
-    permission: 'work.manage',
-    payload: {},
-  },
-  {
-    value: 'worker.project.delete',
-    label: 'Worker · Delete project',
-    owner: 'worker',
-    kind: 'project',
-    permission: 'work.manage',
-    destructive: true,
-    payload: {},
-  },
-  {
-    value: 'worker.task.create',
-    label: 'Worker · Create task',
-    owner: 'worker',
-    kind: 'task',
-    permission: 'work.manage',
-    payload: { harness: 'hermes', title: '', description: '', board: 'default' },
-  },
-  {
-    value: 'worker.task.comment',
-    label: 'Worker · Comment on task',
-    owner: 'worker',
-    kind: 'task',
-    permission: 'work.manage',
-    payload: { note: '', board: 'default' },
-  },
-  {
-    value: 'worker.task.start',
-    label: 'Worker · Start task',
-    owner: 'worker',
-    kind: 'task',
-    permission: 'work.manage',
-    payload: { board: 'default' },
-  },
-  {
-    value: 'worker.task.move',
-    label: 'Worker · Move task',
-    owner: 'worker',
-    kind: 'task',
-    permission: 'work.manage',
-    payload: { board: 'default', lane: 'ready' },
-  },
-  {
-    value: 'worker.task.block',
-    label: 'Worker · Block task',
-    owner: 'worker',
-    kind: 'task',
-    permission: 'work.manage',
-    payload: { board: 'default', reason: '' },
-  },
-  {
-    value: 'worker.task.unblock',
-    label: 'Worker · Unblock task',
-    owner: 'worker',
-    kind: 'task',
-    permission: 'work.manage',
-    payload: { board: 'default' },
-  },
-  {
-    value: 'worker.task.complete',
-    label: 'Worker · Complete task',
-    owner: 'worker',
-    kind: 'task',
-    permission: 'work.manage',
-    payload: { board: 'default' },
-  },
-  {
-    value: 'worker.cron.create',
-    label: 'Worker · Create cron',
-    owner: 'worker',
-    kind: 'cronjob',
-    permission: 'work.manage',
-    payload: { harness: 'hermes', title: '', schedule: { kind: 'cron', expression: '0 9 * * *' } },
-  },
-  {
-    value: 'worker.cron.run',
-    label: 'Worker · Run cron now',
-    owner: 'worker',
-    kind: 'cronjob',
-    permission: 'work.manage',
-    payload: { harness: 'hermes' },
-  },
-  {
-    value: 'worker.cron.pause',
-    label: 'Worker · Pause cron',
-    owner: 'worker',
-    kind: 'cronjob',
-    permission: 'work.manage',
-    payload: { harness: 'hermes' },
-  },
-  {
-    value: 'worker.cron.resume',
-    label: 'Worker · Resume cron',
-    owner: 'worker',
-    kind: 'cronjob',
-    permission: 'work.manage',
-    payload: { harness: 'hermes' },
-  },
-  {
-    value: 'worker.cron.delete',
-    label: 'Worker · Delete cron',
-    owner: 'worker',
-    kind: 'cronjob',
-    permission: 'work.manage',
-    destructive: true,
-    payload: { harness: 'hermes' },
-  },
-  {
-    value: 'chat.message.send',
-    label: 'Chat · Send message',
-    owner: 'chat',
-    kind: 'chat-session',
-    permission: 'chat.use',
-    payload: { blocks: [{ kind: 'text', text: '' }] },
-  },
-  {
-    value: 'chat.upload',
-    label: 'Chat · Upload file',
-    owner: 'chat',
-    kind: 'chat-session',
-    permission: 'chat.use',
-    payload: { name: '', mime: 'application/octet-stream', data: '' },
-  },
-  {
-    value: 'memory.record.write',
-    label: 'MemoryV4 · Write working/evidence record',
-    owner: 'memory-v4',
-    kind: 'memory-record',
-    permission: 'memory.write',
-    payload: {
-      entityType: '',
-      entityId: '',
-      role: 'active',
-      lifecycle: 'working',
-      topic: '',
-      title: '',
-      content: '',
-      tags: [],
-    },
+    value: 'framework.reconcile',
+    label: 'Hermes · Reconcile framework state',
+    owner: 'hermes',
+    kind: 'framework',
+    permission: 'frameworks.manage',
+    payload: { families: ['profiles', 'providers', 'work', 'conversations'] },
   },
 ];
 
@@ -644,8 +474,8 @@ function MutationConsole({ principal }: { principal: Principal }) {
   );
   const [action, setAction] = useState(available[0]?.value ?? '');
   const preset = available.find((item) => item.value === action) ?? available[0];
-  const [nativeId, setNativeId] = useState('');
-  const [frameworkId, setFrameworkId] = useState('hermes');
+  const [nativeId, setNativeId] = useState('hermes-main');
+  const [frameworkId, setFrameworkId] = useState('hermes-main');
   const [mode, setMode] = useState<MutationRequest['mode']>('validate');
   const [confirmed, setConfirmed] = useState(false);
   const [payload, setPayload] = useState(() =>
@@ -665,25 +495,7 @@ function MutationConsole({ principal }: { principal: Principal }) {
     setResult(null);
     setFailure(null);
   };
-  const attach = (file: File | null) => {
-    if (!file) return;
-    if (file.size > 10 * 1024 * 1024) {
-      setFailure({ code: 'UPLOAD_TOO_LARGE', message: 'Uploads are limited to 10 MB.' });
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const encoded = String(reader.result ?? '').split(',', 2)[1] ?? '';
-      setPayload(
-        JSON.stringify(
-          { name: file.name, mime: file.type || 'application/octet-stream', data: encoded },
-          null,
-          2,
-        ),
-      );
-    };
-    reader.readAsDataURL(file);
-  };
+
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!preset) return;
@@ -724,8 +536,8 @@ function MutationConsole({ principal }: { principal: Principal }) {
   return (
     <>
       <PageHeading
-        title="Migration validation console"
-        description="Legacy adapters are migration-only. Validate and dry-run remain available; execute is contained until a verified direct Hermes control path exists."
+        title="Hermes control validation"
+        description="Validate and dry-run exact framework reconciliation commands through the versioned Hermes control contract."
       />
       {!preset ? (
         <Alert color="red" title="No mutation permissions">
@@ -763,14 +575,7 @@ function MutationConsole({ principal }: { principal: Principal }) {
                 <Badge variant="outline">{preset.kind}</Badge>
                 {preset.destructive && <Badge color="red">destructive</Badge>}
               </Group>
-              {preset.value === 'chat.upload' && (
-                <FileInput
-                  label="File"
-                  description="Loaded locally as base64; maximum 10 MB."
-                  onChange={attach}
-                  clearable
-                />
-              )}
+
               <Textarea
                 label="Owner payload (JSON)"
                 required
@@ -1016,80 +821,133 @@ function EmptyState() {
 }
 
 function Overview() {
-  const status = useData<{
+  const frameworks = useData<{
     items: Array<{
-      adapterId: string;
-      owners: string[];
-      status: TruthState;
-      resourceCount: number;
-      observedAt?: string;
-      warnings: Array<{ code: string; message: string }>;
+      frameworkId: string;
+      displayName: string;
+      enabled: boolean;
+      status: string;
+      frameworkVersion: string;
+      frameworkCommit: string;
     }>;
-  }>('/integrations');
-  const notifications = useData<Collection<{ id: string }>>('/notifications?limit=1');
+  }>('/frameworks');
+  const operations = useData<Collection<Operation>>('/operations?limit=8');
+  const notifications = useData<Collection<Notification>>('/notifications?limit=100');
+  const healthyFrameworks =
+    frameworks.data?.items.filter((item) => item.enabled && item.status === 'verified').length ?? 0;
+  const unresolvedAlerts =
+    notifications.data?.items.filter((item) => item.state !== 'acknowledged').length ?? 0;
+  const failedOperations =
+    operations.data?.items.filter((item) => ['failed', 'inconclusive'].includes(item.state))
+      .length ?? 0;
+  const reload = () => {
+    frameworks.reload();
+    operations.reload();
+    notifications.reload();
+  };
   return (
     <>
       <PageHeading
-        title="Operational overview"
-        description="A truthful, read-only view across every authoritative owner."
+        title="Control plane"
+        description="Live Hermes framework registration, governed operations, alerts and immutable evidence."
         action={
-          <Button variant="light" leftSection={<IconRefresh size={16} />} onClick={status.reload}>
-            Refresh
+          <Button variant="light" leftSection={<IconRefresh size={16} />} onClick={reload}>
+            Recheck all
           </Button>
         }
       />
-      <TruthPanel
-        loading={status.loading}
-        failure={status.failure}
-        empty={Boolean(status.data && status.data.items.length === 0)}
-        onRetry={status.reload}
-      >
-        <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }}>
-          {status.data?.items.map((item) => (
-            <Card withBorder key={item.adapterId}>
-              <Group justify="space-between">
-                <ThemeIcon variant="light">
-                  <IconNetwork size={18} />
-                </ThemeIcon>
-                <StateBadge state={item.status} />
-              </Group>
-              <Text fw={700} mt="md">
-                {item.owners.join(' + ')}
-              </Text>
-              <Text size="xl" fw={800}>
-                {item.resourceCount.toLocaleString()}
-              </Text>
-              <Text size="xs" c="dimmed">
-                authoritative resources
-              </Text>
-              {item.observedAt && (
-                <Text size="xs" mt="sm">
-                  Observed {formatDate(item.observedAt)}
-                </Text>
-              )}
-            </Card>
-          ))}
-        </SimpleGrid>
-        <SimpleGrid cols={{ base: 1, md: 2 }} mt="lg">
-          <Card withBorder>
-            <Text fw={700}>Notification inbox</Text>
+      <SimpleGrid cols={{ base: 1, sm: 2, xl: 4 }} mb="md">
+        {[
+          ['Registered frameworks', frameworks.data?.items.length ?? 0],
+          ['Verified and enabled', healthyFrameworks],
+          ['Unresolved alerts', unresolvedAlerts],
+          ['Failed operations', failedOperations],
+        ].map(([label, value]) => (
+          <Card withBorder key={String(label)}>
+            <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
+              {label}
+            </Text>
             <Text size="2rem" fw={800}>
-              {notifications.data?.items.length ?? '—'}
-            </Text>
-            <Text c="dimmed" size="sm">
-              Visible source notifications on this page
+              {value}
             </Text>
           </Card>
-          <Card withBorder>
-            <Text fw={700}>Safety posture</Text>
-            <Group mt="md">
-              <Badge color="teal">Read-only federation</Badge>
-              <Badge color="blue">Named session</Badge>
-              <Badge color="violet">Owner RBAC</Badge>
-            </Group>
-          </Card>
-        </SimpleGrid>
-      </TruthPanel>
+        ))}
+      </SimpleGrid>
+      {(frameworks.failure || operations.failure || notifications.failure) && (
+        <Alert color="red" title="Control-plane data incomplete" mb="md">
+          {frameworks.failure?.message ??
+            operations.failure?.message ??
+            notifications.failure?.message}
+        </Alert>
+      )}
+      <SimpleGrid cols={{ base: 1, xl: 2 }}>
+        <Card withBorder>
+          <Group justify="space-between" mb="md">
+            <Text fw={800}>Framework runtime</Text>
+            {frameworks.loading ? <Loader size="xs" /> : null}
+          </Group>
+          <Stack gap="sm">
+            {frameworks.data?.items.map((framework) => (
+              <Paper withBorder p="sm" key={framework.frameworkId}>
+                <Group justify="space-between" align="flex-start">
+                  <div>
+                    <Text fw={700}>{framework.displayName}</Text>
+                    <Text size="xs" c="dimmed">
+                      {framework.frameworkId} · {framework.frameworkVersion} ·{' '}
+                      {framework.frameworkCommit.slice(0, 12)}
+                    </Text>
+                  </div>
+                  <Badge
+                    color={framework.enabled && framework.status === 'verified' ? 'teal' : 'red'}
+                  >
+                    {framework.enabled ? framework.status : 'disabled'}
+                  </Badge>
+                </Group>
+              </Paper>
+            ))}
+            {!frameworks.loading && frameworks.data?.items.length === 0 ? (
+              <Text c="dimmed">No framework is registered.</Text>
+            ) : null}
+          </Stack>
+        </Card>
+        <Card withBorder>
+          <Group justify="space-between" mb="md">
+            <Text fw={800}>Recent governed operations</Text>
+            {operations.loading ? <Loader size="xs" /> : null}
+          </Group>
+          <Stack gap="sm">
+            {operations.data?.items.map((operation) => (
+              <Paper withBorder p="sm" key={operation.operationId}>
+                <Group justify="space-between" align="flex-start">
+                  <div>
+                    <Text fw={700}>{operation.operationType}</Text>
+                    <Text size="xs" c="dimmed">
+                      {operation.target.owner} · {operation.target.kind}:{operation.target.nativeId}
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      {formatDate(operation.updatedAt)} · evidence {operation.evidenceIds.length}
+                    </Text>
+                  </div>
+                  <Badge
+                    color={
+                      operation.state === 'verified'
+                        ? 'teal'
+                        : operation.state === 'failed'
+                          ? 'red'
+                          : 'blue'
+                    }
+                  >
+                    {operation.state}
+                  </Badge>
+                </Group>
+              </Paper>
+            ))}
+            {!operations.loading && operations.data?.items.length === 0 ? (
+              <Text c="dimmed">No governed operation has been recorded.</Text>
+            ) : null}
+          </Stack>
+        </Card>
+      </SimpleGrid>
     </>
   );
 }
@@ -1106,122 +964,6 @@ function StateBadge({ state }: { state: TruthState }) {
     <Badge color={color} variant="light">
       {state}
     </Badge>
-  );
-}
-
-function ResourcesView({
-  title,
-  description,
-  owner,
-  kinds,
-  grouped = false,
-}: {
-  title: string;
-  description: string;
-  owner: string;
-  kinds: string[];
-  grouped?: boolean;
-}) {
-  const [kind, setKind] = useState(kinds[0] ?? '');
-  const params = new URLSearchParams({ owner, kind, limit: '500' });
-  const result = useData<Collection<UnifiedResource>>(`/resources?${params}`);
-  return (
-    <>
-      <PageHeading
-        title={title}
-        description={description}
-        action={
-          <Button variant="light" leftSection={<IconRefresh size={16} />} onClick={result.reload}>
-            Refresh
-          </Button>
-        }
-      />
-      {kinds.length > 1 && (
-        <SegmentedControl
-          mb="md"
-          fullWidth={useMediaQuery('(max-width: 48em)')}
-          value={kind}
-          onChange={setKind}
-          data={kinds.map((value) => ({ value, label: label(value) }))}
-          aria-label={`${title} resource type`}
-        />
-      )}
-      <TruthPanel
-        meta={result.data?.meta}
-        loading={result.loading}
-        failure={result.failure}
-        empty={Boolean(result.data && result.data.items.length === 0)}
-        onRetry={result.reload}
-      >
-        {grouped ? (
-          <SimpleGrid cols={{ base: 1, md: 2, xl: 3 }}>
-            {result.data?.items.map((item) => (
-              <ResourceCard key={item.resource.canonicalId} item={item} />
-            ))}
-          </SimpleGrid>
-        ) : (
-          <ResourceTable items={result.data?.items ?? []} />
-        )}
-      </TruthPanel>
-    </>
-  );
-}
-function ResourceCard({ item }: { item: UnifiedResource }) {
-  return (
-    <Card withBorder>
-      <Group justify="space-between">
-        <Badge variant="light">{label(item.resource.kind)}</Badge>
-        <StateBadge state={item.truth} />
-      </Group>
-      <Text fw={700} mt="sm" lineClamp={2}>
-        {item.title}
-      </Text>
-      <Text size="xs" c="dimmed" mt="xs">
-        {item.resource.owner} · {item.resource.nativeId}
-      </Text>
-      <Group mt="md" gap="xs">
-        {summaryFields(item.data).map(([key, value]) => (
-          <Pill key={key}>
-            {label(key)}: {value}
-          </Pill>
-        ))}
-      </Group>
-    </Card>
-  );
-}
-function ResourceTable({ items }: { items: UnifiedResource[] }) {
-  return (
-    <ScrollArea>
-      <Table striped highlightOnHover verticalSpacing="sm" miw={680}>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>Resource</Table.Th>
-            <Table.Th>Type</Table.Th>
-            <Table.Th>Owner</Table.Th>
-            <Table.Th>Truth</Table.Th>
-            <Table.Th>Observed</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {items.map((item) => (
-            <Table.Tr key={item.resource.canonicalId}>
-              <Table.Td>
-                <Text fw={600}>{item.title}</Text>
-                <Text size="xs" c="dimmed">
-                  {item.resource.nativeId}
-                </Text>
-              </Table.Td>
-              <Table.Td>{label(item.resource.kind)}</Table.Td>
-              <Table.Td>{item.resource.owner}</Table.Td>
-              <Table.Td>
-                <StateBadge state={item.truth} />
-              </Table.Td>
-              <Table.Td>{formatDate(item.resource.observedAt)}</Table.Td>
-            </Table.Tr>
-          ))}
-        </Table.Tbody>
-      </Table>
-    </ScrollArea>
   );
 }
 
@@ -1356,6 +1098,7 @@ interface Operation {
   createdAt: string;
   updatedAt: string;
   target: { owner: string; kind: string; nativeId: string };
+  evidenceIds: string[];
 }
 function OperationsView() {
   const result = useData<Collection<Operation>>('/operations?limit=200');
@@ -1381,6 +1124,7 @@ function OperationsView() {
                 <Table.Th>Mode</Table.Th>
                 <Table.Th>Policy</Table.Th>
                 <Table.Th>State</Table.Th>
+                <Table.Th>Evidence</Table.Th>
                 <Table.Th>Updated</Table.Th>
               </Table.Tr>
             </Table.Thead>
@@ -1412,6 +1156,12 @@ function OperationsView() {
                     >
                       {item.state}
                     </Badge>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text fw={700}>{item.evidenceIds.length}</Text>
+                    <Text size="xs" c="dimmed" lineClamp={1}>
+                      {item.evidenceIds.join(', ') || 'No evidence references'}
+                    </Text>
                   </Table.Td>
                   <Table.Td>{formatDate(item.updatedAt)}</Table.Td>
                 </Table.Tr>
@@ -1585,7 +1335,16 @@ function SearchView({ query }: { query: string }) {
       >
         <Stack>
           {result.data?.items.map((hit) => (
-            <ResourceCard key={hit.resource.resource.canonicalId} item={hit.resource} />
+            <Card withBorder key={hit.resource.resource.canonicalId}>
+              <Group justify="space-between">
+                <Text fw={700}>{hit.resource.title}</Text>
+                <StateBadge state={hit.resource.truth} />
+              </Group>
+              <Text size="xs" c="dimmed" mt="xs">
+                {hit.resource.resource.owner} · {hit.resource.resource.kind} ·{' '}
+                {hit.resource.resource.nativeId}
+              </Text>
+            </Card>
           ))}
         </Stack>
       </TruthPanel>
@@ -1605,22 +1364,10 @@ function formatDate(value: string) {
     ? value
     : new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
 }
-function label(value: string) {
-  return value
-    .replaceAll('-', ' ')
-    .replaceAll('_', ' ')
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
 function stringField(data: Record<string, unknown>, fields: string[]) {
   for (const field of fields) {
     const value = data[field];
     if (typeof value === 'string') return value;
   }
   return '';
-}
-function summaryFields(data: Record<string, unknown>): Array<[string, string]> {
-  return Object.entries(data)
-    .filter(([, value]) => ['string', 'number', 'boolean'].includes(typeof value))
-    .slice(0, 3)
-    .map(([key, value]) => [key, String(value)]);
 }

@@ -29,7 +29,7 @@ describe('CutoverPolicy', () => {
     ).toThrowError(/written acceptance/);
   });
 
-  it('contains accepted legacy domains until a verified Hermes control path exists', () => {
+  it('contains accepted legacy Chat writes while exposing only the Hermes-native chat domain', () => {
     const active = CutoverPolicy.fromEnv({
       DEPLOYMENT_MODE: 'mutation-canary',
       MUTATION_DOMAINS: 'chat',
@@ -39,7 +39,10 @@ describe('CutoverPolicy', () => {
       expect.objectContaining({ code: 'LEGACY_WRITE_CONTAINED' }),
     );
     expect(active.status()).toMatchObject({ legacyWritesContained: true });
-    expect(active.status().domains.every((domain) => !domain.executeEnabled)).toBe(true);
+    expect(active.status().domains.find((domain) => domain.domain === 'chat')).toMatchObject({
+      executeEnabled: true,
+      acceptanceRef: 'acceptance/CHAT-001',
+    });
     expect(() => active.assertAllowed(mutation('worker', 'execute'))).toThrowError(
       expect.objectContaining({ code: 'LEGACY_WRITE_CONTAINED' }),
     );
@@ -74,6 +77,34 @@ describe('CutoverPolicy', () => {
       acceptanceRef: 'phase6/hermes-work',
     });
     expect(() => active.assertAllowed(mutation('worker', 'execute'))).toThrowError(
+      expect.objectContaining({ code: 'LEGACY_WRITE_CONTAINED' }),
+    );
+  });
+
+  it('enables accepted Hermes-owned internal conversation execution while containing legacy Chat', () => {
+    const active = CutoverPolicy.fromEnv({
+      DEPLOYMENT_MODE: 'mutation-canary',
+      MUTATION_DOMAINS: 'chat',
+      MUTATION_ACCEPTANCE_REFS: 'chat=task8/hermes-internal-conversations',
+    });
+    const conversation: MutationInput = {
+      operationType: 'chat.message.send',
+      target: {
+        owner: 'hermes',
+        kind: 'session',
+        nativeId: 'internal-session',
+        frameworkId: 'hermes-main',
+      },
+      payload: { message: 'Verify' },
+      mode: 'execute',
+      confirmed: false,
+    };
+    expect(() => active.assertAllowed(conversation)).not.toThrow();
+    expect(active.status().domains.find((domain) => domain.domain === 'chat')).toMatchObject({
+      executeEnabled: true,
+      acceptanceRef: 'task8/hermes-internal-conversations',
+    });
+    expect(() => active.assertAllowed(mutation('chat', 'execute'))).toThrowError(
       expect.objectContaining({ code: 'LEGACY_WRITE_CONTAINED' }),
     );
   });
