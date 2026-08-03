@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "identityAuthority": {
+    "product": "keycloak",
+    "candidateVersion": "26.7.0",
+    "candidateAmd64Digest": "sha256:26939e1318d6f008fc2ee6e10cec1cf8f1ba8a21846c1bc81b91ed0506bc2a7a",
+    "candidateCompressedBytes": 267202025,
+    "hardMemoryBytes": 1073741824
+  },
+  "disk": {
+    "mount": "/",
+    "minimumFreeInodePercent": 20,
+    "rootSafetyFloorBytes": 8589934592,
+    "identityCurrentAndRollbackImagesBytes": 2147483648,
+    "identityDatabaseAndWalBytes": 3221225472,
+    "identityBackupRetentionBytes": 3221225472,
+    "existingHostBackupGrowthBytes": 8589934592
+  },
+  "memory": {
+    "hostAvailableReserveBytes": 1610612736,
+    "maximumFullPsiAvg60": 1
+  },
+  "postgres": {
+    "container": "unify-postgres-1",
+    "user": "unify",
+    "database": "unify",
+    "minimumFreeConnections": 40
+  },
+  "backups": {
+    "directory": "backups",
+    "maximumBaselineAgeHours": 24,
+    "requireEnabledTimer": true,
+    "timer": "unify-backup.timer",
+    "plannedDailyCopies": 7,
+    "plannedWeeklyCopies": 4
+  }
+}

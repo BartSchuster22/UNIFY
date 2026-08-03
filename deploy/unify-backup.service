@@ -1,0 +1,26 @@
+[Unit]
+Description=Create and retain encrypted UNIFY Gateway backup
+Documentation=file:///srv/unify/docs/runbooks/BACKUP-RESTORE.md
+Requires=docker.service
+After=docker.service network-online.target
+
+[Service]
+Type=oneshot
+User=herman
+Group=herman
+SupplementaryGroups=docker
+WorkingDirectory=/srv/unify
+Environment=HOME=/home/herman
+Environment=BACKUP_KEEP_DAILY=7
+Environment=BACKUP_KEEP_WEEKLY=4
+UMask=0077
+ExecStart=/home/herman/.local/bin/pnpm backup
+ExecStartPost=/home/herman/.local/bin/pnpm backup:prune
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/srv/unify/backups
+
+[Install]
+WantedBy=multi-user.target

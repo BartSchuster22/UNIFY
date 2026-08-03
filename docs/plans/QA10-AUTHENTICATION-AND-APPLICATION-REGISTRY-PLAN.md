@@ -954,6 +954,8 @@ docs(auth): complete QA10 cutover and retire local password login
 
 ### Phase A0 — Baseline and capacity
 
+Latest execution evidence: [`../evidence/AUTH-REGISTRY-CAPACITY-GATE-2026-08-03.md`](../evidence/AUTH-REGISTRY-CAPACITY-GATE-2026-08-03.md). Its `STOP` verdict is binding until root storage and host-wide backup growth are remediated and a rerun passes.
+
 Deliverables:
 
 - accepted ADR and this plan;

@@ -4,7 +4,9 @@
 
 The backup contains only Gateway-owned PostgreSQL data and sanitized release metadata. It does not copy owner-service databases, private chat payload exports, Memory contents, or downstream credentials.
 
-Keep encrypted artifacts outside the repository with restricted storage access. The local `backups/` directory and checksum files are ignored by Git. Apply the organization's retention policy to the encrypted file and its checksum together.
+Keep encrypted artifacts outside the repository with restricted storage access. The local `backups/` directory and checksum files are ignored by Git. The installed local policy keeps the latest backup from each of seven UTC days plus four older Sunday copies. A backup and its checksum are always retained or deleted together. Files that do not match `gateway-YYYYMMDDTHHMMSSZ.tar.enc` are never removed by this retention job.
+
+Local copies are not off-host durability. Copy accepted encrypted artifacts and checksums to approved restricted off-host storage without copying the encryption key beside them.
 
 ## Encryption key
 
@@ -35,6 +37,45 @@ The script:
 6. deletes plaintext temporary material on exit.
 
 Do not treat successful backup creation as proof of recoverability.
+
+## Scheduled backup and bounded retention
+
+The repository supplies `deploy/unify-backup.service` and `deploy/unify-backup.timer`. The timer creates a daily encrypted backup and then applies bounded retention.
+
+Install or refresh the units:
+
+```bash
+sudo install -o root -g root -m 0644 deploy/unify-backup.service /etc/systemd/system/unify-backup.service
+sudo install -o root -g root -m 0644 deploy/unify-backup.timer /etc/systemd/system/unify-backup.timer
+sudo systemctl daemon-reload
+sudo systemctl enable --now unify-backup.timer
+sudo systemctl start unify-backup.service
+```
+
+Verify the timer, latest service run, retention policy and checksum:
+
+```bash
+systemctl is-enabled unify-backup.timer
+systemctl is-active unify-backup.timer
+systemctl list-timers unify-backup.timer --all
+systemctl status unify-backup.service
+pnpm backup:prune:dry-run
+sha256sum -c backups/gateway-<timestamp>.tar.enc.sha256
+```
+
+Retention settings are provided to the service as `BACKUP_KEEP_DAILY=7` and `BACKUP_KEEP_WEEKLY=4`. Changes require a capacity review and a retention self-test:
+
+```bash
+pnpm backup:prune:self-test
+```
+
+The authentication capacity gate also requires a fresh encrypted baseline and an enabled timer:
+
+```bash
+pnpm identity:capacity
+```
+
+A `STOP` result is binding. Do not pull or deploy the Identity Authority until all capacity checks pass.
 
 ## Isolated restore rehearsal
 

@@ -23,6 +23,11 @@
     "compose:up": "docker compose up -d --wait postgres gateway uniui chat-pwa alerts-pwa",
     "compose:down": "docker compose down --remove-orphans",
     "backup": "bash scripts/backup-gateway.sh",
+    "backup:prune": "node scripts/prune-gateway-backups.mjs",
+    "backup:prune:dry-run": "node scripts/prune-gateway-backups.mjs --dry-run",
+    "backup:prune:self-test": "node scripts/prune-gateway-backups.test.mjs",
+    "identity:capacity": "node scripts/identity-capacity-gate.mjs",
+    "identity:capacity:self-test": "node scripts/identity-capacity-gate.mjs --self-test",
     "restore:rehearse": "bash scripts/rehearse-restore.sh",
     "performance:smoke": "node scripts/performance-smoke.mjs",
     "canary:self-test": "node scripts/production-canary.mjs --self-test",
@@ -31,7 +36,7 @@
     "security:audit": "pnpm audit --prod --audit-level high",
     "security:sbom": "node scripts/generate-sbom.mjs",
     "legacy:check": "node scripts/check-legacy-routes.mjs",
-    "qa": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm contracts:check && pnpm legacy:check && pnpm canary:self-test && pnpm format:check",
+    "qa": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm contracts:check && pnpm legacy:check && pnpm backup:prune:self-test && pnpm identity:capacity:self-test && pnpm canary:self-test && pnpm format:check",
     "clean": "pnpm -r --if-present clean"
   },
   "devDependencies": {
