@@ -28,6 +28,8 @@ UNIFY provides one authenticated, policy-controlled API boundary and one operato
 - [Architecture decisions](docs/adr/)
 - [Sanitized discovery evidence](docs/evidence/discovery-manifest.json)
 - [Identity, sessions, RBAC, and CSRF](docs/security/AUTHENTICATION.md)
+- [QA10 authentication and Application Registry plan](docs/plans/QA10-AUTHENTICATION-AND-APPLICATION-REGISTRY-PLAN.md)
+- [Per-instance OIDC Identity Authority decision](docs/adr/0005-PER-INSTANCE-OIDC-IDENTITY-AUTHORITY.md)
 - [Database migrations](docs/database/MIGRATIONS.md)
 - [Operation governance](docs/operations/GOVERNANCE.md)
 - [Governed owner mutations](docs/operations/MUTATIONS.md)

@@ -1,5 +1,7 @@
 # Identity, Sessions, RBAC, and CSRF
 
+> **Current implementation and migration baseline.** The target architecture for domestic UNIUI, APKs and PUCAs is the accepted per-instance OIDC Identity Authority plus UNIFY Application Registry defined in [`../adr/0005-PER-INSTANCE-OIDC-IDENTITY-AUTHORITY.md`](../adr/0005-PER-INSTANCE-OIDC-IDENTITY-AUTHORITY.md). The comprehensive build/cutover sequence is [`../plans/QA10-AUTHENTICATION-AND-APPLICATION-REGISTRY-PLAN.md`](../plans/QA10-AUTHENTICATION-AND-APPLICATION-REGISTRY-PLAN.md). The local password path remains current until that plan's rollback-controlled QA10 cutover; it must not be exposed as the authentication protocol for native or external applications.
+
 ## Web authentication
 
 UNIFY uses named users and server-side sessions. The browser receives:

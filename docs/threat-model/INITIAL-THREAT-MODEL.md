@@ -54,6 +54,13 @@ The model covers the public UNIUI origin, Gateway REST/SSE/WebSocket APIs, Gatew
 | T22 | Cache shown as current during outage | Unsafe operator decisions | Provenance, observed/expiry, stale state, read-only stale UI, false-empty tests | Read adapters/UI |
 | T23 | Rate/resource exhaustion | Outage | Per-user/IP/operation limits, body bounds, cursor pagination, virtualization, adapter concurrency/timeouts/circuit breakers | Foundation and performance |
 | T24 | Cross-site content/Markdown injection | Session/data compromise | Safe renderer, output encoding, restrictive CSP, no unsafe HTML by default | UI foundation |
+| T25 | OAuth issuer mix-up, wrong audience or token substitution | Cross-instance access or confused-deputy authorization | Exact issuer/audience/type/client validation, trusted discovery/JWKS, negative cross-instance corpus | OIDC resource-server foundation |
+| T26 | Native/public client secret extraction or authorization-code interception | Account/session takeover | Public-client classification, system browser, exact claimed HTTPS redirect, PKCE S256, no APK/SPA secret | Native/PUCA profile |
+| T27 | Bearer or refresh-token replay | Unauthorized API access and persistent compromise | Short access lifetime, DPoP for required clients, rotating refresh-token family and reuse revocation | Native/PUCA profile |
+| T28 | OAuth client registry abuse or drift | Malicious redirect, grant expansion or rogue application | Reviewed lifecycle, step-up, least-privilege provisioning adapter, exact readback/reconciliation, drift blocking | Application Registry |
+| T29 | Identity Authority or signing-key outage/compromise | Login outage, false trust or lockout | Bounded issuer/JWKS cache, fail-closed ceilings, overlap/emergency rotation, alerting, backup/restore and no automatic password fallback | Identity operations |
+| T30 | Unsafe account linking | Attacker binds an external identity to a privileged local principal | Never link by email/username alone; one-use challenge, existing-session/operator proof, exact issuer+subject and append-oriented audit | Identity migration |
+| T31 | OAuth tokens/codes/DPoP proofs leak through browser, logs or evidence | Session theft or replay | BFF for web, server-side token storage, recursive redaction, bounded audit metadata and secret scans | Every auth release |
 
 ## Security invariants
 
@@ -65,6 +72,10 @@ The model covers the public UNIUI origin, Gateway REST/SSE/WebSocket APIs, Gatew
 - External-channel sessions, messages, routes, events and delivery controls never reach a UNIFY client.
 - No arbitrary MemoryV4 canonical/live write is exposed before governance enforcement.
 - Public health endpoints reveal no sensitive configuration.
+- A valid identity token never bypasses UNIFY application, RBAC, framework/resource or operation policy.
+- Tokens issued for another UNIFY instance or audience fail closed.
+- Identity Authority failure never enables local-password fallback automatically.
+- Native/public clients contain no client secret; browser OAuth tokens remain server-side when a BFF is available.
 
 ## Verification strategy
 

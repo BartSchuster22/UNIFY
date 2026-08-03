@@ -20,7 +20,8 @@ The comprehensive migration and implementation sequence is defined in [`../plans
 | External conversation routes, ingest and outbound delivery | Standalone CHAT/framework channel runtime, outside UNIFY scope | No display, projection, event forwarding or control surface | UNIFY reads and writes are prohibited |
 | Framework tools, skills and plugin capabilities | Exact Hermes instance | Capability discovery and access policy | Never infer or seed capabilities in UNIFY |
 | Configured external memory content | The memory provider selected by Hermes, according to its approved scope | Safe facade and principal mapping | UNIFY does not create a competing memory ledger |
-| Users, roles, permissions, browser sessions and external-client tokens | UNIFY Gateway | Authoritative access-plane owner | Named identity, revocation, CSRF and scoped authorization |
+| Users, authenticators, passkeys, MFA, OIDC sessions, OAuth clients/tokens and signing keys | Per-instance Identity Authority | UNIFY trusts one configured issuer through standard OIDC/OAuth and stores no readable OAuth secret | Exact issuer/audience/client profile, revocation and protocol policy required |
+| Local principal bindings, roles, permissions, browser BFF sessions, CSRF and Application Registry governance | UNIFY Gateway | Authoritative access-policy owner; maps `issuer + subject` and application identity to exact framework/resource grants | Deny by default; both principal and active application must be authorized |
 | Framework registrations and non-secret endpoint references | UNIFY Gateway | Authoritative access-plane owner | Framework secrets remain server-side and scoped |
 | Canonical aliases/migration mappings | UNIFY Gateway | Authoritative mapping record | Ambiguous, stale or missing mappings block writes |
 | Operations, idempotency, preflight and cross-framework audit | UNIFY Gateway | Authoritative access-plane evidence | Every meaningful write has verified Hermes evidence |
@@ -42,8 +43,11 @@ The comprehensive migration and implementation sequence is defined in [`../plans
 10. External-channel sessions, messages, routes, events and delivery are excluded from UNIFY; external ownership remains singular in the standalone CHAT/framework runtime.
 11. Legacy rollback never restores a legacy database as writer after Hermes cutover.
 12. A domain is not QA10 until its legacy application can be stopped without functional loss.
+13. Authentication credentials and OAuth protocol state belong to the per-instance Identity Authority; framework/resource authorization and application approval remain UNIFY-owned.
+14. UNIUI, native clients and PUCAs use the Gateway through approved OIDC/OAuth profiles; no client receives framework credentials.
 
 The binding product boundary is detailed in [`CHAT-EXTERNAL-CHANNEL-EXCLUSION.md`](CHAT-EXTERNAL-CHANNEL-EXCLUSION.md).
+The binding authentication architecture and implementation sequence are defined by [`../adr/0005-PER-INSTANCE-OIDC-IDENTITY-AUTHORITY.md`](../adr/0005-PER-INSTANCE-OIDC-IDENTITY-AUTHORITY.md) and [`../plans/QA10-AUTHENTICATION-AND-APPLICATION-REGISTRY-PLAN.md`](../plans/QA10-AUTHENTICATION-AND-APPLICATION-REGISTRY-PLAN.md).
 
 ## Ownership-change procedure
 
