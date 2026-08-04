@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
-import { Pool, type PoolClient, type PoolConfig } from "pg";
+import type { Pool, PoolClient, PoolConfig } from "pg";
 
 const MIGRATION_FILE = /^(\d{3})_([a-z0-9_]+)\.sql$/;
 const LOCK_KEY = "unify_core_schema_migrations_v1";

@@ -10989,7 +10989,7 @@
             "type": "string"
           },
           "mfaCode": {
-            "pattern": "^[0-9]{6,8}$",
+            "pattern": "^(?:[0-9]{6,8}|[A-Z0-9-]{8,32})$",
             "type": "string"
           }
         }

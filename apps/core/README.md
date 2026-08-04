@@ -4,7 +4,7 @@ This directory is the clean implementation boundary for the standalone UNIFY con
 
 ## Current status
 
-Phase 1 established the isolated package boundary. Phase 2 added native Core v1 contracts and capability negotiation. Phase 3 adds the fresh PostgreSQL schema, checksum-locked migration runner, durable event/cursor foundation, concurrency controls, and tamper-evident audit chain. Domain service handlers are added in later phases against these foundations.
+Phase 1 established the isolated package boundary. Phase 2 added native Core v1 contracts and capability negotiation. Phase 3 added the fresh PostgreSQL schema, checksum-locked migration runner, durable event/cursor foundation, concurrency controls, and tamper-evident audit chain. Phase 4 adds production authentication: one-shot administrator bootstrap, Argon2id passwords, opaque sessions, strict CSRF, throttling and locking, password history and revocation, scoped RBAC, replay-resistant TOTP MFA, service credentials, and complete authentication auditing.
 
 ## Rules
 
@@ -20,9 +20,12 @@ Phase 1 established the isolated package boundary. Phase 2 added native Core v1 
 pnpm --filter @unify/core typecheck
 pnpm --filter @unify/core generate:contracts
 pnpm --filter @unify/core check:contracts
+pnpm --filter @unify/core auth:test
 pnpm --filter @unify/core test
 CORE_DATABASE_URL='postgresql://...' CORE_DATABASE_SSL=require pnpm --filter @unify/core db:migrate
 CORE_DATABASE_URL='postgresql://...' CORE_DATABASE_SSL=require pnpm --filter @unify/core db:verify
+# After migration, with CORE_AUTH_* secrets and bootstrap identity variables injected:
+pnpm --filter @unify/core auth:bootstrap
 ```
 
-See [`docs/rebuild/phase-03-database-foundation.md`](../../docs/rebuild/phase-03-database-foundation.md).
+See [`phase-03-database-foundation.md`](../../docs/rebuild/phase-03-database-foundation.md) and [`phase-04-authentication.md`](../../docs/rebuild/phase-04-authentication.md).

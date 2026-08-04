@@ -25,7 +25,7 @@ export const LoginInputSchema = Type.Object(
   {
     username: Type.String({ minLength: 1, maxLength: 128 }),
     password: Type.String({ minLength: 12, maxLength: 1_024 }),
-    mfaCode: Type.Optional(Type.String({ pattern: "^[0-9]{6,8}$" })),
+    mfaCode: Type.Optional(Type.String({ pattern: "^(?:[0-9]{6,8}|[A-Z0-9-]{8,32})$" })),
   },
   { $id: "LoginInput", ...strict },
 );

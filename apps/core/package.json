@@ -1,11 +1,12 @@
 {
   "name": "@unify/core",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "description": "Standalone UNIFY control-plane core",
   "exports": {
     ".": "./dist/index.js",
+    "./auth": "./dist/auth/index.js",
     "./contracts/v1": "./dist/contracts/v1/index.js",
     "./database": "./dist/database/migrations.js"
   },
@@ -23,12 +24,18 @@
     "db:migrate": "pnpm run build && node dist/database/cli.js migrate",
     "db:verify": "pnpm run build && node dist/database/cli.js verify",
     "db:test": "pnpm run build && node --test dist/database/migrations.test.js",
-    "test": "pnpm run build && node --test dist/core.test.js dist/contracts/v1/contracts.test.js dist/database/migrations.test.js && node scripts/check-openapi.mjs",
+    "auth:bootstrap": "pnpm run build && node dist/auth/cli.js bootstrap-administrator",
+    "auth:test": "pnpm run build && node --test --test-concurrency=1 dist/auth/*.test.js",
+    "test": "pnpm run build && node --test --test-concurrency=1 dist/core.test.js dist/contracts/v1/contracts.test.js dist/database/migrations.test.js dist/auth/*.test.js && node scripts/check-openapi.mjs",
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@fastify/cookie": "11.1.2",
     "@sinclair/typebox": "0.34.52",
-    "pg": "8.22.0"
+    "argon2": "0.45.1",
+    "fastify": "5.10.0",
+    "pg": "8.22.0",
+    "ulid": "3.0.2"
   },
   "devDependencies": {
     "@types/pg": "8.20.3"

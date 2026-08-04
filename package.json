@@ -3,6 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.33.2",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "argon2"
+    ],
+    "overrides": {
+      "@fastify/ajv-compiler>fast-uri": "3.1.5",
+      "fast-json-stringify>fast-uri": "4.1.2",
+      "fastify>find-my-way": "9.7.0"
+    }
+  },
   "engines": {
     "node": ">=22.22.2 <23"
   },
