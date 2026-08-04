@@ -4,7 +4,7 @@ This directory is the clean implementation boundary for the standalone UNIFY con
 
 ## Current status
 
-Phase 1 established the isolated package boundary. Phase 2 added native Core v1 contracts and capability negotiation. Phase 3 added the fresh PostgreSQL schema, checksum-locked migration runner, durable event/cursor foundation, concurrency controls, and tamper-evident audit chain. Phase 4 adds production authentication: one-shot administrator bootstrap, Argon2id passwords, opaque sessions, strict CSRF, throttling and locking, password history and revocation, scoped RBAC, replay-resistant TOTP MFA, service credentials, and complete authentication auditing.
+Phase 1 established the isolated package boundary. Phase 2 added native Core v1 contracts and capability negotiation. Phase 3 added the fresh PostgreSQL schema, checksum-locked migration runner, durable event/cursor foundation, concurrency controls, and tamper-evident audit chain. Phase 4 added production authentication. Phase 5 adds independently registered Alica and Herman Hermes gateways with private HTTPS enforcement, strict identity/version/health/capability validation, retries, timeouts, persistent circuit breakers, isolated credentials, and overlapping token rotation.
 
 ## Rules
 
@@ -21,6 +21,7 @@ pnpm --filter @unify/core typecheck
 pnpm --filter @unify/core generate:contracts
 pnpm --filter @unify/core check:contracts
 pnpm --filter @unify/core auth:test
+pnpm --filter @unify/core frameworks:test
 pnpm --filter @unify/core test
 CORE_DATABASE_URL='postgresql://...' CORE_DATABASE_SSL=require pnpm --filter @unify/core db:migrate
 CORE_DATABASE_URL='postgresql://...' CORE_DATABASE_SSL=require pnpm --filter @unify/core db:verify
@@ -28,4 +29,4 @@ CORE_DATABASE_URL='postgresql://...' CORE_DATABASE_SSL=require pnpm --filter @un
 pnpm --filter @unify/core auth:bootstrap
 ```
 
-See [`phase-03-database-foundation.md`](../../docs/rebuild/phase-03-database-foundation.md) and [`phase-04-authentication.md`](../../docs/rebuild/phase-04-authentication.md).
+See [`phase-03-database-foundation.md`](../../docs/rebuild/phase-03-database-foundation.md), [`phase-04-authentication.md`](../../docs/rebuild/phase-04-authentication.md), and [`phase-05-hermes-framework-gateway.md`](../../docs/rebuild/phase-05-hermes-framework-gateway.md).

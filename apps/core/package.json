@@ -7,6 +7,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./auth": "./dist/auth/index.js",
+    "./frameworks": "./dist/frameworks/index.js",
     "./contracts/v1": "./dist/contracts/v1/index.js",
     "./database": "./dist/database/migrations.js"
   },
@@ -26,10 +27,12 @@
     "db:test": "pnpm run build && node --test dist/database/migrations.test.js",
     "auth:bootstrap": "pnpm run build && node dist/auth/cli.js bootstrap-administrator",
     "auth:test": "pnpm run build && node --test --test-concurrency=1 dist/auth/*.test.js",
-    "test": "pnpm run build && node --test --test-concurrency=1 dist/core.test.js dist/contracts/v1/contracts.test.js dist/database/migrations.test.js dist/auth/*.test.js && node scripts/check-openapi.mjs",
+    "frameworks:test": "pnpm run build && node --test --test-concurrency=1 dist/frameworks/*.test.js",
+    "test": "pnpm run build && node --test --test-concurrency=1 dist/core.test.js dist/contracts/v1/contracts.test.js dist/database/migrations.test.js dist/auth/*.test.js dist/frameworks/*.test.js && node scripts/check-openapi.mjs",
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@aquiero/contracts": "workspace:*",
     "@fastify/cookie": "11.1.2",
     "@sinclair/typebox": "0.34.52",
     "argon2": "0.45.1",

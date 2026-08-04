@@ -6,6 +6,7 @@ import { PINNED_HERMES_COMMIT, type FrameworkScope } from '@aquiero/contracts';
 import { buildHermesControlAdapter } from './app.js';
 import { PostgresAdapterEventStore } from './event-store.js';
 import { HermesCliRunner, HermesNativeSource } from './source.js';
+import { FileRotatingBearerTokenVerifier } from './token-credentials.js';
 
 const execFileAsync = promisify(execFile);
 const { Pool } = pg;
@@ -13,7 +14,33 @@ const { Pool } = pg;
 const repo = required('HERMES_REPO');
 await verifyImmutableBaseline(repo);
 const databaseUrl = await secret('DATABASE_URL');
-const bearerToken = await secret('HERMES_ADAPTER_TOKEN');
+const bearerToken = await optionalSecret('HERMES_ADAPTER_TOKEN');
+const bearerTokenBundleFile = process.env.HERMES_ADAPTER_TOKEN_BUNDLE_FILE;
+if (Boolean(bearerToken) === Boolean(bearerTokenBundleFile))
+  throw new Error(
+    'Exactly one of HERMES_ADAPTER_TOKEN[_FILE] or HERMES_ADAPTER_TOKEN_BUNDLE_FILE is required',
+  );
+if (bearerTokenBundleFile && !bearerTokenBundleFile.startsWith('/'))
+  throw new Error('HERMES_ADAPTER_TOKEN_BUNDLE_FILE must be an absolute path');
+const rotatingTokenVerifier = bearerTokenBundleFile
+  ? new FileRotatingBearerTokenVerifier(
+      bearerTokenBundleFile,
+      parseBoundedInteger(process.env.HERMES_ADAPTER_TOKEN_CACHE_TTL_MS, 1_000, 0, 60_000),
+    )
+  : undefined;
+const tlsKeyFile = process.env.HERMES_ADAPTER_TLS_KEY_FILE;
+const tlsCertificateFile = process.env.HERMES_ADAPTER_TLS_CERT_FILE;
+if (Boolean(tlsKeyFile) !== Boolean(tlsCertificateFile))
+  throw new Error(
+    'HERMES_ADAPTER_TLS_KEY_FILE and HERMES_ADAPTER_TLS_CERT_FILE must be configured together',
+  );
+const https =
+  tlsKeyFile && tlsCertificateFile
+    ? {
+        key: await readFile(tlsKeyFile),
+        cert: await readFile(tlsCertificateFile),
+      }
+    : undefined;
 const apiToken = await optionalSecret('HERMES_API_TOKEN');
 const pythonVersion = (
   await execFileAsync('python3', ['--version'], { encoding: 'utf8', timeout: 5_000 })
@@ -31,7 +58,11 @@ const app = buildHermesControlAdapter({
   frameworkId: process.env.HERMES_FRAMEWORK_ID ?? 'hermes-dev',
   displayName: process.env.HERMES_DISPLAY_NAME ?? 'Hermes Agent',
   instanceId: process.env.HERMES_INSTANCE_ID ?? 'hermes-local',
-  bearerToken,
+  ...(bearerToken ? { bearerToken } : {}),
+  ...(rotatingTokenVerifier
+    ? { verifyBearerToken: (token: string) => rotatingTokenVerifier.verify(token) }
+    : {}),
+  ...(https ? { https } : {}),
   scopes: parseScopes(process.env.HERMES_ADAPTER_SCOPES),
   source,
   events: new PostgresAdapterEventStore(pool),
@@ -102,4 +133,19 @@ function parseScopes(value: string | undefined): FrameworkScope[] {
   if (!scopes.length || !scopes.every((scope) => allowed.has(scope as FrameworkScope)))
     throw new Error('HERMES_ADAPTER_SCOPES contains an invalid scope');
   return [...new Set(scopes)] as FrameworkScope[];
+}
+
+function parseBoundedInteger(
+  supplied: string | undefined,
+  fallback: number,
+  minimum: number,
+  maximum: number,
+): number {
+  if (supplied === undefined) return fallback;
+  if (!/^(?:0|[1-9][0-9]*)$/u.test(supplied))
+    throw new Error('HERMES_ADAPTER_TOKEN_CACHE_TTL_MS must be an integer');
+  const value = Number(supplied);
+  if (!Number.isSafeInteger(value) || value < minimum || value > maximum)
+    throw new Error('HERMES_ADAPTER_TOKEN_CACHE_TTL_MS is outside its supported range');
+  return value;
 }

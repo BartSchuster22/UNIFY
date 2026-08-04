@@ -1,0 +1,33 @@
+[Unit]
+Description=UNIFY Hermes control adapter (%i)
+Documentation=file:/srv/unify/docs/rebuild/phase-05-hermes-framework-gateway.md
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=herman
+Group=herman
+WorkingDirectory=/srv/unify
+Environment=NODE_ENV=production
+EnvironmentFile=/etc/unify/hermes-control-%i.env
+ExecStart=/home/herman/.local/bin/node /srv/unify/apps/hermes-control-adapter/dist/server.js
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=20
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/herman/.hermes
+ReadOnlyPaths=/home/herman/.hermes/hermes-agent
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+
+[Install]
+WantedBy=multi-user.target

@@ -20,7 +20,9 @@ export interface HermesControlAdapterOptions {
   frameworkId: string;
   displayName: string;
   instanceId: string;
-  bearerToken: string;
+  bearerToken?: string;
+  verifyBearerToken?: (token: string) => Promise<boolean>;
+  https?: { readonly key: Buffer; readonly cert: Buffer };
   scopes: FrameworkScope[];
   source: AdapterSource;
   events: AdapterEventStore;
@@ -41,7 +43,13 @@ class AdapterError extends Error {
 }
 
 export function buildHermesControlAdapter(options: HermesControlAdapterOptions) {
-  const app = Fastify({ logger: false, bodyLimit: 2 * 1024 * 1024 });
+  if (!options.bearerToken && !options.verifyBearerToken)
+    throw new Error('A bearer token or rotating bearer token verifier is required');
+  const app = Fastify({
+    logger: false,
+    bodyLimit: 2 * 1024 * 1024,
+    ...(options.https ? { https: options.https } : {}),
+  });
   const scopes = new Set(options.scopes);
   const auditedRequests = new WeakSet<object>();
 
@@ -74,8 +82,10 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
   app.addHook('onRequest', async (request) => {
     if (!request.url.startsWith('/control/v1/')) return;
     const token = request.headers.authorization?.replace(/^Bearer\s+/i, '') ?? '';
-    if (!constantTimeEqual(token, options.bearerToken))
-      throw new AdapterError('unauthenticated', 401, 'Authentication required');
+    const authenticated = options.verifyBearerToken
+      ? await options.verifyBearerToken(token)
+      : constantTimeEqual(token, options.bearerToken ?? '');
+    if (!authenticated) throw new AdapterError('unauthenticated', 401, 'Authentication required');
   });
 
   app.setErrorHandler(async (error, request, reply) => {

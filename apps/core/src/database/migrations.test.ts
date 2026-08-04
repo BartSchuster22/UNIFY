@@ -20,7 +20,7 @@ async function withTempDirectory(work: (directory: string) => Promise<void>): Pr
 
 test("discovers contiguous migrations and stable checksums", async () => {
   const migrations = await loadMigrations();
-  assert.deepEqual(migrations.map((migration) => migration.version), [1, 2, 3, 4, 5, 6]);
+  assert.deepEqual(migrations.map((migration) => migration.version), [1, 2, 3, 4, 5, 6, 7]);
   assert.equal(new Set(migrations.map((migration) => migration.checksum)).size, migrations.length);
   for (const migration of migrations) assert.match(migration.checksum, /^[a-f0-9]{64}$/);
 });
@@ -56,10 +56,10 @@ test("applies the fresh schema and enforces database invariants", { skip: !integ
   try {
     await pool.query("DROP SCHEMA IF EXISTS core CASCADE");
     const first = await migrateDatabase(pool);
-    assert.deepEqual(first.applied, [1, 2, 3, 4, 5, 6]);
+    assert.deepEqual(first.applied, [1, 2, 3, 4, 5, 6, 7]);
     const second = await migrateDatabase(pool);
     assert.deepEqual(second.applied, []);
-    assert.equal(second.previouslyApplied, 6);
+    assert.equal(second.previouslyApplied, 7);
     await verifyDatabase(pool);
     const storedMigration = await pool.query<{ checksum: string }>("SELECT checksum FROM core.schema_migrations WHERE version = 1");
     await pool.query("UPDATE core.schema_migrations SET checksum = repeat('0', 64) WHERE version = 1");

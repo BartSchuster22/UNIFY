@@ -24,3 +24,5 @@ CORE_DATABASE_URL='postgresql://...' CORE_DATABASE_SSL=require \
 `CORE_DATABASE_SSL` defaults to `require`. Local isolated tests must explicitly select `disable`.
 
 Migration `006_authentication_runtime.sql` is the Phase 4 authentication delta. It extends the Phase 3 identity tables with password/session runtime state, replay-resistant MFA counters, password history, atomic throttle buckets, the one-shot bootstrap singleton, the MFA key registry, and authentication-specific permissions. Like every migration in this directory, it is forward-only and checksum locked after application.
+
+Migration `007_hermes_framework_gateway.sql` is the Phase 5 Hermes gateway delta. It enforces unique framework endpoints and credential references and adds per-framework pinned identity/version policy, persistent circuit state, immutable validated observations, and immutable credential-version rotation history. Credential values remain outside PostgreSQL.
