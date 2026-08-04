@@ -4,7 +4,7 @@ This directory is the clean implementation boundary for the standalone UNIFY con
 
 ## Current status
 
-Phase 1 established the isolated package boundary. Phase 2 adds the native Core v1 TypeBox contracts, executable Hermes capability negotiation, and generated OpenAPI 3.1 document. Business persistence and service handlers are added in later phases against these contracts.
+Phase 1 established the isolated package boundary. Phase 2 added native Core v1 contracts and capability negotiation. Phase 3 adds the fresh PostgreSQL schema, checksum-locked migration runner, durable event/cursor foundation, concurrency controls, and tamper-evident audit chain. Domain service handlers are added in later phases against these foundations.
 
 ## Rules
 
@@ -21,6 +21,8 @@ pnpm --filter @unify/core typecheck
 pnpm --filter @unify/core generate:contracts
 pnpm --filter @unify/core check:contracts
 pnpm --filter @unify/core test
+CORE_DATABASE_URL='postgresql://...' CORE_DATABASE_SSL=require pnpm --filter @unify/core db:migrate
+CORE_DATABASE_URL='postgresql://...' CORE_DATABASE_SSL=require pnpm --filter @unify/core db:verify
 ```
 
-See [`docs/rebuild/phase-02-versioned-contracts.md`](../../docs/rebuild/phase-02-versioned-contracts.md).
+See [`docs/rebuild/phase-03-database-foundation.md`](../../docs/rebuild/phase-03-database-foundation.md).

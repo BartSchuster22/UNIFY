@@ -1,27 +1,36 @@
 {
   "name": "@unify/core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "description": "Standalone UNIFY control-plane core",
   "exports": {
     ".": "./dist/index.js",
-    "./contracts/v1": "./dist/contracts/v1/index.js"
+    "./contracts/v1": "./dist/contracts/v1/index.js",
+    "./database": "./dist/database/migrations.js"
   },
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "contracts"
+    "contracts",
+    "migrations"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "generate:contracts": "pnpm run build && node scripts/generate-openapi.mjs",
     "check:contracts": "pnpm run build && node scripts/check-openapi.mjs",
-    "test": "pnpm run build && node --test dist/core.test.js dist/contracts/v1/contracts.test.js && node scripts/check-openapi.mjs",
+    "db:migrate": "pnpm run build && node dist/database/cli.js migrate",
+    "db:verify": "pnpm run build && node dist/database/cli.js verify",
+    "db:test": "pnpm run build && node --test dist/database/migrations.test.js",
+    "test": "pnpm run build && node --test dist/core.test.js dist/contracts/v1/contracts.test.js dist/database/migrations.test.js && node scripts/check-openapi.mjs",
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@sinclair/typebox": "0.34.52"
+    "@sinclair/typebox": "0.34.52",
+    "pg": "8.22.0"
+  },
+  "devDependencies": {
+    "@types/pg": "8.20.3"
   }
 }
