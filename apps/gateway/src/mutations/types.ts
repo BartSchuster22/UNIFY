@@ -130,15 +130,6 @@ export interface LegacyMutationOwnerClient {
   definition(operationType: string): MutationDefinition;
   validate(input: MutationInput): MutationDefinition;
   execute(input: MutationInput): Promise<unknown>;
-  agencyProfileInventory(): Promise<{
-    frameworks: unknown;
-    profiles: unknown;
-    agents: unknown;
-  }>;
-  agencyProfileContext(
-    frameworkId: string,
-    profileId?: string,
-  ): Promise<{ capabilities: unknown; models: unknown; detail?: unknown }>;
   dmmInventory(): Promise<{
     providers: unknown;
     requirements: unknown;

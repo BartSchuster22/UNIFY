@@ -15,6 +15,8 @@ export const CANONICAL_ID_PREFIXES = {
   correlation: 'cor',
   framework: 'frm',
   profile: 'prf',
+  agent: 'agt',
+  reconciliation: 'rec',
   provider: 'pvd',
   model: 'mdl',
   project: 'prj',

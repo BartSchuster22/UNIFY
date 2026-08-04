@@ -26,9 +26,9 @@ class Notifications implements NotificationStore {
     return new Map(notifications.map((item) => [item.id, this.state]));
   }
   async acknowledge(_userId: string, _notificationId: string, allowedOwners: string[]) {
-    if (!allowedOwners.includes('agency')) return null;
+    if (!allowedOwners.includes('hermes')) return null;
     this.state = 'acknowledged';
-    return 'agency';
+    return 'hermes';
   }
 }
 
@@ -74,9 +74,9 @@ class Store implements AuthStore {
   async touchSession() {}
 }
 
-class AgencyAdapter implements SourceAdapter {
-  readonly id = 'agency-test';
-  readonly owners: Array<'agency'> = ['agency'];
+class HermesAdapter implements SourceAdapter {
+  readonly id = 'hermes-test';
+  readonly owners: Array<'hermes'> = ['hermes'];
   readonly sourceRole = 'migration-only' as const;
   readonly writeEnabled = false as const;
   async snapshot(): Promise<IntegrationSnapshot> {
@@ -88,13 +88,13 @@ class AgencyAdapter implements SourceAdapter {
       writeEnabled: this.writeEnabled,
       status: 'current',
       observedAt: at,
-      warnings: [{ code: 'AGENCY_ATTENTION', message: 'Agency needs attention' }],
+      warnings: [{ code: 'HERMES_ATTENTION', message: 'Hermes needs attention' }],
       resources: [
         {
           resource: {
-            canonicalId: 'agency:framework:aA',
+            canonicalId: 'hermes:framework:aA',
             kind: 'framework',
-            owner: 'agency',
+            owner: 'hermes',
             nativeId: 'h',
             observedAt: at,
           },
@@ -109,9 +109,9 @@ class AgencyAdapter implements SourceAdapter {
         },
         {
           resource: {
-            canonicalId: 'agency:framework:aQ',
+            canonicalId: 'hermes:framework:aQ',
             kind: 'framework',
-            owner: 'agency',
+            owner: 'hermes',
             nativeId: 'i',
             observedAt: at,
           },
@@ -129,9 +129,9 @@ class AgencyAdapter implements SourceAdapter {
   }
 }
 
-class LargeAgencyAdapter implements SourceAdapter {
-  readonly id = 'agency-large-fixture';
-  readonly owners: Array<'agency'> = ['agency'];
+class LargeHermesAdapter implements SourceAdapter {
+  readonly id = 'hermes-large-fixture';
+  readonly owners: Array<'hermes'> = ['hermes'];
   readonly sourceRole = 'migration-only' as const;
   readonly writeEnabled = false as const;
   async snapshot(): Promise<IntegrationSnapshot> {
@@ -146,9 +146,9 @@ class LargeAgencyAdapter implements SourceAdapter {
       warnings: [],
       resources: Array.from({ length: 10_000 }, (_, index) => ({
         resource: {
-          canonicalId: `agency:framework:${String(index).padStart(5, '0')}`,
+          canonicalId: `hermes:framework:${String(index).padStart(5, '0')}`,
           kind: 'framework',
-          owner: 'agency' as const,
+          owner: 'hermes' as const,
           nativeId: String(index),
           observedAt: at,
         },
@@ -182,7 +182,7 @@ async function authenticated(
     MUTATION_ACCEPTANCE_REFS:
       'profiles=test/PROFILES,dmm=test/DMM,worker=test/WORKER,chat=test/CHAT,memory-v4=test/MEMORY',
   }),
-  adapter: SourceAdapter = new AgencyAdapter(),
+  adapter: SourceAdapter = new HermesAdapter(),
 ) {
   const store = new Store();
   store.user = {
@@ -235,9 +235,6 @@ function mutationFixture(): { governance: GovernanceStore; owners: MutationOwner
     appendAudit: async () => 'audit-login',
   };
   const owners = new MutationOwnerClient({
-    agencyUrl: 'http://agency.invalid',
-    agencyUsername: 'u',
-    agencyPassword: 'p',
     dmmUrl: 'http://dmm.invalid',
     dmmUsername: 'u',
     dmmPassword: 'p',
@@ -330,10 +327,10 @@ describe('read-only integration routes', () => {
   });
 
   it('returns provenance-rich resources and unified search to an authorized named user', async () => {
-    const { app, cookie } = await authenticated(['frameworks.read']);
+    const { app, cookie } = await authenticated(['profiles.read']);
     const resources = await app.inject({
       method: 'GET',
-      url: '/api/v1/resources?owner=agency&refresh=true&limit=1',
+      url: '/api/v1/resources?owner=hermes&refresh=true&limit=1',
       headers: { cookie },
     });
     expect(resources.statusCode).toBe(200);
@@ -342,7 +339,7 @@ describe('read-only integration routes', () => {
         {
           authoritative: false,
           sourceRole: 'migration-only',
-          resource: { owner: 'agency', kind: 'framework' },
+          resource: { owner: 'hermes', kind: 'framework' },
         },
       ],
       meta: { freshness: 'current', page: { hasMore: true } },
@@ -350,7 +347,7 @@ describe('read-only integration routes', () => {
     const cursor = resources.json().meta.page.nextCursor as string;
     const second = await app.inject({
       method: 'GET',
-      url: `/api/v1/resources?owner=agency&limit=1&cursor=${encodeURIComponent(cursor)}`,
+      url: `/api/v1/resources?owner=hermes&limit=1&cursor=${encodeURIComponent(cursor)}`,
       headers: { cookie },
     });
     expect(second.statusCode).toBe(200);
@@ -370,16 +367,16 @@ describe('read-only integration routes', () => {
 
   it('bounds a 10,000-resource owner snapshot at the API pagination boundary', async () => {
     const { app, cookie } = await authenticated(
-      ['frameworks.read'],
+      ['profiles.read'],
       undefined,
       undefined,
       undefined,
       undefined,
-      new LargeAgencyAdapter(),
+      new LargeHermesAdapter(),
     );
     const response = await app.inject({
       method: 'GET',
-      url: '/api/v1/resources?owner=agency&refresh=true&limit=500',
+      url: '/api/v1/resources?owner=hermes&refresh=true&limit=500',
       headers: { cookie },
     });
     expect(response.statusCode).toBe(200);
@@ -404,7 +401,7 @@ describe('read-only integration routes', () => {
   it('persists notification acknowledgement behind CSRF and owner RBAC', async () => {
     const notifications = new Notifications();
     const { app, cookie, csrf } = await authenticated(
-      ['frameworks.read'],
+      ['profiles.read'],
       undefined,
       undefined,
       notifications,
@@ -416,7 +413,7 @@ describe('read-only integration routes', () => {
     });
     expect(inbox.statusCode).toBe(200);
     expect(inbox.json()).toMatchObject({
-      items: [{ source: 'agency', state: 'unread', deepLink: '/?view=notifications' }],
+      items: [{ source: 'hermes', state: 'unread', deepLink: '/?view=notifications' }],
     });
     const id = String(inbox.json().items[0].id);
     const url = `/api/v1/notifications/${encodeURIComponent(id)}/acknowledge`;
@@ -452,7 +449,7 @@ describe('read-only integration routes', () => {
           id: 'op-1',
           actorUserId: 'u1',
           action: 'framework.inspect',
-          targetFramework: 'agency',
+          targetFramework: 'hermes',
           targetKind: 'framework',
           targetId: 'h',
           state: 'verified',

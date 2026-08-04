@@ -2090,6 +2090,340 @@
         }
       }
     },
+    "/agents": {
+      "get": {
+        "tags": ["profiles"],
+        "operationId": "agentList",
+        "summary": "List native agents observed from registered frameworks",
+        "security": [{ "cookieSession": [] }, { "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": { "$ref": "#/components/schemas/Cursor" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "minimum": 1, "maximum": 200, "default": 50 }
+          }
+        ],
+        "x-unify-reject-unknown-query": true,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/AgentList" } }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "403": {
+            "description": "Authorization denied",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "409": {
+            "description": "Resource or idempotency conflict",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "422": {
+            "description": "Command precondition failed",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/profile-assignments": {
+      "get": {
+        "tags": ["profiles"],
+        "operationId": "profileAssignmentList",
+        "summary": "List desired and observed agent profile assignments",
+        "security": [{ "cookieSession": [] }, { "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": { "$ref": "#/components/schemas/Cursor" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "minimum": 1, "maximum": 200, "default": 50 }
+          }
+        ],
+        "x-unify-reject-unknown-query": true,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProfileAssignmentList" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "403": {
+            "description": "Authorization denied",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "409": {
+            "description": "Resource or idempotency conflict",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "422": {
+            "description": "Command precondition failed",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/profile-assignments/{agentId}/{profileId}": {
+      "put": {
+        "tags": ["profiles"],
+        "operationId": "profileAssignmentUpsert",
+        "summary": "Assign a profile to an agent with optimistic concurrency",
+        "security": [{ "cookieSession": [], "csrfToken": [] }, { "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "agentId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^agt_[0-9A-HJKMNP-TV-Z]{26}$" }
+          },
+          {
+            "name": "profileId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^prf_[0-9A-HJKMNP-TV-Z]{26}$" }
+          }
+        ],
+        "x-unify-reject-unknown-query": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProfileAssignmentCommand" }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Success",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CommandAccepted" } }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "403": {
+            "description": "Authorization denied",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "409": {
+            "description": "Resource or idempotency conflict",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "422": {
+            "description": "Command precondition failed",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/frameworks/{frameworkId}/profile-reconciliations": {
+      "get": {
+        "tags": ["profiles"],
+        "operationId": "profileReconciliationList",
+        "summary": "List immutable profile reconciliation evidence",
+        "security": [{ "cookieSession": [] }, { "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "frameworkId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^frm_[0-9A-HJKMNP-TV-Z]{26}$" }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": { "$ref": "#/components/schemas/Cursor" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "minimum": 1, "maximum": 200, "default": 50 }
+          }
+        ],
+        "x-unify-reject-unknown-query": true,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProfileReconciliationList" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "403": {
+            "description": "Authorization denied",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "409": {
+            "description": "Resource or idempotency conflict",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "422": {
+            "description": "Command precondition failed",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          }
+        }
+      }
+    },
     "/providers": {
       "get": {
         "tags": ["models"],
@@ -5611,7 +5945,7 @@
       "ContractVersion": { "$id": "ContractVersion", "const": "core.v1", "type": "string" },
       "CanonicalId": {
         "$id": "CanonicalId",
-        "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+        "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
         "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
         "type": "string"
       },
@@ -5627,7 +5961,7 @@
         "properties": {
           "id": {
             "$id": "CanonicalId",
-            "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+            "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
             "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
             "type": "string"
           },
@@ -5675,7 +6009,7 @@
           "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
           "id": {
             "$id": "CanonicalId",
-            "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+            "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
             "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
             "type": "string"
           }
@@ -5868,7 +6202,7 @@
           "operationId": { "pattern": "^opc_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
           "subjectId": {
             "$id": "CanonicalId",
-            "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+            "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
             "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
             "type": "string"
           },
@@ -5997,6 +6331,22 @@
               { "const": "archived", "type": "string" }
             ]
           }
+        }
+      },
+      "ProfileAssignmentInput": {
+        "$id": "ProfileAssignmentInput",
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["role", "expectedAgentVersion", "expectedProfileVersion"],
+        "properties": {
+          "role": {
+            "anyOf": [
+              { "const": "primary", "type": "string" },
+              { "const": "fallback", "type": "string" }
+            ]
+          },
+          "expectedAgentVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedProfileVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" }
         }
       },
       "ProfileIdentityInput": {
@@ -6523,7 +6873,7 @@
             "properties": {
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -6575,7 +6925,7 @@
                   "properties": {
                     "id": {
                       "$id": "CanonicalId",
-                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                       "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                       "type": "string"
                     },
@@ -6828,7 +7178,7 @@
             "properties": {
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -6892,7 +7242,7 @@
                   "properties": {
                     "id": {
                       "$id": "CanonicalId",
-                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                       "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                       "type": "string"
                     },
@@ -6954,8 +7304,11 @@
           "name",
           "description",
           "state",
+          "desiredState",
+          "observedState",
           "protected",
           "observedVersion",
+          "sourceVersion",
           "lastObservedAt"
         ],
         "properties": {
@@ -6967,7 +7320,7 @@
             "properties": {
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -6987,9 +7340,28 @@
               { "const": "archived", "type": "string" }
             ]
           },
+          "desiredState": {
+            "anyOf": [
+              { "const": "active", "type": "string" },
+              { "const": "inactive", "type": "string" },
+              { "const": "deleted", "type": "string" }
+            ]
+          },
+          "observedState": {
+            "anyOf": [
+              { "const": "unknown", "type": "string" },
+              { "const": "active", "type": "string" },
+              { "const": "inactive", "type": "string" },
+              { "const": "missing", "type": "string" },
+              { "const": "unavailable", "type": "string" }
+            ]
+          },
           "protected": { "type": "boolean" },
           "observedVersion": {
             "anyOf": [{ "maxLength": 500, "type": "string" }, { "type": "null" }]
+          },
+          "sourceVersion": {
+            "anyOf": [{ "maxLength": 256, "type": "string" }, { "type": "null" }]
           },
           "lastObservedAt": {
             "anyOf": [
@@ -7018,8 +7390,11 @@
                 "name",
                 "description",
                 "state",
+                "desiredState",
+                "observedState",
                 "protected",
                 "observedVersion",
+                "sourceVersion",
                 "lastObservedAt"
               ],
               "properties": {
@@ -7031,7 +7406,7 @@
                   "properties": {
                     "id": {
                       "$id": "CanonicalId",
-                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                       "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                       "type": "string"
                     },
@@ -7053,9 +7428,28 @@
                     { "const": "archived", "type": "string" }
                   ]
                 },
+                "desiredState": {
+                  "anyOf": [
+                    { "const": "active", "type": "string" },
+                    { "const": "inactive", "type": "string" },
+                    { "const": "deleted", "type": "string" }
+                  ]
+                },
+                "observedState": {
+                  "anyOf": [
+                    { "const": "unknown", "type": "string" },
+                    { "const": "active", "type": "string" },
+                    { "const": "inactive", "type": "string" },
+                    { "const": "missing", "type": "string" },
+                    { "const": "unavailable", "type": "string" }
+                  ]
+                },
                 "protected": { "type": "boolean" },
                 "observedVersion": {
                   "anyOf": [{ "maxLength": 500, "type": "string" }, { "type": "null" }]
+                },
+                "sourceVersion": {
+                  "anyOf": [{ "maxLength": 256, "type": "string" }, { "type": "null" }]
                 },
                 "lastObservedAt": {
                   "anyOf": [
@@ -7063,6 +7457,325 @@
                     { "type": "null" }
                   ]
                 }
+              }
+            }
+          },
+          "page": {
+            "$id": "PageMeta",
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["nextCursor", "hasMore"],
+            "properties": {
+              "nextCursor": {
+                "anyOf": [
+                  { "$id": "Cursor", "minLength": 1, "maxLength": 512, "type": "string" },
+                  { "type": "null" }
+                ]
+              },
+              "hasMore": { "type": "boolean" }
+            }
+          }
+        }
+      },
+      "Agent": {
+        "$id": "Agent",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "meta",
+          "frameworkId",
+          "nativeReference",
+          "name",
+          "desiredState",
+          "observedState"
+        ],
+        "properties": {
+          "meta": {
+            "$id": "ResourceMeta",
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["id", "version", "createdAt", "updatedAt"],
+            "properties": {
+              "id": {
+                "$id": "CanonicalId",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
+                "type": "string"
+              },
+              "version": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+              "createdAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
+              "updatedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" }
+            }
+          },
+          "frameworkId": { "pattern": "^frm_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+          "nativeReference": { "minLength": 1, "maxLength": 500, "type": "string" },
+          "name": { "minLength": 1, "maxLength": 200, "type": "string" },
+          "desiredState": {
+            "anyOf": [
+              { "const": "active", "type": "string" },
+              { "const": "inactive", "type": "string" },
+              { "const": "deleted", "type": "string" }
+            ]
+          },
+          "observedState": {
+            "anyOf": [
+              { "const": "unknown", "type": "string" },
+              { "const": "active", "type": "string" },
+              { "const": "inactive", "type": "string" },
+              { "const": "missing", "type": "string" },
+              { "const": "unavailable", "type": "string" }
+            ]
+          }
+        }
+      },
+      "AgentList": {
+        "$id": "AgentList",
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["items", "page"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$id": "Agent",
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "meta",
+                "frameworkId",
+                "nativeReference",
+                "name",
+                "desiredState",
+                "observedState"
+              ],
+              "properties": {
+                "meta": {
+                  "$id": "ResourceMeta",
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["id", "version", "createdAt", "updatedAt"],
+                  "properties": {
+                    "id": {
+                      "$id": "CanonicalId",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
+                      "type": "string"
+                    },
+                    "version": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+                    "createdAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
+                    "updatedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" }
+                  }
+                },
+                "frameworkId": { "pattern": "^frm_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+                "nativeReference": { "minLength": 1, "maxLength": 500, "type": "string" },
+                "name": { "minLength": 1, "maxLength": 200, "type": "string" },
+                "desiredState": {
+                  "anyOf": [
+                    { "const": "active", "type": "string" },
+                    { "const": "inactive", "type": "string" },
+                    { "const": "deleted", "type": "string" }
+                  ]
+                },
+                "observedState": {
+                  "anyOf": [
+                    { "const": "unknown", "type": "string" },
+                    { "const": "active", "type": "string" },
+                    { "const": "inactive", "type": "string" },
+                    { "const": "missing", "type": "string" },
+                    { "const": "unavailable", "type": "string" }
+                  ]
+                }
+              }
+            }
+          },
+          "page": {
+            "$id": "PageMeta",
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["nextCursor", "hasMore"],
+            "properties": {
+              "nextCursor": {
+                "anyOf": [
+                  { "$id": "Cursor", "minLength": 1, "maxLength": 512, "type": "string" },
+                  { "type": "null" }
+                ]
+              },
+              "hasMore": { "type": "boolean" }
+            }
+          }
+        }
+      },
+      "ProfileAssignment": {
+        "$id": "ProfileAssignment",
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["agentId", "profileId", "role", "desiredState", "observedState", "version"],
+        "properties": {
+          "agentId": { "pattern": "^agt_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+          "profileId": { "pattern": "^prf_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+          "role": {
+            "anyOf": [
+              { "const": "primary", "type": "string" },
+              { "const": "fallback", "type": "string" }
+            ]
+          },
+          "desiredState": {
+            "anyOf": [
+              { "const": "assigned", "type": "string" },
+              { "const": "unassigned", "type": "string" }
+            ]
+          },
+          "observedState": {
+            "anyOf": [
+              { "const": "unknown", "type": "string" },
+              { "const": "assigned", "type": "string" },
+              { "const": "unassigned", "type": "string" },
+              { "const": "conflict", "type": "string" }
+            ]
+          },
+          "version": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" }
+        }
+      },
+      "ProfileAssignmentList": {
+        "$id": "ProfileAssignmentList",
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["items", "page"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$id": "ProfileAssignment",
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "agentId",
+                "profileId",
+                "role",
+                "desiredState",
+                "observedState",
+                "version"
+              ],
+              "properties": {
+                "agentId": { "pattern": "^agt_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+                "profileId": { "pattern": "^prf_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+                "role": {
+                  "anyOf": [
+                    { "const": "primary", "type": "string" },
+                    { "const": "fallback", "type": "string" }
+                  ]
+                },
+                "desiredState": {
+                  "anyOf": [
+                    { "const": "assigned", "type": "string" },
+                    { "const": "unassigned", "type": "string" }
+                  ]
+                },
+                "observedState": {
+                  "anyOf": [
+                    { "const": "unknown", "type": "string" },
+                    { "const": "assigned", "type": "string" },
+                    { "const": "unassigned", "type": "string" },
+                    { "const": "conflict", "type": "string" }
+                  ]
+                },
+                "version": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" }
+              }
+            }
+          },
+          "page": {
+            "$id": "PageMeta",
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["nextCursor", "hasMore"],
+            "properties": {
+              "nextCursor": {
+                "anyOf": [
+                  { "$id": "Cursor", "minLength": 1, "maxLength": 512, "type": "string" },
+                  { "type": "null" }
+                ]
+              },
+              "hasMore": { "type": "boolean" }
+            }
+          }
+        }
+      },
+      "ProfileReconciliation": {
+        "$id": "ProfileReconciliation",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "frameworkId",
+          "expectedSourceVersion",
+          "observedSourceVersion",
+          "status",
+          "changes",
+          "createdAt"
+        ],
+        "properties": {
+          "id": { "pattern": "^rec_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+          "frameworkId": { "pattern": "^frm_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+          "expectedSourceVersion": {
+            "anyOf": [{ "maxLength": 256, "type": "string" }, { "type": "null" }]
+          },
+          "observedSourceVersion": { "minLength": 1, "maxLength": 256, "type": "string" },
+          "status": {
+            "anyOf": [
+              { "const": "converged", "type": "string" },
+              { "const": "drifted", "type": "string" },
+              { "const": "failed", "type": "string" }
+            ]
+          },
+          "changes": {
+            "maxItems": 10000,
+            "type": "array",
+            "items": { "type": "object", "patternProperties": { "^(.*)$": {} } }
+          },
+          "createdAt": { "$id": "Timestamp", "format": "date-time", "type": "string" }
+        }
+      },
+      "ProfileReconciliationList": {
+        "$id": "ProfileReconciliationList",
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["items", "page"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$id": "ProfileReconciliation",
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "id",
+                "frameworkId",
+                "expectedSourceVersion",
+                "observedSourceVersion",
+                "status",
+                "changes",
+                "createdAt"
+              ],
+              "properties": {
+                "id": { "pattern": "^rec_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+                "frameworkId": { "pattern": "^frm_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+                "expectedSourceVersion": {
+                  "anyOf": [{ "maxLength": 256, "type": "string" }, { "type": "null" }]
+                },
+                "observedSourceVersion": { "minLength": 1, "maxLength": 256, "type": "string" },
+                "status": {
+                  "anyOf": [
+                    { "const": "converged", "type": "string" },
+                    { "const": "drifted", "type": "string" },
+                    { "const": "failed", "type": "string" }
+                  ]
+                },
+                "changes": {
+                  "maxItems": 10000,
+                  "type": "array",
+                  "items": { "type": "object", "patternProperties": { "^(.*)$": {} } }
+                },
+                "createdAt": { "$id": "Timestamp", "format": "date-time", "type": "string" }
               }
             }
           },
@@ -7106,7 +7819,7 @@
             "properties": {
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -7180,7 +7893,7 @@
                   "properties": {
                     "id": {
                       "$id": "CanonicalId",
-                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                       "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                       "type": "string"
                     },
@@ -7265,7 +7978,7 @@
             "properties": {
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -7337,7 +8050,7 @@
                   "properties": {
                     "id": {
                       "$id": "CanonicalId",
-                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                       "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                       "type": "string"
                     },
@@ -7420,7 +8133,7 @@
             "properties": {
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -7497,7 +8210,7 @@
                   "properties": {
                     "id": {
                       "$id": "CanonicalId",
-                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                       "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                       "type": "string"
                     },
@@ -7578,7 +8291,7 @@
             "properties": {
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -7633,7 +8346,7 @@
                   "properties": {
                     "id": {
                       "$id": "CanonicalId",
-                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                       "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                       "type": "string"
                     },
@@ -7709,7 +8422,7 @@
             "properties": {
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -7793,7 +8506,7 @@
                   "properties": {
                     "id": {
                       "$id": "CanonicalId",
-                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                       "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                       "type": "string"
                     },
@@ -7876,7 +8589,7 @@
             "properties": {
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -7923,7 +8636,7 @@
                   "properties": {
                     "id": {
                       "$id": "CanonicalId",
-                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                       "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                       "type": "string"
                     },
@@ -7985,7 +8698,7 @@
             "properties": {
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -8043,7 +8756,7 @@
                   "properties": {
                     "id": {
                       "$id": "CanonicalId",
-                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                       "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                       "type": "string"
                     },
@@ -8111,7 +8824,7 @@
             "properties": {
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -8186,7 +8899,7 @@
                   "properties": {
                     "id": {
                       "$id": "CanonicalId",
-                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                       "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                       "type": "string"
                     },
@@ -8334,7 +9047,7 @@
             "properties": {
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -8400,7 +9113,7 @@
                   "properties": {
                     "id": {
                       "$id": "CanonicalId",
-                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                       "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                       "type": "string"
                     },
@@ -8467,7 +9180,7 @@
             "properties": {
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -8545,7 +9258,7 @@
                   "properties": {
                     "id": {
                       "$id": "CanonicalId",
-                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                       "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                       "type": "string"
                     },
@@ -8636,7 +9349,7 @@
             "properties": {
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -8685,7 +9398,7 @@
             "properties": {
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -8757,7 +9470,7 @@
                   "properties": {
                     "id": {
                       "$id": "CanonicalId",
-                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                       "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                       "type": "string"
                     },
@@ -8830,7 +9543,7 @@
             "properties": {
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -8860,7 +9573,7 @@
             "anyOf": [
               {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -8897,7 +9610,7 @@
                   "properties": {
                     "id": {
                       "$id": "CanonicalId",
-                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                       "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                       "type": "string"
                     },
@@ -8927,7 +9640,7 @@
                   "anyOf": [
                     {
                       "$id": "CanonicalId",
-                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                       "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                       "type": "string"
                     },
@@ -8983,7 +9696,7 @@
             "properties": {
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -9009,7 +9722,7 @@
             "anyOf": [
               {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -9052,7 +9765,7 @@
                   "properties": {
                     "id": {
                       "$id": "CanonicalId",
-                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                       "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                       "type": "string"
                     },
@@ -9078,7 +9791,7 @@
                   "anyOf": [
                     {
                       "$id": "CanonicalId",
-                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                       "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                       "type": "string"
                     },
@@ -9141,7 +9854,7 @@
             "anyOf": [
               {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               },
@@ -9217,7 +9930,7 @@
                   "anyOf": [
                     {
                       "$id": "CanonicalId",
-                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                      "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                       "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                       "type": "string"
                     },
@@ -9329,7 +10042,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -9385,7 +10098,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -9448,7 +10161,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -9495,7 +10208,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -9549,7 +10262,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -9607,7 +10320,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -9618,6 +10331,67 @@
             "additionalProperties": false,
             "type": "object",
             "properties": {}
+          }
+        }
+      },
+      "ProfileAssignmentCommand": {
+        "$id": "ProfileAssignmentCommand",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contractVersion",
+          "commandId",
+          "commandType",
+          "idempotencyKey",
+          "issuedAt",
+          "target",
+          "payload"
+        ],
+        "properties": {
+          "contractVersion": { "$id": "ContractVersion", "const": "core.v1", "type": "string" },
+          "commandId": { "pattern": "^cmd_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+          "commandType": { "const": "profile.assignment.upsert.v1", "type": "string" },
+          "idempotencyKey": {
+            "$id": "IdempotencyKey",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{15,199}$",
+            "type": "string"
+          },
+          "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
+          "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "target": {
+            "$id": "CommandTarget",
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["kind"],
+            "properties": {
+              "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
+              "id": {
+                "$id": "CanonicalId",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
+                "type": "string"
+              }
+            }
+          },
+          "payload": {
+            "$id": "ProfileAssignmentInput",
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["role", "expectedAgentVersion", "expectedProfileVersion"],
+            "properties": {
+              "role": {
+                "anyOf": [
+                  { "const": "primary", "type": "string" },
+                  { "const": "fallback", "type": "string" }
+                ]
+              },
+              "expectedAgentVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+              "expectedProfileVersion": {
+                "$id": "ResourceVersion",
+                "minimum": 1,
+                "type": "integer"
+              }
+            }
           }
         }
       },
@@ -9654,7 +10428,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -9724,7 +10498,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -9780,7 +10554,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -9837,7 +10611,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -9892,7 +10666,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -9939,7 +10713,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -9987,7 +10761,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -10050,7 +10824,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -10119,7 +10893,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -10185,7 +10959,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -10246,7 +11020,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -10312,7 +11086,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -10377,7 +11151,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -10442,7 +11216,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -10502,7 +11276,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -10561,7 +11335,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -10618,7 +11392,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -10670,7 +11444,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -10726,7 +11500,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -10773,7 +11547,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -10859,7 +11633,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -10916,7 +11690,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -10986,7 +11760,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -11041,7 +11815,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -11093,7 +11867,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }
@@ -11149,7 +11923,7 @@
               "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
               "id": {
                 "$id": "CanonicalId",
-                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
                 "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
                 "type": "string"
               }

@@ -423,51 +423,6 @@ export function buildApp(options: AppOptions) {
     reply.header('x-unify-source-role', 'migration-only');
     return reply.send(file.body);
   });
-  app.get('/api/v1/profiles/agency-context', async (request, reply) => {
-    const current = await session(request);
-    auth.requirePermission(current, 'profiles.read');
-    if (!mutations)
-      throw new GovernanceError(
-        'MUTATIONS_UNAVAILABLE',
-        503,
-        'Agency profile access is unavailable',
-      );
-    reply.header('x-unify-source-role', 'migration-only');
-    return mutations.owners.agencyProfileInventory();
-  });
-  app.get<{ Params: { frameworkId: string } }>(
-    '/api/v1/profiles/agency-context/:frameworkId',
-    async (request, reply) => {
-      const current = await session(request);
-      auth.requirePermission(current, 'profiles.read');
-      if (!mutations)
-        throw new GovernanceError(
-          'MUTATIONS_UNAVAILABLE',
-          503,
-          'Agency profile access is unavailable',
-        );
-      reply.header('x-unify-source-role', 'migration-only');
-      return mutations.owners.agencyProfileContext(request.params.frameworkId);
-    },
-  );
-  app.get<{ Params: { frameworkId: string; profileId: string } }>(
-    '/api/v1/profiles/agency-context/:frameworkId/:profileId',
-    async (request, reply) => {
-      const current = await session(request);
-      auth.requirePermission(current, 'profiles.read');
-      if (!mutations)
-        throw new GovernanceError(
-          'MUTATIONS_UNAVAILABLE',
-          503,
-          'Agency profile access is unavailable',
-        );
-      reply.header('x-unify-source-role', 'migration-only');
-      return mutations.owners.agencyProfileContext(
-        request.params.frameworkId,
-        request.params.profileId,
-      );
-    },
-  );
   app.get('/api/v1/models/dmm-context', async (request, reply) => {
     const current = await session(request);
     auth.requirePermission(current, 'models.read');
@@ -789,7 +744,6 @@ export function buildApp(options: AppOptions) {
         );
       const ownerCandidates: IntegrationOwner[] = [
         'hermes',
-        'agency',
         'dmm',
         'worker',
         'chat',
@@ -883,16 +837,16 @@ export function buildApp(options: AppOptions) {
       throw new AuthError('PERMISSION_DENIED', 403, `Read access to ${owner} is denied`);
   }
   function canRead(current: SessionRecord, owner: ResourceRef['owner']): boolean {
-    const permission: Record<ResourceRef['owner'], string> = {
+    const permission: Partial<Record<ResourceRef['owner'], string>> = {
       hermes: 'profiles.read',
-      agency: 'frameworks.read',
       dmm: 'models.read',
       worker: 'work.read',
       chat: 'chat.read',
       'memory-v4': 'memory.read',
       gateway: 'operations.read',
     };
-    return current.permissions.includes(permission[owner]);
+    const required = permission[owner];
+    return required ? current.permissions.includes(required) : false;
   }
   function paginate<T>(
     items: T[],
@@ -966,9 +920,8 @@ export function buildApp(options: AppOptions) {
     };
   }
   function notificationDeepLink(resource?: ResourceRef): string {
-    const viewByOwner: Record<ResourceRef['owner'], string> = {
+    const viewByOwner: Partial<Record<ResourceRef['owner'], string>> = {
       hermes: 'profiles',
-      agency: 'frameworks',
       dmm: 'models',
       worker: 'work',
       chat: 'chat',
@@ -976,22 +929,14 @@ export function buildApp(options: AppOptions) {
       gateway: 'operations',
     };
     const query = new URLSearchParams({
-      view: resource ? viewByOwner[resource.owner] : 'notifications',
+      view: resource ? (viewByOwner[resource.owner] ?? 'notifications') : 'notifications',
     });
     if (resource) query.set('resource', resource.canonicalId);
     return `/?${query.toString()}`;
   }
   function ownerValue(value?: string): IntegrationOwner | undefined {
     if (!value) return undefined;
-    const owners: IntegrationOwner[] = [
-      'hermes',
-      'agency',
-      'dmm',
-      'worker',
-      'chat',
-      'memory-v4',
-      'gateway',
-    ];
+    const owners: IntegrationOwner[] = ['hermes', 'dmm', 'worker', 'chat', 'memory-v4', 'gateway'];
     if (!owners.includes(value as IntegrationOwner))
       throw new AuthError('INVALID_OWNER', 400, 'Unknown integration owner');
     return value as IntegrationOwner;

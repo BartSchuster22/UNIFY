@@ -151,10 +151,34 @@ const hermesAdapterSource = await readFile(
 );
 if (/from\s+['"][^'"]*(?:hermes-agent|hermes_cli|gateway\/platforms)/.test(hermesAdapterSource))
   violations.push('Hermes adapter: importing Hermes implementation code is forbidden');
-if (
-  /['"]profile['"]\s*,\s*['"](?:create|delete|start|stop|set-model)['"]/.test(hermesAdapterSource)
-)
-  violations.push('Hermes adapter: profile mutations remain unsupported');
+if (!/async executeProfile\(/.test(hermesAdapterSource))
+  violations.push('Hermes adapter: native profile execution contract is missing');
+for (const required of [
+  /['"]profile['"]\s*,\s*['"]create['"]/,
+  /['"]profile['"]\s*,\s*['"]describe['"]/,
+  /['"]profile['"]\s*,\s*['"]delete['"]/,
+]) {
+  if (!required.test(hermesAdapterSource))
+    violations.push('Hermes adapter: native profile lifecycle command coverage is incomplete');
+}
+const hermesAdapterApp = await readFile(
+  resolve(root, 'apps/hermes-control-adapter/src/app.ts'),
+  'utf8',
+);
+for (const required of [
+  /\/control\/v1\/commands\/profiles/,
+  /command\.expectedSourceVersion\s*!==\s*before\.sourceVersion/,
+  /options\.source\.executeProfile\(command\)/,
+  /const after\s*=\s*await options\.source\.profiles\(\)/,
+  /verifyProfileResult\(/,
+  /capability:\s*['"]profiles\.execute['"]/,
+  /idempotencyKey:\s*command\.idempotencyKey/,
+]) {
+  if (!required.test(hermesAdapterApp))
+    violations.push(
+      'Hermes adapter: profile mutations require source-version checks, idempotency, and authoritative readback',
+    );
+}
 for (const required of [/async executeWork\(/, /command\.operation/, /command\.idempotencyKey/]) {
   if (!required.test(hermesAdapterSource))
     violations.push(

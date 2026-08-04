@@ -7,6 +7,7 @@ import type {
   HermesConversationCommand,
   HermesMessage,
   HermesProfile,
+  HermesProfileCommand,
   HermesProject,
   HermesProvider,
   HermesSession,
@@ -89,6 +90,44 @@ export class HermesNativeSource implements AdapterSource {
       })
       .filter((item) => item.id.length > 0 && item.id.toLowerCase() !== 'profile');
     return snapshot(items);
+  }
+
+  async executeProfile(command: HermesProfileCommand): Promise<Record<string, unknown>> {
+    assertNativeId(command.targetId);
+    const payload = record(command.payload);
+    const current = (await this.profiles()).items.find((item) => item.id === command.targetId);
+    switch (command.operation) {
+      case 'profile.create': {
+        if (!current) {
+          const description = optionalPayloadString(payload, 'description', 5_000);
+          await this.options.runner.run([
+            'profile',
+            'create',
+            command.targetId,
+            '--no-alias',
+            ...(description ? ['--description', description] : []),
+          ]);
+        }
+        return { profile: { id: command.targetId, created: !current } };
+      }
+      case 'profile.update': {
+        if (!current) throw new SourceUnavailableError('Profile was not found');
+        const description = optionalPayloadString(payload, 'description', 5_000);
+        if (description !== undefined)
+          await this.options.runner.run([
+            'profile',
+            'describe',
+            command.targetId,
+            '--text',
+            description,
+          ]);
+        return { profile: { id: command.targetId, updated: description !== undefined } };
+      }
+      case 'profile.delete':
+        if (current)
+          await this.options.runner.run(['profile', 'delete', command.targetId, '--yes']);
+        return { profile: { id: command.targetId, deleted: Boolean(current) } };
+    }
   }
 
   async providers(): Promise<Snapshot<HermesProvider>> {

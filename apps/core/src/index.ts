@@ -1,6 +1,7 @@
 export * from './contracts/v1/index.js';
 export * from './auth/index.js';
 export * from './frameworks/index.js';
+export * from './profiles/index.js';
 export * from './database/migrations.js';
 
 export const CORE_MODULES = [

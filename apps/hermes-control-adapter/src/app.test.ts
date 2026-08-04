@@ -62,6 +62,7 @@ const source: AdapterSource = {
     sourceVersion: 'sha256:tasks',
   }),
   cronjobs: async () => ({ items: [], sourceVersion: 'sha256:cronjobs' }),
+  executeProfile: async (command) => ({ operation: command.operation, targetId: command.targetId }),
   executeWork: async (command) => ({ operation: command.operation, targetId: command.targetId }),
   executeConversation: async (command) => ({
     operation: command.operation,
@@ -140,7 +141,8 @@ describe('Hermes control adapter', () => {
       dirty: false,
     });
     expect(capabilities.json().data.capabilities['profiles.execute']).toMatchObject({
-      status: 'unsupported',
+      status: 'supported',
+      constraints: { authority: 'hermes-native', optimisticConcurrency: true },
     });
     expect(capabilities.json().data.capabilities['conversations.delivery.execute']).toMatchObject({
       status: 'unsupported',
@@ -272,6 +274,58 @@ describe('Hermes control adapter', () => {
       code: 'SECOND_CONSUMER_FORBIDDEN',
       retryable: false,
     });
+  });
+
+  it('executes native profile lifecycle with source-version concurrency and verified readback', async () => {
+    let profiles = (await source.profiles()).items.slice();
+    const mutable: AdapterSource = {
+      ...source,
+      profiles: async () => ({ items: profiles, sourceVersion: `sha256:${profiles.length}` }),
+      executeProfile: async (profileCommand) => {
+        if (profileCommand.operation === 'profile.create')
+          profiles = [
+            ...profiles,
+            {
+              id: profileCommand.targetId,
+              displayName: profileCommand.targetId,
+              active: false,
+              gatewayStatus: 'stopped',
+            },
+          ];
+        if (profileCommand.operation === 'profile.delete')
+          profiles = profiles.filter((item) => item.id !== profileCommand.targetId);
+        return { operation: profileCommand.operation, targetId: profileCommand.targetId };
+      },
+    };
+    const app = create(mutable);
+    const payload = {
+      ...command({ payload: { description: 'Native profile' } }),
+      operation: 'profile.create',
+      targetId: 'native-agent',
+      expectedSourceVersion: 'sha256:2',
+    };
+    const created = await app.inject({
+      method: 'POST',
+      url: '/control/v1/commands/profiles',
+      headers: auth,
+      payload,
+    });
+    expect(created.statusCode).toBe(200);
+    expect(created.json().data).toMatchObject({
+      status: 'completed',
+      operation: 'profile.create',
+      targetId: 'native-agent',
+      replayed: false,
+    });
+
+    const stale = await app.inject({
+      method: 'POST',
+      url: '/control/v1/commands/profiles',
+      headers: auth,
+      payload: { ...payload, idempotencyKey: 'native-agent-stale' },
+    });
+    expect(stale.statusCode).toBe(409);
+    expect(stale.json().error.code).toBe('source_version_mismatch');
   });
 
   it('reconciles without writing Hermes, deduplicates source versions, and replays idempotently', async () => {

@@ -23,15 +23,7 @@ const authPepper = await secret('AUTH_PEPPER');
 const integrationEnv = { ...process.env };
 const legacyMigrationEnabled = process.env.ENABLE_LEGACY_MIGRATION_READERS === 'true';
 const integrationSecrets = legacyMigrationEnabled
-  ? [
-      'AGENCY_USERNAME',
-      'AGENCY_PASSWORD',
-      'DMM_USERNAME',
-      'DMM_PASSWORD',
-      'CHAT_PASSWORD',
-      'WORKER_TOKEN',
-      'MEMORY_V4_TOKEN',
-    ]
+  ? ['DMM_USERNAME', 'DMM_PASSWORD', 'CHAT_PASSWORD', 'WORKER_TOKEN', 'MEMORY_V4_TOKEN']
   : ['WORKER_TOKEN', 'CHAT_PASSWORD', 'MEMORY_V4_TOKEN'];
 for (const name of integrationSecrets) {
   const file = process.env[`${name}_FILE`];
@@ -59,8 +51,7 @@ const hermesGateway = new HermesGatewayService(
   new PostgresFrameworkEventJournal(pool),
 );
 const adapters = createDefaultAdapters(integrationEnv).filter(
-  (adapter) =>
-    legacyMigrationEnabled || !['agency-hermes-read-v1', 'dmm-read-v1'].includes(adapter.id),
+  (adapter) => legacyMigrationEnabled || adapter.id !== 'dmm-read-v1',
 );
 const legacyMutationOwners = legacyMigrationEnabled
   ? (await import('./migration/legacy/owner-client.js')).MutationOwnerClient.fromEnv(integrationEnv)

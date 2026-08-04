@@ -392,7 +392,7 @@ describe('named-user session security', () => {
       url: '/api/v1/profiles/agency-context',
       headers: { cookie },
     });
-    expect(legacyProfiles.statusCode).toBe(503);
+    expect(legacyProfiles.statusCode).toBe(404);
     const legacyModels = await app.inject({
       method: 'GET',
       url: '/api/v1/models/dmm-context',

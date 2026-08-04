@@ -2087,6 +2087,44 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        HermesProfileOperation: "profile.create" | "profile.update" | "profile.delete";
+        HermesProfileCommand: {
+            mode: "validate" | "dry-run" | "execute";
+            idempotencyKey: string;
+            expectedSourceVersion?: string;
+            requestId: string;
+            correlationId: string;
+            actor: {
+                type: "user" | "service";
+                id: string;
+            };
+            payload: {
+                [key: string]: unknown;
+            };
+            operation: "profile.create" | "profile.update" | "profile.delete";
+            targetId: string;
+        };
+        HermesProfileResult: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                operationId: string;
+                status: "validated" | "dry-run" | "completed";
+                replayed: boolean;
+                operation: "profile.create" | "profile.update" | "profile.delete";
+                targetId: string;
+                result: {
+                    [key: string]: unknown;
+                };
+                emittedEvents: number;
+            };
+        };
         HermesWorkOperation: "project.create" | "project.rename" | "project.archive" | "task.create" | "task.start" | "task.block" | "task.unblock" | "task.complete" | "cron.create" | "cron.run" | "cron.pause" | "cron.resume" | "cron.delete";
         HermesWorkCommand: {
             mode: "validate" | "dry-run" | "execute";

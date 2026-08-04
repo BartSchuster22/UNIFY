@@ -232,28 +232,11 @@ export class MemoryReadAdapter extends ConfiguredReadAdapter {
 }
 
 export function createDefaultAdapters(env: NodeJS.ProcessEnv = process.env): SourceAdapter[] {
-  const agencyAuth = sessionAuth(env.AGENCY_USERNAME, env.AGENCY_PASSWORD, '/api/auth/login');
   const dmmAuth = sessionAuth(env.DMM_USERNAME, env.DMM_PASSWORD, '/api/auth/login');
   const chatAuth: Auth = env.CHAT_PASSWORD
     ? { type: 'session', loginPath: '/auth/login', body: { password: env.CHAT_PASSWORD } }
     : { type: 'none' };
   return [
-    new ConfiguredReadAdapter({
-      id: 'agency-hermes-read-v1',
-      owners: ['agency', 'hermes'],
-      baseUrl: env.AGENCY_URL,
-      auth: agencyAuth,
-      endpoints: [
-        { path: '/api/frameworks', key: 'frameworks', kind: 'framework', owner: 'agency' },
-        {
-          path: '/api/framework-profiles',
-          key: 'profiles',
-          kind: 'profile',
-          owner: 'hermes',
-          expand: expandFrameworkProfiles,
-        },
-      ],
-    }),
     new ConfiguredReadAdapter({
       id: 'dmm-read-v1',
       owners: ['dmm'],
@@ -303,17 +286,6 @@ function sessionAuth(
   return username && password
     ? { type: 'session', loginPath, body: { username, password } }
     : { type: 'none' };
-}
-
-function expandFrameworkProfiles(body: unknown): JsonRecord[] {
-  const direct = arrayFrom(body, 'profiles');
-  if (direct.length) return direct;
-  return arrayFrom(body, 'frameworks').flatMap((framework) =>
-    arrayFrom(framework, 'profiles').map((profile) => ({
-      ...profile,
-      framework_id: text(framework.id ?? framework.frameworkId ?? framework.name),
-    })),
-  );
 }
 
 function arrayFrom(value: unknown, key: string): JsonRecord[] {

@@ -6,6 +6,7 @@ import type {
   HermesEventEnvelope,
   HermesMessage,
   HermesProfile,
+  HermesProfileCommand,
   HermesProject,
   HermesProvider,
   HermesSession,
@@ -22,6 +23,7 @@ export interface Snapshot<T> {
 
 export interface AdapterSource {
   profiles(): Promise<Snapshot<HermesProfile>>;
+  executeProfile(command: HermesProfileCommand): Promise<Record<string, unknown>>;
   providers(): Promise<Snapshot<HermesProvider>>;
   projects(): Promise<Snapshot<HermesProject>>;
   boards(): Promise<Snapshot<HermesBoard>>;
@@ -49,7 +51,8 @@ export interface IdempotentCommitInput {
   capability: string;
   idempotencyKey: string;
   requestHash: string;
-  command: HermesControlCommand | HermesWorkCommand | HermesConversationCommand;
+  command:
+    HermesControlCommand | HermesProfileCommand | HermesWorkCommand | HermesConversationCommand;
   response: Record<string, unknown>;
   events: DerivedEventInput[];
 }

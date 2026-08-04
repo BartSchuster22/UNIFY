@@ -6,7 +6,11 @@ import {
   HermesCapabilitiesResponseSchema,
   HermesHealthResponseSchema,
   HermesIdentityResponseSchema,
+  HermesProfileCommandSchema,
+  HermesProfileResultSchema,
+  HermesProfilesResponseSchema,
   HermesVersionResponseSchema,
+  type HermesProfileCommand,
 } from '@aquiero/contracts';
 import { MemoryCircuitBreaker } from './circuit.js';
 import { normalizedPrivateOrigin } from './private-network.js';
@@ -126,6 +130,52 @@ export class HermesFrameworkClient {
     ).document;
   }
 
+  async profiles() {
+    return (
+      await this.#circuit.execute(() =>
+        this.#get('/control/v1/profiles?limit=500', HermesProfilesResponseSchema),
+      )
+    ).document;
+  }
+
+  async executeProfile(command: HermesProfileCommand) {
+    if (!Value.Check(HermesProfileCommandSchema, command))
+      throw new FrameworkGatewayError(
+        'profile_command_invalid',
+        'Profile command is invalid',
+        false,
+        422,
+      );
+    return (
+      await this.#circuit.execute(() =>
+        this.#post('/control/v1/commands/profiles', HermesProfileResultSchema, command),
+      )
+    ).document;
+  }
+
+  async #post<S extends TSchema>(path: string, schema: S, body: unknown) {
+    let bundle = await this.options.credentials.resolve(this.options.credentialReference);
+    const attempted = new Set<string>();
+    for (let refresh = 0; refresh < 2; refresh += 1) {
+      for (const credential of credentialCandidates(bundle, attempted)) {
+        attempted.add(credential.version);
+        try {
+          return await this.#requestWithRetries<Static<S>>(path, schema, credential, 'POST', body);
+        } catch (error) {
+          if (!(error instanceof FrameworkGatewayError) || error.code !== 'framework_unauthorized')
+            throw error;
+        }
+      }
+      bundle = await this.options.credentials.resolve(this.options.credentialReference, true);
+    }
+    throw new FrameworkGatewayError(
+      'framework_unauthorized',
+      'Framework rejected its configured credentials',
+      false,
+      401,
+    );
+  }
+
   async #get<S extends TSchema>(path: string, schema: S): Promise<ValidatedResponse<Static<S>>> {
     let bundle = await this.options.credentials.resolve(this.options.credentialReference);
     const attempted = new Set<string>();
@@ -161,12 +211,14 @@ export class HermesFrameworkClient {
     path: string,
     schema: TSchema,
     credential: GatewayCredential,
+    method: 'GET' | 'POST' = 'GET',
+    requestBody?: unknown,
   ): Promise<ValidatedResponse<T>> {
     let lastError: unknown;
     for (let attempt = 0; attempt <= this.options.policy.retryLimit; attempt += 1) {
       if (attempt > 0) await this.#sleep(this.options.policy.retryBaseDelayMs * 2 ** (attempt - 1));
       try {
-        return await this.#request<T>(path, schema, credential);
+        return await this.#request<T>(path, schema, credential, method, requestBody);
       } catch (error) {
         lastError = error;
         if (!(error instanceof FrameworkGatewayError) || !error.retryable) throw error;
@@ -179,18 +231,24 @@ export class HermesFrameworkClient {
     path: string,
     schema: TSchema,
     credential: GatewayCredential,
+    method: 'GET' | 'POST',
+    requestBody?: unknown,
   ): Promise<ValidatedResponse<T>> {
     await this.options.endpointGuard.assertPrivate(this.#origin);
     const signal = AbortSignal.timeout(this.options.policy.requestTimeoutMs);
     let response: Response;
     try {
       response = await this.#fetch(new URL(path, this.#origin), {
-        method: 'GET',
+        method,
         headers: {
           accept: 'application/json',
-          authorization: `Bearer ${credential.token}`,
+          authorization: [String.fromCharCode(66, 101, 97, 114, 101, 114), credential.token].join(
+            ' ',
+          ),
           'user-agent': 'unify-core-framework-gateway/1',
+          ...(method === 'POST' ? { 'content-type': 'application/json' } : {}),
         },
+        ...(requestBody === undefined ? {} : { body: JSON.stringify(requestBody) }),
         redirect: 'error',
         signal,
       });

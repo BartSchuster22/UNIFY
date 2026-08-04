@@ -92,9 +92,6 @@ class Store implements GovernanceStore {
 
 function owners() {
   return new MutationOwnerClient({
-    agencyUrl: 'http://agency.invalid',
-    agencyUsername: 'u',
-    agencyPassword: 'p',
     dmmUrl: 'http://dmm.invalid',
     dmmUsername: 'u',
     dmmPassword: 'p',
@@ -128,14 +125,13 @@ describe('mutation policy', () => {
   it('requires confirmation only when executing destructive operations', () => {
     const client = owners();
     const target = {
-      owner: 'hermes' as const,
-      kind: 'profile',
-      nativeId: 'temporary',
-      frameworkId: 'hermes',
+      owner: 'worker' as const,
+      kind: 'project',
+      nativeId: 'temporary-project',
     };
     expect(() =>
       client.validate({
-        operationType: 'profile.delete',
+        operationType: 'worker.project.delete',
         target,
         payload: {},
         mode: 'dry-run',
@@ -144,7 +140,7 @@ describe('mutation policy', () => {
     ).not.toThrow();
     expect(() =>
       client.validate({
-        operationType: 'profile.delete',
+        operationType: 'worker.project.delete',
         target,
         payload: {},
         mode: 'execute',

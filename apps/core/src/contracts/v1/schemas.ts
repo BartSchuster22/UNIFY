@@ -169,11 +169,80 @@ export const ProfileSchema = Type.Object(
     name: Label,
     description: Type.Union([Type.String({ maxLength: 5_000 }), Type.Null()]),
     state: ResourceState,
+    desiredState: Type.Union([
+      Type.Literal('active'),
+      Type.Literal('inactive'),
+      Type.Literal('deleted'),
+    ]),
+    observedState: Type.Union([
+      Type.Literal('unknown'),
+      Type.Literal('active'),
+      Type.Literal('inactive'),
+      Type.Literal('missing'),
+      Type.Literal('unavailable'),
+    ]),
     protected: Type.Boolean(),
     observedVersion: Type.Union([Type.String({ maxLength: 500 }), Type.Null()]),
+    sourceVersion: Type.Union([Type.String({ maxLength: 256 }), Type.Null()]),
     lastObservedAt: Type.Union([TimestampSchema, Type.Null()]),
   },
   { $id: 'Profile', ...strict },
+);
+
+export const AgentSchema = Type.Object(
+  {
+    meta: ResourceMetaSchema,
+    frameworkId: canonicalIdSchema('framework'),
+    nativeReference: Type.String({ minLength: 1, maxLength: 500 }),
+    name: Label,
+    desiredState: Type.Union([
+      Type.Literal('active'),
+      Type.Literal('inactive'),
+      Type.Literal('deleted'),
+    ]),
+    observedState: Type.Union([
+      Type.Literal('unknown'),
+      Type.Literal('active'),
+      Type.Literal('inactive'),
+      Type.Literal('missing'),
+      Type.Literal('unavailable'),
+    ]),
+  },
+  { $id: 'Agent', ...strict },
+);
+
+export const ProfileAssignmentSchema = Type.Object(
+  {
+    agentId: canonicalIdSchema('agent'),
+    profileId: canonicalIdSchema('profile'),
+    role: Type.Union([Type.Literal('primary'), Type.Literal('fallback')]),
+    desiredState: Type.Union([Type.Literal('assigned'), Type.Literal('unassigned')]),
+    observedState: Type.Union([
+      Type.Literal('unknown'),
+      Type.Literal('assigned'),
+      Type.Literal('unassigned'),
+      Type.Literal('conflict'),
+    ]),
+    version: ResourceVersionSchema,
+  },
+  { $id: 'ProfileAssignment', ...strict },
+);
+
+export const ProfileReconciliationSchema = Type.Object(
+  {
+    id: canonicalIdSchema('reconciliation'),
+    frameworkId: canonicalIdSchema('framework'),
+    expectedSourceVersion: Type.Union([Type.String({ maxLength: 256 }), Type.Null()]),
+    observedSourceVersion: Type.String({ minLength: 1, maxLength: 256 }),
+    status: Type.Union([
+      Type.Literal('converged'),
+      Type.Literal('drifted'),
+      Type.Literal('failed'),
+    ]),
+    changes: Type.Array(Type.Record(Type.String(), Type.Unknown()), { maxItems: 10_000 }),
+    createdAt: TimestampSchema,
+  },
+  { $id: 'ProfileReconciliation', ...strict },
 );
 
 export const ProviderSchema = Type.Object(
@@ -499,6 +568,15 @@ function listSchema(id: string, item: TSchema): TSchema {
 export const IdentitySessionListSchema = listSchema('IdentitySessionList', IdentitySessionSchema);
 export const FrameworkListSchema = listSchema('FrameworkList', FrameworkSchema);
 export const ProfileListSchema = listSchema('ProfileList', ProfileSchema);
+export const AgentListSchema = listSchema('AgentList', AgentSchema);
+export const ProfileAssignmentListSchema = listSchema(
+  'ProfileAssignmentList',
+  ProfileAssignmentSchema,
+);
+export const ProfileReconciliationListSchema = listSchema(
+  'ProfileReconciliationList',
+  ProfileReconciliationSchema,
+);
 export const ProviderListSchema = listSchema('ProviderList', ProviderSchema);
 export const ModelListSchema = listSchema('ModelList', ModelSchema);
 export const ProjectListSchema = listSchema('ProjectList', ProjectSchema);
@@ -554,6 +632,14 @@ export const ProfileUpdateInputSchema = Type.Object(
     state: Type.Optional(ResourceState),
   },
   { $id: 'ProfileUpdateInput', minProperties: 1, ...strict },
+);
+export const ProfileAssignmentInputSchema = Type.Object(
+  {
+    role: Type.Union([Type.Literal('primary'), Type.Literal('fallback')]),
+    expectedAgentVersion: ResourceVersionSchema,
+    expectedProfileVersion: ResourceVersionSchema,
+  },
+  { $id: 'ProfileAssignmentInput', ...strict },
 );
 export const IdentityFileSchema = Type.Object(
   {
@@ -807,6 +893,7 @@ const commandDefinitions = [
   ['ProfileCreateCommand', 'profile.create.v1', ProfileCreateInputSchema],
   ['ProfileUpdateCommand', 'profile.update.v1', ProfileUpdateInputSchema],
   ['ProfileDeleteCommand', 'profile.delete.v1', EmptyInputSchema],
+  ['ProfileAssignmentCommand', 'profile.assignment.upsert.v1', ProfileAssignmentInputSchema],
   ['ProfileIdentityCommand', 'profile.identity.update.v1', ProfileIdentityInputSchema],
   ['ProfileModelPolicyCommand', 'profile.model-policy.update.v1', ProfileModelPolicyInputSchema],
   ['ProfileRuntimeActionCommand', 'profile.runtime.action.v1', RuntimeActionInputSchema],
@@ -859,6 +946,12 @@ export const ResourceSchemas: Record<string, TSchema> = {
   FrameworkList: FrameworkListSchema,
   Profile: ProfileSchema,
   ProfileList: ProfileListSchema,
+  Agent: AgentSchema,
+  AgentList: AgentListSchema,
+  ProfileAssignment: ProfileAssignmentSchema,
+  ProfileAssignmentList: ProfileAssignmentListSchema,
+  ProfileReconciliation: ProfileReconciliationSchema,
+  ProfileReconciliationList: ProfileReconciliationListSchema,
   Provider: ProviderSchema,
   ProviderList: ProviderListSchema,
   Model: ModelSchema,
@@ -903,6 +996,7 @@ export const InputSchemas: Record<string, TSchema> = {
   FrameworkUpdateInput: FrameworkUpdateInputSchema,
   ProfileCreateInput: ProfileCreateInputSchema,
   ProfileUpdateInput: ProfileUpdateInputSchema,
+  ProfileAssignmentInput: ProfileAssignmentInputSchema,
   ProfileIdentityInput: ProfileIdentityInputSchema,
   ProfileModelPolicyInput: ProfileModelPolicyInputSchema,
   RuntimeActionInput: RuntimeActionInputSchema,

@@ -17,12 +17,9 @@ export type MutationInput = {
 };
 
 type Owner = MutationTarget['owner'];
-type EndpointOwner = Exclude<Owner, 'hermes'> | 'agency';
+type EndpointOwner = Exclude<Owner, 'hermes'>;
 type Session = { cookie: string; csrf?: string };
 type OwnerConfig = {
-  agencyUrl: string;
-  agencyUsername: string;
-  agencyPassword: string;
   dmmUrl: string;
   dmmUsername: string;
   dmmPassword: string;
@@ -44,49 +41,6 @@ export type MutationDefinition = {
 };
 
 export const mutationDefinitions: Record<string, MutationDefinition> = {
-  'profile.identity.update': {
-    owner: 'hermes',
-    kind: 'profile',
-    permission: 'profiles.manage',
-    executionPath: 'migration-legacy',
-  },
-  'profile.model.update': {
-    owner: 'hermes',
-    kind: 'profile',
-    permission: 'models.manage',
-    executionPath: 'migration-legacy',
-  },
-  'profile.runtime.start': {
-    owner: 'hermes',
-    kind: 'profile',
-    permission: 'profiles.manage',
-    executionPath: 'migration-legacy',
-  },
-  'profile.runtime.stop': {
-    owner: 'hermes',
-    kind: 'profile',
-    permission: 'profiles.manage',
-    executionPath: 'migration-legacy',
-  },
-  'profile.runtime.restart': {
-    owner: 'hermes',
-    kind: 'profile',
-    permission: 'profiles.manage',
-    executionPath: 'migration-legacy',
-  },
-  'profile.create': {
-    owner: 'hermes',
-    kind: 'profile',
-    permission: 'profiles.manage',
-    executionPath: 'migration-legacy',
-  },
-  'profile.delete': {
-    owner: 'hermes',
-    kind: 'profile',
-    permission: 'profiles.delete',
-    executionPath: 'migration-legacy',
-    destructive: true,
-  },
   'dmm.credential.save': {
     owner: 'dmm',
     kind: 'provider',
@@ -238,7 +192,7 @@ export const mutationDefinitions: Record<string, MutationDefinition> = {
 
 export class MutationOwnerClient {
   readonly #config: OwnerConfig;
-  readonly #sessions = new Map<'agency' | 'dmm' | 'chat', Session>();
+  readonly #sessions = new Map<'dmm' | 'chat', Session>();
   readonly #unifyChatSessionIds = new Set<string>();
 
   constructor(config: OwnerConfig) {
@@ -252,9 +206,6 @@ export class MutationOwnerClient {
       return value;
     };
     return new MutationOwnerClient({
-      agencyUrl: required('AGENCY_URL'),
-      agencyUsername: required('AGENCY_USERNAME'),
-      agencyPassword: required('AGENCY_PASSWORD'),
       dmmUrl: required('DMM_URL'),
       dmmUsername: required('DMM_USERNAME'),
       dmmPassword: required('DMM_PASSWORD'),
@@ -272,43 +223,6 @@ export class MutationOwnerClient {
     if (!definition)
       throw new GovernanceError('MUTATION_UNSUPPORTED', 422, 'Mutation type is not supported');
     return definition;
-  }
-
-  async agencyProfileInventory(): Promise<{
-    frameworks: unknown;
-    profiles: unknown;
-    agents: unknown;
-  }> {
-    const [frameworks, profiles, agents] = await Promise.all([
-      this.json('agency', 'GET', '/api/frameworks', undefined),
-      this.json('agency', 'GET', '/api/framework-profiles', undefined),
-      this.json('agency', 'GET', '/api/agents?visibility=all', undefined),
-    ]);
-    return { frameworks, profiles, agents };
-  }
-
-  async agencyProfileContext(
-    frameworkId: string,
-    profileId?: string,
-  ): Promise<{
-    capabilities: unknown;
-    models: unknown;
-    detail?: unknown;
-  }> {
-    const framework = encodeURIComponent(validSegment(frameworkId, 'frameworkId'));
-    const [capabilities, models, detail] = await Promise.all([
-      this.json('agency', 'GET', `/api/frameworks/${framework}/capabilities`, undefined),
-      this.json('agency', 'GET', `/api/frameworks/${framework}/models/selectable`, undefined),
-      profileId
-        ? this.json(
-            'agency',
-            'GET',
-            `/api/frameworks/${framework}/profiles/${encodeURIComponent(validSegment(profileId, 'profileId'))}`,
-            undefined,
-          )
-        : Promise.resolve(undefined),
-    ]);
-    return { capabilities, models, ...(detail === undefined ? {} : { detail }) };
   }
 
   async dmmInventory(): Promise<{
@@ -457,17 +371,8 @@ export class MutationOwnerClient {
   }
 
   private validatePayload(input: MutationInput): void {
-    const { operationType: action, payload, target } = input;
-    if (action === 'profile.create') {
-      if (!/^[a-zA-Z0-9_-]+$/.test(target.nativeId))
-        throw new GovernanceError('MUTATION_TARGET_INVALID', 422, 'Profile ID is invalid');
-      string(payload.displayName, 'displayName');
-      nonEmptyArray(payload.identityFiles, 'identityFiles');
-      string(record(payload.modelConfig, 'modelConfig').primary, 'modelConfig.primary');
-    }
-    if (action === 'profile.identity.update') nonEmptyArray(payload.identityFiles, 'identityFiles');
-    if (action === 'profile.model.update')
-      string(record(payload.modelConfig, 'modelConfig').primary, 'modelConfig.primary');
+    const { operationType: action, payload } = input;
+
     if (action === 'dmm.credential.save') string(payload.secret, 'secret');
     if (action === 'worker.project.create') string(payload.name, 'name');
     if (action === 'worker.task.create') {
@@ -538,39 +443,6 @@ export class MutationOwnerClient {
     const dryRun = input.mode === 'dry-run';
     const { operationType: action, target, payload } = input;
     const id = encodeURIComponent(target.nativeId);
-    const framework = encodeURIComponent(target.frameworkId ?? '');
-
-    if (action === 'profile.create')
-      return this.json('agency', 'POST', `/api/frameworks/${framework}/profiles`, {
-        ...payload,
-        profileId: target.nativeId,
-        dryRun,
-      });
-    if (action === 'profile.identity.update')
-      return this.json('agency', 'PUT', `/api/frameworks/${framework}/profiles/${id}/identity`, {
-        ...payload,
-        dryRun,
-      });
-    if (action === 'profile.model.update')
-      return this.json(
-        'agency',
-        'PUT',
-        `/api/frameworks/${framework}/profiles/${id}/model-config`,
-        { ...payload, dryRun },
-      );
-    if (action.startsWith('profile.runtime.')) {
-      const runtimeAction = action.slice('profile.runtime.'.length);
-      return this.json(
-        'agency',
-        'POST',
-        `/api/frameworks/${framework}/profiles/${id}/runtime/${runtimeAction}`,
-        { ...payload, dryRun },
-      );
-    }
-    if (action === 'profile.delete')
-      return this.json('agency', 'DELETE', `/api/frameworks/${framework}/profiles/${id}`, {
-        dryRun,
-      });
 
     if (action === 'dmm.credential.save')
       return dryRun
@@ -722,11 +594,7 @@ export class MutationOwnerClient {
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     };
     const response = await fetch(`${this.url(owner)}${path}`, requestInit);
-    if (
-      response.status === 401 &&
-      !retried &&
-      (owner === 'agency' || owner === 'dmm' || owner === 'chat')
-    ) {
+    if (response.status === 401 && !retried && (owner === 'dmm' || owner === 'chat')) {
       this.#sessions.delete(owner);
       await response.arrayBuffer();
       return this.json(owner, method, path, body, true, maxResponseChars);
@@ -746,16 +614,14 @@ export class MutationOwnerClient {
     }
   }
 
-  private async session(owner: 'agency' | 'dmm' | 'chat'): Promise<Session> {
+  private async session(owner: 'dmm' | 'chat'): Promise<Session> {
     const current = this.#sessions.get(owner);
     if (current) return current;
     const endpoint = owner === 'chat' ? '/auth/login' : '/api/auth/login';
     const payload =
       owner === 'chat'
         ? { password: this.#config.chatPassword }
-        : owner === 'agency'
-          ? { username: this.#config.agencyUsername, password: this.#config.agencyPassword }
-          : { username: this.#config.dmmUsername, password: this.#config.dmmPassword };
+        : { username: this.#config.dmmUsername, password: this.#config.dmmPassword };
     const response = await fetch(`${this.url(owner)}${endpoint}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', accept: 'application/json' },
@@ -781,15 +647,13 @@ export class MutationOwnerClient {
 
   private url(owner: EndpointOwner): string {
     return base(
-      owner === 'agency'
-        ? this.#config.agencyUrl
-        : owner === 'dmm'
-          ? this.#config.dmmUrl
-          : owner === 'worker'
-            ? this.#config.workerUrl
-            : owner === 'chat'
-              ? this.#config.chatUrl
-              : this.#config.memoryUrl,
+      owner === 'dmm'
+        ? this.#config.dmmUrl
+        : owner === 'worker'
+          ? this.#config.workerUrl
+          : owner === 'chat'
+            ? this.#config.chatUrl
+            : this.#config.memoryUrl,
     );
   }
 }

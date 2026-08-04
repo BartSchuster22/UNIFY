@@ -53,6 +53,27 @@ describe('HermesNativeSource', () => {
     expect(JSON.stringify(providers)).not.toContain('/secret/auth.json');
   });
 
+  it('executes native profile updates through the supported non-interactive CLI', async () => {
+    const source = new HermesNativeSource({
+      runner: new FixtureRunner({
+        'profile list': ' ◆default         gpt-5.6-sol    running      —\n',
+        'profile describe default --text Native profile': '',
+      }),
+    });
+    await expect(
+      source.executeProfile({
+        mode: 'execute',
+        idempotencyKey: 'profile-update-idempotency',
+        requestId: 'request-1',
+        correlationId: 'correlation-1',
+        actor: { type: 'service', id: 'unify-core' },
+        operation: 'profile.update',
+        targetId: 'default',
+        payload: { description: 'Native profile' },
+      }),
+    ).resolves.toEqual({ profile: { id: 'default', updated: true } });
+  });
+
   it('adapts boards/tasks and rejects malformed native identifiers before CLI execution', async () => {
     const source = new HermesNativeSource({
       runner: new FixtureRunner({

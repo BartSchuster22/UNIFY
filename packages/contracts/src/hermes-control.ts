@@ -383,6 +383,38 @@ export const HermesControlCommandSchema = Type.Object(HermesControlCommandProper
   additionalProperties: false,
 });
 
+export const HermesProfileOperationSchema = Type.Union(
+  [Type.Literal('profile.create'), Type.Literal('profile.update'), Type.Literal('profile.delete')],
+  { $id: 'HermesProfileOperation' },
+);
+export const HermesProfileCommandSchema = Type.Object(
+  {
+    ...HermesControlCommandProperties,
+    operation: HermesProfileOperationSchema,
+    targetId: Type.String({ pattern: '^[a-z0-9][a-z0-9_-]{0,127}$' }),
+  },
+  { $id: 'HermesProfileCommand', additionalProperties: false },
+);
+export const HermesProfileResultSchema = controlResponse(
+  'HermesProfileResult',
+  Type.Object(
+    {
+      operationId: Type.String({ minLength: 1, maxLength: 200 }),
+      status: Type.Union([
+        Type.Literal('validated'),
+        Type.Literal('dry-run'),
+        Type.Literal('completed'),
+      ]),
+      replayed: Type.Boolean(),
+      operation: HermesProfileOperationSchema,
+      targetId: Type.String({ minLength: 1, maxLength: 128 }),
+      result: Type.Record(Type.String(), Type.Unknown()),
+      emittedEvents: Type.Integer({ minimum: 0 }),
+    },
+    { additionalProperties: false },
+  ),
+);
+
 export const HermesWorkOperationSchema = Type.Union(
   [
     Type.Literal('project.create'),
@@ -717,6 +749,8 @@ export type HermesCronjob = Static<typeof HermesCronjobSchema>;
 export type HermesSession = Static<typeof HermesSessionSchema>;
 export type HermesMessage = Static<typeof HermesMessageSchema>;
 export type HermesControlCommand = Static<typeof HermesControlCommandSchema>;
+export type HermesProfileOperation = Static<typeof HermesProfileOperationSchema>;
+export type HermesProfileCommand = Static<typeof HermesProfileCommandSchema>;
 export type HermesWorkOperation = Static<typeof HermesWorkOperationSchema>;
 export type HermesWorkCommand = Static<typeof HermesWorkCommandSchema>;
 export type HermesConversationOperation = Static<typeof HermesConversationOperationSchema>;
@@ -759,6 +793,9 @@ export const HermesControlSchemas = [
   HermesControlErrorCodeSchema,
   HermesControlErrorResponseSchema,
   HermesControlCommandSchema,
+  HermesProfileOperationSchema,
+  HermesProfileCommandSchema,
+  HermesProfileResultSchema,
   HermesWorkOperationSchema,
   HermesWorkCommandSchema,
   HermesWorkResultSchema,

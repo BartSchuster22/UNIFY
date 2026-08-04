@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { HermesCapabilitiesResponseSchema } from '@aquiero/contracts';
+import { HermesCapabilitiesResponseSchema, type HermesProfileCommand } from '@aquiero/contracts';
 import type { Pool, PoolClient, QueryResultRow } from 'pg';
 import { ulid } from 'ulid';
 import type { AuthenticationService } from '../auth/service.js';
@@ -197,6 +197,56 @@ export class FrameworkGatewayService {
       `${registrationQuery()} ORDER BY framework.name,framework.id`,
     );
     return result.rows.map(registrationFromRow);
+  }
+
+  async listNativeProfiles(
+    frameworkId: string,
+    actor: AuthenticatedPrincipal,
+    context: RequestContext,
+  ) {
+    const registration = await this.getFramework(frameworkId, actor, context);
+    return this.#nativeClient(registration).profiles();
+  }
+
+  async executeNativeProfile(
+    frameworkId: string,
+    command: HermesProfileCommand,
+    actor: AuthenticatedPrincipal,
+    context: RequestContext,
+  ) {
+    await this.options.authentication.authorize(
+      actor,
+      'profiles.manage',
+      { kind: 'framework', id: frameworkId },
+      context,
+    );
+    const registration = await this.getFramework(frameworkId, actor, context);
+    return this.#nativeClient(registration).executeProfile(command);
+  }
+
+  #nativeClient(registration: FrameworkGatewayRegistration): HermesFrameworkClient {
+    const circuit = new PostgresFrameworkCircuitBreaker(
+      this.options.pool,
+      registration.id,
+      registration.policy.circuitFailureThreshold,
+      registration.policy.circuitOpenMs,
+      registration.policy.requestTimeoutMs * 4 + 5_000,
+      this.#now,
+    );
+    return new HermesFrameworkClient({
+      endpoint: registration.endpoint,
+      credentialReference: registration.credentialReference,
+      expectedNativeFrameworkId: registration.expectedNativeFrameworkId,
+      expectedInstanceId: registration.expectedInstanceId,
+      expectedRelease: registration.expectedRelease,
+      expectedCommit: registration.expectedCommit,
+      policy: registration.policy,
+      credentials: this.options.credentials,
+      endpointGuard: this.options.endpointGuard,
+      circuit,
+      ...(this.options.fetchImpl ? { fetchImpl: this.options.fetchImpl } : {}),
+      ...(this.options.sleep ? { sleep: this.options.sleep } : {}),
+    });
   }
 
   async inspectFramework(

@@ -43,9 +43,6 @@ vi.mock('ws', () => {
 import { MutationOwnerClient, type MutationInput } from './owner-client.js';
 
 const config = {
-  agencyUrl: 'https://agency.test',
-  agencyUsername: 'agency-user',
-  agencyPassword: 'agency-password',
   dmmUrl: 'https://dmm.test',
   dmmUsername: 'dmm-user',
   dmmPassword: 'dmm-password',
@@ -84,39 +81,6 @@ afterEach(() => {
 });
 
 describe('MutationOwnerClient', () => {
-  it('reads only the fixed Agency profile inventory and encoded profile context paths', async () => {
-    const calls: string[] = [];
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(async (request: string | URL | Request) => {
-        const url = String(request);
-        calls.push(url);
-        if (url.endsWith('/api/auth/login'))
-          return new Response('{}', { headers: { 'set-cookie': 'agency=session; Secure' } });
-        return Response.json({ ok: true });
-      }),
-    );
-    const owners = new MutationOwnerClient(config);
-    await owners.agencyProfileInventory();
-    await owners.agencyProfileContext('hermes-main', 'default');
-    for (const path of [
-      '/api/frameworks',
-      '/api/framework-profiles',
-      '/api/agents?visibility=all',
-      '/api/frameworks/hermes-main/capabilities',
-      '/api/frameworks/hermes-main/models/selectable',
-      '/api/frameworks/hermes-main/profiles/default',
-    ])
-      expect(
-        calls.some((url) => url.endsWith(path)),
-        path,
-      ).toBe(true);
-    await expect(owners.agencyProfileContext('../unsafe', 'default')).rejects.toMatchObject({
-      code: 'MUTATION_TARGET_INVALID',
-      statusCode: 422,
-    });
-  });
-
   it('reads the fixed DMM provider, model and credential-status inventory without arbitrary proxy paths', async () => {
     const calls: string[] = [];
     vi.stubGlobal(
@@ -302,15 +266,6 @@ describe('MutationOwnerClient', () => {
     const owners = new MutationOwnerClient(config);
     const cases: Array<[MutationInput, string, string]> = [
       [
-        input('profile.create', 'hermes', 'profile', 'new-profile', {
-          displayName: 'New profile',
-          identityFiles: [{ path: 'SOUL.md', content: 'identity' }],
-          modelConfig: { primary: 'openai-codex/gpt-5.5', fallbacks: [] },
-        }),
-        'POST',
-        '/api/frameworks/hermes-main/profiles',
-      ],
-      [
         input('dmm.credential.save', 'dmm', 'provider', 'openai', { secret: 'credential' }),
         'POST',
         '/api/providers/openai/credential',
@@ -483,28 +438,5 @@ describe('MutationOwnerClient', () => {
       code: 'CHAT_DOWNLOAD_TOO_LARGE',
       statusCode: 413,
     });
-  });
-
-  it('preserves only a safe owner error code', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(async (request: string | URL | Request) => {
-        if (String(request).endsWith('/api/auth/login'))
-          return new Response('{}', { headers: { 'set-cookie': 'agency=session; Secure' } });
-        return Response.json(
-          { error: 'profile_protected', secret: 'must-not-leak' },
-          { status: 403 },
-        );
-      }),
-    );
-    const owners = new MutationOwnerClient(config);
-    await expect(
-      owners.execute(input('profile.delete', 'hermes', 'profile', 'herman', {})),
-    ).rejects.toMatchObject({ code: 'UPSTREAM_PROFILE_PROTECTED', statusCode: 403 });
-    try {
-      await owners.execute(input('profile.delete', 'hermes', 'profile', 'herman', {}));
-    } catch (error) {
-      expect(String(error)).not.toContain('must-not-leak');
-    }
   });
 });
