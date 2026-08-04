@@ -169,6 +169,9 @@ importers:
       '@types/pg':
         specifier: 8.20.3
         version: 8.20.3
+      prettier:
+        specifier: 3.9.0
+        version: 3.9.0
 
   apps/gateway:
     dependencies:
