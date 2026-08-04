@@ -2,9 +2,9 @@
 
 This directory is the clean implementation boundary for the standalone UNIFY control plane.
 
-## Phase 1 status
+## Current status
 
-Phase 1 intentionally contains only a compiled, tested service manifest. Business logic is added in later phases after the versioned contracts and database model are approved.
+Phase 1 established the isolated package boundary. Phase 2 adds the native Core v1 TypeBox contracts, executable Hermes capability negotiation, and generated OpenAPI 3.1 document. Business persistence and service handlers are added in later phases against these contracts.
 
 ## Rules
 
@@ -18,7 +18,9 @@ Phase 1 intentionally contains only a compiled, tested service manifest. Busines
 
 ```bash
 pnpm --filter @unify/core typecheck
+pnpm --filter @unify/core generate:contracts
+pnpm --filter @unify/core check:contracts
 pnpm --filter @unify/core test
 ```
 
-See [`docs/rebuild/phase-01-scope.md`](../../docs/rebuild/phase-01-scope.md).
+See [`docs/rebuild/phase-02-versioned-contracts.md`](../../docs/rebuild/phase-02-versioned-contracts.md).

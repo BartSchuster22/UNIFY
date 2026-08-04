@@ -1,3 +1,5 @@
+export * from "./contracts/v1/index.js";
+
 export const CORE_MODULES = [
   "identity",
   "frameworks",

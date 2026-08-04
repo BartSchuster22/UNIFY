@@ -137,7 +137,11 @@ importers:
         specifier: 8.1.5
         version: 8.1.5(@types/node@22.19.3)
 
-  apps/core: {}
+  apps/core:
+    dependencies:
+      '@sinclair/typebox':
+        specifier: 0.34.52
+        version: 0.34.52
 
   apps/gateway:
     dependencies:

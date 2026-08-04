@@ -1,20 +1,27 @@
 {
   "name": "@unify/core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "description": "Standalone UNIFY control-plane core",
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./contracts/v1": "./dist/contracts/v1/index.js"
   },
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "contracts"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "pnpm run build && node --test dist/core.test.js",
+    "generate:contracts": "pnpm run build && node scripts/generate-openapi.mjs",
+    "check:contracts": "pnpm run build && node scripts/check-openapi.mjs",
+    "test": "pnpm run build && node --test dist/core.test.js dist/contracts/v1/contracts.test.js && node scripts/check-openapi.mjs",
     "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "0.34.52"
   }
 }
