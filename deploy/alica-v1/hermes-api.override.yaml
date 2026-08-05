@@ -1,0 +1,28 @@
+services:
+  alica:
+    command: [/opt/unify-api-entrypoint.sh]
+    environment:
+      API_SERVER_ENABLED: "true"
+      API_SERVER_HOST: 0.0.0.0
+      API_SERVER_PORT: "8642"
+      HERMES_API_KEY_FILE: /run/secrets/alica-api-token
+    volumes:
+      - /opt/unify/deploy/alica-v1/hermes-api-entrypoint.sh:/opt/unify-api-entrypoint.sh:ro
+    secrets: [alica-api-token]
+
+  herman:
+    command: [/opt/unify-api-entrypoint.sh]
+    environment:
+      API_SERVER_ENABLED: "true"
+      API_SERVER_HOST: 0.0.0.0
+      API_SERVER_PORT: "8642"
+      HERMES_API_KEY_FILE: /run/secrets/herman-api-token
+    volumes:
+      - /opt/unify/deploy/alica-v1/hermes-api-entrypoint.sh:/opt/unify-api-entrypoint.sh:ro
+    secrets: [herman-api-token]
+
+secrets:
+  alica-api-token:
+    file: /opt/unify/secrets/alica-api-token
+  herman-api-token:
+    file: /opt/unify/secrets/herman-api-token

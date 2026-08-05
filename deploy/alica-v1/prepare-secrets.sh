@@ -13,6 +13,8 @@ pepper=$(openssl rand -hex 48)
 admin=$(openssl rand -base64 36 | tr -d '\n')
 alica=$(openssl rand -hex 48)
 herman=$(openssl rand -hex 48)
+alica_api=$(openssl rand -hex 48)
+herman_api=$(openssl rand -hex 48)
 printf '%s' "$password" > "$SECRETS/postgres-password"
 printf 'postgresql://unify:%s@unify-postgres:5432/unify' "$password" > "$SECRETS/database-url"
 cp "$SECRETS/database-url" "$SECRETS/database-url-adapter"
@@ -20,6 +22,8 @@ printf '%s' "$pepper" > "$SECRETS/auth-pepper"
 printf '%s' "$admin" > "$SECRETS/bootstrap-admin-password"
 printf '%s' "$alica" > "$SECRETS/alica-token"
 printf '%s' "$herman" > "$SECRETS/herman-token"
+printf '%s' "$alica_api" > "$SECRETS/alica-api-token"
+printf '%s' "$herman_api" > "$SECRETS/herman-api-token"
 python3 - "$SECRETS" "$alica" "$herman" <<'PY'
 import json, pathlib, sys
 root=pathlib.Path(sys.argv[1])
@@ -46,5 +50,5 @@ chmod 711 "$SECRETS"
 chmod 600 "$SECRETS"/*
 sudo chown 0:0 "$SECRETS/postgres-password" "$SECRETS/backup-age.key" "$SECRETS/backup-age-recipient"
 sudo chown 65532:65532 "$SECRETS/database-url" "$SECRETS/auth-pepper" "$SECRETS/bootstrap-admin-password" "$SECRETS/alica-token" "$SECRETS/herman-token" "$SECRETS/framework-ca.crt"
-sudo chown 10000:10000 "$SECRETS/database-url-adapter" "$SECRETS/alica-token-bundle.json" "$SECRETS/herman-token-bundle.json" "$SECRETS/alica.key" "$SECRETS/alica.crt" "$SECRETS/alica-api.key" "$SECRETS/alica-api.crt" "$SECRETS/herman.key" "$SECRETS/herman.crt" "$SECRETS/herman-api.key" "$SECRETS/herman-api.crt"
+sudo chown 10000:10000 "$SECRETS/database-url-adapter" "$SECRETS/alica-token-bundle.json" "$SECRETS/herman-token-bundle.json" "$SECRETS/alica-api-token" "$SECRETS/herman-api-token" "$SECRETS/alica.key" "$SECRETS/alica.crt" "$SECRETS/alica-api.key" "$SECRETS/alica-api.crt" "$SECRETS/herman.key" "$SECRETS/herman.crt" "$SECRETS/herman-api.key" "$SECRETS/herman-api.crt"
 echo "Fresh deployment secrets and independent framework credentials generated. Values were not printed."

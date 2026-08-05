@@ -1,6 +1,6 @@
 https://alica-api:8443 {
 	tls /run/secrets/alica-api-tls-cert /run/secrets/alica-api-tls-key
-	reverse_proxy http://alica:8080
+	reverse_proxy http://alica:8642
 	log {
 		output stdout
 		format json

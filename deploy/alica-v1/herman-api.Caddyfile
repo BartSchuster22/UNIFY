@@ -1,6 +1,6 @@
 https://herman-api:8443 {
 	tls /run/secrets/herman-api-tls-cert /run/secrets/herman-api-tls-key
-	reverse_proxy http://herman:8080
+	reverse_proxy http://herman:8642
 	log {
 		output stdout
 		format json
