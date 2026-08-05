@@ -149,7 +149,7 @@ services:
       - alica-token
       - herman-token
       - framework-ca-cert
-    networks: [unify-db-private, alica-unify-private, herman-unify-private]
+    networks: [unify-db-private, alica-unify-private, herman-unify-private, unify-proxy]
     ports:
       - 127.0.0.1:18080:8080
     depends_on:
@@ -192,3 +192,4 @@ networks:
     internal: true
   herman-unify-private:
     internal: true
+  unify-proxy:
