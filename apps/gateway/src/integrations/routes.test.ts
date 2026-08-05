@@ -178,8 +178,8 @@ async function authenticated(
   notificationStore?: NotificationStore,
   cutoverPolicy = CutoverPolicy.fromEnv({
     DEPLOYMENT_MODE: 'mutation-canary',
-    MUTATION_DOMAINS: 'profiles,chat,memory-v4',
-    MUTATION_ACCEPTANCE_REFS: 'profiles=test/PROFILES,chat=test/CHAT,memory-v4=test/MEMORY',
+    MUTATION_DOMAINS: 'profiles,work,memory-v4',
+    MUTATION_ACCEPTANCE_REFS: 'profiles=test/PROFILES,work=test/WORK,memory-v4=test/MEMORY',
   }),
   adapter: SourceAdapter = new HermesAdapter(),
 ) {
@@ -234,8 +234,6 @@ function mutationFixture(): { governance: GovernanceStore; owners: MutationOwner
     appendAudit: async () => 'audit-login',
   };
   const owners = new MutationOwnerClient({
-    chatUrl: 'http://chat.invalid',
-    chatPassword: 'p',
     memoryUrl: 'http://memory.invalid',
     memoryToken: 'token',
   });
@@ -249,7 +247,7 @@ describe('read-only integration routes', () => {
     expect(
       (await app.inject({ method: 'GET', url: '/api/v1/chat/download?path=/uploads/file.txt' }))
         .statusCode,
-    ).toBe(401);
+    ).toBe(404);
     const request = {
       method: 'POST' as const,
       url: '/api/v1/mutations',
@@ -300,9 +298,7 @@ describe('read-only integration routes', () => {
       mode: 'read-only',
       legacyServicesRetained: true,
       legacyWritesContained: true,
-      domains: expect.arrayContaining([
-        expect.objectContaining({ domain: 'chat', executeEnabled: false }),
-      ]),
+      domains: expect.not.arrayContaining([expect.objectContaining({ domain: 'chat' })]),
     });
     const execution = await app.inject({
       method: 'POST',
@@ -321,7 +317,7 @@ describe('read-only integration routes', () => {
       },
     });
     expect(execution.statusCode).toBe(422);
-    expect(execution.json()).toMatchObject({ error: { code: 'MUTATION_TARGET_INVALID' } });
+    expect(execution.json()).toMatchObject({ error: { code: 'MUTATION_OWNER_INVALID' } });
     await app.close();
   });
 
@@ -391,7 +387,7 @@ describe('read-only integration routes', () => {
       (
         await app.inject({
           method: 'GET',
-          url: '/api/v1/resources?owner=chat',
+          url: '/api/v1/resources?owner=memory-v4',
           headers: { cookie },
         })
       ).statusCode,

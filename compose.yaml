@@ -60,19 +60,9 @@ services:
       HERMES_MAIN_CONTROL_TOKEN_FILE: /run/secrets/hermes_main_control_token
       HERMES_EVENT_POLL_MS: ${HERMES_EVENT_POLL_MS:-5000}
 
-      CHAT_URL: ${CHAT_URL:-http://127.0.0.1:8787}
-      CHAT_PASSWORD_FILE: /run/secrets/chat_password
       MEMORY_V4_URL: ${MEMORY_V4_URL:-http://127.0.0.1:18804}
       MEMORY_V4_TOKEN_FILE: /run/secrets/memory_v4_token
-    secrets:
-      [
-        gateway_database_url,
-        gateway_auth_pepper,
-        hermes_main_control_token,
-
-        chat_password,
-        memory_v4_token,
-      ]
+    secrets: [gateway_database_url, gateway_auth_pepper, hermes_main_control_token, memory_v4_token]
     network_mode: host
     depends_on:
       postgres: { condition: service_healthy }
@@ -175,7 +165,6 @@ secrets:
   bootstrap_admin_password: { file: .secrets/bootstrap_admin_password }
   hermes_main_control_token: { file: .secrets/hermes_main_control_token }
 
-  chat_password: { file: .secrets/chat_password }
   memory_v4_token: { file: .secrets/memory_v4_token }
 volumes:
   postgres_data: {}

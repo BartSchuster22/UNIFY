@@ -59,7 +59,7 @@ export interface UnifiedNotification {
 export interface MutationRequest {
   operationType: string;
   target: {
-    owner: 'hermes' | 'dmm' | 'worker' | 'chat' | 'memory-v4';
+    owner: 'hermes' | 'memory-v4';
     kind: string;
     nativeId: string;
     frameworkId?: string;
@@ -156,9 +156,6 @@ export class GatewayClient {
       headers: { 'idempotency-key': idempotencyKey },
       body: JSON.stringify(request),
     });
-  }
-  chatDownloadUrl(path: string) {
-    return `${this.baseUrl}/chat/download?path=${encodeURIComponent(path)}`;
   }
 }
 

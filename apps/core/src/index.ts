@@ -4,6 +4,7 @@ export * from './frameworks/index.js';
 export * from './profiles/index.js';
 export * from './models/index.js';
 export * from './work/index.js';
+export * from './conversations/index.js';
 export * from './database/migrations.js';
 
 export const CORE_MODULES = [

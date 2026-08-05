@@ -1,5 +1,5 @@
 import { Type, type TSchema } from '@sinclair/typebox';
-import { commandEnvelopeSchema } from './envelopes.js';
+import { commandEnvelopeSchema, EventEnvelopeSchema } from './envelopes.js';
 import {
   CanonicalIdSchema,
   ContractVersionSchema,
@@ -503,6 +503,7 @@ export const ConversationAgentSchema = Type.Object(
     frameworkId: canonicalIdSchema('framework'),
     label: Label,
     state: ResourceState,
+    selectable: Type.Boolean(),
   },
   { $id: 'ConversationAgent', ...strict },
 );
@@ -514,6 +515,7 @@ export const ConversationSchema = Type.Object(
     title: Label,
     state: Type.Union([Type.Literal('active'), Type.Literal('archived')]),
     ownership: Type.Union([Type.Literal('core'), Type.Literal('external')]),
+    ownerId: Type.Union([canonicalIdSchema('user'), canonicalIdSchema('service')]),
     channelId: Type.Union([canonicalIdSchema('channel'), Type.Null()]),
     externalConversationReference: Type.Union([Type.String({ maxLength: 1_000 }), Type.Null()]),
     lastSequence: Type.Integer({ minimum: 0 }),
@@ -540,7 +542,12 @@ export const MessageSchema = Type.Object(
   {
     meta: ResourceMetaSchema,
     conversationId: canonicalIdSchema('conversation'),
-    sender: Type.Union([Type.Literal('user'), Type.Literal('profile'), Type.Literal('system')]),
+    sender: Type.Union([
+      Type.Literal('user'),
+      Type.Literal('service'),
+      Type.Literal('profile'),
+      Type.Literal('system'),
+    ]),
     sequence: Type.Integer({ minimum: 1 }),
     state: Type.Union([
       Type.Literal('accepted'),
@@ -549,6 +556,10 @@ export const MessageSchema = Type.Object(
       Type.Literal('failed'),
     ]),
     blocks: Type.Array(MessageBlockSchema, { minItems: 1, maxItems: 100 }),
+    clientMessageId: Type.Union([
+      Type.String({ pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]{7,199}$' }),
+      Type.Null(),
+    ]),
   },
   { $id: 'Message', ...strict },
 );
@@ -556,7 +567,7 @@ export const MessageSchema = Type.Object(
 export const AttachmentSchema = Type.Object(
   {
     meta: ResourceMetaSchema,
-    filename: Type.String({ minLength: 1, maxLength: 255 }),
+    filename: Type.String({ pattern: '^(?!.*\\.\\.)[A-Za-z0-9][A-Za-z0-9._ -]{0,254}$' }),
     mediaType: Type.String({ pattern: '^[a-z0-9!#$&^_.+-]+/[a-z0-9!#$&^_.+-]+$', maxLength: 200 }),
     sizeBytes: Type.Integer({ minimum: 1, maximum: 52_428_800 }),
     sha256: Sha256Schema,
@@ -567,6 +578,18 @@ export const AttachmentSchema = Type.Object(
     ]),
   },
   { $id: 'Attachment', ...strict },
+);
+
+export const AttachmentContentSchema = Type.Object(
+  {
+    attachment: AttachmentSchema,
+    contentBase64: Type.String({
+      pattern: '^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$',
+      minLength: 4,
+      maxLength: 69_905_068,
+    }),
+  },
+  { $id: 'AttachmentContent', ...strict },
 );
 
 export const ChannelSchema = Type.Object(
@@ -682,6 +705,14 @@ export const ConversationAgentListSchema = listSchema(
 );
 export const ConversationListSchema = listSchema('ConversationList', ConversationSchema);
 export const MessageListSchema = listSchema('MessageList', MessageSchema);
+export const ConversationEventPageSchema = Type.Object(
+  {
+    events: Type.Array(EventEnvelopeSchema, { maxItems: 500 }),
+    cursor: Type.String({ pattern: '^(?:0|[1-9][0-9]{0,19})$' }),
+    hasMore: Type.Boolean(),
+  },
+  { $id: 'ConversationEventPage', ...strict },
+);
 export const ChannelListSchema = listSchema('ChannelList', ChannelSchema);
 export const NotificationListSchema = listSchema('NotificationList', NotificationSchema);
 export const OperationListSchema = listSchema('OperationList', OperationSchema);
@@ -938,7 +969,6 @@ export const ConversationCreateInputSchema = Type.Object(
   {
     profileId: canonicalIdSchema('profile'),
     title: Type.Optional(Label),
-    channelId: Type.Optional(canonicalIdSchema('channel')),
   },
   { $id: 'ConversationCreateInput', ...strict },
 );
@@ -951,6 +981,7 @@ export const ConversationUpdateInputSchema = Type.Object(
 );
 export const MessageCreateInputSchema = Type.Object(
   {
+    clientMessageId: Type.String({ pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]{7,199}$' }),
     blocks: Type.Array(MessageBlockSchema, { minItems: 1, maxItems: 100 }),
     delivery: Type.Union([Type.Literal('conversation'), Type.Literal('external-channel')]),
   },
@@ -958,10 +989,15 @@ export const MessageCreateInputSchema = Type.Object(
 );
 export const AttachmentCreateInputSchema = Type.Object(
   {
-    filename: Type.String({ minLength: 1, maxLength: 255 }),
+    filename: Type.String({ pattern: '^(?!.*\\.\\.)[A-Za-z0-9][A-Za-z0-9._ -]{0,254}$' }),
     mediaType: Type.String({ pattern: '^[a-z0-9!#$&^_.+-]+/[a-z0-9!#$&^_.+-]+$', maxLength: 200 }),
     sizeBytes: Type.Integer({ minimum: 1, maximum: 52_428_800 }),
     sha256: Sha256Schema,
+    contentBase64: Type.String({
+      pattern: '^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$',
+      minLength: 4,
+      maxLength: 69_905_068,
+    }),
   },
   { $id: 'AttachmentCreateInput', ...strict },
 );
@@ -978,6 +1014,15 @@ export const ChannelCreateInputSchema = Type.Object(
     ]),
   },
   { $id: 'ChannelCreateInput', ...strict },
+);
+export const ExternalMessageInputSchema = Type.Object(
+  {
+    externalConversationReference: Type.String({ minLength: 1, maxLength: 1_000 }),
+    sourceMessageId: Type.String({ pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]{7,199}$' }),
+    title: Label,
+    blocks: Type.Array(MessageBlockSchema, { minItems: 1, maxItems: 100 }),
+  },
+  { $id: 'ExternalMessageInput', ...strict },
 );
 export const NotificationStateInputSchema = Type.Object(
   { state: Type.Union([Type.Literal('read'), Type.Literal('acknowledged')]) },
@@ -1056,6 +1101,7 @@ const commandDefinitions = [
   ['MessageCreateCommand', 'conversation.message.create.v1', MessageCreateInputSchema],
   ['AttachmentCreateCommand', 'conversation.attachment.create.v1', AttachmentCreateInputSchema],
   ['ChannelCreateCommand', 'conversation.channel.create.v1', ChannelCreateInputSchema],
+  ['ExternalMessageCommand', 'conversation.external-message.ingest.v1', ExternalMessageInputSchema],
   ['NotificationStateCommand', 'notification.state.update.v1', NotificationStateInputSchema],
   ['NotificationTestCommand', 'notification.delivery.test.v1', NotificationTestInputSchema],
   ['OperationActionCommand', 'operation.action.v1', OperationActionInputSchema],
@@ -1115,7 +1161,9 @@ export const ResourceSchemas: Record<string, TSchema> = {
   ConversationList: ConversationListSchema,
   Message: MessageSchema,
   MessageList: MessageListSchema,
+  ConversationEventPage: ConversationEventPageSchema,
   Attachment: AttachmentSchema,
+  AttachmentContent: AttachmentContentSchema,
   Channel: ChannelSchema,
   ChannelList: ChannelListSchema,
   Notification: NotificationSchema,
@@ -1163,6 +1211,7 @@ export const InputSchemas: Record<string, TSchema> = {
   MessageCreateInput: MessageCreateInputSchema,
   AttachmentCreateInput: AttachmentCreateInputSchema,
   ChannelCreateInput: ChannelCreateInputSchema,
+  ExternalMessageInput: ExternalMessageInputSchema,
   NotificationStateInput: NotificationStateInputSchema,
   NotificationTestInput: NotificationTestInputSchema,
   OperationActionInput: OperationActionInputSchema,

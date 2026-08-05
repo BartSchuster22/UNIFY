@@ -41,7 +41,7 @@ describe('GatewayClient', () => {
             replayed: false,
             operation: {
               operationId: 'o',
-              operationType: 'chat.send',
+              operationType: 'work.project.create',
               state: 'verified',
               updatedAt: 'now',
             },
@@ -53,9 +53,9 @@ describe('GatewayClient', () => {
     vi.stubGlobal('fetch', fetchMock);
     await new GatewayClient().mutate(
       {
-        operationType: 'chat.send',
-        target: { owner: 'chat', kind: 'chat-session', nativeId: 's1' },
-        payload: { content: 'hello' },
+        operationType: 'work.project.create',
+        target: { owner: 'hermes', kind: 'project', nativeId: 'new' },
+        payload: { name: 'Native project' },
         mode: 'execute',
         confirmed: false,
       },

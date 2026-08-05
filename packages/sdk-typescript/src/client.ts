@@ -45,13 +45,4 @@ export class GatewayClient {
       credentials: 'include',
     });
   }
-  async downloadChatUpload(path: string): Promise<Response> {
-    if (!/^\/uploads\/[a-zA-Z0-9._-]+$/.test(path)) throw new TypeError('Invalid Chat upload path');
-    const headers = new Headers({ accept: 'application/octet-stream' });
-    return this.#fetch(`${this.#baseUrl}/chat/download?path=${encodeURIComponent(path)}`, {
-      method: 'GET',
-      headers,
-      credentials: 'include',
-    });
-  }
 }

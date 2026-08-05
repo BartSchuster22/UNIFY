@@ -92,8 +92,6 @@ class Store implements GovernanceStore {
 
 function owners() {
   return new MutationOwnerClient({
-    chatUrl: 'http://chat.invalid',
-    chatPassword: 'p',
     memoryUrl: 'http://memory.invalid',
     memoryToken: 'token',
   });
@@ -130,9 +128,9 @@ describe('mutation policy', () => {
     const client = owners();
     expect(() =>
       client.validate({
-        operationType: 'chat.message.send',
-        target: { owner: 'memory-v4', kind: 'chat-session', nativeId: 'new' },
-        payload: { blocks: [{ kind: 'text', text: 'hello' }] },
+        operationType: 'memory.record.write',
+        target: { owner: 'hermes', kind: 'record', nativeId: 'new' },
+        payload: { role: 'active', lifecycle: 'working' },
         mode: 'validate',
         confirmed: false,
       }),

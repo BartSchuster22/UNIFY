@@ -30,9 +30,9 @@ describe('GatewayClient', () => {
     });
     await client.executeMutation(
       {
-        operationType: 'chat.message.send',
-        target: { owner: 'chat', kind: 'chat-session', nativeId: 'session-1' },
-        payload: { blocks: [{ kind: 'text', text: 'hello' }] },
+        operationType: 'work.project.create',
+        target: { owner: 'hermes', kind: 'project', nativeId: 'new' },
+        payload: { name: 'Native project' },
         mode: 'execute',
         confirmed: false,
       },
@@ -43,20 +43,5 @@ describe('GatewayClient', () => {
     expect(headers.get('idempotency-key')).toBe('mutation-key');
     expect(headers.get('x-csrf-token')).toBe('csrf');
     expect(captured?.credentials).toBe('include');
-  });
-  it('only downloads canonical Chat upload paths with same-origin credentials', async () => {
-    let capturedUrl = '';
-    let captured: RequestInit | undefined;
-    const client = new GatewayClient({
-      fetch: async (input, init) => {
-        capturedUrl = String(input);
-        captured = init;
-        return new Response('file');
-      },
-    });
-    await client.downloadChatUpload('/uploads/file.pdf');
-    expect(capturedUrl).toBe('/api/v1/chat/download?path=%2Fuploads%2Ffile.pdf');
-    expect(captured?.credentials).toBe('include');
-    await expect(client.downloadChatUpload('../secret')).rejects.toThrow(/invalid/i);
   });
 });

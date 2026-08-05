@@ -23,7 +23,7 @@ const authPepper = await secret('AUTH_PEPPER');
 const integrationEnv = { ...process.env };
 const legacyReadersEnabled = process.env.ENABLE_LEGACY_MIGRATION_READERS === 'true';
 
-const integrationSecrets = ['CHAT_PASSWORD', 'MEMORY_V4_TOKEN'];
+const integrationSecrets = ['MEMORY_V4_TOKEN'];
 if (legacyReadersEnabled) {
   for (const name of integrationSecrets) {
     const file = process.env[`${name}_FILE`];

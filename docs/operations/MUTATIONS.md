@@ -4,10 +4,9 @@ Phase 5 adds a single safety boundary for owner-authoritative writes:
 
 ```text
 POST /api/v1/mutations
-GET  /api/v1/chat/download?path=/uploads/<safe-name>
 ```
 
-The Gateway does not duplicate owner state. It validates policy and delegates to Agency/Hermes, DMM, Worker, Chat, or MemoryV4.
+The Gateway does not duplicate owner state. It validates policy and delegates retained migration operations to their declared owner. Native work and conversation APIs supersede the old Worker and Chat mutation surfaces.
 
 ## Required controls
 
@@ -43,13 +42,10 @@ Owner responses are retained only after recursive secret redaction. Keys such as
 | Hermes via Agency | profile create, identity update, model update, runtime start/stop/restart | `profiles.manage` or `models.manage` |
 | Hermes via Agency | protected profile delete | `profiles.delete` + confirmation |
 | DMM | credential save, validate, delete | `credentials.manage`; delete also requires confirmation |
-| Worker | project create/update/start/stop/delete | `work.manage`; delete also requires confirmation |
-| Worker | task create/comment/start/move/block/unblock/complete | `work.manage` |
-| Worker | cron create/run/pause/resume/delete | `work.manage`; delete also requires confirmation |
-| Chat | message send and upload | `chat.use` |
+| Hermes execution adapter | retained work execution commands | `work.manage` |
 | MemoryV4 | restricted record write | `memory.write` |
 
-Agency remains authoritative for profile capabilities, protected-profile policy, inactive/stopped runtime requirements, and post-delete verification. Worker remains the only Kanban/scheduler writer.
+The native Core services are authoritative for profiles, work state, and conversation state. Framework adapters execute selected runtime actions without becoming a second state writer.
 
 ## Memory allowlist
 
@@ -63,17 +59,9 @@ The Gateway permits only:
 
 Canonical, exhaust, superseded, archived, expired, and unrelated `active/live` writes fail with `403 MEMORY_WRITE_DENIED` before contacting MemoryV4.
 
-## Chat file controls
+## Native conversation files
 
-Uploads are base64 payloads with valid encoding and a decoded maximum of 10 MiB. The mutation endpoint has a route-specific 15 MiB request limit to accommodate base64 expansion.
-
-Downloads:
-
-- require an authenticated session and `chat.read`;
-- accept only `/uploads/[a-zA-Z0-9._-]+`;
-- proxy through the authenticated Gateway;
-- reject content over 10 MiB using both header and actual-body checks;
-- return `Cache-Control: private, no-store` and a safe attachment filename.
+The legacy Chat upload/download proxy is retired. Attachments use the authenticated native Core attachment API, canonical attachment IDs, stored SHA-256 verification, owner-scoped authorization, and basename-only filenames. Caller-supplied filesystem paths are not accepted.
 
 ## Owner configuration
 
@@ -83,12 +71,10 @@ Mutation execution fails closed unless all owner settings are present. Compose s
 |---|---|
 | `AGENCY_URL`, `AGENCY_USERNAME`, `AGENCY_PASSWORD` | Agency session and Hermes-control delegation |
 | `DMM_URL`, `DMM_USERNAME`, `DMM_PASSWORD` | DMM session and CSRF-protected credentials API |
-| `WORKER_URL`, `WORKER_TOKEN` | Worker bearer-authenticated writes |
-| `CHAT_URL`, `CHAT_PASSWORD` | Chat session, messages, uploads, and downloads |
 | `MEMORY_V4_URL`, `MEMORY_V4_TOKEN` | restricted Memory record writes |
 
 Never place these values in browser configuration, retained evidence, documentation, or logs.
 
 ## SDK and UNIUI
 
-The TypeScript SDK exposes `executeMutation(body, idempotencyKey)` and `downloadChatUpload(path)`. UNIUI exposes permission-filtered **Safety actions** presets with validate, dry-run, and execute modes, JSON payload editing, destructive confirmation, Chat file selection, operation state, and result rendering.
+The TypeScript SDK exposes `executeMutation(body, idempotencyKey)` for retained governed mutations. Conversation sessions, messages, attachments, channels, and events use the generated native Core SDK. UNIUI must not call a legacy Chat download or mutation route.

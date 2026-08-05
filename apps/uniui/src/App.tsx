@@ -484,7 +484,6 @@ function MutationConsole({ principal }: { principal: Principal }) {
   const [result, setResult] = useState<MutationResponse | null>(null);
   const [failure, setFailure] = useState<ApiFailure | null>(null);
   const [busy, setBusy] = useState(false);
-  const [downloadPath, setDownloadPath] = useState('');
 
   const choose = (value: string | null) => {
     if (!value) return;
@@ -639,28 +638,6 @@ function MutationConsole({ principal }: { principal: Principal }) {
                 ) : (
                   <Text c="dimmed">No action has been submitted.</Text>
                 )}
-              </Stack>
-            </Paper>
-            <Paper withBorder p="lg">
-              <Stack>
-                <Title order={3}>Authenticated Chat download</Title>
-                <Text size="sm" c="dimmed">
-                  Only canonical `/uploads/filename` paths are proxied; responses are private and
-                  never cached.
-                </Text>
-                <TextInput
-                  label="Upload path"
-                  placeholder="/uploads/example.pdf"
-                  value={downloadPath}
-                  onChange={(event) => setDownloadPath(event.currentTarget.value)}
-                />
-                <Button
-                  component="a"
-                  href={gateway.chatDownloadUrl(downloadPath)}
-                  disabled={!/^\/uploads\/[a-zA-Z0-9._-]+$/.test(downloadPath)}
-                >
-                  Download
-                </Button>
               </Stack>
             </Paper>
           </Stack>

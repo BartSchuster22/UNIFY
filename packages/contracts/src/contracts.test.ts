@@ -33,16 +33,16 @@ describe('canonical contracts', () => {
   it('cannot label migration-only resources authoritative', () => {
     const resource = {
       resource: {
-        canonicalId: 'migration:chat:session-1',
-        kind: 'chat-session',
-        owner: 'chat',
-        nativeId: 'session-1',
+        canonicalId: 'migration:agency:agent-1',
+        kind: 'agent',
+        owner: 'agency',
+        nativeId: 'agent-1',
         observedAt: '2026-07-19T00:00:00Z',
       },
       truth: 'current',
       authoritative: false,
       sourceRole: 'migration-only',
-      adapterId: 'chat-read-v1',
+      adapterId: 'agency-read-v1',
       fetchedAt: '2026-07-19T00:00:00Z',
       title: 'Session 1',
       searchableText: 'Session 1',

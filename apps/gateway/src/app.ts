@@ -324,106 +324,6 @@ export function buildApp(options: AppOptions) {
       });
     },
   );
-  app.get('/api/v1/chat/workspace', async (request, reply) => {
-    const current = await session(request);
-    auth.requirePermission(current, 'chat.read');
-    if (!mutations)
-      throw new GovernanceError('MUTATIONS_UNAVAILABLE', 503, 'Chat workspace is unavailable');
-    reply.header('x-unify-source-role', 'migration-only');
-    return mutations.owners.chatWorkspace();
-  });
-  app.get<{ Params: { sessionId: string } }>(
-    '/api/v1/chat/workspace/:sessionId',
-    async (request, reply) => {
-      const current = await session(request);
-      auth.requirePermission(current, 'chat.read');
-      if (!mutations)
-        throw new GovernanceError('MUTATIONS_UNAVAILABLE', 503, 'Chat workspace is unavailable');
-      reply.header('x-unify-source-role', 'migration-only');
-      return mutations.owners.chatWorkspace(request.params.sessionId);
-    },
-  );
-  app.get('/api/v1/chat/events', async (request, reply) => {
-    const current = await session(request);
-    auth.requirePermission(current, 'chat.read');
-    if (!mutations)
-      throw new GovernanceError('MUTATIONS_UNAVAILABLE', 503, 'Chat realtime is unavailable');
-
-    const rawLastEventId = request.headers['last-event-id'];
-    const lastEventId = Array.isArray(rawLastEventId) ? rawLastEventId[0] : rawLastEventId;
-    reply.hijack();
-    reply.raw.writeHead(200, {
-      'content-type': 'text/event-stream; charset=utf-8',
-      'cache-control': 'no-cache, no-transform',
-      connection: 'keep-alive',
-      'x-accel-buffering': 'no',
-      'x-unify-source-role': 'migration-only',
-    });
-    reply.raw.write(': UNIFY CHAT realtime connected\n\n');
-
-    let stopped = false;
-    let stopUpstream = () => {};
-    const heartbeat = setInterval(() => {
-      if (!stopped) reply.raw.write(': keepalive\n\n');
-    }, 15_000);
-    const stop = () => {
-      if (stopped) return;
-      stopped = true;
-      clearInterval(heartbeat);
-      stopUpstream();
-    };
-    reply.raw.on('close', stop);
-
-    try {
-      const openedUpstream = await mutations.owners.openChatRealtime(
-        (frame) => {
-          if (stopped) return;
-          const eventId =
-            frame &&
-            typeof frame === 'object' &&
-            typeof (frame as { event_id?: unknown }).event_id === 'string'
-              ? (frame as { event_id: string }).event_id.replace(/[^a-zA-Z0-9_.:-]/g, '')
-              : '';
-          const prefix = eventId ? `id: ${eventId}\n` : '';
-          reply.raw.write(`${prefix}event: chat\ndata: ${JSON.stringify(frame)}\n\n`);
-        },
-        (reason) => {
-          if (stopped) return;
-          reply.raw.write(
-            `event: upstream\ndata: ${JSON.stringify({ status: 'disconnected', reason })}\n\n`,
-          );
-          reply.raw.end();
-          stop();
-        },
-        lastEventId,
-      );
-      if (stopped) openedUpstream();
-      else stopUpstream = openedUpstream;
-    } catch {
-      if (!stopped) {
-        reply.raw.write('event: upstream\ndata: {"status":"unavailable"}\n\n');
-        reply.raw.end();
-        stop();
-      }
-    }
-  });
-
-  app.get<{ Querystring: { path?: string } }>('/api/v1/chat/download', async (request, reply) => {
-    const current = await session(request);
-    auth.requirePermission(current, 'chat.read');
-    if (!mutations)
-      throw new GovernanceError('MUTATIONS_UNAVAILABLE', 503, 'Chat download is unavailable');
-    const file = await mutations.owners.download(request.query.path ?? '');
-    reply.header('content-type', file.contentType);
-    reply.header(
-      'content-disposition',
-      `attachment; filename="${file.filename.replace(/["\\]/g, '_')}"`,
-    );
-    reply.header('cache-control', 'private, no-store');
-    reply.header('x-unify-source-role', 'migration-only');
-    return reply.send(file.body);
-  });
-
   app.get('/api/v1/frameworks', async (request) => {
     const current = await session(request);
     auth.requirePermission(current, 'frameworks.read');
@@ -731,7 +631,7 @@ export function buildApp(options: AppOptions) {
           503,
           'Notification state is unavailable',
         );
-      const ownerCandidates: IntegrationOwner[] = ['hermes', 'chat', 'memory-v4', 'gateway'];
+      const ownerCandidates: IntegrationOwner[] = ['hermes', 'memory-v4', 'gateway'];
       const allowedOwners = ownerCandidates.filter((owner) => canRead(current, owner));
       const source = await options.notificationStore.acknowledge(
         current.userId,
@@ -821,8 +721,6 @@ export function buildApp(options: AppOptions) {
   function canRead(current: SessionRecord, owner: ResourceRef['owner']): boolean {
     const permission: Partial<Record<ResourceRef['owner'], string>> = {
       hermes: 'profiles.read',
-
-      chat: 'chat.read',
       'memory-v4': 'memory.read',
       gateway: 'operations.read',
     };
@@ -903,8 +801,6 @@ export function buildApp(options: AppOptions) {
   function notificationDeepLink(resource?: ResourceRef): string {
     const viewByOwner: Partial<Record<ResourceRef['owner'], string>> = {
       hermes: 'profiles',
-
-      chat: 'chat',
       'memory-v4': 'memory',
       gateway: 'operations',
     };
@@ -916,7 +812,7 @@ export function buildApp(options: AppOptions) {
   }
   function ownerValue(value?: string): IntegrationOwner | undefined {
     if (!value) return undefined;
-    const owners: IntegrationOwner[] = ['hermes', 'chat', 'memory-v4', 'gateway'];
+    const owners: IntegrationOwner[] = ['hermes', 'memory-v4', 'gateway'];
     if (!owners.includes(value as IntegrationOwner))
       throw new AuthError('INVALID_OWNER', 400, 'Unknown integration owner');
     return value as IntegrationOwner;
@@ -933,9 +829,7 @@ export function buildApp(options: AppOptions) {
       'task',
       'kanban-board',
       'cronjob',
-      'chat-session',
-      'chat-message',
-      'chat-route',
+
       'memory-record',
       'catalog-snapshot',
       'operation',

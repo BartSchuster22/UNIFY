@@ -1,5 +1,5 @@
 export type MutationTarget = {
-  owner: 'hermes' | 'chat' | 'memory-v4';
+  owner: 'hermes' | 'memory-v4';
   kind: string;
   nativeId: string;
   frameworkId?: string;
@@ -111,35 +111,8 @@ export const workMutationDefinitions: Record<string, MutationDefinition> = {
   },
 };
 
-export const conversationMutationDefinitions: Record<string, MutationDefinition> = {
-  'chat.session.create': {
-    owner: 'hermes',
-    kind: 'session',
-    permission: 'chat.use',
-    executionPath: 'hermes-control',
-  },
-  'chat.message.send': {
-    owner: 'hermes',
-    kind: 'session',
-    permission: 'chat.use',
-    executionPath: 'hermes-control',
-  },
-};
-
 export interface LegacyMutationOwnerClient {
   definition(operationType: string): MutationDefinition;
   validate(input: MutationInput): MutationDefinition;
   execute(input: MutationInput): Promise<unknown>;
-
-  chatWorkspace(sessionId?: string): Promise<{
-    agents: unknown;
-    sessions: unknown;
-    messages?: unknown;
-  }>;
-  openChatRealtime(
-    onFrame: (frame: unknown) => void,
-    onDisconnect: (reason: string) => void,
-    lastEventId?: string,
-  ): Promise<() => void>;
-  download(path: string): Promise<{ body: Buffer; contentType: string; filename: string }>;
 }

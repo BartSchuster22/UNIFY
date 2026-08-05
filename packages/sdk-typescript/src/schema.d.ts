@@ -164,22 +164,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/chat/download": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["downloadChatUpload"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/control/v1/identity": {
         parameters: {
             query?: never;
@@ -745,12 +729,12 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         TruthState: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
-        ResourceKind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-        ResourceOwner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+        ResourceKind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+        ResourceOwner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
         ResourceRef: {
             canonicalId: string;
-            kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-            owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+            kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+            owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
             frameworkId?: string;
             nativeId: string;
             displayLabel?: string;
@@ -770,7 +754,7 @@ export interface components {
             requestId: string;
             correlationId: string;
             source: {
-                owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                 frameworkId?: string;
                 adapterId: string;
             };
@@ -796,8 +780,8 @@ export interface components {
             retryable: boolean;
             target?: {
                 canonicalId: string;
-                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                 frameworkId?: string;
                 nativeId: string;
                 displayLabel?: string;
@@ -824,8 +808,8 @@ export interface components {
                 retryable: boolean;
                 target?: {
                     canonicalId: string;
-                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                    owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     nativeId: string;
                     displayLabel?: string;
@@ -871,13 +855,13 @@ export interface components {
             type: string;
             classification: "durable" | "ephemeral";
             source: {
-                owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                 frameworkId?: string;
             };
             resource?: {
                 canonicalId: string;
-                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                 frameworkId?: string;
                 nativeId: string;
                 displayLabel?: string;
@@ -908,8 +892,8 @@ export interface components {
             actorId: string;
             target: {
                 canonicalId: string;
-                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                 frameworkId?: string;
                 nativeId: string;
                 displayLabel?: string;
@@ -940,8 +924,8 @@ export interface components {
                 actorId: string;
                 target: {
                     canonicalId: string;
-                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                    owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     nativeId: string;
                     displayLabel?: string;
@@ -969,7 +953,7 @@ export interface components {
                 requestId: string;
                 correlationId: string;
                 source: {
-                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     adapterId: string;
                 };
@@ -1034,7 +1018,7 @@ export interface components {
                 requestId: string;
                 correlationId: string;
                 source: {
-                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     adapterId: string;
                 };
@@ -1098,8 +1082,8 @@ export interface components {
         UnifiedResource: {
             resource: {
                 canonicalId: string;
-                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                 frameworkId?: string;
                 nativeId: string;
                 displayLabel?: string;
@@ -1127,8 +1111,8 @@ export interface components {
         } | {
             resource: {
                 canonicalId: string;
-                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                 frameworkId?: string;
                 nativeId: string;
                 displayLabel?: string;
@@ -1156,7 +1140,7 @@ export interface components {
         };
         IntegrationStatus: {
             adapterId: string;
-            owners: ("hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway")[];
+            owners: ("hermes" | "agency" | "worker" | "memory-v4" | "gateway")[];
             sourceRole: "authoritative" | "migration-only";
             writeEnabled: boolean;
             status: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
@@ -1171,7 +1155,7 @@ export interface components {
         IntegrationStatusList: {
             items: {
                 adapterId: string;
-                owners: ("hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway")[];
+                owners: ("hermes" | "agency" | "worker" | "memory-v4" | "gateway")[];
                 sourceRole: "authoritative" | "migration-only";
                 writeEnabled: boolean;
                 status: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
@@ -1188,8 +1172,8 @@ export interface components {
             items: ({
                 resource: {
                     canonicalId: string;
-                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                    owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     nativeId: string;
                     displayLabel?: string;
@@ -1217,8 +1201,8 @@ export interface components {
             } | {
                 resource: {
                     canonicalId: string;
-                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                    owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     nativeId: string;
                     displayLabel?: string;
@@ -1248,7 +1232,7 @@ export interface components {
                 requestId: string;
                 correlationId: string;
                 source: {
-                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     adapterId: string;
                 };
@@ -1272,8 +1256,8 @@ export interface components {
             resource: {
                 resource: {
                     canonicalId: string;
-                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                    owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     nativeId: string;
                     displayLabel?: string;
@@ -1301,8 +1285,8 @@ export interface components {
             } | {
                 resource: {
                     canonicalId: string;
-                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                    owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     nativeId: string;
                     displayLabel?: string;
@@ -1336,8 +1320,8 @@ export interface components {
                 resource: {
                     resource: {
                         canonicalId: string;
-                        kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                        owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                        kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                        owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                         frameworkId?: string;
                         nativeId: string;
                         displayLabel?: string;
@@ -1365,8 +1349,8 @@ export interface components {
                 } | {
                     resource: {
                         canonicalId: string;
-                        kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                        owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                        kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                        owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                         frameworkId?: string;
                         nativeId: string;
                         displayLabel?: string;
@@ -1399,7 +1383,7 @@ export interface components {
                 requestId: string;
                 correlationId: string;
                 source: {
-                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     adapterId: string;
                 };
@@ -1424,15 +1408,15 @@ export interface components {
             severity: "info" | "warning" | "error" | "critical";
             title: string;
             body: string;
-            source: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+            source: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
             state: "unread" | "read" | "acknowledged";
             /** Format: date-time */
             createdAt: string;
             deepLink?: string;
             resource?: {
                 canonicalId: string;
-                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                 frameworkId?: string;
                 nativeId: string;
                 displayLabel?: string;
@@ -1451,15 +1435,15 @@ export interface components {
                 severity: "info" | "warning" | "error" | "critical";
                 title: string;
                 body: string;
-                source: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                source: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                 state: "unread" | "read" | "acknowledged";
                 /** Format: date-time */
                 createdAt: string;
                 deepLink?: string;
                 resource?: {
                     canonicalId: string;
-                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                    owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     nativeId: string;
                     displayLabel?: string;
@@ -1476,7 +1460,7 @@ export interface components {
                 requestId: string;
                 correlationId: string;
                 source: {
-                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     adapterId: string;
                 };
@@ -1503,13 +1487,13 @@ export interface components {
                 type: string;
                 classification: "durable" | "ephemeral";
                 source: {
-                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                     frameworkId?: string;
                 };
                 resource?: {
                     canonicalId: string;
-                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                    owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     nativeId: string;
                     displayLabel?: string;
@@ -1537,7 +1521,7 @@ export interface components {
                 requestId: string;
                 correlationId: string;
                 source: {
-                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     adapterId: string;
                 };
@@ -1559,7 +1543,7 @@ export interface components {
         };
         ShadowComparison: {
             adapterId: string;
-            owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+            owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
             status: "match" | "mismatch" | "unavailable";
             /** Format: date-time */
             comparedAt: string;
@@ -1573,7 +1557,7 @@ export interface components {
         ShadowComparisonList: {
             items: {
                 adapterId: string;
-                owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                 status: "match" | "mismatch" | "unavailable";
                 /** Format: date-time */
                 comparedAt: string;
@@ -1588,7 +1572,7 @@ export interface components {
                 requestId: string;
                 correlationId: string;
                 source: {
-                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     adapterId: string;
                 };
@@ -1609,7 +1593,7 @@ export interface components {
             };
         };
         MutationTarget: {
-            owner: "hermes" | "worker" | "chat" | "memory-v4";
+            owner: "hermes" | "memory-v4";
             kind: string;
             nativeId: string;
             frameworkId?: string;
@@ -1617,7 +1601,7 @@ export interface components {
         MutationRequest: {
             operationType: string;
             target: {
-                owner: "hermes" | "worker" | "chat" | "memory-v4";
+                owner: "hermes" | "memory-v4";
                 kind: string;
                 nativeId: string;
                 frameworkId?: string;
@@ -1636,8 +1620,8 @@ export interface components {
                 actorId: string;
                 target: {
                     canonicalId: string;
-                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
+                    kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
+                    owner: "hermes" | "agency" | "worker" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     nativeId: string;
                     displayLabel?: string;
@@ -3232,55 +3216,6 @@ export interface operations {
             };
             /** @description ErrorResponse */
             503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    downloadChatUpload: {
-        parameters: {
-            query: {
-                path: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Authenticated chat upload download */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/octet-stream": string;
-                };
-            };
-            /** @description ErrorResponse */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description ErrorResponse */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description ErrorResponse */
-            422: {
                 headers: {
                     [name: string]: unknown;
                 };

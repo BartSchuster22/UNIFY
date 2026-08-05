@@ -536,73 +536,6 @@
         }
       }
     },
-    "/chat/download": {
-      "get": {
-        "tags": [
-          "mutations"
-        ],
-        "operationId": "downloadChatUpload",
-        "security": [
-          {
-            "cookieSession": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "path",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^/uploads/[a-zA-Z0-9._-]+$"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Authenticated chat upload download",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "contentEncoding": "binary"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "ErrorResponse",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "ErrorResponse",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "ErrorResponse",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/control/v1/identity": {
       "get": {
         "tags": [
@@ -3670,18 +3603,6 @@
             "type": "string"
           },
           {
-            "const": "chat-session",
-            "type": "string"
-          },
-          {
-            "const": "chat-message",
-            "type": "string"
-          },
-          {
-            "const": "chat-route",
-            "type": "string"
-          },
-          {
             "const": "memory-record",
             "type": "string"
           },
@@ -3712,10 +3633,6 @@
           },
           {
             "const": "worker",
-            "type": "string"
-          },
-          {
-            "const": "chat",
             "type": "string"
           },
           {
@@ -3785,18 +3702,6 @@
                 "type": "string"
               },
               {
-                "const": "chat-session",
-                "type": "string"
-              },
-              {
-                "const": "chat-message",
-                "type": "string"
-              },
-              {
-                "const": "chat-route",
-                "type": "string"
-              },
-              {
                 "const": "memory-record",
                 "type": "string"
               },
@@ -3827,10 +3732,6 @@
               },
               {
                 "const": "worker",
-                "type": "string"
-              },
-              {
-                "const": "chat",
                 "type": "string"
               },
               {
@@ -3949,10 +3850,6 @@
                   },
                   {
                     "const": "worker",
-                    "type": "string"
-                  },
-                  {
-                    "const": "chat",
                     "type": "string"
                   },
                   {
@@ -4153,18 +4050,6 @@
                     "type": "string"
                   },
                   {
-                    "const": "chat-session",
-                    "type": "string"
-                  },
-                  {
-                    "const": "chat-message",
-                    "type": "string"
-                  },
-                  {
-                    "const": "chat-route",
-                    "type": "string"
-                  },
-                  {
                     "const": "memory-record",
                     "type": "string"
                   },
@@ -4195,10 +4080,6 @@
                   },
                   {
                     "const": "worker",
-                    "type": "string"
-                  },
-                  {
-                    "const": "chat",
                     "type": "string"
                   },
                   {
@@ -4375,18 +4256,6 @@
                         "type": "string"
                       },
                       {
-                        "const": "chat-session",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat-message",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat-route",
-                        "type": "string"
-                      },
-                      {
                         "const": "memory-record",
                         "type": "string"
                       },
@@ -4417,10 +4286,6 @@
                       },
                       {
                         "const": "worker",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat",
                         "type": "string"
                       },
                       {
@@ -4690,10 +4555,6 @@
                     "type": "string"
                   },
                   {
-                    "const": "chat",
-                    "type": "string"
-                  },
-                  {
                     "const": "memory-v4",
                     "type": "string"
                   },
@@ -4765,18 +4626,6 @@
                     "type": "string"
                   },
                   {
-                    "const": "chat-session",
-                    "type": "string"
-                  },
-                  {
-                    "const": "chat-message",
-                    "type": "string"
-                  },
-                  {
-                    "const": "chat-route",
-                    "type": "string"
-                  },
-                  {
                     "const": "memory-record",
                     "type": "string"
                   },
@@ -4807,10 +4656,6 @@
                   },
                   {
                     "const": "worker",
-                    "type": "string"
-                  },
-                  {
-                    "const": "chat",
                     "type": "string"
                   },
                   {
@@ -5040,18 +4885,6 @@
                     "type": "string"
                   },
                   {
-                    "const": "chat-session",
-                    "type": "string"
-                  },
-                  {
-                    "const": "chat-message",
-                    "type": "string"
-                  },
-                  {
-                    "const": "chat-route",
-                    "type": "string"
-                  },
-                  {
                     "const": "memory-record",
                     "type": "string"
                   },
@@ -5082,10 +4915,6 @@
                   },
                   {
                     "const": "worker",
-                    "type": "string"
-                  },
-                  {
-                    "const": "chat",
                     "type": "string"
                   },
                   {
@@ -5368,18 +5197,6 @@
                           "type": "string"
                         },
                         {
-                          "const": "chat-session",
-                          "type": "string"
-                        },
-                        {
-                          "const": "chat-message",
-                          "type": "string"
-                        },
-                        {
-                          "const": "chat-route",
-                          "type": "string"
-                        },
-                        {
                           "const": "memory-record",
                           "type": "string"
                         },
@@ -5410,10 +5227,6 @@
                         },
                         {
                           "const": "worker",
-                          "type": "string"
-                        },
-                        {
-                          "const": "chat",
                           "type": "string"
                         },
                         {
@@ -5641,10 +5454,6 @@
                       },
                       {
                         "const": "worker",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat",
                         "type": "string"
                       },
                       {
@@ -6025,10 +5834,6 @@
                       },
                       {
                         "const": "worker",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat",
                         "type": "string"
                       },
                       {
@@ -6430,18 +6235,6 @@
                         "type": "string"
                       },
                       {
-                        "const": "chat-session",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat-message",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat-route",
-                        "type": "string"
-                      },
-                      {
                         "const": "memory-record",
                         "type": "string"
                       },
@@ -6472,10 +6265,6 @@
                       },
                       {
                         "const": "worker",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat",
                         "type": "string"
                       },
                       {
@@ -6676,18 +6465,6 @@
                         "type": "string"
                       },
                       {
-                        "const": "chat-session",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat-message",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat-route",
-                        "type": "string"
-                      },
-                      {
                         "const": "memory-record",
                         "type": "string"
                       },
@@ -6718,10 +6495,6 @@
                       },
                       {
                         "const": "worker",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat",
                         "type": "string"
                       },
                       {
@@ -6887,10 +6660,6 @@
                   "type": "string"
                 },
                 {
-                  "const": "chat",
-                  "type": "string"
-                },
-                {
                   "const": "memory-v4",
                   "type": "string"
                 },
@@ -7034,10 +6803,6 @@
                       },
                       {
                         "const": "worker",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat",
                         "type": "string"
                       },
                       {
@@ -7231,18 +6996,6 @@
                               "type": "string"
                             },
                             {
-                              "const": "chat-session",
-                              "type": "string"
-                            },
-                            {
-                              "const": "chat-message",
-                              "type": "string"
-                            },
-                            {
-                              "const": "chat-route",
-                              "type": "string"
-                            },
-                            {
                               "const": "memory-record",
                               "type": "string"
                             },
@@ -7273,10 +7026,6 @@
                             },
                             {
                               "const": "worker",
-                              "type": "string"
-                            },
-                            {
-                              "const": "chat",
                               "type": "string"
                             },
                             {
@@ -7477,18 +7226,6 @@
                               "type": "string"
                             },
                             {
-                              "const": "chat-session",
-                              "type": "string"
-                            },
-                            {
-                              "const": "chat-message",
-                              "type": "string"
-                            },
-                            {
-                              "const": "chat-route",
-                              "type": "string"
-                            },
-                            {
                               "const": "memory-record",
                               "type": "string"
                             },
@@ -7519,10 +7256,6 @@
                             },
                             {
                               "const": "worker",
-                              "type": "string"
-                            },
-                            {
-                              "const": "chat",
                               "type": "string"
                             },
                             {
@@ -7697,10 +7430,6 @@
                       },
                       {
                         "const": "worker",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat",
                         "type": "string"
                       },
                       {
@@ -7903,18 +7632,6 @@
                             "type": "string"
                           },
                           {
-                            "const": "chat-session",
-                            "type": "string"
-                          },
-                          {
-                            "const": "chat-message",
-                            "type": "string"
-                          },
-                          {
-                            "const": "chat-route",
-                            "type": "string"
-                          },
-                          {
                             "const": "memory-record",
                             "type": "string"
                           },
@@ -7945,10 +7662,6 @@
                           },
                           {
                             "const": "worker",
-                            "type": "string"
-                          },
-                          {
-                            "const": "chat",
                             "type": "string"
                           },
                           {
@@ -8149,18 +7862,6 @@
                             "type": "string"
                           },
                           {
-                            "const": "chat-session",
-                            "type": "string"
-                          },
-                          {
-                            "const": "chat-message",
-                            "type": "string"
-                          },
-                          {
-                            "const": "chat-route",
-                            "type": "string"
-                          },
-                          {
                             "const": "memory-record",
                             "type": "string"
                           },
@@ -8191,10 +7892,6 @@
                           },
                           {
                             "const": "worker",
-                            "type": "string"
-                          },
-                          {
-                            "const": "chat",
                             "type": "string"
                           },
                           {
@@ -8432,18 +8129,6 @@
                                   "type": "string"
                                 },
                                 {
-                                  "const": "chat-session",
-                                  "type": "string"
-                                },
-                                {
-                                  "const": "chat-message",
-                                  "type": "string"
-                                },
-                                {
-                                  "const": "chat-route",
-                                  "type": "string"
-                                },
-                                {
                                   "const": "memory-record",
                                   "type": "string"
                                 },
@@ -8474,10 +8159,6 @@
                                 },
                                 {
                                   "const": "worker",
-                                  "type": "string"
-                                },
-                                {
-                                  "const": "chat",
                                   "type": "string"
                                 },
                                 {
@@ -8678,18 +8359,6 @@
                                   "type": "string"
                                 },
                                 {
-                                  "const": "chat-session",
-                                  "type": "string"
-                                },
-                                {
-                                  "const": "chat-message",
-                                  "type": "string"
-                                },
-                                {
-                                  "const": "chat-route",
-                                  "type": "string"
-                                },
-                                {
                                   "const": "memory-record",
                                   "type": "string"
                                 },
@@ -8720,10 +8389,6 @@
                                 },
                                 {
                                   "const": "worker",
-                                  "type": "string"
-                                },
-                                {
-                                  "const": "chat",
                                   "type": "string"
                                 },
                                 {
@@ -8912,10 +8577,6 @@
                         "type": "string"
                       },
                       {
-                        "const": "chat",
-                        "type": "string"
-                      },
-                      {
                         "const": "memory-v4",
                         "type": "string"
                       },
@@ -9089,10 +8750,6 @@
                 "type": "string"
               },
               {
-                "const": "chat",
-                "type": "string"
-              },
-              {
                 "const": "memory-v4",
                 "type": "string"
               },
@@ -9183,18 +8840,6 @@
                     "type": "string"
                   },
                   {
-                    "const": "chat-session",
-                    "type": "string"
-                  },
-                  {
-                    "const": "chat-message",
-                    "type": "string"
-                  },
-                  {
-                    "const": "chat-route",
-                    "type": "string"
-                  },
-                  {
                     "const": "memory-record",
                     "type": "string"
                   },
@@ -9225,10 +8870,6 @@
                   },
                   {
                     "const": "worker",
-                    "type": "string"
-                  },
-                  {
-                    "const": "chat",
                     "type": "string"
                   },
                   {
@@ -9355,10 +8996,6 @@
                       "type": "string"
                     },
                     {
-                      "const": "chat",
-                      "type": "string"
-                    },
-                    {
                       "const": "memory-v4",
                       "type": "string"
                     },
@@ -9449,18 +9086,6 @@
                           "type": "string"
                         },
                         {
-                          "const": "chat-session",
-                          "type": "string"
-                        },
-                        {
-                          "const": "chat-message",
-                          "type": "string"
-                        },
-                        {
-                          "const": "chat-route",
-                          "type": "string"
-                        },
-                        {
                           "const": "memory-record",
                           "type": "string"
                         },
@@ -9491,10 +9116,6 @@
                         },
                         {
                           "const": "worker",
-                          "type": "string"
-                        },
-                        {
-                          "const": "chat",
                           "type": "string"
                         },
                         {
@@ -9595,10 +9216,6 @@
                       },
                       {
                         "const": "worker",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat",
                         "type": "string"
                       },
                       {
@@ -9790,10 +9407,6 @@
                           "type": "string"
                         },
                         {
-                          "const": "chat",
-                          "type": "string"
-                        },
-                        {
                           "const": "memory-v4",
                           "type": "string"
                         },
@@ -9865,18 +9478,6 @@
                           "type": "string"
                         },
                         {
-                          "const": "chat-session",
-                          "type": "string"
-                        },
-                        {
-                          "const": "chat-message",
-                          "type": "string"
-                        },
-                        {
-                          "const": "chat-route",
-                          "type": "string"
-                        },
-                        {
                           "const": "memory-record",
                           "type": "string"
                         },
@@ -9907,10 +9508,6 @@
                         },
                         {
                           "const": "worker",
-                          "type": "string"
-                        },
-                        {
-                          "const": "chat",
                           "type": "string"
                         },
                         {
@@ -10035,10 +9632,6 @@
                       },
                       {
                         "const": "worker",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat",
                         "type": "string"
                       },
                       {
@@ -10192,10 +9785,6 @@
                 "type": "string"
               },
               {
-                "const": "chat",
-                "type": "string"
-              },
-              {
                 "const": "memory-v4",
                 "type": "string"
               },
@@ -10304,10 +9893,6 @@
                       "type": "string"
                     },
                     {
-                      "const": "chat",
-                      "type": "string"
-                    },
-                    {
                       "const": "memory-v4",
                       "type": "string"
                     },
@@ -10413,10 +9998,6 @@
                       },
                       {
                         "const": "worker",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat",
                         "type": "string"
                       },
                       {
@@ -10551,14 +10132,6 @@
                 "type": "string"
               },
               {
-                "const": "worker",
-                "type": "string"
-              },
-              {
-                "const": "chat",
-                "type": "string"
-              },
-              {
                 "const": "memory-v4",
                 "type": "string"
               }
@@ -10612,14 +10185,6 @@
                 "anyOf": [
                   {
                     "const": "hermes",
-                    "type": "string"
-                  },
-                  {
-                    "const": "worker",
-                    "type": "string"
-                  },
-                  {
-                    "const": "chat",
                     "type": "string"
                   },
                   {
@@ -10773,18 +10338,6 @@
                         "type": "string"
                       },
                       {
-                        "const": "chat-session",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat-message",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat-route",
-                        "type": "string"
-                      },
-                      {
                         "const": "memory-record",
                         "type": "string"
                       },
@@ -10815,10 +10368,6 @@
                       },
                       {
                         "const": "worker",
-                        "type": "string"
-                      },
-                      {
-                        "const": "chat",
                         "type": "string"
                       },
                       {

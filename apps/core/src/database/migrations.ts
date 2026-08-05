@@ -175,6 +175,13 @@ export async function verifyDatabase(
     'provider_validation_evidence',
     'model_reconciliations',
     'model_policy_evidence',
+    'conversation_channels',
+    'conversations',
+    'conversation_attachments',
+    'conversation_messages',
+    'conversation_message_attachments',
+    'conversation_dispatches',
+    'conversation_event_cursors',
   ];
   const tables = await pool.query<{ table_name: string }>(
     "SELECT table_name FROM information_schema.tables WHERE table_schema = 'core' AND table_name = ANY($1::text[])",

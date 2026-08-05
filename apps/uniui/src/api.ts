@@ -83,5 +83,4 @@ export const gateway = {
       headers: { 'idempotency-key': idempotencyKey },
       body: JSON.stringify(request),
     }),
-  chatDownloadUrl: (path: string) => `/api/v1/chat/download?path=${encodeURIComponent(path)}`,
 };

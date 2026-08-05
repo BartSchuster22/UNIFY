@@ -155,61 +155,6 @@ export class ConfiguredReadAdapter implements SourceAdapter {
   }
 }
 
-export class ChatReadAdapter extends ConfiguredReadAdapter {
-  override async snapshot(signal?: AbortSignal): Promise<IntegrationSnapshot> {
-    const base = await super.snapshot(signal);
-    if (!this.client || base.status === 'unavailable') return base;
-    const sessions = base.resources
-      .filter((item) => item.resource.kind === 'chat-session')
-      .slice(0, 50);
-    for (const session of sessions) {
-      try {
-        const body = await this.client.get(
-          `/api/chat/sessions/${encodeURIComponent(session.resource.nativeId)}/messages`,
-          signal,
-        );
-        const messages = arrayFrom(body, 'messages');
-        base.resources.push(
-          ...messages.map((row, index) =>
-            normalize({
-              adapterId: this.id,
-              owner: 'chat',
-              kind: 'chat-message',
-              row: { ...row, session_id: session.resource.nativeId },
-              index,
-              observedAt: base.observedAt,
-            }),
-          ),
-        );
-        const route = asRecord(session.data.surface ?? session.data.route);
-        if (Object.keys(route).length) {
-          base.resources.push(
-            normalize({
-              adapterId: this.id,
-              owner: 'chat',
-              kind: 'chat-route',
-              row: {
-                ...route,
-                id: session.resource.nativeId,
-                session_id: session.resource.nativeId,
-              },
-              index: 0,
-              observedAt: base.observedAt,
-            }),
-          );
-        }
-      } catch (error) {
-        base.warnings.push({
-          code: 'CHAT_MESSAGES_READ_FAILED',
-          message: safeError('messages', error),
-        });
-        base.status = 'partial';
-      }
-    }
-    return base;
-  }
-}
-
 export class MemoryReadAdapter extends ConfiguredReadAdapter {
   async search(query: string, signal?: AbortSignal): Promise<UnifiedResource[]> {
     if (!this.client) return [];
@@ -232,17 +177,7 @@ export class MemoryReadAdapter extends ConfiguredReadAdapter {
 }
 
 export function createDefaultAdapters(env: NodeJS.ProcessEnv = process.env): SourceAdapter[] {
-  const chatAuth: Auth = env.CHAT_PASSWORD
-    ? { type: 'session', loginPath: '/auth/login', body: { password: env.CHAT_PASSWORD } }
-    : { type: 'none' };
   return [
-    new ChatReadAdapter({
-      id: 'chat-read-v1',
-      owners: ['chat'],
-      baseUrl: env.CHAT_URL,
-      auth: chatAuth,
-      endpoints: [{ path: '/api/chat/sessions', key: 'sessions', kind: 'chat-session' }],
-    }),
     new MemoryReadAdapter({
       id: 'memory-v4-read-v1',
       owners: ['memory-v4'],

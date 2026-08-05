@@ -31,7 +31,7 @@
     "auth:bootstrap": "pnpm run build && node dist/auth/cli.js bootstrap-administrator",
     "auth:test": "pnpm run build && node --test --test-concurrency=1 dist/auth/*.test.js",
     "frameworks:test": "pnpm run build && node --test --test-concurrency=1 dist/frameworks/*.test.js",
-    "test": "pnpm run build && node --test --test-concurrency=1 dist/core.test.js dist/contracts/v1/contracts.test.js dist/database/migrations.test.js dist/auth/*.test.js dist/frameworks/*.test.js dist/profiles/*.test.js dist/models/*.test.js dist/work/*.test.js && node scripts/check-openapi.mjs",
+    "test": "pnpm run build && node --test --test-concurrency=1 dist/core.test.js dist/contracts/v1/contracts.test.js dist/database/migrations.test.js dist/auth/*.test.js dist/frameworks/*.test.js dist/profiles/*.test.js dist/models/*.test.js dist/work/*.test.js dist/conversations/*.test.js && node scripts/check-openapi.mjs",
     "clean": "rm -rf dist"
   },
   "dependencies": {

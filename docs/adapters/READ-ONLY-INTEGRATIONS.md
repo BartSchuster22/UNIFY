@@ -11,10 +11,9 @@ UNIFY federates legacy snapshots without becoming a second owner. Every normaliz
 | `agency-hermes-read-v1` | Agency frameworks; Hermes profiles through Agency inventory | `http://127.0.0.1:18082` |
 | `dmm-read-v1` | Providers, models, catalog snapshots | `http://127.0.0.1:4100` |
 | `worker-read-v1` | Projects, Kanban boards, tasks, cron jobs, notification inbox | `http://127.0.0.1:8891` |
-| `chat-read-v1` | Sessions, bounded per-session message reads, routes derived from authoritative session surfaces | `http://127.0.0.1:8787` |
 | `memory-v4-read-v1` | Records and owner-native search | deployment-specific; local default `http://127.0.0.1:18804` |
 
-The only upstream POST used by these adapters is login for Agency, DMM, and Chat session authentication. No domain resource is created, edited, deleted, activated, scheduled, dispatched, or acknowledged.
+The only upstream POST used by these adapters is login for Agency and DMM session authentication. No domain resource is created, edited, deleted, activated, scheduled, dispatched, or acknowledged.
 
 ## Gateway routes
 
@@ -46,7 +45,6 @@ Gateway accepts direct variables or `_FILE` equivalents:
 | Agency | `AGENCY_URL` | `AGENCY_USERNAME`, `AGENCY_PASSWORD` |
 | DMM | `DMM_URL` | `DMM_USERNAME`, `DMM_PASSWORD` |
 | Worker | `WORKER_URL` | optional `WORKER_TOKEN` |
-| Chat | `CHAT_URL` | `CHAT_PASSWORD` |
 | MemoryV4 | `MEMORY_V4_URL` | `MEMORY_V4_TOKEN` |
 
 Compose mounts all credentials as files. `pnpm compose:secrets` creates permission-restricted empty integration files without copying credentials from authoritative repositories. Operators must populate only the required files. Values are never emitted by the preparation script. Local Compose runs Gateway on the host network, binds it to `127.0.0.1`, and publishes PostgreSQL only on `127.0.0.1` so it can read owner services that themselves intentionally listen only on host loopback.

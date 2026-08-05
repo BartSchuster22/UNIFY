@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { UnifiedResource } from '@aquiero/contracts';
-import { ChatReadAdapter, ConfiguredReadAdapter } from './adapters.js';
+import { ConfiguredReadAdapter } from './adapters.js';
 import { IntegrationService } from './service.js';
 import type { IntegrationSnapshot, SourceAdapter } from './types.js';
 
@@ -117,39 +117,6 @@ describe('migration-only legacy read adapters', () => {
     expect(snapshot.status).toBe('partial');
     expect(snapshot.resources).toHaveLength(1);
     expect(snapshot.warnings).toHaveLength(1);
-  });
-
-  it('reads chat sessions, messages, and embedded routes without mutations', async () => {
-    const fetch = vi.fn<typeof globalThis.fetch>(async (input) => {
-      const url = String(input);
-      if (url.endsWith('/auth/login'))
-        return response({ ok: true }, 200, { 'set-cookie': 'sid=x; Path=/' });
-      if (url.endsWith('/api/chat/sessions'))
-        return response({
-          sessions: [{ id: 's1', title: 'Chat', surface: { route_kind: 'telegram' } }],
-        });
-      return response({ messages: [{ id: 'm1', text: 'hello' }] });
-    });
-    const adapter = new ChatReadAdapter({
-      id: 'chat-test',
-      owners: ['chat'],
-      baseUrl: 'https://chat.invalid',
-      auth: { type: 'session', loginPath: '/auth/login', body: { password: 'test' } },
-      endpoints: [{ path: '/api/chat/sessions', key: 'sessions', kind: 'chat-session' }],
-      fetch,
-    });
-    const snapshot = await adapter.snapshot();
-    expect(snapshot.resources.map((item) => item.resource.kind)).toEqual([
-      'chat-session',
-      'chat-message',
-      'chat-route',
-    ]);
-    expect(
-      fetch.mock.calls.every(
-        (call) =>
-          call[1]?.method !== 'PUT' && call[1]?.method !== 'PATCH' && call[1]?.method !== 'DELETE',
-      ),
-    ).toBe(true);
   });
 });
 

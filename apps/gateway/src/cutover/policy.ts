@@ -1,7 +1,7 @@
 import { GovernanceError } from '../governance/service.js';
 import { type MutationInput } from '../mutations/types.js';
 
-export const mutationDomains = ['frameworks', 'work', 'profiles', 'chat', 'memory-v4'] as const;
+export const mutationDomains = ['frameworks', 'work', 'profiles', 'memory-v4'] as const;
 export type MutationDomain = (typeof mutationDomains)[number];
 export type DeploymentMode = 'read-only' | 'mutation-canary';
 
@@ -49,15 +49,13 @@ export class CutoverPolicy {
         ? 'frameworks'
         : input.operationType.startsWith('work.') && input.target.owner === 'hermes'
           ? 'work'
-          : input.operationType.startsWith('chat.') && input.target.owner === 'hermes'
-            ? 'chat'
-            : (() => {
-                throw new GovernanceError(
-                  'LEGACY_WRITE_CONTAINED',
-                  403,
-                  'Execution is blocked because this operation still targets a migration-only legacy adapter',
-                );
-              })();
+          : (() => {
+              throw new GovernanceError(
+                'LEGACY_WRITE_CONTAINED',
+                403,
+                'Execution is blocked because this operation still targets a migration-only legacy adapter',
+              );
+            })();
     if (this.mode === 'read-only')
       throw new GovernanceError(
         'DEPLOYMENT_READ_ONLY',
@@ -84,7 +82,7 @@ export class CutoverPolicy {
         domain,
         executeEnabled:
           this.mode === 'mutation-canary' &&
-          (domain === 'frameworks' || domain === 'work' || domain === 'chat') &&
+          (domain === 'frameworks' || domain === 'work') &&
           this.#enabled.has(domain),
         acceptanceRef: this.#acceptance.get(domain) ?? null,
         rollback: 'remove-domain-and-redeploy',

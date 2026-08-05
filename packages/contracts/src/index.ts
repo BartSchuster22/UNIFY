@@ -33,9 +33,6 @@ export const ResourceKindSchema = Type.Union(
     Type.Literal('task'),
     Type.Literal('kanban-board'),
     Type.Literal('cronjob'),
-    Type.Literal('chat-session'),
-    Type.Literal('chat-message'),
-    Type.Literal('chat-route'),
     Type.Literal('memory-record'),
     Type.Literal('catalog-snapshot'),
     Type.Literal('operation'),
@@ -49,7 +46,6 @@ export const ResourceOwnerSchema = Type.Union(
     Type.Literal('hermes'),
     Type.Literal('agency'),
     Type.Literal('worker'),
-    Type.Literal('chat'),
     Type.Literal('memory-v4'),
     Type.Literal('gateway'),
   ],
@@ -442,12 +438,7 @@ export const ShadowComparisonListSchema = Type.Object(
 
 export const MutationTargetSchema = Type.Object(
   {
-    owner: Type.Union([
-      Type.Literal('hermes'),
-      Type.Literal('worker'),
-      Type.Literal('chat'),
-      Type.Literal('memory-v4'),
-    ]),
+    owner: Type.Union([Type.Literal('hermes'), Type.Literal('memory-v4')]),
     kind: Type.String({ minLength: 1, maxLength: 200 }),
     nativeId: Type.String({ minLength: 1, maxLength: 1024 }),
     frameworkId: Type.Optional(Type.String({ minLength: 1, maxLength: 200 })),
@@ -644,34 +635,6 @@ export function buildOpenApiDocument(): Record<string, unknown> {
             '422': jsonResponse('ErrorResponse'),
             '502': jsonResponse('ErrorResponse'),
             '503': jsonResponse('ErrorResponse'),
-          },
-        },
-      },
-      '/chat/download': {
-        get: {
-          tags: ['mutations'],
-          operationId: 'downloadChatUpload',
-          security: [{ cookieSession: [] }],
-          parameters: [
-            {
-              name: 'path',
-              in: 'query',
-              required: true,
-              schema: { type: 'string', pattern: '^/uploads/[a-zA-Z0-9._-]+$' },
-            },
-          ],
-          responses: {
-            '200': {
-              description: 'Authenticated chat upload download',
-              content: {
-                'application/octet-stream': {
-                  schema: { type: 'string', contentEncoding: 'binary' },
-                },
-              },
-            },
-            '401': jsonResponse('ErrorResponse'),
-            '403': jsonResponse('ErrorResponse'),
-            '422': jsonResponse('ErrorResponse'),
           },
         },
       },
