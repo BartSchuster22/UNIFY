@@ -2,7 +2,7 @@ services:
   gateway:
     environment:
       NODE_ENV: production
-      RELEASE_ID: ${RELEASE_ID:-unify-phase10-standalone}
+      RELEASE_ID: ${RELEASE_ID:-unify-phase11-hardened-image}
   uniui:
     environment:
       HOST: 127.0.0.1

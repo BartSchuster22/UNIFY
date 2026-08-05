@@ -62,11 +62,24 @@ if (!Number.isFinite(configuredPollInterval) || configuredPollInterval < 1_000)
 const poll = setInterval(() => void hermesGateway.ingestAll(), configuredPollInterval);
 poll.unref();
 app.addHook('onClose', async () => clearInterval(poll));
-const close = async (signal: string) => {
-  app.log.info({ signal }, 'graceful shutdown');
-  await app.close();
-  await pool.end();
+let shutdown: Promise<void> | undefined;
+const close = (signal: NodeJS.Signals): Promise<void> => {
+  if (shutdown) return shutdown;
+  clearInterval(poll);
+  app.log.info({ signal }, 'graceful shutdown started');
+  shutdown = (async () => {
+    await app.close();
+    await pool.end();
+    app.log.info({ signal }, 'graceful shutdown complete');
+  })();
+  return shutdown;
 };
-process.once('SIGTERM', () => void close('SIGTERM'));
-process.once('SIGINT', () => void close('SIGINT'));
+const onSignal = (signal: NodeJS.Signals) => {
+  void close(signal).catch((error: unknown) => {
+    app.log.error({ error, signal }, 'graceful shutdown failed');
+    process.exitCode = 1;
+  });
+};
+process.once('SIGTERM', () => onSignal('SIGTERM'));
+process.once('SIGINT', () => onSignal('SIGINT'));
 await app.listen({ host: process.env.HOST ?? '0.0.0.0', port: Number(process.env.PORT ?? 8080) });

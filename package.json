@@ -20,7 +20,7 @@
     "build": "pnpm -r --workspace-concurrency=1 --if-present build",
     "typecheck": "pnpm --filter @aquiero/contracts build && pnpm -r --workspace-concurrency=1 --if-present typecheck",
     "test": "pnpm -r --workspace-concurrency=1 --if-present test",
-    "lint": "eslint . && node scripts/check-boundaries.mjs && node scripts/check-standalone-runtime.mjs",
+    "lint": "eslint . && node scripts/check-boundaries.mjs && node scripts/check-standalone-runtime.mjs && node scripts/verify-production-images.mjs --static",
     "sot:check": "node scripts/check-standalone-runtime.mjs",
     "hermes:fixture:verify": "node scripts/verify-hermes-pinned-contract.mjs",
     "hermes:adapter:verify": "pnpm --filter @aquiero/contracts build && pnpm --filter @aquiero/hermes-control-adapter build && node scripts/verify-hermes-adapter-foundations.mjs",
@@ -46,6 +46,8 @@
     "security:audit": "pnpm audit --prod --audit-level high",
     "security:sbom": "node scripts/generate-sbom.mjs",
     "standalone:check": "node scripts/check-standalone-runtime.mjs",
+    "image:check": "node scripts/verify-production-images.mjs --static",
+    "image:verify": "node scripts/verify-production-images.mjs",
     "qa": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm contracts:check && pnpm standalone:check && pnpm backup:prune:self-test && pnpm identity:capacity:self-test && pnpm canary:self-test && pnpm format:check",
     "clean": "pnpm -r --if-present clean"
   },

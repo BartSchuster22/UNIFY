@@ -122,5 +122,20 @@ async function proxy(req, res) {
     .pipe(res);
 }
 server.listen(port, host, () => console.log(`Focused web shell listening on ${host}:${port}`));
-for (const signal of ['SIGTERM', 'SIGINT'])
-  process.once(signal, () => server.close(() => process.exit(0)));
+let shuttingDown = false;
+const close = (signal) => {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`Graceful shutdown started (${signal})`);
+  const deadline = setTimeout(() => {
+    server.closeAllConnections();
+    process.exit(1);
+  }, 10_000);
+  server.closeIdleConnections();
+  server.close(() => {
+    clearTimeout(deadline);
+    console.log('Graceful shutdown complete');
+    process.exit(0);
+  });
+};
+for (const signal of ['SIGTERM', 'SIGINT']) process.once(signal, () => close(signal));

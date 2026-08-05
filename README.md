@@ -32,9 +32,12 @@ packages/*         Contracts, generated SDK, auth client and UI components
 pnpm install --frozen-lockfile
 pnpm qa
 pnpm standalone:check
+pnpm image:verify
 ```
 
 `standalone:check` fails if retired adapters, owner clients, proxy routes, owner values, environment variables, secrets, or migration runtime paths return.
+
+`image:verify` builds the pinned distroless production images, exercises health and graceful shutdown under the Compose security restrictions, emits CycloneDX SBOMs, and fails on fixable HIGH or CRITICAL vulnerabilities.
 
 ## Current architecture
 
@@ -44,6 +47,7 @@ pnpm standalone:check
 - [Native work](docs/rebuild/phase-08-native-work.md)
 - [Native conversations](docs/rebuild/phase-09-native-agent-conversations.md)
 - [Legacy runtime removal](docs/rebuild/phase-10-remove-legacy-runtime.md)
+- [Lightweight production images](docs/rebuild/phase-11-lightweight-production-image.md)
 - [Authentication](docs/security/AUTHENTICATION.md)
 - [Governed operations](docs/operations/MUTATIONS.md)
 - [Local Compose](docs/runbooks/LOCAL-COMPOSE.md)

@@ -1,7 +1,32 @@
 name: unify
+
+x-app-hardening: &app-hardening
+  user: '65532:65532'
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  pids_limit: 100
+  mem_limit: 192m
+  cpus: 0.5
+  init: true
+  stop_grace_period: 15s
+  restart: unless-stopped
+  tmpfs: ['/tmp:uid=65532,gid=65532,mode=0700']
+
+x-job-hardening: &job-hardening
+  user: '65532:65532'
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  pids_limit: 64
+  mem_limit: 384m
+  cpus: 0.5
+  restart: 'no'
+  tmpfs: ['/tmp:uid=65532,gid=65532,mode=0700']
+
 services:
   postgres:
-    image: postgres:16.6-alpine
+    image: postgres:16.6-alpine@sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef
     user: '70:70'
     environment:
       POSTGRES_DB: unify
@@ -17,6 +42,10 @@ services:
     read_only: true
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
+    pids_limit: 200
+    mem_limit: 768m
+    cpus: 1.0
+    stop_grace_period: 30s
     healthcheck:
       test: [CMD-SHELL, 'pg_isready -U unify -d unify -h 127.0.0.1']
       interval: 5s
@@ -24,22 +53,18 @@ services:
       retries: 20
 
   migrate:
+    <<: *job-hardening
     image: unify-gateway:local
     network_mode: host
-    command: [node, scripts/migrate.mjs, up]
+    command: [scripts/migrate.mjs, up]
     environment:
       DATABASE_URL_FILE: /run/secrets/gateway_database_url
     secrets: [gateway_database_url]
     depends_on:
       postgres: { condition: service_healthy }
-    read_only: true
-    tmpfs:
-      - '/tmp:uid=10001,gid=10001,mode=0700'
-    cap_drop: [ALL]
-    security_opt: [no-new-privileges:true]
-    restart: 'no'
 
   gateway:
+    <<: *app-hardening
     build:
       context: .
       dockerfile: Dockerfile.gateway
@@ -51,7 +76,6 @@ services:
       HOST: 127.0.0.1
       PORT: ${GATEWAY_PORT:-28081}
       RELEASE_ID: local-compose
-
       REQUESTS_PER_MINUTE: ${REQUESTS_PER_MINUTE:-600}
       ALLOWED_ORIGINS: https://uniui.aquiero.com,http://127.0.0.1:${UNIUI_PORT:-3000},http://localhost:${UNIUI_PORT:-3000},http://127.0.0.1:${CHAT_PWA_PORT:-3101},http://localhost:${CHAT_PWA_PORT:-3101},http://127.0.0.1:${ALERTS_PWA_PORT:-3102},http://localhost:${ALERTS_PWA_PORT:-3102}
       FRAMEWORK_AUTH_ENV_NAMES: HERMES_MAIN_CONTROL_TOKEN
@@ -62,19 +86,17 @@ services:
     depends_on:
       postgres: { condition: service_healthy }
       migrate: { condition: service_completed_successfully }
-    read_only: true
-    tmpfs:
-      - '/tmp:uid=10001,gid=10001,mode=0700'
-    cap_drop: [ALL]
-    security_opt: [no-new-privileges:true]
-    init: true
-    restart: unless-stopped
+    pids_limit: 150
+    mem_limit: 512m
+    cpus: 0.75
+    stop_grace_period: 30s
 
   bootstrap-admin:
+    <<: *job-hardening
     profiles: [bootstrap]
     image: unify-gateway:local
     network_mode: host
-    command: [node, dist/cli/bootstrap-admin.js]
+    command: [dist/cli/bootstrap-admin.js]
     environment:
       DATABASE_URL_FILE: /run/secrets/gateway_database_url
       AUTH_PEPPER_FILE: /run/secrets/gateway_auth_pepper
@@ -84,14 +106,10 @@ services:
     secrets: [gateway_database_url, gateway_auth_pepper, bootstrap_admin_password]
     depends_on:
       migrate: { condition: service_completed_successfully }
-    read_only: true
-    tmpfs:
-      - '/tmp:uid=10001,gid=10001,mode=0700'
-    cap_drop: [ALL]
-    security_opt: [no-new-privileges:true]
-    restart: 'no'
+    mem_limit: 256m
 
   uniui:
+    <<: *app-hardening
     build:
       context: .
       dockerfile: Dockerfile.uniui
@@ -103,15 +121,9 @@ services:
     network_mode: host
     depends_on:
       gateway: { condition: service_healthy }
-    read_only: true
-    tmpfs:
-      - '/tmp:uid=10001,gid=10001,mode=0700'
-    cap_drop: [ALL]
-    security_opt: [no-new-privileges:true]
-    init: true
-    restart: unless-stopped
 
   chat-pwa:
+    <<: *app-hardening
     build:
       context: .
       dockerfile: Dockerfile.focused-pwa
@@ -124,14 +136,9 @@ services:
     network_mode: host
     depends_on:
       gateway: { condition: service_healthy }
-    read_only: true
-    tmpfs: ['/tmp:uid=10001,gid=10001,mode=0700']
-    cap_drop: [ALL]
-    security_opt: [no-new-privileges:true]
-    init: true
-    restart: unless-stopped
 
   alerts-pwa:
+    <<: *app-hardening
     build:
       context: .
       dockerfile: Dockerfile.focused-pwa
@@ -146,12 +153,6 @@ services:
     network_mode: host
     depends_on:
       gateway: { condition: service_healthy }
-    read_only: true
-    tmpfs: ['/tmp:uid=10001,gid=10001,mode=0700']
-    cap_drop: [ALL]
-    security_opt: [no-new-privileges:true]
-    init: true
-    restart: unless-stopped
 
 secrets:
   postgres_password: { file: .secrets/postgres_password }
