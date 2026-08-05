@@ -77,9 +77,9 @@ describe('migration-only legacy read adapters', () => {
       });
     });
     const adapter = new ConfiguredReadAdapter({
-      id: 'dmm-test',
-      owners: ['dmm'],
-      baseUrl: 'https://dmm.invalid',
+      id: 'worker-provider-test',
+      owners: ['worker'],
+      baseUrl: 'https://worker.invalid',
       auth: {
         type: 'session',
         loginPath: '/api/auth/login',

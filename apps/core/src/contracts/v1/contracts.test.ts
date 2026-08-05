@@ -62,7 +62,11 @@ test('uses strict command envelopes for control-plane mutations', () => {
   for (const endpoint of API_ENDPOINTS.filter((candidate) =>
     ['post', 'put', 'patch', 'delete'].includes(candidate.method),
   )) {
-    if (endpoint.domain === 'identity' || endpoint.operationId === 'frameworkNegotiateCapabilities')
+    if (
+      endpoint.domain === 'identity' ||
+      endpoint.operationId === 'frameworkNegotiateCapabilities' ||
+      endpoint.operationId === 'modelResolveRoute'
+    )
       continue;
     assert.ok(
       endpoint.requestSchema?.endsWith('Command'),

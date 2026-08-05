@@ -746,11 +746,11 @@ export interface components {
     schemas: {
         TruthState: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
         ResourceKind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-        ResourceOwner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+        ResourceOwner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
         ResourceRef: {
             canonicalId: string;
             kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-            owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+            owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
             frameworkId?: string;
             nativeId: string;
             displayLabel?: string;
@@ -770,7 +770,7 @@ export interface components {
             requestId: string;
             correlationId: string;
             source: {
-                owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                 frameworkId?: string;
                 adapterId: string;
             };
@@ -797,7 +797,7 @@ export interface components {
             target?: {
                 canonicalId: string;
                 kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                 frameworkId?: string;
                 nativeId: string;
                 displayLabel?: string;
@@ -825,7 +825,7 @@ export interface components {
                 target?: {
                     canonicalId: string;
                     kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     nativeId: string;
                     displayLabel?: string;
@@ -871,13 +871,13 @@ export interface components {
             type: string;
             classification: "durable" | "ephemeral";
             source: {
-                owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                 frameworkId?: string;
             };
             resource?: {
                 canonicalId: string;
                 kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                 frameworkId?: string;
                 nativeId: string;
                 displayLabel?: string;
@@ -909,7 +909,7 @@ export interface components {
             target: {
                 canonicalId: string;
                 kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                 frameworkId?: string;
                 nativeId: string;
                 displayLabel?: string;
@@ -941,7 +941,7 @@ export interface components {
                 target: {
                     canonicalId: string;
                     kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     nativeId: string;
                     displayLabel?: string;
@@ -969,7 +969,7 @@ export interface components {
                 requestId: string;
                 correlationId: string;
                 source: {
-                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     adapterId: string;
                 };
@@ -1034,7 +1034,7 @@ export interface components {
                 requestId: string;
                 correlationId: string;
                 source: {
-                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     adapterId: string;
                 };
@@ -1099,7 +1099,7 @@ export interface components {
             resource: {
                 canonicalId: string;
                 kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                 frameworkId?: string;
                 nativeId: string;
                 displayLabel?: string;
@@ -1128,7 +1128,7 @@ export interface components {
             resource: {
                 canonicalId: string;
                 kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                 frameworkId?: string;
                 nativeId: string;
                 displayLabel?: string;
@@ -1156,7 +1156,7 @@ export interface components {
         };
         IntegrationStatus: {
             adapterId: string;
-            owners: ("hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway")[];
+            owners: ("hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway")[];
             sourceRole: "authoritative" | "migration-only";
             writeEnabled: boolean;
             status: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
@@ -1171,7 +1171,7 @@ export interface components {
         IntegrationStatusList: {
             items: {
                 adapterId: string;
-                owners: ("hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway")[];
+                owners: ("hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway")[];
                 sourceRole: "authoritative" | "migration-only";
                 writeEnabled: boolean;
                 status: "current" | "stale" | "partial" | "empty" | "unavailable" | "unsupported" | "forbidden" | "failed" | "inconclusive";
@@ -1189,7 +1189,7 @@ export interface components {
                 resource: {
                     canonicalId: string;
                     kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     nativeId: string;
                     displayLabel?: string;
@@ -1218,7 +1218,7 @@ export interface components {
                 resource: {
                     canonicalId: string;
                     kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     nativeId: string;
                     displayLabel?: string;
@@ -1248,7 +1248,7 @@ export interface components {
                 requestId: string;
                 correlationId: string;
                 source: {
-                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     adapterId: string;
                 };
@@ -1273,7 +1273,7 @@ export interface components {
                 resource: {
                     canonicalId: string;
                     kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     nativeId: string;
                     displayLabel?: string;
@@ -1302,7 +1302,7 @@ export interface components {
                 resource: {
                     canonicalId: string;
                     kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     nativeId: string;
                     displayLabel?: string;
@@ -1337,7 +1337,7 @@ export interface components {
                     resource: {
                         canonicalId: string;
                         kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                        owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                        owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                         frameworkId?: string;
                         nativeId: string;
                         displayLabel?: string;
@@ -1366,7 +1366,7 @@ export interface components {
                     resource: {
                         canonicalId: string;
                         kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                        owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                        owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                         frameworkId?: string;
                         nativeId: string;
                         displayLabel?: string;
@@ -1399,7 +1399,7 @@ export interface components {
                 requestId: string;
                 correlationId: string;
                 source: {
-                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     adapterId: string;
                 };
@@ -1424,7 +1424,7 @@ export interface components {
             severity: "info" | "warning" | "error" | "critical";
             title: string;
             body: string;
-            source: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+            source: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
             state: "unread" | "read" | "acknowledged";
             /** Format: date-time */
             createdAt: string;
@@ -1432,7 +1432,7 @@ export interface components {
             resource?: {
                 canonicalId: string;
                 kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                 frameworkId?: string;
                 nativeId: string;
                 displayLabel?: string;
@@ -1451,7 +1451,7 @@ export interface components {
                 severity: "info" | "warning" | "error" | "critical";
                 title: string;
                 body: string;
-                source: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                source: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                 state: "unread" | "read" | "acknowledged";
                 /** Format: date-time */
                 createdAt: string;
@@ -1459,7 +1459,7 @@ export interface components {
                 resource?: {
                     canonicalId: string;
                     kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     nativeId: string;
                     displayLabel?: string;
@@ -1476,7 +1476,7 @@ export interface components {
                 requestId: string;
                 correlationId: string;
                 source: {
-                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     adapterId: string;
                 };
@@ -1503,13 +1503,13 @@ export interface components {
                 type: string;
                 classification: "durable" | "ephemeral";
                 source: {
-                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                     frameworkId?: string;
                 };
                 resource?: {
                     canonicalId: string;
                     kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     nativeId: string;
                     displayLabel?: string;
@@ -1537,7 +1537,7 @@ export interface components {
                 requestId: string;
                 correlationId: string;
                 source: {
-                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     adapterId: string;
                 };
@@ -1559,7 +1559,7 @@ export interface components {
         };
         ShadowComparison: {
             adapterId: string;
-            owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+            owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
             status: "match" | "mismatch" | "unavailable";
             /** Format: date-time */
             comparedAt: string;
@@ -1573,7 +1573,7 @@ export interface components {
         ShadowComparisonList: {
             items: {
                 adapterId: string;
-                owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                 status: "match" | "mismatch" | "unavailable";
                 /** Format: date-time */
                 comparedAt: string;
@@ -1588,7 +1588,7 @@ export interface components {
                 requestId: string;
                 correlationId: string;
                 source: {
-                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     adapterId: string;
                 };
@@ -1609,7 +1609,7 @@ export interface components {
             };
         };
         MutationTarget: {
-            owner: "hermes" | "dmm" | "worker" | "chat" | "memory-v4";
+            owner: "hermes" | "worker" | "chat" | "memory-v4";
             kind: string;
             nativeId: string;
             frameworkId?: string;
@@ -1617,7 +1617,7 @@ export interface components {
         MutationRequest: {
             operationType: string;
             target: {
-                owner: "hermes" | "dmm" | "worker" | "chat" | "memory-v4";
+                owner: "hermes" | "worker" | "chat" | "memory-v4";
                 kind: string;
                 nativeId: string;
                 frameworkId?: string;
@@ -1637,7 +1637,7 @@ export interface components {
                 target: {
                     canonicalId: string;
                     kind: "framework" | "profile" | "agent" | "provider" | "model" | "project" | "task" | "kanban-board" | "cronjob" | "chat-session" | "chat-message" | "chat-route" | "memory-record" | "catalog-snapshot" | "operation" | "notification";
-                    owner: "hermes" | "agency" | "dmm" | "worker" | "chat" | "memory-v4" | "gateway";
+                    owner: "hermes" | "agency" | "worker" | "chat" | "memory-v4" | "gateway";
                     frameworkId?: string;
                     nativeId: string;
                     displayLabel?: string;
@@ -1836,6 +1836,42 @@ export interface components {
                     displayName: string;
                     credentialStatus: "configured" | "missing" | "unknown";
                     selected: boolean;
+                }[];
+                page: {
+                    nextCursor?: string;
+                    hasMore: boolean;
+                };
+            };
+        };
+        HermesModel: {
+            id: string;
+            providerId: string;
+            displayName: string;
+            capabilities: ("text" | "vision" | "audio" | "tool-use" | "structured-output" | "reasoning")[];
+            contextWindow?: number;
+            maximumOutputTokens?: number;
+            selected: boolean;
+            fallbackPriority?: number;
+        };
+        HermesModelsResponse: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                items: {
+                    id: string;
+                    providerId: string;
+                    displayName: string;
+                    capabilities: ("text" | "vision" | "audio" | "tool-use" | "structured-output" | "reasoning")[];
+                    contextWindow?: number;
+                    maximumOutputTokens?: number;
+                    selected: boolean;
+                    fallbackPriority?: number;
                 }[];
                 page: {
                     nextCursor?: string;

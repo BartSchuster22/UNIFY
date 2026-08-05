@@ -178,9 +178,9 @@ async function authenticated(
   notificationStore?: NotificationStore,
   cutoverPolicy = CutoverPolicy.fromEnv({
     DEPLOYMENT_MODE: 'mutation-canary',
-    MUTATION_DOMAINS: 'profiles,dmm,worker,chat,memory-v4',
+    MUTATION_DOMAINS: 'profiles,worker,chat,memory-v4',
     MUTATION_ACCEPTANCE_REFS:
-      'profiles=test/PROFILES,dmm=test/DMM,worker=test/WORKER,chat=test/CHAT,memory-v4=test/MEMORY',
+      'profiles=test/PROFILES,worker=test/WORKER,chat=test/CHAT,memory-v4=test/MEMORY',
   }),
   adapter: SourceAdapter = new HermesAdapter(),
 ) {
@@ -235,9 +235,6 @@ function mutationFixture(): { governance: GovernanceStore; owners: MutationOwner
     appendAudit: async () => 'audit-login',
   };
   const owners = new MutationOwnerClient({
-    dmmUrl: 'http://dmm.invalid',
-    dmmUsername: 'u',
-    dmmPassword: 'p',
     workerUrl: 'http://worker.invalid',
     workerToken: 'token',
     chatUrl: 'http://chat.invalid',
@@ -261,9 +258,14 @@ describe('read-only integration routes', () => {
       url: '/api/v1/mutations',
       headers: { cookie, 'idempotency-key': 'route-policy-test' },
       payload: {
-        operationType: 'dmm.credential.validate',
-        target: { owner: 'dmm', kind: 'provider', nativeId: 'missing' },
-        payload: {},
+        operationType: 'work.project.create',
+        target: {
+          owner: 'hermes',
+          kind: 'project',
+          nativeId: 'new',
+          frameworkId: 'hermes-main',
+        },
+        payload: { name: 'Project' },
         mode: 'validate',
         confirmed: false,
       },
@@ -389,8 +391,13 @@ describe('read-only integration routes', () => {
   it('enforces owner-specific RBAC and shadow-comparison permission', async () => {
     const { app, cookie } = await authenticated(['frameworks.read']);
     expect(
-      (await app.inject({ method: 'GET', url: '/api/v1/resources?owner=dmm', headers: { cookie } }))
-        .statusCode,
+      (
+        await app.inject({
+          method: 'GET',
+          url: '/api/v1/resources?owner=worker',
+          headers: { cookie },
+        })
+      ).statusCode,
     ).toBe(403);
     expect(
       (await app.inject({ method: 'GET', url: '/api/v1/shadow', headers: { cookie } })).statusCode,

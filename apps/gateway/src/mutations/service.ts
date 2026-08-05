@@ -218,7 +218,7 @@ export class MutationService {
   private parseTarget(value: unknown): MutationTarget {
     const raw = record(value, 'target');
     const owner = requiredString(raw.owner, 'target.owner');
-    if (!['hermes', 'dmm', 'worker', 'chat', 'memory-v4'].includes(owner))
+    if (!['hermes', 'worker', 'chat', 'memory-v4'].includes(owner))
       throw new GovernanceError('MUTATION_OWNER_INVALID', 422, 'target.owner is not supported');
     const target: MutationTarget = {
       owner: owner as MutationTarget['owner'],

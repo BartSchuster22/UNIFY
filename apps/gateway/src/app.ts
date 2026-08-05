@@ -423,18 +423,7 @@ export function buildApp(options: AppOptions) {
     reply.header('x-unify-source-role', 'migration-only');
     return reply.send(file.body);
   });
-  app.get('/api/v1/models/dmm-context', async (request, reply) => {
-    const current = await session(request);
-    auth.requirePermission(current, 'models.read');
-    if (!mutations)
-      throw new GovernanceError(
-        'MUTATIONS_UNAVAILABLE',
-        503,
-        'DMM inventory access is unavailable',
-      );
-    reply.header('x-unify-source-role', 'migration-only');
-    return mutations.owners.dmmInventory();
-  });
+
   app.get('/api/v1/frameworks', async (request) => {
     const current = await session(request);
     auth.requirePermission(current, 'frameworks.read');
@@ -744,7 +733,6 @@ export function buildApp(options: AppOptions) {
         );
       const ownerCandidates: IntegrationOwner[] = [
         'hermes',
-        'dmm',
         'worker',
         'chat',
         'memory-v4',
@@ -839,7 +827,7 @@ export function buildApp(options: AppOptions) {
   function canRead(current: SessionRecord, owner: ResourceRef['owner']): boolean {
     const permission: Partial<Record<ResourceRef['owner'], string>> = {
       hermes: 'profiles.read',
-      dmm: 'models.read',
+
       worker: 'work.read',
       chat: 'chat.read',
       'memory-v4': 'memory.read',
@@ -922,7 +910,7 @@ export function buildApp(options: AppOptions) {
   function notificationDeepLink(resource?: ResourceRef): string {
     const viewByOwner: Partial<Record<ResourceRef['owner'], string>> = {
       hermes: 'profiles',
-      dmm: 'models',
+
       worker: 'work',
       chat: 'chat',
       'memory-v4': 'memory',
@@ -936,7 +924,7 @@ export function buildApp(options: AppOptions) {
   }
   function ownerValue(value?: string): IntegrationOwner | undefined {
     if (!value) return undefined;
-    const owners: IntegrationOwner[] = ['hermes', 'dmm', 'worker', 'chat', 'memory-v4', 'gateway'];
+    const owners: IntegrationOwner[] = ['hermes', 'worker', 'chat', 'memory-v4', 'gateway'];
     if (!owners.includes(value as IntegrationOwner))
       throw new AuthError('INVALID_OWNER', 400, 'Unknown integration owner');
     return value as IntegrationOwner;

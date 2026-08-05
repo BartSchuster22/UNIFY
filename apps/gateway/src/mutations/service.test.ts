@@ -92,9 +92,6 @@ class Store implements GovernanceStore {
 
 function owners() {
   return new MutationOwnerClient({
-    dmmUrl: 'http://dmm.invalid',
-    dmmUsername: 'u',
-    dmmPassword: 'p',
     workerUrl: 'http://worker.invalid',
     workerToken: 'token',
     chatUrl: 'http://chat.invalid',
@@ -157,26 +154,17 @@ describe('mutation policy', () => {
     );
     expect(() => client.validate(memory('active', 'live'))).toThrowError(/only active\/working/i);
   });
-  it('rejects owner/kind mismatches and incomplete sensitive payloads', () => {
+  it('rejects owner/kind mismatches', () => {
     const client = owners();
     expect(() =>
       client.validate({
-        operationType: 'dmm.credential.save',
-        target: { owner: 'worker', kind: 'provider', nativeId: 'openai' },
-        payload: { secret: 'x' },
+        operationType: 'worker.project.create',
+        target: { owner: 'chat', kind: 'project', nativeId: 'new' },
+        payload: { name: 'Project' },
         mode: 'validate',
         confirmed: false,
       }),
     ).toThrowError(/target/i);
-    expect(() =>
-      client.validate({
-        operationType: 'dmm.credential.save',
-        target: { owner: 'dmm', kind: 'provider', nativeId: 'openai' },
-        payload: {},
-        mode: 'validate',
-        confirmed: false,
-      }),
-    ).toThrowError(/secret/i);
   });
 });
 
@@ -189,9 +177,9 @@ describe('mutation lifecycle', () => {
       .mockResolvedValue({ ok: true, credential: { token: 'raw', status: 'valid' } });
     const service = new MutationService(new GovernanceService(store), client);
     const input: MutationInput = {
-      operationType: 'dmm.credential.validate',
-      target: { owner: 'dmm', kind: 'provider', nativeId: 'openai' },
-      payload: {},
+      operationType: 'worker.project.create',
+      target: { owner: 'worker', kind: 'project', nativeId: 'new' },
+      payload: { name: 'Project' },
       mode: 'execute',
       confirmed: false,
     };
@@ -244,9 +232,9 @@ describe('mutation lifecycle', () => {
     vi.spyOn(client, 'execute').mockRejectedValue(new Error('owner unavailable'));
     const service = new MutationService(new GovernanceService(store), client);
     const input: MutationInput = {
-      operationType: 'dmm.credential.validate',
-      target: { owner: 'dmm', kind: 'provider', nativeId: 'openai' },
-      payload: {},
+      operationType: 'worker.project.create',
+      target: { owner: 'worker', kind: 'project', nativeId: 'new' },
+      payload: { name: 'Project' },
       mode: 'execute',
       confirmed: false,
     };

@@ -3711,10 +3711,6 @@
             "type": "string"
           },
           {
-            "const": "dmm",
-            "type": "string"
-          },
-          {
             "const": "worker",
             "type": "string"
           },
@@ -3827,10 +3823,6 @@
               },
               {
                 "const": "agency",
-                "type": "string"
-              },
-              {
-                "const": "dmm",
                 "type": "string"
               },
               {
@@ -3953,10 +3945,6 @@
                   },
                   {
                     "const": "agency",
-                    "type": "string"
-                  },
-                  {
-                    "const": "dmm",
                     "type": "string"
                   },
                   {
@@ -4206,10 +4194,6 @@
                     "type": "string"
                   },
                   {
-                    "const": "dmm",
-                    "type": "string"
-                  },
-                  {
                     "const": "worker",
                     "type": "string"
                   },
@@ -4429,10 +4413,6 @@
                       },
                       {
                         "const": "agency",
-                        "type": "string"
-                      },
-                      {
-                        "const": "dmm",
                         "type": "string"
                       },
                       {
@@ -4706,10 +4686,6 @@
                     "type": "string"
                   },
                   {
-                    "const": "dmm",
-                    "type": "string"
-                  },
-                  {
                     "const": "worker",
                     "type": "string"
                   },
@@ -4827,10 +4803,6 @@
                   },
                   {
                     "const": "agency",
-                    "type": "string"
-                  },
-                  {
-                    "const": "dmm",
                     "type": "string"
                   },
                   {
@@ -5106,10 +5078,6 @@
                   },
                   {
                     "const": "agency",
-                    "type": "string"
-                  },
-                  {
-                    "const": "dmm",
                     "type": "string"
                   },
                   {
@@ -5441,10 +5409,6 @@
                           "type": "string"
                         },
                         {
-                          "const": "dmm",
-                          "type": "string"
-                        },
-                        {
                           "const": "worker",
                           "type": "string"
                         },
@@ -5673,10 +5637,6 @@
                       },
                       {
                         "const": "agency",
-                        "type": "string"
-                      },
-                      {
-                        "const": "dmm",
                         "type": "string"
                       },
                       {
@@ -6061,10 +6021,6 @@
                       },
                       {
                         "const": "agency",
-                        "type": "string"
-                      },
-                      {
-                        "const": "dmm",
                         "type": "string"
                       },
                       {
@@ -6515,10 +6471,6 @@
                         "type": "string"
                       },
                       {
-                        "const": "dmm",
-                        "type": "string"
-                      },
-                      {
                         "const": "worker",
                         "type": "string"
                       },
@@ -6765,10 +6717,6 @@
                         "type": "string"
                       },
                       {
-                        "const": "dmm",
-                        "type": "string"
-                      },
-                      {
                         "const": "worker",
                         "type": "string"
                       },
@@ -6935,10 +6883,6 @@
                   "type": "string"
                 },
                 {
-                  "const": "dmm",
-                  "type": "string"
-                },
-                {
                   "const": "worker",
                   "type": "string"
                 },
@@ -7086,10 +7030,6 @@
                       },
                       {
                         "const": "agency",
-                        "type": "string"
-                      },
-                      {
-                        "const": "dmm",
                         "type": "string"
                       },
                       {
@@ -7329,10 +7269,6 @@
                             },
                             {
                               "const": "agency",
-                              "type": "string"
-                            },
-                            {
-                              "const": "dmm",
                               "type": "string"
                             },
                             {
@@ -7582,10 +7518,6 @@
                               "type": "string"
                             },
                             {
-                              "const": "dmm",
-                              "type": "string"
-                            },
-                            {
                               "const": "worker",
                               "type": "string"
                             },
@@ -7761,10 +7693,6 @@
                       },
                       {
                         "const": "agency",
-                        "type": "string"
-                      },
-                      {
-                        "const": "dmm",
                         "type": "string"
                       },
                       {
@@ -8016,10 +7944,6 @@
                             "type": "string"
                           },
                           {
-                            "const": "dmm",
-                            "type": "string"
-                          },
-                          {
                             "const": "worker",
                             "type": "string"
                           },
@@ -8263,10 +8187,6 @@
                           },
                           {
                             "const": "agency",
-                            "type": "string"
-                          },
-                          {
-                            "const": "dmm",
                             "type": "string"
                           },
                           {
@@ -8553,10 +8473,6 @@
                                   "type": "string"
                                 },
                                 {
-                                  "const": "dmm",
-                                  "type": "string"
-                                },
-                                {
                                   "const": "worker",
                                   "type": "string"
                                 },
@@ -8803,10 +8719,6 @@
                                   "type": "string"
                                 },
                                 {
-                                  "const": "dmm",
-                                  "type": "string"
-                                },
-                                {
                                   "const": "worker",
                                   "type": "string"
                                 },
@@ -8996,10 +8908,6 @@
                         "type": "string"
                       },
                       {
-                        "const": "dmm",
-                        "type": "string"
-                      },
-                      {
                         "const": "worker",
                         "type": "string"
                       },
@@ -9177,10 +9085,6 @@
                 "type": "string"
               },
               {
-                "const": "dmm",
-                "type": "string"
-              },
-              {
                 "const": "worker",
                 "type": "string"
               },
@@ -9320,10 +9224,6 @@
                     "type": "string"
                   },
                   {
-                    "const": "dmm",
-                    "type": "string"
-                  },
-                  {
                     "const": "worker",
                     "type": "string"
                   },
@@ -9448,10 +9348,6 @@
                     },
                     {
                       "const": "agency",
-                      "type": "string"
-                    },
-                    {
-                      "const": "dmm",
                       "type": "string"
                     },
                     {
@@ -9594,10 +9490,6 @@
                           "type": "string"
                         },
                         {
-                          "const": "dmm",
-                          "type": "string"
-                        },
-                        {
                           "const": "worker",
                           "type": "string"
                         },
@@ -9699,10 +9591,6 @@
                       },
                       {
                         "const": "agency",
-                        "type": "string"
-                      },
-                      {
-                        "const": "dmm",
                         "type": "string"
                       },
                       {
@@ -9898,10 +9786,6 @@
                           "type": "string"
                         },
                         {
-                          "const": "dmm",
-                          "type": "string"
-                        },
-                        {
                           "const": "worker",
                           "type": "string"
                         },
@@ -10019,10 +9903,6 @@
                         },
                         {
                           "const": "agency",
-                          "type": "string"
-                        },
-                        {
-                          "const": "dmm",
                           "type": "string"
                         },
                         {
@@ -10151,10 +10031,6 @@
                       },
                       {
                         "const": "agency",
-                        "type": "string"
-                      },
-                      {
-                        "const": "dmm",
                         "type": "string"
                       },
                       {
@@ -10312,10 +10188,6 @@
                 "type": "string"
               },
               {
-                "const": "dmm",
-                "type": "string"
-              },
-              {
                 "const": "worker",
                 "type": "string"
               },
@@ -10428,10 +10300,6 @@
                       "type": "string"
                     },
                     {
-                      "const": "dmm",
-                      "type": "string"
-                    },
-                    {
                       "const": "worker",
                       "type": "string"
                     },
@@ -10541,10 +10409,6 @@
                       },
                       {
                         "const": "agency",
-                        "type": "string"
-                      },
-                      {
-                        "const": "dmm",
                         "type": "string"
                       },
                       {
@@ -10687,10 +10551,6 @@
                 "type": "string"
               },
               {
-                "const": "dmm",
-                "type": "string"
-              },
-              {
                 "const": "worker",
                 "type": "string"
               },
@@ -10752,10 +10612,6 @@
                 "anyOf": [
                   {
                     "const": "hermes",
-                    "type": "string"
-                  },
-                  {
-                    "const": "dmm",
                     "type": "string"
                   },
                   {
@@ -10955,10 +10811,6 @@
                       },
                       {
                         "const": "agency",
-                        "type": "string"
-                      },
-                      {
-                        "const": "dmm",
                         "type": "string"
                       },
                       {
@@ -12138,6 +11990,237 @@
                     },
                     "selected": {
                       "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "page": {
+                "$id": "HermesPage",
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "hasMore"
+                ],
+                "properties": {
+                  "nextCursor": {
+                    "minLength": 1,
+                    "maxLength": 2048,
+                    "type": "string"
+                  },
+                  "hasMore": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "HermesModel": {
+        "$id": "HermesModel",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "providerId",
+          "displayName",
+          "capabilities",
+          "selected"
+        ],
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "maxLength": 300,
+            "type": "string"
+          },
+          "providerId": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "displayName": {
+            "minLength": 1,
+            "maxLength": 300,
+            "type": "string"
+          },
+          "capabilities": {
+            "uniqueItems": true,
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "const": "text",
+                  "type": "string"
+                },
+                {
+                  "const": "vision",
+                  "type": "string"
+                },
+                {
+                  "const": "audio",
+                  "type": "string"
+                },
+                {
+                  "const": "tool-use",
+                  "type": "string"
+                },
+                {
+                  "const": "structured-output",
+                  "type": "string"
+                },
+                {
+                  "const": "reasoning",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "contextWindow": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "maximumOutputTokens": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "selected": {
+            "type": "boolean"
+          },
+          "fallbackPriority": {
+            "minimum": 1,
+            "maximum": 99,
+            "type": "integer"
+          }
+        }
+      },
+      "HermesModelsResponse": {
+        "$id": "HermesModelsResponse",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contractVersion",
+          "frameworkId",
+          "frameworkVersion",
+          "frameworkCommit",
+          "sourceVersion",
+          "observedAt",
+          "data"
+        ],
+        "properties": {
+          "contractVersion": {
+            "$id": "HermesContractVersion",
+            "const": "hermes-control/v1",
+            "type": "string"
+          },
+          "frameworkId": {
+            "$id": "HermesFrameworkId",
+            "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+            "type": "string"
+          },
+          "frameworkVersion": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          },
+          "frameworkCommit": {
+            "pattern": "^[a-f0-9]{40}$",
+            "type": "string"
+          },
+          "sourceVersion": {
+            "minLength": 1,
+            "maxLength": 256,
+            "type": "string"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "data": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "items",
+              "page"
+            ],
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "$id": "HermesModel",
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "providerId",
+                    "displayName",
+                    "capabilities",
+                    "selected"
+                  ],
+                  "properties": {
+                    "id": {
+                      "minLength": 1,
+                      "maxLength": 300,
+                      "type": "string"
+                    },
+                    "providerId": {
+                      "minLength": 1,
+                      "maxLength": 200,
+                      "type": "string"
+                    },
+                    "displayName": {
+                      "minLength": 1,
+                      "maxLength": 300,
+                      "type": "string"
+                    },
+                    "capabilities": {
+                      "uniqueItems": true,
+                      "maxItems": 20,
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "const": "text",
+                            "type": "string"
+                          },
+                          {
+                            "const": "vision",
+                            "type": "string"
+                          },
+                          {
+                            "const": "audio",
+                            "type": "string"
+                          },
+                          {
+                            "const": "tool-use",
+                            "type": "string"
+                          },
+                          {
+                            "const": "structured-output",
+                            "type": "string"
+                          },
+                          {
+                            "const": "reasoning",
+                            "type": "string"
+                          }
+                        ]
+                      }
+                    },
+                    "contextWindow": {
+                      "minimum": 1,
+                      "type": "integer"
+                    },
+                    "maximumOutputTokens": {
+                      "minimum": 1,
+                      "type": "integer"
+                    },
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "fallbackPriority": {
+                      "minimum": 1,
+                      "maximum": 99,
+                      "type": "integer"
                     }
                   }
                 }

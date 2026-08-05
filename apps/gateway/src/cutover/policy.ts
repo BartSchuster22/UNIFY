@@ -5,7 +5,6 @@ export const mutationDomains = [
   'frameworks',
   'work',
   'profiles',
-  'dmm',
   'worker',
   'chat',
   'memory-v4',

@@ -395,10 +395,10 @@ describe('named-user session security', () => {
     expect(legacyProfiles.statusCode).toBe(404);
     const legacyModels = await app.inject({
       method: 'GET',
-      url: '/api/v1/models/dmm-context',
+      url: '/api/v1/models/legacy-context',
       headers: { cookie },
     });
-    expect(legacyModels.statusCode).toBe(503);
+    expect(legacyModels.statusCode).toBe(404);
     await app.close();
   });
 

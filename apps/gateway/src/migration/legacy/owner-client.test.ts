@@ -43,9 +43,6 @@ vi.mock('ws', () => {
 import { MutationOwnerClient, type MutationInput } from './owner-client.js';
 
 const config = {
-  dmmUrl: 'https://dmm.test',
-  dmmUsername: 'dmm-user',
-  dmmPassword: 'dmm-password',
   workerUrl: 'https://worker.test',
   workerToken: 'worker-token',
   chatUrl: 'https://chat.test',
@@ -81,34 +78,6 @@ afterEach(() => {
 });
 
 describe('MutationOwnerClient', () => {
-  it('reads the fixed DMM provider, model and credential-status inventory without arbitrary proxy paths', async () => {
-    const calls: string[] = [];
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(async (request: string | URL | Request) => {
-        const url = String(request);
-        calls.push(url);
-        if (url.endsWith('/api/auth/login'))
-          return new Response(JSON.stringify({ data: { csrfToken: 'csrf' } }), {
-            headers: { 'content-type': 'application/json', 'set-cookie': 'dmm=session; Secure' },
-          });
-        return Response.json({ ok: true, data: {} });
-      }),
-    );
-    await new MutationOwnerClient(config).dmmInventory();
-    for (const path of [
-      '/api/providers',
-      '/api/providers/requirements',
-      '/api/credentials',
-      '/api/models',
-      '/api/normalized-state',
-    ])
-      expect(
-        calls.some((url) => url.endsWith(path)),
-        path,
-      ).toBe(true);
-  });
-
   it('reads CHAT agents, sessions and one validated session message history', async () => {
     const calls: string[] = [];
     vi.stubGlobal(
@@ -244,15 +213,7 @@ describe('MutationOwnerClient', () => {
       vi.fn(async (request: string | URL | Request, init: RequestInit = {}) => {
         const url = String(request);
         calls.push({ url, init });
-        if (url.endsWith('/api/auth/login')) {
-          const dmm = url.startsWith(config.dmmUrl);
-          return new Response(dmm ? JSON.stringify({ data: { csrfToken: 'dmm-csrf' } }) : '{}', {
-            headers: {
-              'content-type': 'application/json',
-              'set-cookie': `${dmm ? 'dmm' : 'agency'}=session; Secure`,
-            },
-          });
-        }
+
         if (url.endsWith('/auth/login'))
           return new Response('{}', { headers: { 'set-cookie': 'chat=session; Secure' } });
         if (url.endsWith('/api/chat/sessions') && init.method === 'GET')
@@ -265,11 +226,6 @@ describe('MutationOwnerClient', () => {
     );
     const owners = new MutationOwnerClient(config);
     const cases: Array<[MutationInput, string, string]> = [
-      [
-        input('dmm.credential.save', 'dmm', 'provider', 'openai', { secret: 'credential' }),
-        'POST',
-        '/api/providers/openai/credential',
-      ],
       [
         input('chat.session.create', 'chat', 'chat-session', 'new', {
           agent_id: 'hermes.herman',
@@ -333,8 +289,7 @@ describe('MutationOwnerClient', () => {
       expect(call, path).toBeDefined();
       expect(call?.init.method).toBe(method);
     }
-    const dmm = calls.find((call) => call.url.endsWith('/api/providers/openai/credential'))!;
-    expect(dmm.init.headers).toMatchObject({ cookie: 'dmm=session', 'x-csrf-token': 'dmm-csrf' });
+
     const worker = calls.find((call) => call.url.endsWith('/api/kanban/projects'))!;
     expect(worker.init.headers).toMatchObject({ authorization: 'Bearer worker-token' });
     const memory = calls.find((call) => call.url.endsWith('/entities/project/unify/records'))!;

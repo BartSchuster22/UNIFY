@@ -262,8 +262,22 @@ export const ProviderSchema = Type.Object(
       Type.Literal('missing'),
       Type.Literal('configured'),
       Type.Literal('invalid'),
+      Type.Literal('unknown'),
+    ]),
+    credentialReference: Type.Union([
+      Type.String({ pattern: '^secret://[A-Za-z0-9._/-]+$' }),
+      Type.Null(),
     ]),
     state: ResourceState,
+    observedState: Type.Union([
+      Type.Literal('unknown'),
+      Type.Literal('available'),
+      Type.Literal('invalid'),
+      Type.Literal('unavailable'),
+      Type.Literal('disabled'),
+    ]),
+    selectedDefault: Type.Boolean(),
+    sourceVersion: Type.Union([Type.String({ minLength: 1, maxLength: 256 }), Type.Null()]),
     lastValidatedAt: Type.Union([TimestampSchema, Type.Null()]),
   },
   { $id: 'Provider', ...strict },
@@ -275,7 +289,24 @@ export const ModelSchema = Type.Object(
     providerId: canonicalIdSchema('provider'),
     nativeReference: Type.String({ minLength: 1, maxLength: 500 }),
     name: Label,
+    aliases: Type.Array(Type.String({ minLength: 1, maxLength: 500 }), {
+      maxItems: 100,
+      uniqueItems: true,
+    }),
     state: ResourceState,
+    desiredState: Type.Union([
+      Type.Literal('enabled'),
+      Type.Literal('disabled'),
+      Type.Literal('retired'),
+    ]),
+    observedState: Type.Union([
+      Type.Literal('available'),
+      Type.Literal('unavailable'),
+      Type.Literal('retired'),
+    ]),
+    selectedDefault: Type.Boolean(),
+    selectable: Type.Boolean(),
+    sourceVersion: Type.Union([Type.String({ minLength: 1, maxLength: 256 }), Type.Null()]),
     contextWindow: Type.Union([Type.Integer({ minimum: 1 }), Type.Null()]),
     maximumOutputTokens: Type.Union([Type.Integer({ minimum: 1 }), Type.Null()]),
     capabilities: Type.Array(
@@ -289,9 +320,65 @@ export const ModelSchema = Type.Object(
       ]),
       { uniqueItems: true },
     ),
-    observedAt: TimestampSchema,
+    observedAt: Type.Union([TimestampSchema, Type.Null()]),
   },
   { $id: 'Model', ...strict },
+);
+
+export const ModelRoutingCandidateSchema = Type.Object(
+  {
+    modelId: canonicalIdSchema('model'),
+    priority: Type.Integer({ minimum: 0, maximum: 99 }),
+    required: Type.Boolean(),
+    requiredCapabilities: Type.Array(
+      Type.Union([
+        Type.Literal('text'),
+        Type.Literal('vision'),
+        Type.Literal('audio'),
+        Type.Literal('tool-use'),
+        Type.Literal('structured-output'),
+        Type.Literal('reasoning'),
+      ]),
+      { maxItems: 20, uniqueItems: true },
+    ),
+    enabled: Type.Boolean(),
+  },
+  { $id: 'ModelRoutingCandidate', ...strict },
+);
+export const ModelRoutingPolicySchema = Type.Object(
+  {
+    meta: ResourceMetaSchema,
+    profileId: canonicalIdSchema('profile'),
+    candidates: Type.Array(ModelRoutingCandidateSchema, { minItems: 1, maxItems: 100 }),
+  },
+  { $id: 'ModelRoutingPolicy', ...strict },
+);
+export const ModelReconciliationSchema = Type.Object(
+  {
+    id: canonicalIdSchema('reconciliation'),
+    frameworkId: canonicalIdSchema('framework'),
+    providerSourceVersion: Type.String({ minLength: 1, maxLength: 256 }),
+    modelSourceVersion: Type.String({ minLength: 1, maxLength: 256 }),
+    status: Type.Union([
+      Type.Literal('converged'),
+      Type.Literal('drifted'),
+      Type.Literal('failed'),
+    ]),
+    changes: Type.Array(Type.Record(Type.String(), Type.Unknown()), { maxItems: 1_000 }),
+    createdAt: TimestampSchema,
+  },
+  { $id: 'ModelReconciliation', ...strict },
+);
+export const ModelRouteResolutionSchema = Type.Object(
+  {
+    profileId: canonicalIdSchema('profile'),
+    selectedModel: Type.Union([ModelSchema, Type.Null()]),
+    rejections: Type.Array(
+      Type.Object({ modelId: canonicalIdSchema('model'), reasons: StringArray }, strict),
+      { maxItems: 100 },
+    ),
+  },
+  { $id: 'ModelRouteResolution', ...strict },
 );
 
 export const ProjectSchema = Type.Object(
@@ -579,6 +666,10 @@ export const ProfileReconciliationListSchema = listSchema(
 );
 export const ProviderListSchema = listSchema('ProviderList', ProviderSchema);
 export const ModelListSchema = listSchema('ModelList', ModelSchema);
+export const ModelReconciliationListSchema = listSchema(
+  'ModelReconciliationList',
+  ModelReconciliationSchema,
+);
 export const ProjectListSchema = listSchema('ProjectList', ProjectSchema);
 export const BoardListSchema = listSchema('BoardList', BoardSchema);
 export const TaskListSchema = listSchema('TaskList', TaskSchema);
@@ -683,12 +774,23 @@ export const ProviderValidationInputSchema = Type.Object(
 );
 export const RoutingPolicyInputSchema = Type.Object(
   {
-    profileId: canonicalIdSchema('profile'),
-    primaryModelId: canonicalIdSchema('model'),
-    fallbackModelIds: Type.Array(canonicalIdSchema('model'), { maxItems: 20, uniqueItems: true }),
-    requiredCapabilities: StringArray,
+    candidates: Type.Array(
+      Type.Object(
+        {
+          modelId: canonicalIdSchema('model'),
+          required: Type.Optional(Type.Boolean()),
+          requiredCapabilities: Type.Optional(StringArray),
+        },
+        strict,
+      ),
+      { minItems: 1, maxItems: 100 },
+    ),
   },
   { $id: 'RoutingPolicyInput', ...strict },
+);
+export const ModelRouteResolutionInputSchema = Type.Object(
+  { requiredCapabilities: StringArray },
+  { $id: 'ModelRouteResolutionInput', ...strict },
 );
 export const ProjectCreateInputSchema = Type.Object(
   {
@@ -904,6 +1006,7 @@ const commandDefinitions = [
   ],
   ['ProviderCredentialDeleteCommand', 'provider.credential-reference.delete.v1', EmptyInputSchema],
   ['ProviderValidateCommand', 'provider.validate.v1', ProviderValidationInputSchema],
+  ['ModelReconcileCommand', 'model.inventory.reconcile.v1', EmptyInputSchema],
   ['RoutingPolicyCommand', 'model.routing-policy.update.v1', RoutingPolicyInputSchema],
   ['ProjectCreateCommand', 'work.project.create.v1', ProjectCreateInputSchema],
   ['ProjectUpdateCommand', 'work.project.update.v1', ProjectUpdateInputSchema],
@@ -956,6 +1059,11 @@ export const ResourceSchemas: Record<string, TSchema> = {
   ProviderList: ProviderListSchema,
   Model: ModelSchema,
   ModelList: ModelListSchema,
+  ModelRoutingCandidate: ModelRoutingCandidateSchema,
+  ModelRoutingPolicy: ModelRoutingPolicySchema,
+  ModelReconciliation: ModelReconciliationSchema,
+  ModelReconciliationList: ModelReconciliationListSchema,
+  ModelRouteResolution: ModelRouteResolutionSchema,
   Project: ProjectSchema,
   ProjectList: ProjectListSchema,
   Board: BoardSchema,
@@ -1003,6 +1111,7 @@ export const InputSchemas: Record<string, TSchema> = {
   CredentialReferenceInput: CredentialReferenceInputSchema,
   ProviderValidationInput: ProviderValidationInputSchema,
   RoutingPolicyInput: RoutingPolicyInputSchema,
+  ModelRouteResolutionInput: ModelRouteResolutionInputSchema,
   ProjectCreateInput: ProjectCreateInputSchema,
   ProjectUpdateInput: ProjectUpdateInputSchema,
   LifecycleActionInput: LifecycleActionInputSchema,

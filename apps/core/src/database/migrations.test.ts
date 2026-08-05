@@ -27,7 +27,7 @@ test('discovers contiguous migrations and stable checksums', async () => {
   const migrations = await loadMigrations();
   assert.deepEqual(
     migrations.map((migration) => migration.version),
-    [1, 2, 3, 4, 5, 6, 7, 8],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9],
   );
   assert.equal(new Set(migrations.map((migration) => migration.checksum)).size, migrations.length);
   for (const migration of migrations) assert.match(migration.checksum, /^[a-f0-9]{64}$/);

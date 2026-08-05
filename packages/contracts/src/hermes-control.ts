@@ -220,6 +220,34 @@ export const HermesProvidersResponseSchema = controlCollectionResponse(
   HermesProviderSchema,
 );
 
+export const HermesModelSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1, maxLength: 300 }),
+    providerId: Type.String({ minLength: 1, maxLength: 200 }),
+    displayName: Type.String({ minLength: 1, maxLength: 300 }),
+    capabilities: Type.Array(
+      Type.Union([
+        Type.Literal('text'),
+        Type.Literal('vision'),
+        Type.Literal('audio'),
+        Type.Literal('tool-use'),
+        Type.Literal('structured-output'),
+        Type.Literal('reasoning'),
+      ]),
+      { uniqueItems: true, maxItems: 20 },
+    ),
+    contextWindow: Type.Optional(Type.Integer({ minimum: 1 })),
+    maximumOutputTokens: Type.Optional(Type.Integer({ minimum: 1 })),
+    selected: Type.Boolean(),
+    fallbackPriority: Type.Optional(Type.Integer({ minimum: 1, maximum: 99 })),
+  },
+  { $id: 'HermesModel', additionalProperties: false },
+);
+export const HermesModelsResponseSchema = controlCollectionResponse(
+  'HermesModelsResponse',
+  HermesModelSchema,
+);
+
 export const HermesBoardSchema = Type.Object(
   {
     id: Type.String({ minLength: 1, maxLength: 200 }),
@@ -742,6 +770,7 @@ export type HermesVersionResponse = Static<typeof HermesVersionResponseSchema>;
 export type HermesCapabilitiesResponse = Static<typeof HermesCapabilitiesResponseSchema>;
 export type HermesProfile = Static<typeof HermesProfileSchema>;
 export type HermesProvider = Static<typeof HermesProviderSchema>;
+export type HermesModel = Static<typeof HermesModelSchema>;
 export type HermesBoard = Static<typeof HermesBoardSchema>;
 export type HermesProject = Static<typeof HermesProjectSchema>;
 export type HermesTask = Static<typeof HermesTaskSchema>;
@@ -778,6 +807,8 @@ export const HermesControlSchemas = [
   HermesProfilesResponseSchema,
   HermesProviderSchema,
   HermesProvidersResponseSchema,
+  HermesModelSchema,
+  HermesModelsResponseSchema,
   HermesBoardSchema,
   HermesBoardsResponseSchema,
   HermesProjectSchema,

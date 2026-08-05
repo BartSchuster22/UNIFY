@@ -6,9 +6,11 @@ import {
   HermesCapabilitiesResponseSchema,
   HermesHealthResponseSchema,
   HermesIdentityResponseSchema,
+  HermesModelsResponseSchema,
   HermesProfileCommandSchema,
   HermesProfileResultSchema,
   HermesProfilesResponseSchema,
+  HermesProvidersResponseSchema,
   HermesVersionResponseSchema,
   type HermesProfileCommand,
 } from '@aquiero/contracts';
@@ -134,6 +136,22 @@ export class HermesFrameworkClient {
     return (
       await this.#circuit.execute(() =>
         this.#get('/control/v1/profiles?limit=500', HermesProfilesResponseSchema),
+      )
+    ).document;
+  }
+
+  async providers() {
+    return (
+      await this.#circuit.execute(() =>
+        this.#get('/control/v1/providers?limit=500', HermesProvidersResponseSchema),
+      )
+    ).document;
+  }
+
+  async models() {
+    return (
+      await this.#circuit.execute(() =>
+        this.#get('/control/v1/models?limit=500', HermesModelsResponseSchema),
       )
     ).document;
   }

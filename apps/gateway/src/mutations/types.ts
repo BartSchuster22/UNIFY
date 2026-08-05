@@ -1,5 +1,5 @@
 export type MutationTarget = {
-  owner: 'hermes' | 'dmm' | 'worker' | 'chat' | 'memory-v4';
+  owner: 'hermes' | 'worker' | 'chat' | 'memory-v4';
   kind: string;
   nativeId: string;
   frameworkId?: string;
@@ -130,13 +130,7 @@ export interface LegacyMutationOwnerClient {
   definition(operationType: string): MutationDefinition;
   validate(input: MutationInput): MutationDefinition;
   execute(input: MutationInput): Promise<unknown>;
-  dmmInventory(): Promise<{
-    providers: unknown;
-    requirements: unknown;
-    credentials: unknown;
-    models: unknown;
-    normalizedState: unknown;
-  }>;
+
   chatWorkspace(sessionId?: string): Promise<{
     agents: unknown;
     sessions: unknown;

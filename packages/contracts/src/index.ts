@@ -48,7 +48,6 @@ export const ResourceOwnerSchema = Type.Union(
   [
     Type.Literal('hermes'),
     Type.Literal('agency'),
-    Type.Literal('dmm'),
     Type.Literal('worker'),
     Type.Literal('chat'),
     Type.Literal('memory-v4'),
@@ -445,7 +444,6 @@ export const MutationTargetSchema = Type.Object(
   {
     owner: Type.Union([
       Type.Literal('hermes'),
-      Type.Literal('dmm'),
       Type.Literal('worker'),
       Type.Literal('chat'),
       Type.Literal('memory-v4'),

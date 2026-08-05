@@ -5,6 +5,7 @@ import type {
   HermesConversationCommand,
   HermesEventEnvelope,
   HermesMessage,
+  HermesModel,
   HermesProfile,
   HermesProfileCommand,
   HermesProject,
@@ -25,6 +26,7 @@ export interface AdapterSource {
   profiles(): Promise<Snapshot<HermesProfile>>;
   executeProfile(command: HermesProfileCommand): Promise<Record<string, unknown>>;
   providers(): Promise<Snapshot<HermesProvider>>;
+  models(): Promise<Snapshot<HermesModel>>;
   projects(): Promise<Snapshot<HermesProject>>;
   boards(): Promise<Snapshot<HermesBoard>>;
   tasks(boardId: string): Promise<Snapshot<HermesTask>>;

@@ -208,6 +208,24 @@ export class FrameworkGatewayService {
     return this.#nativeClient(registration).profiles();
   }
 
+  async listNativeProviders(
+    frameworkId: string,
+    actor: AuthenticatedPrincipal,
+    context: RequestContext,
+  ) {
+    const registration = await this.getFramework(frameworkId, actor, context);
+    return this.#nativeClient(registration).providers();
+  }
+
+  async listNativeModels(
+    frameworkId: string,
+    actor: AuthenticatedPrincipal,
+    context: RequestContext,
+  ) {
+    const registration = await this.getFramework(frameworkId, actor, context);
+    return this.#nativeClient(registration).models();
+  }
+
   async executeNativeProfile(
     frameworkId: string,
     command: HermesProfileCommand,

@@ -14,12 +14,12 @@ async function productionTypescriptFiles(directory: string): Promise<string[]> {
 }
 
 describe('standalone runtime boundary', () => {
-  it('contains no Agency runtime code or configuration', async () => {
+  it('contains no Agency or DMM runtime code or configuration', async () => {
     const files = await productionTypescriptFiles(new URL('.', import.meta.url).pathname);
     const violations: string[] = [];
     for (const file of files) {
       const source = await readFile(file, 'utf8');
-      if (/agency/i.test(source)) violations.push(file);
+      if (/agency|dmm/i.test(source)) violations.push(file);
     }
     expect(violations).toEqual([]);
   });

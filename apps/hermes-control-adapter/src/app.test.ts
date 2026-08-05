@@ -8,6 +8,7 @@ import {
   HermesControlErrorResponseSchema,
   HermesEventsResponseSchema,
   HermesIdentityResponseSchema,
+  HermesModelsResponseSchema,
   HermesProfilesResponseSchema,
   HermesProvidersResponseSchema,
   HermesReconcileResultSchema,
@@ -46,6 +47,18 @@ const source: AdapterSource = {
       },
     ],
     sourceVersion: 'sha256:providers',
+  }),
+  models: async () => ({
+    items: [
+      {
+        id: 'gpt-5.5',
+        providerId: 'openai-codex',
+        displayName: 'GPT-5.5',
+        capabilities: ['text', 'tool-use'],
+        selected: true,
+      },
+    ],
+    sourceVersion: 'sha256:models',
   }),
   projects: async () => ({
     items: [{ id: 'board-1', name: 'Project 1', boardId: 'board-1', archived: false }],
@@ -155,6 +168,7 @@ describe('Hermes control adapter', () => {
     const cases = [
       ['/control/v1/profiles?limit=1', HermesProfilesResponseSchema],
       ['/control/v1/providers', HermesProvidersResponseSchema],
+      ['/control/v1/models', HermesModelsResponseSchema],
       ['/control/v1/work/boards', HermesBoardsResponseSchema],
       ['/control/v1/work/boards/board-1/tasks', HermesTasksResponseSchema],
       ['/control/v1/conversations/sessions', HermesSessionsResponseSchema],

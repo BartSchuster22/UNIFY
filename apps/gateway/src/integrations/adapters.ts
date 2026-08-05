@@ -232,22 +232,10 @@ export class MemoryReadAdapter extends ConfiguredReadAdapter {
 }
 
 export function createDefaultAdapters(env: NodeJS.ProcessEnv = process.env): SourceAdapter[] {
-  const dmmAuth = sessionAuth(env.DMM_USERNAME, env.DMM_PASSWORD, '/api/auth/login');
   const chatAuth: Auth = env.CHAT_PASSWORD
     ? { type: 'session', loginPath: '/auth/login', body: { password: env.CHAT_PASSWORD } }
     : { type: 'none' };
   return [
-    new ConfiguredReadAdapter({
-      id: 'dmm-read-v1',
-      owners: ['dmm'],
-      baseUrl: env.DMM_URL,
-      auth: dmmAuth,
-      endpoints: [
-        { path: '/api/providers', key: 'providers', kind: 'provider' },
-        { path: '/api/models', key: 'models', kind: 'model' },
-        { path: '/api/catalog/snapshots', key: 'snapshots', kind: 'catalog-snapshot' },
-      ],
-    }),
     new ConfiguredReadAdapter({
       id: 'worker-read-v1',
       owners: ['worker'],
@@ -276,16 +264,6 @@ export function createDefaultAdapters(env: NodeJS.ProcessEnv = process.env): Sou
       endpoints: [{ path: '/records?scope_path=global', key: 'records', kind: 'memory-record' }],
     }),
   ];
-}
-
-function sessionAuth(
-  username: string | undefined,
-  password: string | undefined,
-  loginPath: string,
-): Auth {
-  return username && password
-    ? { type: 'session', loginPath, body: { username, password } }
-    : { type: 'none' };
 }
 
 function arrayFrom(value: unknown, key: string): JsonRecord[] {

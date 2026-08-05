@@ -6,6 +6,7 @@ import type {
   HermesCronjob,
   HermesConversationCommand,
   HermesMessage,
+  HermesModel,
   HermesProfile,
   HermesProfileCommand,
   HermesProject,
@@ -145,7 +146,7 @@ export class HermesNativeSource implements AdapterSource {
       const match = /^\s{2}(.+?)\s{2,}([✓✗])(?:\s|$)/.exec(line);
       if (!match) continue;
       const displayName = match[1]?.trim() ?? '';
-      const id = slug(displayName);
+      const id = providerId(displayName);
       if (!id) continue;
       const configured = match[2] === '✓';
       const previous = providers.get(id);
@@ -163,14 +164,62 @@ export class HermesNativeSource implements AdapterSource {
       );
       if (selected) selected.selected = true;
       else
-        providers.set(slug(selectedName), {
-          id: slug(selectedName),
+        providers.set(providerId(selectedName), {
+          id: providerId(selectedName),
           displayName: selectedName,
           credentialStatus: 'unknown',
           selected: true,
         });
     }
     return snapshot([...providers.values()].sort((a, b) => a.id.localeCompare(b.id)));
+  }
+
+  async models(): Promise<Snapshot<HermesModel>> {
+    const status = stripAnsi(await this.options.runner.run(['status', '--all']));
+    const selectedModel = /^\s*Model:\s+(.+)$/m.exec(status)?.[1]?.trim();
+    const selectedProvider = /^\s*Provider:\s+(.+)$/m.exec(status)?.[1]?.trim();
+    const models = new Map<string, HermesModel>();
+    if (selectedModel && selectedProvider) {
+      const selectedProviderId = providerId(selectedProvider);
+      models.set(`${selectedProviderId}/${selectedModel}`, {
+        id: selectedModel,
+        providerId: selectedProviderId,
+        displayName: selectedModel,
+        capabilities: [],
+        selected: true,
+      });
+    }
+    const fallback = stripAnsi(await this.options.runner.run(['fallback', 'list']));
+    for (const match of fallback.matchAll(/^\s*(\d+)\.\s+(.+?)\s+\(via\s+(.+?)\)\s*$/gm)) {
+      const priority = Number(match[1]);
+      const modelId = match[2]?.trim();
+      const fallbackProviderId = providerId(match[3]?.trim() ?? '');
+      if (
+        !modelId ||
+        !fallbackProviderId ||
+        !Number.isInteger(priority) ||
+        priority < 1 ||
+        priority > 99
+      )
+        continue;
+      const key = `${fallbackProviderId}/${modelId}`;
+      models.set(key, {
+        id: modelId,
+        providerId: fallbackProviderId,
+        displayName: modelId,
+        capabilities: [],
+        selected: models.get(key)?.selected ?? false,
+        fallbackPriority: priority,
+      });
+    }
+    return snapshot(
+      [...models.values()].sort(
+        (left, right) =>
+          Number(right.selected) - Number(left.selected) ||
+          (left.fallbackPriority ?? 100) - (right.fallbackPriority ?? 100) ||
+          left.id.localeCompare(right.id),
+      ),
+    );
   }
 
   async projects(): Promise<Snapshot<HermesProject>> {
@@ -740,6 +789,17 @@ function normalizeCronSchedule(value: string) {
   const unit = match[2]?.toLowerCase();
   const minutes = unit === 'd' ? count * 1440 : unit === 'h' ? count * 60 : count;
   return `every ${minutes}m`;
+}
+
+function providerId(value: string) {
+  const normalized = slug(value);
+  const aliases: Record<string, string> = {
+    'z-ai-glm': 'zai',
+    'kimi-moonshot': 'kimi',
+    'stepfun-step-plan': 'stepfun',
+    'minimax-china': 'minimax-cn',
+  };
+  return aliases[normalized] ?? normalized;
 }
 
 function slug(value: string) {

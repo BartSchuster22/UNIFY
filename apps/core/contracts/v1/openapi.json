@@ -2823,7 +2823,246 @@
         }
       }
     },
+    "/frameworks/{frameworkId}/model-reconciliations": {
+      "post": {
+        "tags": ["models"],
+        "operationId": "modelReconcile",
+        "summary": "Reconcile native provider and model inventory",
+        "security": [{ "cookieSession": [], "csrfToken": [] }, { "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "frameworkId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^frm_[0-9A-HJKMNP-TV-Z]{26}$" }
+          }
+        ],
+        "x-unify-reject-unknown-query": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ModelReconcileCommand" }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Success",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CommandAccepted" } }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "403": {
+            "description": "Authorization denied",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "409": {
+            "description": "Resource or idempotency conflict",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "422": {
+            "description": "Command precondition failed",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["models"],
+        "operationId": "modelReconciliationList",
+        "summary": "List provider and model reconciliation evidence",
+        "security": [{ "cookieSession": [] }, { "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "frameworkId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^frm_[0-9A-HJKMNP-TV-Z]{26}$" }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": { "$ref": "#/components/schemas/Cursor" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "minimum": 1, "maximum": 200, "default": 50 }
+          }
+        ],
+        "x-unify-reject-unknown-query": true,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ModelReconciliationList" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "403": {
+            "description": "Authorization denied",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "409": {
+            "description": "Resource or idempotency conflict",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "422": {
+            "description": "Command precondition failed",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          }
+        }
+      }
+    },
     "/model-routing-policies/{profileId}": {
+      "get": {
+        "tags": ["models"],
+        "operationId": "modelGetRoutingPolicy",
+        "summary": "Get model routing policy",
+        "security": [{ "cookieSession": [] }, { "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "profileId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^prf_[0-9A-HJKMNP-TV-Z]{26}$" }
+          }
+        ],
+        "x-unify-reject-unknown-query": true,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ModelRoutingPolicy" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "403": {
+            "description": "Authorization denied",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "409": {
+            "description": "Resource or idempotency conflict",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "422": {
+            "description": "Command precondition failed",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          }
+        }
+      },
       "put": {
         "tags": ["models"],
         "operationId": "modelUpdateRoutingPolicy",
@@ -2851,6 +3090,89 @@
             "description": "Success",
             "content": {
               "application/json": { "schema": { "$ref": "#/components/schemas/CommandAccepted" } }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "403": {
+            "description": "Authorization denied",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "409": {
+            "description": "Resource or idempotency conflict",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "422": {
+            "description": "Command precondition failed",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/model-routing-policies/{profileId}/resolutions": {
+      "post": {
+        "tags": ["models"],
+        "operationId": "modelResolveRoute",
+        "summary": "Resolve a model route with rejection reasons",
+        "security": [{ "cookieSession": [] }, { "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "profileId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^prf_[0-9A-HJKMNP-TV-Z]{26}$" }
+          }
+        ],
+        "x-unify-reject-unknown-query": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ModelRouteResolutionInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ModelRouteResolution" }
+              }
             }
           },
           "400": {
@@ -6430,16 +6752,36 @@
         "$id": "RoutingPolicyInput",
         "additionalProperties": false,
         "type": "object",
-        "required": ["profileId", "primaryModelId", "fallbackModelIds", "requiredCapabilities"],
+        "required": ["candidates"],
         "properties": {
-          "profileId": { "pattern": "^prf_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
-          "primaryModelId": { "pattern": "^mdl_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
-          "fallbackModelIds": {
-            "maxItems": 20,
-            "uniqueItems": true,
+          "candidates": {
+            "minItems": 1,
+            "maxItems": 100,
             "type": "array",
-            "items": { "pattern": "^mdl_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" }
-          },
+            "items": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["modelId"],
+              "properties": {
+                "modelId": { "pattern": "^mdl_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+                "required": { "type": "boolean" },
+                "requiredCapabilities": {
+                  "maxItems": 200,
+                  "uniqueItems": true,
+                  "type": "array",
+                  "items": { "minLength": 1, "maxLength": 500, "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ModelRouteResolutionInput": {
+        "$id": "ModelRouteResolutionInput",
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["requiredCapabilities"],
+        "properties": {
           "requiredCapabilities": {
             "maxItems": 200,
             "uniqueItems": true,
@@ -7807,7 +8149,11 @@
           "name",
           "authenticationMethod",
           "credentialState",
+          "credentialReference",
           "state",
+          "observedState",
+          "selectedDefault",
+          "sourceVersion",
           "lastValidatedAt"
         ],
         "properties": {
@@ -7844,7 +8190,14 @@
               { "const": "not-required", "type": "string" },
               { "const": "missing", "type": "string" },
               { "const": "configured", "type": "string" },
-              { "const": "invalid", "type": "string" }
+              { "const": "invalid", "type": "string" },
+              { "const": "unknown", "type": "string" }
+            ]
+          },
+          "credentialReference": {
+            "anyOf": [
+              { "pattern": "^secret://[A-Za-z0-9._/-]+$", "type": "string" },
+              { "type": "null" }
             ]
           },
           "state": {
@@ -7853,6 +8206,19 @@
               { "const": "inactive", "type": "string" },
               { "const": "archived", "type": "string" }
             ]
+          },
+          "observedState": {
+            "anyOf": [
+              { "const": "unknown", "type": "string" },
+              { "const": "available", "type": "string" },
+              { "const": "invalid", "type": "string" },
+              { "const": "unavailable", "type": "string" },
+              { "const": "disabled", "type": "string" }
+            ]
+          },
+          "selectedDefault": { "type": "boolean" },
+          "sourceVersion": {
+            "anyOf": [{ "minLength": 1, "maxLength": 256, "type": "string" }, { "type": "null" }]
           },
           "lastValidatedAt": {
             "anyOf": [
@@ -7881,7 +8247,11 @@
                 "name",
                 "authenticationMethod",
                 "credentialState",
+                "credentialReference",
                 "state",
+                "observedState",
+                "selectedDefault",
+                "sourceVersion",
                 "lastValidatedAt"
               ],
               "properties": {
@@ -7918,7 +8288,14 @@
                     { "const": "not-required", "type": "string" },
                     { "const": "missing", "type": "string" },
                     { "const": "configured", "type": "string" },
-                    { "const": "invalid", "type": "string" }
+                    { "const": "invalid", "type": "string" },
+                    { "const": "unknown", "type": "string" }
+                  ]
+                },
+                "credentialReference": {
+                  "anyOf": [
+                    { "pattern": "^secret://[A-Za-z0-9._/-]+$", "type": "string" },
+                    { "type": "null" }
                   ]
                 },
                 "state": {
@@ -7926,6 +8303,22 @@
                     { "const": "active", "type": "string" },
                     { "const": "inactive", "type": "string" },
                     { "const": "archived", "type": "string" }
+                  ]
+                },
+                "observedState": {
+                  "anyOf": [
+                    { "const": "unknown", "type": "string" },
+                    { "const": "available", "type": "string" },
+                    { "const": "invalid", "type": "string" },
+                    { "const": "unavailable", "type": "string" },
+                    { "const": "disabled", "type": "string" }
+                  ]
+                },
+                "selectedDefault": { "type": "boolean" },
+                "sourceVersion": {
+                  "anyOf": [
+                    { "minLength": 1, "maxLength": 256, "type": "string" },
+                    { "type": "null" }
                   ]
                 },
                 "lastValidatedAt": {
@@ -7963,7 +8356,13 @@
           "providerId",
           "nativeReference",
           "name",
+          "aliases",
           "state",
+          "desiredState",
+          "observedState",
+          "selectedDefault",
+          "selectable",
+          "sourceVersion",
           "contextWindow",
           "maximumOutputTokens",
           "capabilities",
@@ -7990,12 +8389,37 @@
           "providerId": { "pattern": "^pvd_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
           "nativeReference": { "minLength": 1, "maxLength": 500, "type": "string" },
           "name": { "minLength": 1, "maxLength": 200, "type": "string" },
+          "aliases": {
+            "maxItems": 100,
+            "uniqueItems": true,
+            "type": "array",
+            "items": { "minLength": 1, "maxLength": 500, "type": "string" }
+          },
           "state": {
             "anyOf": [
               { "const": "active", "type": "string" },
               { "const": "inactive", "type": "string" },
               { "const": "archived", "type": "string" }
             ]
+          },
+          "desiredState": {
+            "anyOf": [
+              { "const": "enabled", "type": "string" },
+              { "const": "disabled", "type": "string" },
+              { "const": "retired", "type": "string" }
+            ]
+          },
+          "observedState": {
+            "anyOf": [
+              { "const": "available", "type": "string" },
+              { "const": "unavailable", "type": "string" },
+              { "const": "retired", "type": "string" }
+            ]
+          },
+          "selectedDefault": { "type": "boolean" },
+          "selectable": { "type": "boolean" },
+          "sourceVersion": {
+            "anyOf": [{ "minLength": 1, "maxLength": 256, "type": "string" }, { "type": "null" }]
           },
           "contextWindow": { "anyOf": [{ "minimum": 1, "type": "integer" }, { "type": "null" }] },
           "maximumOutputTokens": {
@@ -8015,7 +8439,12 @@
               ]
             }
           },
-          "observedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" }
+          "observedAt": {
+            "anyOf": [
+              { "$id": "Timestamp", "format": "date-time", "type": "string" },
+              { "type": "null" }
+            ]
+          }
         }
       },
       "ModelList": {
@@ -8035,7 +8464,13 @@
                 "providerId",
                 "nativeReference",
                 "name",
+                "aliases",
                 "state",
+                "desiredState",
+                "observedState",
+                "selectedDefault",
+                "selectable",
+                "sourceVersion",
                 "contextWindow",
                 "maximumOutputTokens",
                 "capabilities",
@@ -8062,11 +8497,39 @@
                 "providerId": { "pattern": "^pvd_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
                 "nativeReference": { "minLength": 1, "maxLength": 500, "type": "string" },
                 "name": { "minLength": 1, "maxLength": 200, "type": "string" },
+                "aliases": {
+                  "maxItems": 100,
+                  "uniqueItems": true,
+                  "type": "array",
+                  "items": { "minLength": 1, "maxLength": 500, "type": "string" }
+                },
                 "state": {
                   "anyOf": [
                     { "const": "active", "type": "string" },
                     { "const": "inactive", "type": "string" },
                     { "const": "archived", "type": "string" }
+                  ]
+                },
+                "desiredState": {
+                  "anyOf": [
+                    { "const": "enabled", "type": "string" },
+                    { "const": "disabled", "type": "string" },
+                    { "const": "retired", "type": "string" }
+                  ]
+                },
+                "observedState": {
+                  "anyOf": [
+                    { "const": "available", "type": "string" },
+                    { "const": "unavailable", "type": "string" },
+                    { "const": "retired", "type": "string" }
+                  ]
+                },
+                "selectedDefault": { "type": "boolean" },
+                "selectable": { "type": "boolean" },
+                "sourceVersion": {
+                  "anyOf": [
+                    { "minLength": 1, "maxLength": 256, "type": "string" },
+                    { "type": "null" }
                   ]
                 },
                 "contextWindow": {
@@ -8089,7 +8552,12 @@
                     ]
                   }
                 },
-                "observedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" }
+                "observedAt": {
+                  "anyOf": [
+                    { "$id": "Timestamp", "format": "date-time", "type": "string" },
+                    { "type": "null" }
+                  ]
+                }
               }
             }
           },
@@ -8106,6 +8574,320 @@
                 ]
               },
               "hasMore": { "type": "boolean" }
+            }
+          }
+        }
+      },
+      "ModelRoutingCandidate": {
+        "$id": "ModelRoutingCandidate",
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["modelId", "priority", "required", "requiredCapabilities", "enabled"],
+        "properties": {
+          "modelId": { "pattern": "^mdl_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+          "priority": { "minimum": 0, "maximum": 99, "type": "integer" },
+          "required": { "type": "boolean" },
+          "requiredCapabilities": {
+            "maxItems": 20,
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "anyOf": [
+                { "const": "text", "type": "string" },
+                { "const": "vision", "type": "string" },
+                { "const": "audio", "type": "string" },
+                { "const": "tool-use", "type": "string" },
+                { "const": "structured-output", "type": "string" },
+                { "const": "reasoning", "type": "string" }
+              ]
+            }
+          },
+          "enabled": { "type": "boolean" }
+        }
+      },
+      "ModelRoutingPolicy": {
+        "$id": "ModelRoutingPolicy",
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["meta", "profileId", "candidates"],
+        "properties": {
+          "meta": {
+            "$id": "ResourceMeta",
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["id", "version", "createdAt", "updatedAt"],
+            "properties": {
+              "id": {
+                "$id": "CanonicalId",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
+                "type": "string"
+              },
+              "version": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+              "createdAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
+              "updatedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" }
+            }
+          },
+          "profileId": { "pattern": "^prf_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+          "candidates": {
+            "minItems": 1,
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "$id": "ModelRoutingCandidate",
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["modelId", "priority", "required", "requiredCapabilities", "enabled"],
+              "properties": {
+                "modelId": { "pattern": "^mdl_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+                "priority": { "minimum": 0, "maximum": 99, "type": "integer" },
+                "required": { "type": "boolean" },
+                "requiredCapabilities": {
+                  "maxItems": 20,
+                  "uniqueItems": true,
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      { "const": "text", "type": "string" },
+                      { "const": "vision", "type": "string" },
+                      { "const": "audio", "type": "string" },
+                      { "const": "tool-use", "type": "string" },
+                      { "const": "structured-output", "type": "string" },
+                      { "const": "reasoning", "type": "string" }
+                    ]
+                  }
+                },
+                "enabled": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      },
+      "ModelReconciliation": {
+        "$id": "ModelReconciliation",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "frameworkId",
+          "providerSourceVersion",
+          "modelSourceVersion",
+          "status",
+          "changes",
+          "createdAt"
+        ],
+        "properties": {
+          "id": { "pattern": "^rec_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+          "frameworkId": { "pattern": "^frm_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+          "providerSourceVersion": { "minLength": 1, "maxLength": 256, "type": "string" },
+          "modelSourceVersion": { "minLength": 1, "maxLength": 256, "type": "string" },
+          "status": {
+            "anyOf": [
+              { "const": "converged", "type": "string" },
+              { "const": "drifted", "type": "string" },
+              { "const": "failed", "type": "string" }
+            ]
+          },
+          "changes": {
+            "maxItems": 1000,
+            "type": "array",
+            "items": { "type": "object", "patternProperties": { "^(.*)$": {} } }
+          },
+          "createdAt": { "$id": "Timestamp", "format": "date-time", "type": "string" }
+        }
+      },
+      "ModelReconciliationList": {
+        "$id": "ModelReconciliationList",
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["items", "page"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$id": "ModelReconciliation",
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "id",
+                "frameworkId",
+                "providerSourceVersion",
+                "modelSourceVersion",
+                "status",
+                "changes",
+                "createdAt"
+              ],
+              "properties": {
+                "id": { "pattern": "^rec_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+                "frameworkId": { "pattern": "^frm_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+                "providerSourceVersion": { "minLength": 1, "maxLength": 256, "type": "string" },
+                "modelSourceVersion": { "minLength": 1, "maxLength": 256, "type": "string" },
+                "status": {
+                  "anyOf": [
+                    { "const": "converged", "type": "string" },
+                    { "const": "drifted", "type": "string" },
+                    { "const": "failed", "type": "string" }
+                  ]
+                },
+                "changes": {
+                  "maxItems": 1000,
+                  "type": "array",
+                  "items": { "type": "object", "patternProperties": { "^(.*)$": {} } }
+                },
+                "createdAt": { "$id": "Timestamp", "format": "date-time", "type": "string" }
+              }
+            }
+          },
+          "page": {
+            "$id": "PageMeta",
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["nextCursor", "hasMore"],
+            "properties": {
+              "nextCursor": {
+                "anyOf": [
+                  { "$id": "Cursor", "minLength": 1, "maxLength": 512, "type": "string" },
+                  { "type": "null" }
+                ]
+              },
+              "hasMore": { "type": "boolean" }
+            }
+          }
+        }
+      },
+      "ModelRouteResolution": {
+        "$id": "ModelRouteResolution",
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["profileId", "selectedModel", "rejections"],
+        "properties": {
+          "profileId": { "pattern": "^prf_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+          "selectedModel": {
+            "anyOf": [
+              {
+                "$id": "Model",
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "meta",
+                  "providerId",
+                  "nativeReference",
+                  "name",
+                  "aliases",
+                  "state",
+                  "desiredState",
+                  "observedState",
+                  "selectedDefault",
+                  "selectable",
+                  "sourceVersion",
+                  "contextWindow",
+                  "maximumOutputTokens",
+                  "capabilities",
+                  "observedAt"
+                ],
+                "properties": {
+                  "meta": {
+                    "$id": "ResourceMeta",
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["id", "version", "createdAt", "updatedAt"],
+                    "properties": {
+                      "id": {
+                        "$id": "CanonicalId",
+                        "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                        "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
+                        "type": "string"
+                      },
+                      "version": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+                      "createdAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
+                      "updatedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" }
+                    }
+                  },
+                  "providerId": { "pattern": "^pvd_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+                  "nativeReference": { "minLength": 1, "maxLength": 500, "type": "string" },
+                  "name": { "minLength": 1, "maxLength": 200, "type": "string" },
+                  "aliases": {
+                    "maxItems": 100,
+                    "uniqueItems": true,
+                    "type": "array",
+                    "items": { "minLength": 1, "maxLength": 500, "type": "string" }
+                  },
+                  "state": {
+                    "anyOf": [
+                      { "const": "active", "type": "string" },
+                      { "const": "inactive", "type": "string" },
+                      { "const": "archived", "type": "string" }
+                    ]
+                  },
+                  "desiredState": {
+                    "anyOf": [
+                      { "const": "enabled", "type": "string" },
+                      { "const": "disabled", "type": "string" },
+                      { "const": "retired", "type": "string" }
+                    ]
+                  },
+                  "observedState": {
+                    "anyOf": [
+                      { "const": "available", "type": "string" },
+                      { "const": "unavailable", "type": "string" },
+                      { "const": "retired", "type": "string" }
+                    ]
+                  },
+                  "selectedDefault": { "type": "boolean" },
+                  "selectable": { "type": "boolean" },
+                  "sourceVersion": {
+                    "anyOf": [
+                      { "minLength": 1, "maxLength": 256, "type": "string" },
+                      { "type": "null" }
+                    ]
+                  },
+                  "contextWindow": {
+                    "anyOf": [{ "minimum": 1, "type": "integer" }, { "type": "null" }]
+                  },
+                  "maximumOutputTokens": {
+                    "anyOf": [{ "minimum": 1, "type": "integer" }, { "type": "null" }]
+                  },
+                  "capabilities": {
+                    "uniqueItems": true,
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        { "const": "text", "type": "string" },
+                        { "const": "vision", "type": "string" },
+                        { "const": "audio", "type": "string" },
+                        { "const": "tool-use", "type": "string" },
+                        { "const": "structured-output", "type": "string" },
+                        { "const": "reasoning", "type": "string" }
+                      ]
+                    }
+                  },
+                  "observedAt": {
+                    "anyOf": [
+                      { "$id": "Timestamp", "format": "date-time", "type": "string" },
+                      { "type": "null" }
+                    ]
+                  }
+                }
+              },
+              { "type": "null" }
+            ]
+          },
+          "rejections": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["modelId", "reasons"],
+              "properties": {
+                "modelId": { "pattern": "^mdl_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+                "reasons": {
+                  "maxItems": 200,
+                  "uniqueItems": true,
+                  "type": "array",
+                  "items": { "minLength": 1, "maxLength": 500, "type": "string" }
+                }
+              }
             }
           }
         }
@@ -10728,6 +11510,53 @@
           }
         }
       },
+      "ModelReconcileCommand": {
+        "$id": "ModelReconcileCommand",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contractVersion",
+          "commandId",
+          "commandType",
+          "idempotencyKey",
+          "issuedAt",
+          "target",
+          "payload"
+        ],
+        "properties": {
+          "contractVersion": { "$id": "ContractVersion", "const": "core.v1", "type": "string" },
+          "commandId": { "pattern": "^cmd_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+          "commandType": { "const": "model.inventory.reconcile.v1", "type": "string" },
+          "idempotencyKey": {
+            "$id": "IdempotencyKey",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{15,199}$",
+            "type": "string"
+          },
+          "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
+          "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "target": {
+            "$id": "CommandTarget",
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["kind"],
+            "properties": {
+              "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
+              "id": {
+                "$id": "CanonicalId",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
+                "type": "string"
+              }
+            }
+          },
+          "payload": {
+            "$id": "EmptyInput",
+            "additionalProperties": false,
+            "type": "object",
+            "properties": {}
+          }
+        }
+      },
       "RoutingPolicyCommand": {
         "$id": "RoutingPolicyCommand",
         "additionalProperties": false,
@@ -10771,21 +11600,27 @@
             "$id": "RoutingPolicyInput",
             "additionalProperties": false,
             "type": "object",
-            "required": ["profileId", "primaryModelId", "fallbackModelIds", "requiredCapabilities"],
+            "required": ["candidates"],
             "properties": {
-              "profileId": { "pattern": "^prf_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
-              "primaryModelId": { "pattern": "^mdl_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
-              "fallbackModelIds": {
-                "maxItems": 20,
-                "uniqueItems": true,
+              "candidates": {
+                "minItems": 1,
+                "maxItems": 100,
                 "type": "array",
-                "items": { "pattern": "^mdl_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" }
-              },
-              "requiredCapabilities": {
-                "maxItems": 200,
-                "uniqueItems": true,
-                "type": "array",
-                "items": { "minLength": 1, "maxLength": 500, "type": "string" }
+                "items": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["modelId"],
+                  "properties": {
+                    "modelId": { "pattern": "^mdl_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+                    "required": { "type": "boolean" },
+                    "requiredCapabilities": {
+                      "maxItems": 200,
+                      "uniqueItems": true,
+                      "type": "array",
+                      "items": { "minLength": 1, "maxLength": 500, "type": "string" }
+                    }
+                  }
+                }
               }
             }
           }

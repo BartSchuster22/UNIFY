@@ -172,6 +172,7 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
       capabilities: {
         'profiles.read': supported('control:read'),
         'providers.read': supported('control:read'),
+        'models.read': supported('control:read'),
         'providers.credentials.status': supported('control:read'),
         'work.projects.read': supported('control:read'),
         'work.boards.read': supported('control:read'),
@@ -226,6 +227,11 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
   app.get('/control/v1/providers', async (request) => {
     requireScope(scopes, 'control:read');
     return collection(options, await options.source.providers(), pageQuery(request.query));
+  });
+
+  app.get('/control/v1/models', async (request) => {
+    requireScope(scopes, 'control:read');
+    return collection(options, await options.source.models(), pageQuery(request.query));
   });
 
   app.get('/control/v1/work/projects', async (request) => {

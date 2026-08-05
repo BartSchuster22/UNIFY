@@ -2,7 +2,7 @@ import WebSocket from 'ws';
 import { GovernanceError } from '../../governance/service.js';
 
 export type MutationTarget = {
-  owner: 'hermes' | 'dmm' | 'worker' | 'chat' | 'memory-v4';
+  owner: 'hermes' | 'worker' | 'chat' | 'memory-v4';
   kind: string;
   nativeId: string;
   frameworkId?: string;
@@ -20,9 +20,6 @@ type Owner = MutationTarget['owner'];
 type EndpointOwner = Exclude<Owner, 'hermes'>;
 type Session = { cookie: string; csrf?: string };
 type OwnerConfig = {
-  dmmUrl: string;
-  dmmUsername: string;
-  dmmPassword: string;
   workerUrl: string;
   workerToken: string;
   chatUrl: string;
@@ -41,25 +38,6 @@ export type MutationDefinition = {
 };
 
 export const mutationDefinitions: Record<string, MutationDefinition> = {
-  'dmm.credential.save': {
-    owner: 'dmm',
-    kind: 'provider',
-    permission: 'credentials.manage',
-    executionPath: 'migration-legacy',
-  },
-  'dmm.credential.validate': {
-    owner: 'dmm',
-    kind: 'provider',
-    permission: 'credentials.manage',
-    executionPath: 'migration-legacy',
-  },
-  'dmm.credential.delete': {
-    owner: 'dmm',
-    kind: 'provider',
-    permission: 'credentials.manage',
-    executionPath: 'migration-legacy',
-    destructive: true,
-  },
   'worker.project.create': {
     owner: 'worker',
     kind: 'project',
@@ -192,7 +170,7 @@ export const mutationDefinitions: Record<string, MutationDefinition> = {
 
 export class MutationOwnerClient {
   readonly #config: OwnerConfig;
-  readonly #sessions = new Map<'dmm' | 'chat', Session>();
+  readonly #sessions = new Map<'chat', Session>();
   readonly #unifyChatSessionIds = new Set<string>();
 
   constructor(config: OwnerConfig) {
@@ -206,9 +184,6 @@ export class MutationOwnerClient {
       return value;
     };
     return new MutationOwnerClient({
-      dmmUrl: required('DMM_URL'),
-      dmmUsername: required('DMM_USERNAME'),
-      dmmPassword: required('DMM_PASSWORD'),
       workerUrl: required('WORKER_URL'),
       workerToken: required('WORKER_TOKEN'),
       chatUrl: required('CHAT_URL'),
@@ -223,23 +198,6 @@ export class MutationOwnerClient {
     if (!definition)
       throw new GovernanceError('MUTATION_UNSUPPORTED', 422, 'Mutation type is not supported');
     return definition;
-  }
-
-  async dmmInventory(): Promise<{
-    providers: unknown;
-    requirements: unknown;
-    credentials: unknown;
-    models: unknown;
-    normalizedState: unknown;
-  }> {
-    const [providers, requirements, credentials, models, normalizedState] = await Promise.all([
-      this.json('dmm', 'GET', '/api/providers', undefined),
-      this.json('dmm', 'GET', '/api/providers/requirements', undefined),
-      this.json('dmm', 'GET', '/api/credentials', undefined),
-      this.json('dmm', 'GET', '/api/models', undefined),
-      this.json('dmm', 'GET', '/api/normalized-state', undefined),
-    ]);
-    return { providers, requirements, credentials, models, normalizedState };
   }
 
   async chatWorkspace(sessionId?: string): Promise<{
@@ -373,7 +331,6 @@ export class MutationOwnerClient {
   private validatePayload(input: MutationInput): void {
     const { operationType: action, payload } = input;
 
-    if (action === 'dmm.credential.save') string(payload.secret, 'secret');
     if (action === 'worker.project.create') string(payload.name, 'name');
     if (action === 'worker.task.create') {
       string(payload.harness, 'harness');
@@ -443,19 +400,6 @@ export class MutationOwnerClient {
     const dryRun = input.mode === 'dry-run';
     const { operationType: action, target, payload } = input;
     const id = encodeURIComponent(target.nativeId);
-
-    if (action === 'dmm.credential.save')
-      return dryRun
-        ? { valid: true, dryRun: true }
-        : this.json('dmm', 'POST', `/api/providers/${id}/credential`, payload);
-    if (action === 'dmm.credential.validate')
-      return dryRun
-        ? { valid: true, dryRun: true }
-        : this.json('dmm', 'POST', `/api/providers/${id}/validate`, {});
-    if (action === 'dmm.credential.delete')
-      return dryRun
-        ? { valid: true, dryRun: true }
-        : this.json('dmm', 'DELETE', `/api/providers/${id}/credential`, {});
 
     if (action === 'worker.project.create')
       return dryRun
@@ -594,7 +538,7 @@ export class MutationOwnerClient {
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     };
     const response = await fetch(`${this.url(owner)}${path}`, requestInit);
-    if (response.status === 401 && !retried && (owner === 'dmm' || owner === 'chat')) {
+    if (response.status === 401 && !retried && owner === 'chat') {
       this.#sessions.delete(owner);
       await response.arrayBuffer();
       return this.json(owner, method, path, body, true, maxResponseChars);
@@ -614,18 +558,13 @@ export class MutationOwnerClient {
     }
   }
 
-  private async session(owner: 'dmm' | 'chat'): Promise<Session> {
+  private async session(owner: 'chat'): Promise<Session> {
     const current = this.#sessions.get(owner);
     if (current) return current;
-    const endpoint = owner === 'chat' ? '/auth/login' : '/api/auth/login';
-    const payload =
-      owner === 'chat'
-        ? { password: this.#config.chatPassword }
-        : { username: this.#config.dmmUsername, password: this.#config.dmmPassword };
-    const response = await fetch(`${this.url(owner)}${endpoint}`, {
+    const response = await fetch(`${this.url(owner)}/auth/login`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', accept: 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ password: this.#config.chatPassword }),
       signal: AbortSignal.timeout(15_000),
     });
     if (!response.ok) throw upstreamError(owner, response.status);
@@ -633,27 +572,19 @@ export class MutationOwnerClient {
     if (!rawCookie)
       throw new GovernanceError('UPSTREAM_AUTH_FAILED', 502, `${owner} did not issue a session`);
     const cookie = rawCookie.split(';', 1)[0]!;
-    let csrf: string | undefined;
-    if (owner === 'dmm') {
-      const data = (await response.json()) as { data?: { csrfToken?: string } };
-      csrf = data.data?.csrfToken;
-      if (!csrf)
-        throw new GovernanceError('UPSTREAM_AUTH_FAILED', 502, 'DMM did not issue a CSRF token');
-    } else await response.arrayBuffer();
-    const session = { cookie, ...(csrf ? { csrf } : {}) };
+    await response.arrayBuffer();
+    const session = { cookie };
     this.#sessions.set(owner, session);
     return session;
   }
 
   private url(owner: EndpointOwner): string {
     return base(
-      owner === 'dmm'
-        ? this.#config.dmmUrl
-        : owner === 'worker'
-          ? this.#config.workerUrl
-          : owner === 'chat'
-            ? this.#config.chatUrl
-            : this.#config.memoryUrl,
+      owner === 'worker'
+        ? this.#config.workerUrl
+        : owner === 'chat'
+          ? this.#config.chatUrl
+          : this.#config.memoryUrl,
     );
   }
 }
