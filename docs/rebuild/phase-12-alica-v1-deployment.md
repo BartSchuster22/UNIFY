@@ -56,3 +56,15 @@ A release is not accepted until `test-restore.sh` decrypts the latest archive, r
 - Restricted-container controls remain active.
 - Encrypted backup and real isolated restoration both succeed.
 - Full repository QA passes and the deployment commit is pushed.
+
+## Verified production result
+
+ALICA-v1 is running release `f772b1134a96d530e155a4f4bd1cb5cb0d156b52` with the following observed evidence:
+
+- `unify-core`, `unify-postgres`, `unify-alica-adapter`, and `unify-herman-adapter` remained healthy after an explicit restart.
+- Seven migrations were applied against the fresh `unify-postgres-data-v1` volume.
+- Alica and Herman are independently enabled and `verified` against Hermes `0.20.0` commit `b8b17b8cee50b85adb7fba6ea332dc06731b86f4`.
+- Core reaches the adapters through separate internal networks; the adapters and PostgreSQL publish no host ports.
+- Core publishes only `127.0.0.1:18080` for Caddy. External probes found ports 5432, 8080, 18080, and 28082 closed.
+- Public HTTPS readiness returns HTTP 200 with a trusted Let's Encrypt certificate.
+- The encrypted backup timer is active. A real age-encrypted custom-format dump restored into an isolated temporary database with matching table and migration counts.
