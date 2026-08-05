@@ -24,9 +24,10 @@ LABEL org.opencontainers.image.title="UNIFY Hermes Control Adapter" \
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=28082 \
     HERMES_REPO=/opt/hermes HERMES_BIN=/opt/hermes/.venv/bin/hermes HERMES_HOME=/opt/data
 WORKDIR /opt/unify-adapter
-COPY --from=build --chown=1000:1000 /out/ ./
-USER 1000:1000
+COPY --from=build --chown=10000:10000 /out/ ./
+USER 10000:10000
 EXPOSE 28082
 STOPSIGNAL SIGTERM
 HEALTHCHECK --interval=10s --timeout=3s --start-period=15s --retries=3 CMD ["node","-e","const https=require('https');const r=https.get({hostname:'127.0.0.1',port:process.env.PORT||28082,path:'/control/v1/health',rejectUnauthorized:false,headers:{authorization:'Bearer invalid-health-probe'}},x=>process.exit(x.statusCode===401?0:1));r.on('error',()=>process.exit(1))"]
+ENTRYPOINT []
 CMD ["node","dist/server.js"]

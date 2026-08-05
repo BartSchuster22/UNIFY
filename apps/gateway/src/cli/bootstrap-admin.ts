@@ -25,20 +25,25 @@ try {
   const count = Number(
     (await client.query('SELECT count(*) count FROM users')).rows[0]?.count ?? 0,
   );
-  if (count > 0) throw new Error('Bootstrap refused: named users already exist');
-  const passwordHash = await hashPassword(password, pepper);
-  const created = await client.query(
-    `INSERT INTO users(username,display_name,password_hash)
+  if (count > 0) {
+    await client.query('ROLLBACK');
+    console.log('Bootstrap skipped: named users already exist');
+    process.exitCode = 0;
+  } else {
+    const passwordHash = await hashPassword(password, pepper);
+    const created = await client.query(
+      `INSERT INTO users(username,display_name,password_hash)
      VALUES($1,$2,$3) RETURNING id`,
-    [username, displayName, passwordHash],
-  );
-  await client.query(
-    `INSERT INTO user_roles(user_id,role_id)
+      [username, displayName, passwordHash],
+    );
+    await client.query(
+      `INSERT INTO user_roles(user_id,role_id)
      SELECT $1,id FROM roles WHERE name='Administrator'`,
-    [created.rows[0].id],
-  );
-  await client.query('COMMIT');
-  console.log(`Bootstrapped named administrator: ${username}`);
+      [created.rows[0].id],
+    );
+    await client.query('COMMIT');
+    console.log(`Bootstrapped named administrator: ${username}`);
+  }
 } catch (error) {
   await client.query('ROLLBACK');
   throw error;

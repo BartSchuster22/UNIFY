@@ -15,6 +15,7 @@ alica=$(openssl rand -hex 48)
 herman=$(openssl rand -hex 48)
 printf '%s' "$password" > "$SECRETS/postgres-password"
 printf 'postgresql://unify:%s@unify-postgres:5432/unify' "$password" > "$SECRETS/database-url"
+cp "$SECRETS/database-url" "$SECRETS/database-url-adapter"
 printf '%s' "$pepper" > "$SECRETS/auth-pepper"
 printf '%s' "$admin" > "$SECRETS/bootstrap-admin-password"
 printf '%s' "$alica" > "$SECRETS/alica-token"
@@ -36,5 +37,9 @@ for name in alica herman; do
 done
 age-keygen -o "$SECRETS/backup-age.key" 2> "$SECRETS/backup-age-recipient"
 age-keygen -y "$SECRETS/backup-age.key" > "$SECRETS/backup-age-recipient"
+chmod 711 "$SECRETS"
 chmod 600 "$SECRETS"/*
+sudo chown 0:0 "$SECRETS/postgres-password" "$SECRETS/backup-age.key" "$SECRETS/backup-age-recipient"
+sudo chown 65532:65532 "$SECRETS/database-url" "$SECRETS/auth-pepper" "$SECRETS/bootstrap-admin-password" "$SECRETS/alica-token" "$SECRETS/herman-token" "$SECRETS/framework-ca.crt"
+sudo chown 10000:10000 "$SECRETS/database-url-adapter" "$SECRETS/alica-token-bundle.json" "$SECRETS/herman-token-bundle.json" "$SECRETS/alica.key" "$SECRETS/alica.crt" "$SECRETS/herman.key" "$SECRETS/herman.crt"
 echo "Fresh deployment secrets and independent framework credentials generated. Values were not printed."

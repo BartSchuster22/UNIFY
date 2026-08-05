@@ -30,7 +30,6 @@ services:
       retries: 20
       start_period: 10s
     shm_size: 128m
-    cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     stop_grace_period: 30s
     deploy:
@@ -82,14 +81,14 @@ services:
       HERMES_DISPLAY_NAME: Alica
       HERMES_INSTANCE_ID: alica-v1-private
       HERMES_ADAPTER_SCOPES: control:read,control:execute,control:events
-      DATABASE_URL_FILE: /run/secrets/database-url
+      DATABASE_URL_FILE: /run/secrets/database-url-adapter
       HERMES_ADAPTER_TOKEN_BUNDLE_FILE: /run/secrets/alica-token-bundle
       HERMES_ADAPTER_TLS_KEY_FILE: /run/secrets/alica-tls-key
       HERMES_ADAPTER_TLS_CERT_FILE: /run/secrets/alica-tls-cert
       RELEASE_ID: ${RELEASE_ID}
-    secrets: [database-url, alica-token-bundle, alica-tls-key, alica-tls-cert]
+    secrets: [database-url-adapter, alica-token-bundle, alica-tls-key, alica-tls-cert]
     volumes:
-      - alica_data:/opt/data
+      - /srv/alica-stack/data/alica:/opt/data
     networks: [unify-db-private, alica-unify-private]
     depends_on:
       migrate:
@@ -109,14 +108,14 @@ services:
       HERMES_DISPLAY_NAME: Herman
       HERMES_INSTANCE_ID: herman-v1-private
       HERMES_ADAPTER_SCOPES: control:read,control:execute,control:events
-      DATABASE_URL_FILE: /run/secrets/database-url
+      DATABASE_URL_FILE: /run/secrets/database-url-adapter
       HERMES_ADAPTER_TOKEN_BUNDLE_FILE: /run/secrets/herman-token-bundle
       HERMES_ADAPTER_TLS_KEY_FILE: /run/secrets/herman-tls-key
       HERMES_ADAPTER_TLS_CERT_FILE: /run/secrets/herman-tls-cert
       RELEASE_ID: ${RELEASE_ID}
-    secrets: [database-url, herman-token-bundle, herman-tls-key, herman-tls-cert]
+    secrets: [database-url-adapter, herman-token-bundle, herman-tls-key, herman-tls-cert]
     volumes:
-      - herman_data:/opt/data
+      - /srv/alica-stack/data/herman:/opt/data
     networks: [unify-db-private, herman-unify-private]
     depends_on:
       migrate:
@@ -169,6 +168,7 @@ services:
 secrets:
   postgres-password: { file: ./secrets/postgres-password }
   database-url: { file: ./secrets/database-url }
+  database-url-adapter: { file: ./secrets/database-url-adapter }
   auth-pepper: { file: ./secrets/auth-pepper }
   bootstrap-admin-password: { file: ./secrets/bootstrap-admin-password }
   alica-token: { file: ./secrets/alica-token }
@@ -184,10 +184,6 @@ secrets:
 volumes:
   unify-postgres-data:
     name: unify-postgres-data-v1
-  alica_data:
-    external: true
-  herman_data:
-    external: true
 
 networks:
   unify-db-private:
