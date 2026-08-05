@@ -1,0 +1,4 @@
+FROM nousresearch/hermes-agent@sha256:fcbe95482353e41cd30d39ddfc0f57ba3720f6da6969a7a69cdfb0d84b045cb6
+USER root
+COPY deploy/alica-v1/hermes-api-secret-init.sh /etc/cont-init.d/014-unify-api-secret
+RUN chmod 0755 /etc/cont-init.d/014-unify-api-secret
