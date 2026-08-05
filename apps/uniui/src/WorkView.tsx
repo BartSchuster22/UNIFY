@@ -82,7 +82,7 @@ export function WorkView({ canManage }: { canManage: boolean }) {
     try {
       const response = await loadHermesWork();
       setData(response);
-      const projects = workerProjects(response.items);
+      const projects = nativeProjects(response.items);
       setSelectedProject((current) => current || projects[0]?.slug || '');
     } catch (error) {
       setFailure(errorMessage(error));
@@ -95,7 +95,7 @@ export function WorkView({ canManage }: { canManage: boolean }) {
     void load();
   }, []);
 
-  const projects = useMemo(() => workerProjects(data.items), [data.items]);
+  const projects = useMemo(() => nativeProjects(data.items), [data.items]);
   const tasks = useMemo(
     () => data.items.filter((item) => item.resource.kind === 'task'),
     [data.items],
@@ -187,13 +187,13 @@ export function WorkView({ canManage }: { canManage: boolean }) {
         <Paper withBorder p="xl">
           <Group justify="center">
             <Loader size="sm" />
-            <Text>Loading Worker data…</Text>
+            <Text>Loading native work data…</Text>
           </Group>
         </Paper>
       ) : (
         <>
           {page === 'overview' && (
-            <WorkerOverview
+            <WorkOverview
               projects={projects}
               tasks={tasks}
               cronjobs={cronjobs}
@@ -249,7 +249,7 @@ export function WorkView({ canManage }: { canManage: boolean }) {
   );
 }
 
-function WorkerOverview({
+function WorkOverview({
   projects,
   tasks,
   cronjobs,
@@ -267,7 +267,7 @@ function WorkerOverview({
   return (
     <Stack>
       <SimpleGrid cols={{ base: 1, md: 3 }}>
-        <Card withBorder className="worker-summary-card">
+        <Card withBorder className="work-summary-card">
           <Text size="xs" fw={800} tt="uppercase" c="dimmed">
             Operational attention
           </Text>
@@ -278,7 +278,7 @@ function WorkerOverview({
             {blocked.length} blocked cards · {cronAttention.length} paused or failed jobs
           </Text>
         </Card>
-        <Card withBorder className="worker-summary-card" onClick={() => onNavigate('projects')}>
+        <Card withBorder className="work-summary-card" onClick={() => onNavigate('projects')}>
           <Text size="xs" fw={800} tt="uppercase" c="dimmed">
             Kanban
           </Text>
@@ -289,7 +289,7 @@ function WorkerOverview({
             {projects.length} projects · {tasks.length} cards · {blocked.length} blocked
           </Text>
         </Card>
-        <Card withBorder className="worker-summary-card" onClick={() => onNavigate('cronjobs')}>
+        <Card withBorder className="work-summary-card" onClick={() => onNavigate('cronjobs')}>
           <Text size="xs" fw={800} tt="uppercase" c="dimmed">
             Cronjobs
           </Text>
@@ -523,7 +523,7 @@ function TaskCard({
     );
   };
   return (
-    <Card withBorder shadow="xs" className="worker-task-card">
+    <Card withBorder shadow="xs" className="work-task-card">
       <Text fw={700}>{task.title}</Text>
       <Text size="xs" c="dimmed">
         {id} · {text(task.data.assigneeProfile) || text(task.data.assignee) || 'unassigned'}
@@ -1181,7 +1181,7 @@ function NotificationSettings() {
   const update = (key: keyof NotificationRules, value: string | boolean) =>
     setRules((current: NotificationRules) => ({ ...current, [key]: value }));
   const save = () => {
-    localStorage.setItem('unify-worker-notification-rules', JSON.stringify(rules));
+    localStorage.setItem('unify-work-notification-rules', JSON.stringify(rules));
   };
   return (
     <Stack>
@@ -1260,15 +1260,15 @@ function NotificationSettings() {
             onClick={() => {
               const defaults = defaultNotificationRules();
               setRules(defaults);
-              localStorage.setItem('unify-worker-notification-rules', JSON.stringify(defaults));
+              localStorage.setItem('unify-work-notification-rules', JSON.stringify(defaults));
             }}
           >
             Reset notifications
           </Button>
         </Group>
         <Text size="xs" c="dimmed" mt="sm">
-          These are UNIFY display rules. Project-specific Worker delivery targets remain part of
-          each project setup.
+          These are UNIFY display rules. Project-specific delivery targets remain part of project
+          configuration.
         </Text>
       </Card>
     </Stack>
@@ -1398,7 +1398,7 @@ type NotificationRules = {
   completed: boolean;
 };
 
-function workerProjects(items: UnifiedResource[]): ProjectView[] {
+function nativeProjects(items: UnifiedResource[]): ProjectView[] {
   const summaries = items.filter((item) => item.resource.kind === 'kanban-board');
   const controls = items.filter((item) => item.resource.kind === 'project');
   const map = new Map<string, ProjectView>();
@@ -1506,7 +1506,7 @@ function notificationRules(): NotificationRules {
   try {
     return {
       ...defaultNotificationRules(),
-      ...record(JSON.parse(localStorage.getItem('unify-worker-notification-rules') ?? '{}')),
+      ...record(JSON.parse(localStorage.getItem('unify-work-notification-rules') ?? '{}')),
     } as NotificationRules;
   } catch {
     return defaultNotificationRules();
@@ -1552,5 +1552,5 @@ function errorMessage(error: unknown): string {
     ? error.failure.message
     : error instanceof Error
       ? error.message
-      : 'Worker request failed';
+      : 'Native work request failed';
 }

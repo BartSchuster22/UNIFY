@@ -1,11 +1,4 @@
-import type {
-  ApiFailure,
-  Collection,
-  MutationRequest,
-  MutationResponse,
-  Principal,
-  UnifiedResource,
-} from './types';
+import type { ApiFailure, MutationRequest, MutationResponse, Principal } from './types';
 
 export class ApiError extends Error {
   constructor(
@@ -62,7 +55,7 @@ export const gateway = {
       body: JSON.stringify({ username, password, deviceLabel: 'UNIUI browser' }),
     }),
   logout: () => api<void>('/auth/logout', { method: 'POST' }),
-  resources: (query: URLSearchParams) => api<Collection<UnifiedResource>>(`/resources?${query}`),
+
   hermesProjects: () =>
     api<HermesCollection<Record<string, unknown>>>(
       '/frameworks/hermes-main/work/projects?limit=500',

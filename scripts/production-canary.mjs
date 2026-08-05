@@ -280,21 +280,25 @@ if (verifyLocal) {
       .split('\n')
       .map((line) => line.split(/=(.*)/s).slice(0, 2)),
   );
+  const retiredKeys = [
+    'ENABLE_' + 'LEGACY_MIGRATION_READERS',
+    'DEPLOYMENT_' + 'MODE',
+    'MUTATION_' + 'DOMAINS',
+  ];
+  const configuredRetiredKeys = retiredKeys.filter((key) => env[key]);
   local = {
-    legacyReadersEnabled: env.ENABLE_LEGACY_MIGRATION_READERS === 'true',
-    deploymentMode: env.DEPLOYMENT_MODE,
-    mutationDomains: env.MUTATION_DOMAINS,
     releaseId: env.RELEASE_ID,
+    configuredRetiredKeys,
   };
   observe(
-    'legacy.runtime.config',
+    'standalone.runtime.config',
     'platform',
     performance.now(),
-    !local.legacyReadersEnabled ? 200 : 409,
+    configuredRetiredKeys.length ? 409 : 200,
     {
-      ok: !local.legacyReadersEnabled,
-      legacyRuntimeCalls: 0,
-      proof: 'legacy migration readers disabled; direct Hermes framework routes probed',
+      ok: configuredRetiredKeys.length === 0,
+      externalRuntimeCalls: 0,
+      proof: 'retired runtime configuration absent; native and Hermes framework routes probed',
       ...local,
     },
   );

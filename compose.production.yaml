@@ -2,11 +2,7 @@ services:
   gateway:
     environment:
       NODE_ENV: production
-      RELEASE_ID: ${RELEASE_ID:-unify-task8-internal-conversations}
-      # Only native Hermes Work and internal-conversation commands are enabled; legacy writes remain contained.
-      DEPLOYMENT_MODE: mutation-canary
-      MUTATION_DOMAINS: work,chat
-      MUTATION_ACCEPTANCE_REFS: work=phase6/hermes-work,chat=task8/hermes-internal-conversations
+      RELEASE_ID: ${RELEASE_ID:-unify-phase10-standalone}
   uniui:
     environment:
       HOST: 127.0.0.1

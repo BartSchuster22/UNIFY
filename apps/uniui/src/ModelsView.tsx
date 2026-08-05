@@ -186,14 +186,14 @@ export function ModelsView({ canManageCredentials }: { canManageCredentials: boo
       <Alert color="blue">
         The current Hermes control contract exposes provider selection and safe credential status
         only. Full model-catalog discovery is not advertised, so UNIFY does not synthesize a model
-        list from DMM.
+        list from another service.
       </Alert>
       {credentialExecute && credentialExecute.status !== 'supported' ? (
         <Alert color="blue">
           Provider credential changes are disabled: Hermes reports{' '}
           <strong>{credentialExecute.status}</strong>
           {credentialExecute.reasonCode ? ` (${credentialExecute.reasonCode})` : ''}. Secret input
-          is not rendered and no credential is sent to DMM.
+          is not rendered and no credential is sent outside UNIFY.
           {canManageCredentials ? '' : ' Your role is also read-only.'}
         </Alert>
       ) : null}
@@ -263,7 +263,7 @@ export function ModelsView({ canManageCredentials }: { canManageCredentials: boo
           </Grid>
           {!collection.items.length ? (
             <Alert color="yellow">
-              Hermes returned no providers. This is not treated as a successful DMM fallback.
+              Hermes returned no providers. UNIFY does not use an external fallback.
             </Alert>
           ) : null}
           {collection.page.hasMore ? (

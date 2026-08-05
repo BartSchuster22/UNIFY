@@ -1,5 +1,5 @@
 export type MutationTarget = {
-  owner: 'hermes' | 'memory-v4';
+  owner: 'hermes';
   kind: string;
   nativeId: string;
   frameworkId?: string;
@@ -17,7 +17,7 @@ export type MutationDefinition = {
   owner: MutationTarget['owner'];
   kind: string;
   permission: string;
-  executionPath: 'migration-legacy' | 'hermes-control';
+  executionPath: 'hermes-control';
   destructive?: boolean;
 };
 
@@ -110,9 +110,3 @@ export const workMutationDefinitions: Record<string, MutationDefinition> = {
     destructive: true,
   },
 };
-
-export interface LegacyMutationOwnerClient {
-  definition(operationType: string): MutationDefinition;
-  validate(input: MutationInput): MutationDefinition;
-  execute(input: MutationInput): Promise<unknown>;
-}

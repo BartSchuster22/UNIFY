@@ -21,12 +21,6 @@ const values = new Map([
   ['backup_encryption_key', secret()],
   ['bootstrap_admin_password', secret()],
   ['hermes_main_control_token', secret()],
-  ['agency_username', ''],
-  ['agency_password', ''],
-  ['dmm_username', ''],
-  ['dmm_password', ''],
-
-  ['memory_v4_token', ''],
 ]);
 for (const [name, value] of values) {
   const path = resolve(directory, name);
@@ -47,12 +41,6 @@ for (const [uid, names] of [
       'gateway_auth_pepper',
       'bootstrap_admin_password',
       'hermes_main_control_token',
-      'agency_username',
-      'agency_password',
-      'dmm_username',
-      'dmm_password',
-
-      'memory_v4_token',
     ],
   ],
 ]) {

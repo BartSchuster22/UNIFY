@@ -192,7 +192,7 @@ export function ProfilesView({
         <Alert color="blue">
           Profile changes are disabled: Hermes reports <strong>{execute.status}</strong>
           {execute.reasonCode ? ` (${execute.reasonCode})` : ''}. UNIFY will not route writes to a
-          legacy owner or approximate them locally.
+          external owner or approximate them locally.
           {canManage ? '' : ' Your role is also read-only.'}
         </Alert>
       ) : null}

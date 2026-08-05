@@ -164,8 +164,8 @@ describe('UNIFY Work & Kanban', () => {
       target: { value: '1371039817' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Save notification rules' }));
-    expect(
-      JSON.parse(localStorage.getItem('unify-worker-notification-rules') ?? '{}'),
-    ).toMatchObject({ telegram: true, telegramDestination: '1371039817' });
+    expect(JSON.parse(localStorage.getItem('unify-work-notification-rules') ?? '{}')).toMatchObject(
+      { telegram: true, telegramDestination: '1371039817' },
+    );
   });
 });

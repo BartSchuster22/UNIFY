@@ -51,18 +51,13 @@ services:
       HOST: 127.0.0.1
       PORT: ${GATEWAY_PORT:-28081}
       RELEASE_ID: local-compose
-      DEPLOYMENT_MODE: ${DEPLOYMENT_MODE:-read-only}
-      MUTATION_DOMAINS: ${MUTATION_DOMAINS:-}
-      MUTATION_ACCEPTANCE_REFS: ${MUTATION_ACCEPTANCE_REFS:-}
+
       REQUESTS_PER_MINUTE: ${REQUESTS_PER_MINUTE:-600}
       ALLOWED_ORIGINS: https://uniui.aquiero.com,http://127.0.0.1:${UNIUI_PORT:-3000},http://localhost:${UNIUI_PORT:-3000},http://127.0.0.1:${CHAT_PWA_PORT:-3101},http://localhost:${CHAT_PWA_PORT:-3101},http://127.0.0.1:${ALERTS_PWA_PORT:-3102},http://localhost:${ALERTS_PWA_PORT:-3102}
       FRAMEWORK_AUTH_ENV_NAMES: HERMES_MAIN_CONTROL_TOKEN
       HERMES_MAIN_CONTROL_TOKEN_FILE: /run/secrets/hermes_main_control_token
       HERMES_EVENT_POLL_MS: ${HERMES_EVENT_POLL_MS:-5000}
-
-      MEMORY_V4_URL: ${MEMORY_V4_URL:-http://127.0.0.1:18804}
-      MEMORY_V4_TOKEN_FILE: /run/secrets/memory_v4_token
-    secrets: [gateway_database_url, gateway_auth_pepper, hermes_main_control_token, memory_v4_token]
+    secrets: [gateway_database_url, gateway_auth_pepper, hermes_main_control_token]
     network_mode: host
     depends_on:
       postgres: { condition: service_healthy }
@@ -164,7 +159,5 @@ secrets:
   gateway_auth_pepper: { file: .secrets/gateway_auth_pepper }
   bootstrap_admin_password: { file: .secrets/bootstrap_admin_password }
   hermes_main_control_token: { file: .secrets/hermes_main_control_token }
-
-  memory_v4_token: { file: .secrets/memory_v4_token }
 volumes:
   postgres_data: {}

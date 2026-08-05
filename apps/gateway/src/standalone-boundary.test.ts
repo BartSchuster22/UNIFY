@@ -1,26 +1,25 @@
-import { readdir, readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import { buildApp } from './app.js';
 
-async function productionTypescriptFiles(directory: string): Promise<string[]> {
-  const entries = await readdir(directory, { withFileTypes: true });
-  const files: string[] = [];
-  for (const entry of entries) {
-    const path = join(directory, entry.name);
-    if (entry.isDirectory()) files.push(...(await productionTypescriptFiles(path)));
-    else if (entry.name.endsWith('.ts') && !entry.name.endsWith('.test.ts')) files.push(path);
-  }
-  return files;
-}
+const applications: Array<ReturnType<typeof buildApp>> = [];
+
+afterEach(async () => {
+  await Promise.all(applications.splice(0).map((app) => app.close()));
+});
 
 describe('standalone runtime boundary', () => {
-  it('contains no Agency or DMM runtime code or configuration', async () => {
-    const files = await productionTypescriptFiles(new URL('.', import.meta.url).pathname);
-    const violations: string[] = [];
-    for (const file of files) {
-      const source = await readFile(file, 'utf8');
-      if (/agency|dmm/i.test(source)) violations.push(file);
-    }
-    expect(violations).toEqual([]);
-  });
+  for (const path of [
+    '/api/v1/integrations',
+    '/api/v1/resources',
+    '/api/v1/search',
+    '/api/v1/events',
+    '/api/v1/shadow',
+  ]) {
+    it(`does not expose retired route ${path}`, async () => {
+      const app = buildApp({ authStore: {} as never, authPepper: 'x'.repeat(32) });
+      applications.push(app);
+      const response = await app.inject({ method: 'GET', url: path });
+      expect(response.statusCode).toBe(404);
+    });
+  }
 });

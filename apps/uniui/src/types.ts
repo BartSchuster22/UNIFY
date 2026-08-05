@@ -60,7 +60,7 @@ export interface ApiFailure {
 export interface MutationRequest {
   operationType: string;
   target: {
-    owner: 'hermes' | 'dmm' | 'worker' | 'chat' | 'memory-v4';
+    owner: 'hermes';
     kind: string;
     nativeId: string;
     frameworkId?: string;

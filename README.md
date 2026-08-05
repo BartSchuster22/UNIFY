@@ -1,71 +1,52 @@
 # UNIFY
 
-Aquiero's unified Hermes Gateway and Mantine operator UI.
+Aquiero's standalone Core, authenticated Gateway, Hermes framework control plane, and Mantine operator UI.
 
-UNIFY provides one authenticated, policy-controlled API boundary and one operator experience across Hermes-native resources and the existing AGENCY, DMM, WORKER, CHAT, and MemoryV4 domains. It is implemented as a strangler migration: existing applications remain usable until each domain cutover is independently accepted and reversible.
+UNIFY owns native profiles, work, conversations, attachments, routing, authorization, audit, and access-plane state. Registered Hermes framework endpoints remain the only supported framework runtime dependency. Production has no connection path to Agency, DMM, Worker, `/CHAT`, or MemoryV4.
 
-## Non-negotiable rules
+## Runtime invariants
 
-- New browser and focused-app clients communicate only with the Unified Gateway.
-- Hermes remains authoritative for Hermes-native state.
-- Domain-owned state remains with its explicit owner until a reviewed migration changes that boundary.
-- Unsupported, unavailable, stale, partial, empty, forbidden, failed, and current are distinct states.
+- Browsers and focused applications use only same-origin UNIFY APIs.
+- Core owns native profiles, work, conversations, messages, attachments, routing, and durable events.
+- Gateway owns authentication, authorization, framework registrations, operations, audit, and derived notifications.
+- Framework operations use only registered, versioned Hermes control endpoints and scoped credentials.
+- Agency, DMM, Worker, `/CHAT`, and MemoryV4 are not valid runtime owners or configured upstream services.
 - Rendering a route never mutates state.
-- Important writes require capability and policy checks, exact-payload preflight, explicit confirmation, idempotency, optimistic concurrency, authoritative execution, and readback verification.
-- UNIFY does not introduce a second Kanban writer, scheduler, dispatcher, webhook owner, or chat responder.
-- Existing production resources are not mutated during discovery or ordinary verification.
-
-## Documentation
-
-- [Discovery and contract-bootstrap report](docs/discovery/PHASE-1-REPORT.md)
-- [Complete building plan](docs/plans/BUILDING-PLAN.md)
-- [Source-of-truth matrix](docs/architecture/SOURCE-OF-TRUTH.md)
-- [Canonical resource identity](docs/architecture/RESOURCE-IDENTITY.md)
-- [Capability and truth contract](docs/contracts/CAPABILITY-AND-TRUTH-CONTRACT.md)
-- [`/api/v1` outline](docs/contracts/API-V1-OUTLINE.md)
-- [Initial threat model](docs/threat-model/INITIAL-THREAT-MODEL.md)
-- [Baseline authorization matrix](docs/security/AUTHORIZATION-MATRIX.md)
-- [Architecture decisions](docs/adr/)
-- [Sanitized discovery evidence](docs/evidence/discovery-manifest.json)
-- [Identity, sessions, RBAC, and CSRF](docs/security/AUTHENTICATION.md)
-- [QA10 authentication and Application Registry plan](docs/plans/QA10-AUTHENTICATION-AND-APPLICATION-REGISTRY-PLAN.md)
-- [Per-instance OIDC Identity Authority decision](docs/adr/0005-PER-INSTANCE-OIDC-IDENTITY-AUTHORITY.md)
-- [Authentication capacity-gate evidence](docs/evidence/AUTH-REGISTRY-CAPACITY-GATE-2026-08-03.md)
-- [Database migrations](docs/database/MIGRATIONS.md)
-- [Operation governance](docs/operations/GOVERNANCE.md)
-- [Governed owner mutations](docs/operations/MUTATIONS.md)
-- [Adapter SDK contract](docs/adapters/SDK-CONTRACT.md)
-- [Read-only integration operations](docs/adapters/READ-ONLY-INTEGRATIONS.md)
-- [Local Compose runbook](docs/runbooks/LOCAL-COMPOSE.md)
-- [Phase 2 verification](docs/evidence/PHASE-2-REPORT.md)
-- [Phase 3 verification](docs/evidence/PHASE-3-REPORT.md)
-- [Mantine UNIUI architecture and operations](docs/ui/MANTINE-UNIUI.md)
-- [Phase 4 verification](docs/evidence/PHASE-4-REPORT.md)
-- [Phase 5 verification](docs/evidence/PHASE-5-REPORT.md)
-- [Focused Chat and Alerts PWAs](docs/ui/FOCUSED-PWAS.md)
-- [Native-shell readiness boundary](docs/mobile/NATIVE-SHELL-READINESS.md)
-- [Phase 6 verification](docs/evidence/PHASE-6-REPORT.md)
+- Meaningful writes require capability and policy checks, idempotency, exact targets, and durable evidence.
+- UNIFY does not introduce a second board writer, scheduler, dispatcher, webhook owner, or responder.
 
 ## Deployables
 
 ```text
-apps/gateway       Unified API, identity, policy, operations, audit and adapters
+apps/core          Native domain APIs and PostgreSQL state
+apps/gateway       Identity, policy, framework control, operations and audit
 apps/uniui         Mantine browser operator application
-apps/chat-pwa      Focused Chat PWA using shared packages
-apps/alerts-pwa    Focused Alerts PWA using shared packages
-packages/*         Contracts, generated SDK, auth/events/resource refs and UI components
+apps/chat-pwa      Native Core conversation PWA
+apps/alerts-pwa    Gateway notification PWA
+packages/*         Contracts, generated SDK, auth client and UI components
 ```
 
-## Status
+## Verification
 
-Phase 1 — Repository and contract bootstrap: complete.
+```bash
+pnpm install --frozen-lockfile
+pnpm qa
+pnpm standalone:check
+```
 
-Phase 2 — Gateway foundation: complete. The repository contains reproducible workspace builds, canonical OpenAPI and generated SDK artifacts, Gateway-owned PostgreSQL migrations, named-user security, governance/idempotency/evidence foundations, a resilient adapter SDK, and hardened local containers. This is a foundation milestone; no legacy production cutover is implied.
+`standalone:check` fails if retired adapters, owner clients, proxy routes, owner values, environment variables, secrets, or migration runtime paths return.
 
-Phase 3 — Read-only integrations: complete. Gateway federates Agency/Hermes, DMM, Worker, Chat, and MemoryV4 reads with explicit provenance/truth, owner-scoped RBAC, bounded cursor pagination, unified events/notifications/search, and zero-drift owner shadow comparisons. Existing owners remain authoritative and no production cutover is implied.
+## Current architecture
 
-Phase 4 — Mantine UNIUI: complete. The authenticated responsive operator shell presents owner-scoped frameworks, providers/models, profiles, Work/Kanban, virtualized Chat, Memory, audit, operations, notifications, and settings through shared truthful-state components. Mobile, keyboard, axe accessibility, CSP, non-root container, and real Compose gates are included. The UI remains read-only with respect to authoritative owner services.
+- [Source-of-truth matrix](docs/architecture/SOURCE-OF-TRUTH.md)
+- [Canonical resource identity](docs/architecture/RESOURCE-IDENTITY.md)
+- [Hermes control contract](docs/architecture/HERMES-CONTROL-V1.md)
+- [Native work](docs/rebuild/phase-08-native-work.md)
+- [Native conversations](docs/rebuild/phase-09-native-agent-conversations.md)
+- [Legacy runtime removal](docs/rebuild/phase-10-remove-legacy-runtime.md)
+- [Authentication](docs/security/AUTHENTICATION.md)
+- [Governed operations](docs/operations/MUTATIONS.md)
+- [Local Compose](docs/runbooks/LOCAL-COMPOSE.md)
+- [Production cutover](docs/runbooks/PRODUCTION-CUTOVER.md)
 
-Phase 5 — Governed mutations: complete. One authenticated, CSRF-protected, RBAC-checked, idempotent operation boundary delegates safety-gated writes to Agency/Hermes, DMM, Worker, Chat, and MemoryV4 while preserving owner authority. Destructive execution requires confirmation, evidence is recursively redacted, Chat files are bounded and privately proxied, Memory writes are allowlisted, and UNIUI plus the generated SDK expose the governed controls.
-
-Phase 6 — Focused applications: complete. Installable Chat and Alerts PWAs share the same authentication, truthful-state, Chat, and notification components as UNIUI. They are responsive, permission-aware, accessible, shell-only offline capable, and deployed behind same-origin Gateway proxies. Notification acknowledgement is recipient-scoped and durable. Native-shell work remains intentionally unimplemented behind a documented readiness and approval boundary.
+Earlier discovery, planning, and evidence documents are retained as historical records. Where they describe legacy adapters, owners, routes, or credentials, this README and the Phase 10 report supersede them.

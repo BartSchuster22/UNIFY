@@ -37,7 +37,7 @@ import {
   Tooltip,
   createTheme,
 } from '@mantine/core';
-import { useDisclosure, useHotkeys } from '@mantine/hooks';
+import { useDisclosure } from '@mantine/hooks';
 
 import { NotificationInbox } from '@aquiero/notification-components';
 import {
@@ -45,8 +45,6 @@ import {
   IconBell,
   IconBolt,
   IconBooks,
-  IconBrain,
-  IconChevronRight,
   IconClipboardList,
   IconDatabase,
   IconGauge,
@@ -56,7 +54,6 @@ import {
   IconMoon,
   IconNetwork,
   IconRefresh,
-  IconSearch,
   IconSettings,
   IconShieldCheck,
   IconSun,
@@ -64,7 +61,7 @@ import {
   IconUsers,
 } from '@tabler/icons-react';
 
-import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { ApiError, api, gateway } from './api';
 import { WorkView } from './WorkView';
 import { ProfilesView } from './ProfilesView';
@@ -80,7 +77,6 @@ import type {
   ResponseMeta,
   SessionSummary,
   TruthState,
-  UnifiedResource,
 } from './types';
 import '@mantine/core/styles.css';
 import './styles.css';
@@ -92,13 +88,11 @@ type ViewId =
   | 'profiles'
   | 'work'
   | 'chat'
-  | 'memory'
   | 'audit'
   | 'operations'
   | 'mutations'
   | 'notifications'
-  | 'settings'
-  | 'search';
+  | 'settings';
 
 type Icon = typeof IconGauge;
 interface NavItem {
@@ -114,7 +108,7 @@ const NAV: NavItem[] = [
   { id: 'profiles', label: 'Profiles', icon: IconUsers, permission: 'profiles.read' },
   { id: 'work', label: 'Work & Kanban', icon: IconClipboardList, permission: 'work.read' },
   { id: 'chat', label: 'Chat', icon: IconMessages, permission: 'chat.read' },
-  { id: 'memory', label: 'Memory', icon: IconBrain, permission: 'memory.read' },
+
   { id: 'audit', label: 'Audit', icon: IconShieldCheck, permission: 'audit.read' },
   { id: 'operations', label: 'Operations', icon: IconActivity, permission: 'operations.read' },
   { id: 'mutations', label: 'Safety actions', icon: IconBolt },
@@ -149,14 +143,8 @@ export function App() {
     const requested = new URLSearchParams(window.location.search).get('view');
     return NAV.some((item) => item.id === requested) ? (requested as ViewId) : 'overview';
   });
-  const [query, setQuery] = useState('');
   const [dark, setDark] = useState(() => localStorage.getItem('unify-color-scheme') === 'dark');
   const [opened, { toggle, close }] = useDisclosure(false);
-  const searchRef = useRef<HTMLInputElement>(null);
-  useHotkeys([
-    ['mod+K', () => searchRef.current?.focus()],
-    ['/', () => searchRef.current?.focus()],
-  ]);
   useEffect(() => {
     gateway
       .me()
@@ -171,10 +159,7 @@ export function App() {
     window.history.replaceState(null, '', url);
     close();
   };
-  const search = (event: FormEvent) => {
-    event.preventDefault();
-    if (query.trim()) changeView('search');
-  };
+
   if (authLoading)
     return (
       <MantineProvider theme={theme} forceColorScheme={dark ? 'dark' : 'light'}>
@@ -231,17 +216,7 @@ export function App() {
                 </Box>
               </Group>
             </Group>
-            <Box component="form" onSubmit={search} className="global-search">
-              <TextInput
-                ref={searchRef}
-                value={query}
-                onChange={(event) => setQuery(event.currentTarget.value)}
-                placeholder="Search every owner…"
-                aria-label="Global search"
-                leftSection={<IconSearch size={16} />}
-                rightSection={<Code>⌘K</Code>}
-              />
-            </Box>
+
             <Group gap="xs" wrap="nowrap">
               <Tooltip label={`Use ${dark ? 'light' : 'dark'} theme`}>
                 <ActionIcon
@@ -318,7 +293,7 @@ export function App() {
           </AppShell.Section>
         </AppShell.Navbar>
         <AppShell.Main id="main-content" tabIndex={-1}>
-          <View view={activeView} principal={principal} searchQuery={query} />
+          <View view={activeView} principal={principal} />
         </AppShell.Main>
       </AppShell>
     </MantineProvider>
@@ -408,15 +383,7 @@ function Login({ onLogin }: { onLogin: (principal: Principal) => void }) {
   );
 }
 
-function View({
-  view,
-  principal,
-  searchQuery,
-}: {
-  view: ViewId;
-  principal: Principal;
-  searchQuery: string;
-}) {
+function View({ view, principal }: { view: ViewId; principal: Principal }) {
   switch (view) {
     case 'overview':
       return <Overview />;
@@ -430,8 +397,7 @@ function View({
       return <WorkView canManage={principal.permissions.includes('work.manage')} />;
     case 'chat':
       return <ChatView canUse={principal.permissions.includes('chat.use')} />;
-    case 'memory':
-      return <MemoryView />;
+
     case 'audit':
       return <AuditView />;
     case 'operations':
@@ -442,8 +408,6 @@ function View({
       return <NotificationsView />;
     case 'settings':
       return <Settings principal={principal} />;
-    case 'search':
-      return <SearchView query={searchQuery} />;
   }
 }
 
@@ -944,70 +908,6 @@ function StateBadge({ state }: { state: TruthState }) {
   );
 }
 
-function MemoryView() {
-  const [draft, setDraft] = useState('');
-  const [query, setQuery] = useState('');
-  const path = query
-    ? `/search?q=${encodeURIComponent(query)}&owner=memory-v4&limit=100`
-    : '/resources?owner=memory-v4&kind=memory-record&limit=100';
-  const result = useData<Collection<UnifiedResource | { resource: UnifiedResource }>>(path);
-  const items = (result.data?.items ?? []).map((item) => ('truth' in item ? item : item.resource));
-  return (
-    <>
-      <PageHeading
-        title="Memory explorer"
-        description="Inspect authoritative MemoryV4 records and owner-native search results."
-      />
-      <Box
-        component="form"
-        onSubmit={(event) => {
-          event.preventDefault();
-          setQuery(draft.trim());
-        }}
-        mb="md"
-      >
-        <TextInput
-          value={draft}
-          onChange={(event) => setDraft(event.currentTarget.value)}
-          label="Search memory"
-          placeholder="Search content and metadata"
-          leftSection={<IconSearch size={16} />}
-          rightSection={
-            <ActionIcon type="submit" aria-label="Search memory">
-              <IconChevronRight size={16} />
-            </ActionIcon>
-          }
-        />
-      </Box>
-      <TruthPanel
-        meta={result.data?.meta}
-        loading={result.loading}
-        failure={result.failure}
-        empty={Boolean(result.data && items.length === 0)}
-        onRetry={result.reload}
-      >
-        <SimpleGrid cols={{ base: 1, lg: 2 }}>
-          {items.map((item) => (
-            <Card withBorder key={item.resource.canonicalId}>
-              <Group justify="space-between">
-                <Text fw={700}>{item.title}</Text>
-                <StateBadge state={item.truth} />
-              </Group>
-              <Text size="sm" mt="sm" lineClamp={5}>
-                {stringField(item.data, ['content', 'text', 'value']) || item.searchableText}
-              </Text>
-              <Text size="xs" c="dimmed" mt="md">
-                Scope: {stringField(item.data, ['scope_path', 'scope']) || 'global'} ·{' '}
-                {formatDate(item.resource.observedAt)}
-              </Text>
-            </Card>
-          ))}
-        </SimpleGrid>
-      </TruthPanel>
-    </>
-  );
-}
-
 interface AuditEvent {
   id: string;
   eventType: string;
@@ -1251,12 +1151,6 @@ function Settings({ principal }: { principal: Principal }) {
           <Text fw={700}>Accessibility & keyboard</Text>
           <Stack mt="md" gap="xs">
             <Text size="sm">
-              <Code>⌘/Ctrl + K</Code> Focus global search
-            </Text>
-            <Text size="sm">
-              <Code>/</Code> Focus global search
-            </Text>
-            <Text size="sm">
               Navigation, dialogs, tables, and forms expose semantic labels and visible focus.
             </Text>
             <Group>
@@ -1296,39 +1190,6 @@ function Settings({ principal }: { principal: Principal }) {
     </>
   );
 }
-function SearchView({ query }: { query: string }) {
-  const result = useData<
-    Collection<{ resource: UnifiedResource; score: number; matchedFields: string[] }>
-  >(query ? `/search?q=${encodeURIComponent(query)}&limit=200` : null);
-  return (
-    <>
-      <PageHeading title="Search" description={`Cross-owner results for “${query}”.`} />
-      <TruthPanel
-        meta={result.data?.meta}
-        loading={result.loading}
-        failure={result.failure}
-        empty={Boolean(result.data && result.data.items.length === 0)}
-        onRetry={result.reload}
-      >
-        <Stack>
-          {result.data?.items.map((hit) => (
-            <Card withBorder key={hit.resource.resource.canonicalId}>
-              <Group justify="space-between">
-                <Text fw={700}>{hit.resource.title}</Text>
-                <StateBadge state={hit.resource.truth} />
-              </Group>
-              <Text size="xs" c="dimmed" mt="xs">
-                {hit.resource.resource.owner} · {hit.resource.resource.kind} ·{' '}
-                {hit.resource.resource.nativeId}
-              </Text>
-            </Card>
-          ))}
-        </Stack>
-      </TruthPanel>
-    </>
-  );
-}
-
 function toFailure(error: unknown): ApiFailure {
   if (error instanceof ApiError) return error.failure;
   if (error instanceof Error)
@@ -1340,11 +1201,4 @@ function formatDate(value: string) {
   return Number.isNaN(date.getTime())
     ? value
     : new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
-}
-function stringField(data: Record<string, unknown>, fields: string[]) {
-  for (const field of fields) {
-    const value = data[field];
-    if (typeof value === 'string') return value;
-  }
-  return '';
 }

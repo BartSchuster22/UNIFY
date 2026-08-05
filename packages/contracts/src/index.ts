@@ -33,7 +33,7 @@ export const ResourceKindSchema = Type.Union(
     Type.Literal('task'),
     Type.Literal('kanban-board'),
     Type.Literal('cronjob'),
-    Type.Literal('memory-record'),
+
     Type.Literal('catalog-snapshot'),
     Type.Literal('operation'),
     Type.Literal('notification'),
@@ -41,26 +41,9 @@ export const ResourceKindSchema = Type.Union(
   { $id: 'ResourceKind' },
 );
 
-export const ResourceOwnerSchema = Type.Union(
-  [
-    Type.Literal('hermes'),
-    Type.Literal('agency'),
-    Type.Literal('worker'),
-    Type.Literal('memory-v4'),
-    Type.Literal('gateway'),
-  ],
-  { $id: 'ResourceOwner' },
-);
-
-/**
- * Legacy owner values are migration provenance only. A resource carrying one of
- * those values must use sourceRole=migration-only and authoritative=false.
- */
-export const SourceRoleSchema = Type.Union(
-  [Type.Literal('authoritative'), Type.Literal('migration-only')],
-  { $id: 'SourceRole' },
-);
-export type SourceRole = Static<typeof SourceRoleSchema>;
+export const ResourceOwnerSchema = Type.Union([Type.Literal('hermes'), Type.Literal('gateway')], {
+  $id: 'ResourceOwner',
+});
 
 export const ResourceRefSchema = Type.Object(
   {
@@ -329,62 +312,16 @@ const UnifiedResourceProperties = {
   data: Type.Record(Type.String(), Type.Unknown()),
 };
 
-export const UnifiedResourceSchema = Type.Union(
-  [
-    Type.Object(
-      {
-        ...UnifiedResourceProperties,
-        authoritative: Type.Literal(true),
-        sourceRole: Type.Literal('authoritative'),
-      },
-      { additionalProperties: false },
-    ),
-    Type.Object(
-      {
-        ...UnifiedResourceProperties,
-        authoritative: Type.Literal(false),
-        sourceRole: Type.Literal('migration-only'),
-      },
-      { additionalProperties: false },
-    ),
-  ],
-  { $id: 'UnifiedResource' },
+export const UnifiedResourceSchema = Type.Object(
+  {
+    ...UnifiedResourceProperties,
+    authoritative: Type.Literal(true),
+    sourceRole: Type.Literal('authoritative'),
+  },
+  { $id: 'UnifiedResource', additionalProperties: false },
 );
 export type UnifiedResource = Static<typeof UnifiedResourceSchema>;
 
-export const IntegrationStatusSchema = Type.Object(
-  {
-    adapterId: Type.String(),
-    owners: Type.Array(ResourceOwnerSchema),
-    sourceRole: SourceRoleSchema,
-    writeEnabled: Type.Boolean(),
-    status: TruthStateSchema,
-    observedAt: Type.Optional(Type.String({ format: 'date-time' })),
-    resourceCount: Type.Integer({ minimum: 0 }),
-    warnings: Type.Array(WarningSchema),
-  },
-  { $id: 'IntegrationStatus', additionalProperties: false },
-);
-export const IntegrationStatusListSchema = Type.Object(
-  { items: Type.Array(IntegrationStatusSchema) },
-  { $id: 'IntegrationStatusList', additionalProperties: false },
-);
-export const UnifiedResourceListSchema = Type.Object(
-  { items: Type.Array(UnifiedResourceSchema), meta: ResponseMetaSchema },
-  { $id: 'UnifiedResourceList', additionalProperties: false },
-);
-export const UnifiedSearchHitSchema = Type.Object(
-  {
-    resource: UnifiedResourceSchema,
-    score: Type.Number(),
-    matchedFields: Type.Array(Type.String()),
-  },
-  { $id: 'UnifiedSearchHit', additionalProperties: false },
-);
-export const UnifiedSearchResultsSchema = Type.Object(
-  { items: Type.Array(UnifiedSearchHitSchema), meta: ResponseMetaSchema },
-  { $id: 'UnifiedSearchResults', additionalProperties: false },
-);
 export const UnifiedNotificationSchema = Type.Object(
   {
     id: Type.String(),
@@ -408,37 +345,9 @@ export const UnifiedNotificationListSchema = Type.Object(
   { items: Type.Array(UnifiedNotificationSchema), meta: ResponseMetaSchema },
   { $id: 'UnifiedNotificationList', additionalProperties: false },
 );
-export const UnifiedEventListSchema = Type.Object(
-  { items: Type.Array(EventEnvelopeSchema), meta: ResponseMetaSchema },
-  { $id: 'UnifiedEventList', additionalProperties: false },
-);
-export const ShadowComparisonSchema = Type.Object(
-  {
-    adapterId: Type.String(),
-    owner: ResourceOwnerSchema,
-    status: Type.Union([
-      Type.Literal('match'),
-      Type.Literal('mismatch'),
-      Type.Literal('unavailable'),
-    ]),
-    comparedAt: Type.String({ format: 'date-time' }),
-    expectedCount: Type.Integer({ minimum: 0 }),
-    actualCount: Type.Integer({ minimum: 0 }),
-    missing: Type.Array(Type.String()),
-    unexpected: Type.Array(Type.String()),
-    changed: Type.Array(Type.String()),
-    evidenceHash: Type.String({ pattern: '^[a-f0-9]{64}$' }),
-  },
-  { $id: 'ShadowComparison', additionalProperties: false },
-);
-export const ShadowComparisonListSchema = Type.Object(
-  { items: Type.Array(ShadowComparisonSchema), meta: ResponseMetaSchema },
-  { $id: 'ShadowComparisonList', additionalProperties: false },
-);
-
 export const MutationTargetSchema = Type.Object(
   {
-    owner: Type.Union([Type.Literal('hermes'), Type.Literal('memory-v4')]),
+    owner: Type.Literal('hermes'),
     kind: Type.String({ minLength: 1, maxLength: 200 }),
     nativeId: Type.String({ minLength: 1, maxLength: 1024 }),
     frameworkId: Type.Optional(Type.String({ minLength: 1, maxLength: 200 })),
@@ -490,16 +399,8 @@ const schemas: TSchema[] = [
   SessionListSchema,
   HealthSchema,
   UnifiedResourceSchema,
-  IntegrationStatusSchema,
-  IntegrationStatusListSchema,
-  UnifiedResourceListSchema,
-  UnifiedSearchHitSchema,
-  UnifiedSearchResultsSchema,
   UnifiedNotificationSchema,
   UnifiedNotificationListSchema,
-  UnifiedEventListSchema,
-  ShadowComparisonSchema,
-  ShadowComparisonListSchema,
   MutationTargetSchema,
   MutationRequestSchema,
   MutationResponseSchema,
@@ -522,12 +423,8 @@ export function buildOpenApiDocument(): Record<string, unknown> {
       { name: 'operations' },
       { name: 'mutations' },
       { name: 'audit' },
-      { name: 'integrations' },
       { name: 'frameworks' },
-      { name: 'search' },
-      { name: 'events' },
       { name: 'notifications' },
-      { name: 'shadow' },
     ],
     paths: {
       '/health/live': {
@@ -739,7 +636,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         },
       },
       '/audit': readPath('audit', 'listAuditEvents', 'AuditEventList'),
-      '/integrations': readPath('integrations', 'listIntegrations', 'IntegrationStatusList'),
+
       '/frameworks': readPath(
         'frameworks',
         'listFrameworkRegistrations',
@@ -879,22 +776,7 @@ export function buildOpenApiDocument(): Record<string, unknown> {
         'GatewayHermesEvents',
         frameworkParameters(true),
       ),
-      '/resources': readPath(
-        'integrations',
-        'listUnifiedResources',
-        'UnifiedResourceList',
-        resourceQueryParameters(),
-      ),
-      '/search': readPath('search', 'searchUnifiedResources', 'UnifiedSearchResults', [
-        {
-          name: 'q',
-          in: 'query',
-          required: true,
-          schema: { type: 'string', minLength: 1, maxLength: 500 },
-        },
-        ...resourceQueryParameters(),
-      ]),
-      '/events': readPath('events', 'listUnifiedEvents', 'UnifiedEventList'),
+
       '/notifications': readPath(
         'notifications',
         'listUnifiedNotifications',
@@ -922,7 +804,6 @@ export function buildOpenApiDocument(): Record<string, unknown> {
           },
         },
       },
-      '/shadow': readPath('shadow', 'compareAuthoritativeOwners', 'ShadowComparisonList'),
     },
     components: {
       securitySchemes: {
@@ -1015,11 +896,4 @@ function readPath(
       },
     },
   };
-}
-function resourceQueryParameters(): unknown[] {
-  return [
-    { name: 'owner', in: 'query', schema: { $ref: '#/components/schemas/ResourceOwner' } },
-    { name: 'kind', in: 'query', schema: { $ref: '#/components/schemas/ResourceKind' } },
-    { name: 'refresh', in: 'query', schema: { type: 'boolean', default: false } },
-  ];
 }

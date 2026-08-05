@@ -27,6 +27,7 @@ export interface UnifiedResource {
   resource: ResourceRef;
   truth: string;
   authoritative: true;
+  sourceRole: 'authoritative';
   adapterId: string;
   fetchedAt: string;
   title: string;
@@ -59,7 +60,7 @@ export interface UnifiedNotification {
 export interface MutationRequest {
   operationType: string;
   target: {
-    owner: 'hermes' | 'memory-v4';
+    owner: 'hermes';
     kind: string;
     nativeId: string;
     frameworkId?: string;
@@ -136,9 +137,7 @@ export class GatewayClient {
   logout() {
     return this.request<void>('/auth/logout', { method: 'POST' });
   }
-  resources(query: URLSearchParams) {
-    return this.request<Collection<UnifiedResource>>(`/resources?${query}`);
-  }
+
   notifications(query = new URLSearchParams({ limit: '200' })) {
     return this.request<Collection<UnifiedNotification>>(`/notifications?${query}`);
   }

@@ -14,6 +14,7 @@ export interface NotificationDraft {
 
 export interface NotificationStore {
   ready(): Promise<boolean>;
+  list(userId: string, allowedOwners: string[]): Promise<NotificationDraft[]>;
   sync(
     userId: string,
     notifications: NotificationDraft[],
@@ -35,6 +36,32 @@ export class PostgresNotificationStore implements NotificationStore {
     } catch {
       return false;
     }
+  }
+
+  async list(userId: string, allowedOwners: string[]): Promise<NotificationDraft[]> {
+    if (allowedOwners.length === 0) return [];
+    const result = await this.pool.query(
+      `SELECT dedupe_key,severity,title,body,source->>'owner' owner,source->'resource' resource,
+              deep_link,state,created_at
+       FROM notifications
+       WHERE recipient_id=$1 AND source->>'owner'=ANY($2::text[])
+       ORDER BY created_at DESC,dedupe_key ASC
+       LIMIT 500`,
+      [userId, allowedOwners],
+    );
+    return result.rows.map((row) => ({
+      id: String(row.dedupe_key),
+      severity: row.severity as NotificationDraft['severity'],
+      title: String(row.title),
+      body: String(row.body),
+      source: String(row.owner),
+      state: row.state as NotificationDraft['state'],
+      createdAt: new Date(row.created_at).toISOString(),
+      ...(row.deep_link ? { deepLink: String(row.deep_link) } : {}),
+      ...(row.resource && typeof row.resource === 'object'
+        ? { resource: row.resource as Record<string, unknown> }
+        : {}),
+    }));
   }
 
   async sync(

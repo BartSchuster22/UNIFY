@@ -2,53 +2,33 @@
 
 ## Binding decision
 
-Hermes agent framework instances are the source of truth for agent-domain state. UNIFY is the gateway/access plane. UNIFY UI is the user control interface. Agency, DMM, Worker and CHAT are migration inputs and parity references only; they are never authoritative owners and will be retired after Hermes-backed UNIFY passes full production QA10.
+UNIFY Core is authoritative for native profiles, work, conversations, messages, attachments, routing, and durable domain events. Exact registered Hermes instances remain authoritative for their advertised framework runtime capabilities. Gateway is authoritative for identity/access policy, framework registrations, operations, audit, and recipient-scoped notification projections.
 
-The comprehensive migration and implementation sequence is defined in [`../plans/HERMES-SOT-REBUILD-AND-IMPLEMENTATION-PLAN.md`](../plans/HERMES-SOT-REBUILD-AND-IMPLEMENTATION-PLAN.md). This decision supersedes conflicting ownership statements in earlier discovery/evidence documents, which remain historical records only.
+Agency, DMM, Worker, and `/CHAT` have no runtime, migration-reader, parity, fallback, or rollback role. Earlier discovery and migration documents are historical evidence only.
 
 ## Matrix
 
-| Entity or operation | Authoritative owner | UNIFY Gateway role | Write rule |
-|---|---|---|---|
-| Framework identity, capabilities, health and events | Exact Hermes instance | Register, authenticate, normalize, authorize and expose provenance | Exact framework and supported contract version required |
-| Profiles/agents, identity, model routing, runtime and usage | Exact Hermes instance | Access policy, operation orchestration and verified readback | Direct Hermes control contract only |
-| Providers, credentials, available models and fallback routing | Exact Hermes instance and its configured secret/auth provider | Secret-safe access, policy and evidence | Raw secrets never return; direct Hermes credential/runtime contract only |
-| Projects and project activation metadata | Exact Hermes instance | Normalize and authorize | Direct Hermes Projects contract only |
-| Kanban boards, tasks, comments, dependencies, attempts and dispatcher | Exact Hermes instance | Access policy and operation evidence | Hermes is the only board writer and dispatcher |
-| Cron jobs and schedules | Exact Hermes instance | Access policy and operation evidence | Hermes is the only scheduler |
-| Sessions, messages, runs, approvals and usage | Exact Hermes instance | Paginated access, authorization and operation tracking | Hermes SessionDB/run APIs only |
-| External conversation routes, ingest and outbound delivery | Standalone CHAT/framework channel runtime, outside UNIFY scope | No display, projection, event forwarding or control surface | UNIFY reads and writes are prohibited |
-| Framework tools, skills and plugin capabilities | Exact Hermes instance | Capability discovery and access policy | Never infer or seed capabilities in UNIFY |
-| Configured external memory content | The memory provider selected by Hermes, according to its approved scope | Safe facade and principal mapping | UNIFY does not create a competing memory ledger |
-| Users, authenticators, passkeys, MFA, OIDC sessions, OAuth clients/tokens and signing keys | Per-instance Identity Authority | UNIFY trusts one configured issuer through standard OIDC/OAuth and stores no readable OAuth secret | Exact issuer/audience/client profile, revocation and protocol policy required |
-| Local principal bindings, roles, permissions, browser BFF sessions, CSRF and Application Registry governance | UNIFY Gateway | Authoritative access-policy owner; maps `issuer + subject` and application identity to exact framework/resource grants | Deny by default; both principal and active application must be authorized |
-| Framework registrations and non-secret endpoint references | UNIFY Gateway | Authoritative access-plane owner | Framework secrets remain server-side and scoped |
-| Canonical aliases/migration mappings | UNIFY Gateway | Authoritative mapping record | Ambiguous, stale or missing mappings block writes |
-| Operations, idempotency, preflight and cross-framework audit | UNIFY Gateway | Authoritative access-plane evidence | Every meaningful write has verified Hermes evidence |
-| Event cursors, derived notifications and UI preferences | UNIFY Gateway, explicitly derived where applicable | Durable access projection | Provenance and expiry required; never domain truth |
-| Derived cache/search projection | UNIFY Gateway, explicitly derived | Availability/performance optimization | Read-only while stale; source outage never becomes empty truth |
-| Agency, DMM, Worker and CHAT databases/APIs | No authoritative role | Migration import and temporary shadow comparison only | No final production write path; remove after QA10 |
+| Entity or operation | Authoritative owner | Rule |
+|---|---|---|
+| Native profiles and agents | Core | owner-scoped PostgreSQL state and command envelopes |
+| Native projects, boards, tasks, runs, and schedules | Core | Core is the only work-state writer and scheduler |
+| Conversations, messages, attachments, routes, cursors, and dispatch claims | Core | Core is the only conversation ledger and dispatcher |
+| Framework identity, capabilities, provider/runtime inventory, and framework events | exact Hermes instance | exact registered endpoint and supported contract required |
+| Framework runtime actions | exact Hermes instance | capability, permission, idempotency, evidence, and readback required |
+| Users, sessions, roles, permissions, CSRF, and application governance | Gateway | deny by default |
+| Framework registrations and secret references | Gateway | credentials remain server-side and scoped |
+| Operations, evidence, and audit | Gateway | immutable/durable access-plane records |
+| Derived notifications and UI preferences | Gateway | never domain truth |
 
-## Ownership invariants
+## Invariants
 
-1. Every framework-domain resource uses `owner: hermes` and an exact `frameworkId`.
-2. `agency`, `dmm`, `worker` and `chat` may appear only as legacy migration provenance, never as current owner.
-3. The browser communicates only with UNIFY Gateway.
-4. UNIFY Gateway communicates directly with versioned Hermes control contracts for domain reads, writes and events.
-5. One framework record has one writer: Hermes. Dual writes are forbidden.
-6. UNIFY PostgreSQL stores access-plane state and derived projections, not competing domain records.
-7. Labels are never join keys; canonical IDs include framework context.
-8. Source outage never becomes an authoritative empty result, fabricated zero or inferred success.
-9. A write requires exact target, capability, permission, validation, idempotency and Hermes readback/event verification.
-10. External-channel sessions, messages, routes, events and delivery are excluded from UNIFY; external ownership remains singular in the standalone CHAT/framework runtime.
-11. Legacy rollback never restores a legacy database as writer after Hermes cutover.
-12. A domain is not QA10 until its legacy application can be stopped without functional loss.
-13. Authentication credentials and OAuth protocol state belong to the per-instance Identity Authority; framework/resource authorization and application approval remain UNIFY-owned.
-14. UNIUI, native clients and PUCAs use the Gateway through approved OIDC/OAuth profiles; no client receives framework credentials.
-
-The binding product boundary is detailed in [`CHAT-EXTERNAL-CHANNEL-EXCLUSION.md`](CHAT-EXTERNAL-CHANNEL-EXCLUSION.md).
-The binding authentication architecture and implementation sequence are defined by [`../adr/0005-PER-INSTANCE-OIDC-IDENTITY-AUTHORITY.md`](../adr/0005-PER-INSTANCE-OIDC-IDENTITY-AUTHORITY.md) and [`../plans/QA10-AUTHENTICATION-AND-APPLICATION-REGISTRY-PLAN.md`](../plans/QA10-AUTHENTICATION-AND-APPLICATION-REGISTRY-PLAN.md).
-
-## Ownership-change procedure
-
-Any exception requires an approved ADR, schema and semantic comparison, backup, reversible migration, shadow reads, consistency evidence, feature-flagged cutover, authoritative readback, rollback rehearsal and explicit retirement impact. UI convenience is never sufficient reason to move source-of-truth ownership out of Hermes.
+1. Current `ResourceRef.owner` is only `hermes` or `gateway`.
+2. Native Core APIs enforce principal ownership and database integrity.
+3. Gateway communicates only with registered Hermes framework endpoints.
+4. There are no configured upstream URLs, credentials, adapters, owner clients, proxy routes, or feature flags for retired services.
+5. Browser applications communicate only with same-origin UNIFY APIs.
+6. One resource has one writer; dual writes and runtime fallbacks are forbidden.
+7. A write requires exact target, supported capability, permission, validation, idempotency, and durable evidence.
+8. Source outage never becomes authoritative empty state, fabricated success, or another owner's data.
+9. Labels are not identity keys.
+10. The standalone boundary is enforced by `pnpm standalone:check` and full repository QA.

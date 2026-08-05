@@ -23,13 +23,7 @@ node scripts/prepare-compose-secrets.mjs --force
 
 After rotation, remove the local database volume or rotate the database credential consistently. Never commit `.secrets/`.
 
-The quarantined MemoryV4 migration client requires a non-empty token when it is explicitly used. Provision that value from the approved secret source, then restore the Gateway container ACL without exposing it:
-
-```bash
-setfacl -m u:10001:r-- .secrets/memory_v4_token
-```
-
-The MemoryV4 migration client fails closed when its URL or token is absent or empty. `MEMORY_V4_URL` must point to the approved current Memory API; configuring it does not authorize a Memory cutover.
+The generated local secrets are limited to PostgreSQL, Gateway session/CSRF material, and the bootstrap administrator. The stack does not generate or mount credentials for retired upstream services.
 
 ## Start and verify
 

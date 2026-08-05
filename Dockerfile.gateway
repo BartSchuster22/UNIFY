@@ -6,7 +6,6 @@ WORKDIR /workspace
 COPY . .
 RUN pnpm install --frozen-lockfile \
   && pnpm --filter @aquiero/contracts build \
-  && pnpm --filter @aquiero/adapter-sdk build \
   && pnpm --filter @aquiero/gateway build \
   && pnpm --filter @aquiero/gateway deploy --prod --legacy /out
 

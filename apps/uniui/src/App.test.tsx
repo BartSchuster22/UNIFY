@@ -15,7 +15,7 @@ const principal = {
     'profiles.read',
     'work.read',
     'chat.read',
-    'memory.read',
+
     'audit.read',
     'operations.read',
   ],
@@ -152,15 +152,14 @@ describe('Mantine UNIUI gates', () => {
     expect(results.violations).toEqual([]);
   });
 
-  it('renders the permission-aware responsive shell and keyboard search gate', async () => {
+  it('renders the permission-aware responsive shell', async () => {
     vi.stubGlobal('fetch', vi.fn(authenticatedFetch));
     const { container } = render(<App />);
     expect(await screen.findByRole('heading', { name: 'Control plane' })).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'Primary navigation' })).toBeInTheDocument();
     expect(screen.queryByText('Safety actions')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Toggle navigation' })).toBeInTheDocument();
-    await userEvent.keyboard('{Control>}k{/Control}');
-    expect(screen.getByLabelText('Global search')).toHaveFocus();
+
     const results = await axe.run(container, { rules: { 'color-contrast': { enabled: false } } });
     expect(results.violations).toEqual([]);
   });

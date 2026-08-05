@@ -30,26 +30,38 @@ describe('canonical contracts', () => {
     };
     expect(Value.Check(CapabilityManifestSchema, manifest)).toBe(true);
   });
-  it('cannot label migration-only resources authoritative', () => {
+  it('accepts native resources and rejects legacy owners and migration provenance', () => {
     const resource = {
       resource: {
-        canonicalId: 'migration:agency:agent-1',
+        canonicalId: 'urn:aquiero:hermes:agent-1',
         kind: 'agent',
-        owner: 'agency',
+        owner: 'hermes',
         nativeId: 'agent-1',
         observedAt: '2026-07-19T00:00:00Z',
       },
       truth: 'current',
-      authoritative: false,
-      sourceRole: 'migration-only',
-      adapterId: 'agency-read-v1',
+      authoritative: true,
+      sourceRole: 'authoritative',
+      adapterId: 'hermes-control',
       fetchedAt: '2026-07-19T00:00:00Z',
       title: 'Session 1',
       searchableText: 'Session 1',
       data: {},
     };
     expect(Value.Check(UnifiedResourceSchema, resource)).toBe(true);
-    expect(Value.Check(UnifiedResourceSchema, { ...resource, authoritative: true })).toBe(false);
+    expect(
+      Value.Check(UnifiedResourceSchema, {
+        ...resource,
+        authoritative: false,
+        sourceRole: 'migration-only',
+      }),
+    ).toBe(false);
+    expect(
+      Value.Check(UnifiedResourceSchema, {
+        ...resource,
+        resource: { ...resource.resource, owner: 'agency' },
+      }),
+    ).toBe(false);
   });
   it('emits OpenAPI 3.1 with auth security schemes', () => {
     const document = buildOpenApiDocument() as {
@@ -65,5 +77,7 @@ describe('canonical contracts', () => {
     expect(document.paths).toHaveProperty('/frameworks/{frameworkId}/capabilities');
     expect(document.paths).toHaveProperty('/frameworks/{frameworkId}/profiles');
     expect(document.paths).toHaveProperty('/frameworks/{frameworkId}/providers');
+    for (const retired of ['/integrations', '/resources', '/search', '/events', '/shadow'])
+      expect(document.paths).not.toHaveProperty(retired);
   });
 });

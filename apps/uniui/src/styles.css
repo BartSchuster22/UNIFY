@@ -57,16 +57,16 @@ body {
 .work-section-navigation {
   min-width: max-content;
 }
-.worker-summary-card {
+.work-summary-card {
   cursor: default;
   min-height: 9.5rem;
 }
-.worker-summary-card:nth-child(2),
-.worker-summary-card:nth-child(3) {
+.work-summary-card:nth-child(2),
+.work-summary-card:nth-child(3) {
   cursor: pointer;
 }
-.worker-summary-card:nth-child(2):hover,
-.worker-summary-card:nth-child(3):hover {
+.work-summary-card:nth-child(2):hover,
+.work-summary-card:nth-child(3):hover {
   border-color: var(--mantine-color-ocean-5);
 }
 .ttrrbda-board {
@@ -75,7 +75,7 @@ body {
 .ttrrbda-board .kanban-column {
   width: 13.75rem;
 }
-.worker-task-card {
+.work-task-card {
   overflow-wrap: anywhere;
 }
 .work-form-wide {

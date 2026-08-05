@@ -8,14 +8,9 @@ import type { GovernanceStore, OperationRecord } from './governance/types.js';
 import {
   FrameworkRegistrationInputSchema,
   type FrameworkRegistrationInput,
-  type ResourceRef,
 } from '@aquiero/contracts';
-import type { IntegrationService } from './integrations/service.js';
-import type { IntegrationKind, IntegrationOwner } from './integrations/types.js';
 import { MutationService } from './mutations/service.js';
-import type { LegacyMutationOwnerClient } from './mutations/types.js';
 import type { NotificationStore } from './notifications/postgres-store.js';
-import { CutoverPolicy } from './cutover/policy.js';
 import { FixedWindowRateLimiter } from './security/rate-limiter.js';
 import { FrameworkRegistryError } from './framework-registry/service.js';
 import type { FrameworkRegistryService } from './framework-registry/service.js';
@@ -28,10 +23,7 @@ export interface AppOptions {
   logger?: boolean;
   governanceStore?: GovernanceStore;
   allowedOrigins?: readonly string[];
-  integrations?: IntegrationService;
-  mutationOwners?: LegacyMutationOwnerClient;
   notificationStore?: NotificationStore;
-  cutoverPolicy?: CutoverPolicy;
   requestRateLimit?: number;
   frameworkRegistry?: FrameworkRegistryService;
   hermesGateway?: HermesGatewayService;
@@ -62,10 +54,9 @@ export function buildApp(options: AppOptions) {
     ? new GovernanceService(options.governanceStore)
     : null;
   const mutations =
-    governance && (options.mutationOwners || options.hermesGateway)
-      ? new MutationService(governance, options.mutationOwners, options.hermesGateway)
+    governance && options.hermesGateway
+      ? new MutationService(governance, options.hermesGateway)
       : null;
-  const cutover = options.cutoverPolicy ?? CutoverPolicy.fromEnv({});
   const requestLimiter = new FixedWindowRateLimiter(options.requestRateLimit ?? 600, 60_000);
   void app.register(cookie);
   app.addHook('onRequest', async (request, reply) => {
@@ -291,15 +282,7 @@ export function buildApp(options: AppOptions) {
       return { items: page.items, meta: meta(request.id, [], page.page) };
     },
   );
-  app.get('/api/v1/cutover/status', async (request) => {
-    const current = await session(request);
-    if (
-      !current.permissions.includes('audit.read') &&
-      !current.permissions.includes('settings.manage')
-    )
-      throw new AuthError('PERMISSION_DENIED', 403, 'Cutover status access is denied');
-    return cutover.status();
-  });
+
   app.post<{ Body: unknown }>(
     '/api/v1/mutations',
     { bodyLimit: 15 * 1024 * 1024 },
@@ -313,7 +296,7 @@ export function buildApp(options: AppOptions) {
         );
       const input = mutations.parse(request.body);
       auth.requirePermission(current, mutations.permission(input));
-      cutover.assertAllowed(input);
+
       const rawKey = request.headers['idempotency-key'];
       const idempotencyKey = Array.isArray(rawKey) ? rawKey[0] : rawKey;
       const result = await mutations.run(current.userId, idempotencyKey, input);
@@ -543,71 +526,21 @@ export function buildApp(options: AppOptions) {
       );
     },
   );
-  app.get('/api/v1/integrations', async (request) => {
-    const current = await session(request);
-    const integrations = requireIntegrations();
-    return {
-      items: integrations
-        .statuses()
-        .filter((status) => status.owners.some((owner) => canRead(current, owner))),
-    };
-  });
-  app.get<{ Querystring: ReadQuery }>('/api/v1/resources', async (request) => {
-    const current = await session(request);
-    const query = integrationQuery(request.query);
-    assertCanRead(current, query.owner);
-    const result = await requireIntegrations().read(query);
-    const page = paginate(
-      result.resources.filter((item) => canRead(current, item.resource.owner)),
-      request.query,
-      (item) => item.resource.canonicalId,
-    );
-    return { items: page.items, meta: meta(request.id, result.snapshots, page.page) };
-  });
-  app.get<{ Querystring: ReadQuery & { q?: string } }>('/api/v1/search', async (request) => {
-    const current = await session(request);
-    const q = request.query.q?.trim() ?? '';
-    if (!q || q.length > 500)
-      throw new AuthError(
-        'INVALID_SEARCH_QUERY',
-        400,
-        'Search query must contain 1 to 500 characters',
-      );
-    const query = integrationQuery(request.query);
-    assertCanRead(current, query.owner);
-    const hits = (await requireIntegrations().search(q, query)).filter((item) =>
-      canRead(current, item.resource.resource.owner),
-    );
-    const page = paginate(hits, request.query, (item) => item.resource.resource.canonicalId);
-    return { items: page.items, meta: meta(request.id, [], page.page) };
-  });
-  app.get<{ Querystring: Pick<ReadQuery, 'cursor' | 'limit'> }>(
-    '/api/v1/events',
-    async (request) => {
-      const current = await session(request);
-      const integrations = requireIntegrations();
-      await integrations.read({});
-      const page = paginate(
-        integrations.events().filter((event) => canRead(current, event.source.owner)),
-        request.query,
-        (event) => event.eventId,
-      );
-      return { items: page.items, meta: meta(request.id, [], page.page) };
-    },
-  );
   app.get<{ Querystring: Pick<ReadQuery, 'cursor' | 'limit'> }>(
     '/api/v1/notifications',
     async (request) => {
       const current = await session(request);
-      const notifications = (await requireIntegrations().notifications())
-        .filter((item) => canRead(current, item.source))
-        .map((item) => ({ ...item, deepLink: notificationDeepLink(item.resource) }));
-      const states = await options.notificationStore?.sync(current.userId, notifications);
-      const hydrated = notifications.map((item) => ({
-        ...item,
-        state: states?.get(item.id) ?? item.state,
-      }));
-      const page = paginate(hydrated, request.query, (item) => item.id);
+      if (!options.notificationStore)
+        throw new GovernanceError(
+          'NOTIFICATIONS_UNAVAILABLE',
+          503,
+          'Notification state is unavailable',
+        );
+      const notifications = await options.notificationStore.list(
+        current.userId,
+        notificationOwners(current),
+      );
+      const page = paginate(notifications, request.query, (item) => item.id);
       return { items: page.items, meta: meta(request.id, [], page.page) };
     },
   );
@@ -631,42 +564,25 @@ export function buildApp(options: AppOptions) {
           503,
           'Notification state is unavailable',
         );
-      const ownerCandidates: IntegrationOwner[] = ['hermes', 'memory-v4', 'gateway'];
-      const allowedOwners = ownerCandidates.filter((owner) => canRead(current, owner));
       const source = await options.notificationStore.acknowledge(
         current.userId,
         request.params.id,
-        allowedOwners,
+        notificationOwners(current),
       );
       if (!source)
         throw new GovernanceError('NOTIFICATION_NOT_FOUND', 404, 'Notification was not found');
-      const owner = ownerValue(source)!;
       await governance?.audit({
         actorUserId: current.userId,
         sessionId: current.sessionId,
         action: 'notification.acknowledge',
         outcome: 'success',
         requestId: request.id,
-        target: { owner, notificationId: request.params.id },
+        target: { owner: source, notificationId: request.params.id },
       });
       return reply.status(204).send();
     },
   );
-  app.get<{ Querystring: { owner?: string } }>('/api/v1/shadow', async (request) => {
-    const current = await session(request);
-    if (
-      !current.permissions.includes('audit.read') &&
-      !current.permissions.includes('operations.read')
-    )
-      throw new AuthError(
-        'PERMISSION_DENIED',
-        403,
-        'Shadow comparison requires audit or operation access',
-      );
-    const owner = ownerValue(request.query.owner);
-    assertCanRead(current, owner);
-    return { items: await requireIntegrations().shadow(owner), meta: meta(request.id) };
-  });
+
   function requireHermesGateway(): HermesGatewayService {
     if (!options.hermesGateway)
       throw new GovernanceError(
@@ -692,40 +608,16 @@ export function buildApp(options: AppOptions) {
       ...(limit !== undefined ? { limit } : {}),
     };
   }
-  function requireIntegrations(): IntegrationService {
-    if (!options.integrations)
-      throw new GovernanceError(
-        'INTEGRATIONS_UNAVAILABLE',
-        503,
-        'Read-only integrations are unavailable',
-      );
-    return options.integrations;
-  }
-  function integrationQuery(query: ReadQuery): {
-    owner?: IntegrationOwner;
-    kind?: IntegrationKind;
-    refresh?: boolean;
-  } {
-    const owner = ownerValue(query.owner);
-    const kind = kindValue(query.kind);
-    return {
-      ...(owner ? { owner } : {}),
-      ...(kind ? { kind } : {}),
-      ...(query.refresh === true || query.refresh === 'true' ? { refresh: true } : {}),
-    };
-  }
-  function assertCanRead(current: SessionRecord, owner?: IntegrationOwner): void {
-    if (owner && !canRead(current, owner))
-      throw new AuthError('PERMISSION_DENIED', 403, `Read access to ${owner} is denied`);
-  }
-  function canRead(current: SessionRecord, owner: ResourceRef['owner']): boolean {
-    const permission: Partial<Record<ResourceRef['owner'], string>> = {
-      hermes: 'profiles.read',
-      'memory-v4': 'memory.read',
-      gateway: 'operations.read',
-    };
-    const required = permission[owner];
-    return required ? current.permissions.includes(required) : false;
+  function notificationOwners(current: SessionRecord): string[] {
+    const owners: string[] = [];
+    if (
+      ['frameworks.read', 'profiles.read', 'models.read', 'work.read', 'chat.read'].some(
+        (permission) => current.permissions.includes(permission),
+      )
+    )
+      owners.push('hermes');
+    if (current.permissions.includes('operations.read')) owners.push('gateway');
+    return owners;
   }
   function paginate<T>(
     items: T[],
@@ -798,47 +690,7 @@ export function buildApp(options: AppOptions) {
       ...(page ? { page } : {}),
     };
   }
-  function notificationDeepLink(resource?: ResourceRef): string {
-    const viewByOwner: Partial<Record<ResourceRef['owner'], string>> = {
-      hermes: 'profiles',
-      'memory-v4': 'memory',
-      gateway: 'operations',
-    };
-    const query = new URLSearchParams({
-      view: resource ? (viewByOwner[resource.owner] ?? 'notifications') : 'notifications',
-    });
-    if (resource) query.set('resource', resource.canonicalId);
-    return `/?${query.toString()}`;
-  }
-  function ownerValue(value?: string): IntegrationOwner | undefined {
-    if (!value) return undefined;
-    const owners: IntegrationOwner[] = ['hermes', 'memory-v4', 'gateway'];
-    if (!owners.includes(value as IntegrationOwner))
-      throw new AuthError('INVALID_OWNER', 400, 'Unknown integration owner');
-    return value as IntegrationOwner;
-  }
-  function kindValue(value?: string): IntegrationKind | undefined {
-    if (!value) return undefined;
-    const kinds: IntegrationKind[] = [
-      'framework',
-      'profile',
-      'agent',
-      'provider',
-      'model',
-      'project',
-      'task',
-      'kanban-board',
-      'cronjob',
 
-      'memory-record',
-      'catalog-snapshot',
-      'operation',
-      'notification',
-    ];
-    if (!kinds.includes(value as IntegrationKind))
-      throw new AuthError('INVALID_KIND', 400, 'Unknown resource kind');
-    return value as IntegrationKind;
-  }
   function publicOperation(operation: OperationRecord) {
     if (!operation.targetFramework || !operation.targetKind || !operation.targetId)
       throw new GovernanceError('OPERATION_TARGET_INVALID', 500, 'Operation target is invalid');

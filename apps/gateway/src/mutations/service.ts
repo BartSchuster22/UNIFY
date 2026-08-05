@@ -7,7 +7,6 @@ import type { HermesGatewayService } from '../hermes-control/service.js';
 import {
   frameworkReconcileDefinition,
   workMutationDefinitions,
-  type LegacyMutationOwnerClient,
   type MutationDefinition,
   type MutationInput,
   type MutationTarget,
@@ -22,19 +21,8 @@ export type MutationResult = {
 export class MutationService {
   constructor(
     private readonly governance: GovernanceService,
-    private readonly legacyOwners?: LegacyMutationOwnerClient,
-    private readonly hermes?: HermesGatewayService,
+    private readonly hermes: HermesGatewayService,
   ) {}
-
-  get owners(): LegacyMutationOwnerClient {
-    if (!this.legacyOwners)
-      throw new GovernanceError(
-        'LEGACY_MIGRATION_DISABLED',
-        503,
-        'Legacy migration readers are disabled',
-      );
-    return this.legacyOwners;
-  }
 
   parse(value: unknown): MutationInput {
     if (!value || typeof value !== 'object' || Array.isArray(value))
@@ -58,10 +46,8 @@ export class MutationService {
       confirmed: raw.confirmed === true,
     };
     const definition = this.definition(operationType);
-    if (definition.executionPath === 'hermes-control') {
-      if (operationType === 'framework.reconcile') validateFrameworkCommand(input);
-      else validateWorkCommand(input, definition);
-    } else this.owners.validate(input);
+    if (operationType === 'framework.reconcile') validateFrameworkCommand(input);
+    else validateWorkCommand(input, definition);
     return input;
   }
 
@@ -100,15 +86,11 @@ export class MutationService {
         confirmed: input.confirmed,
       });
       await this.governance.transition(operationId, 'executing');
-      const definition = this.definition(input.operationType);
-      const ownerResult =
-        definition.executionPath === 'hermes-control'
-          ? await this.executeHermes(input, {
-              actorUserId,
-              operationId,
-              idempotencyKey: claim.operation.idempotencyKey,
-            })
-          : await this.owners.execute(input);
+      const ownerResult = await this.executeHermes(input, {
+        actorUserId,
+        operationId,
+        idempotencyKey: claim.operation.idempotencyKey,
+      });
       const safeResult = redactEvidence(ownerResult);
       await this.governance.transition(operationId, 'applied', safeResult);
       await this.governance.transition(operationId, 'verifying');
@@ -167,19 +149,13 @@ export class MutationService {
     if (operationType === 'framework.reconcile') return frameworkReconcileDefinition;
     const work = workMutationDefinitions[operationType];
     if (work) return work;
-    return this.owners.definition(operationType);
+    throw new GovernanceError('MUTATION_UNSUPPORTED', 422, 'Mutation type is not supported');
   }
 
   private executeHermes(
     input: MutationInput,
     context: { actorUserId: string; operationId: string; idempotencyKey: string },
   ) {
-    if (!this.hermes)
-      throw new GovernanceError(
-        'HERMES_CONTROL_UNAVAILABLE',
-        503,
-        'Hermes control client is unavailable',
-      );
     if (input.operationType === 'framework.reconcile')
       return this.hermes.reconcile(
         input.target.frameworkId!,
@@ -203,7 +179,7 @@ export class MutationService {
   private parseTarget(value: unknown): MutationTarget {
     const raw = record(value, 'target');
     const owner = requiredString(raw.owner, 'target.owner');
-    if (!['hermes', 'memory-v4'].includes(owner))
+    if (owner !== 'hermes')
       throw new GovernanceError('MUTATION_OWNER_INVALID', 422, 'target.owner is not supported');
     const target: MutationTarget = {
       owner: owner as MutationTarget['owner'],
