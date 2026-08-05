@@ -83,7 +83,7 @@ test(
     try {
       await pool.query('DROP SCHEMA IF EXISTS core CASCADE');
       const migrated = await migrateDatabase(pool);
-      assert.deepEqual(migrated.applied, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+      assert.deepEqual(migrated.applied, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
       const service = await AuthenticationService.create(pool, config, () => new Date(now));
 
       await assert.rejects(

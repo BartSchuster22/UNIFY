@@ -85,6 +85,7 @@ services:
       HERMES_ADAPTER_TOKEN_BUNDLE_FILE: /run/secrets/alica-token-bundle
       HERMES_ADAPTER_TLS_KEY_FILE: /run/secrets/alica-tls-key
       HERMES_ADAPTER_TLS_CERT_FILE: /run/secrets/alica-tls-cert
+      HERMES_API_BASE_URL: https://alica-api:8443
       RELEASE_ID: ${RELEASE_ID}
     secrets: [database-url-adapter, alica-token-bundle, alica-tls-key, alica-tls-cert]
     volumes:
@@ -93,6 +94,8 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+      alica-api:
+        condition: service_started
     deploy:
       resources:
         limits:
@@ -112,6 +115,7 @@ services:
       HERMES_ADAPTER_TOKEN_BUNDLE_FILE: /run/secrets/herman-token-bundle
       HERMES_ADAPTER_TLS_KEY_FILE: /run/secrets/herman-tls-key
       HERMES_ADAPTER_TLS_CERT_FILE: /run/secrets/herman-tls-cert
+      HERMES_API_BASE_URL: https://herman-api:8443
       RELEASE_ID: ${RELEASE_ID}
     secrets: [database-url-adapter, herman-token-bundle, herman-tls-key, herman-tls-cert]
     volumes:
@@ -120,11 +124,49 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+      herman-api:
+        condition: service_started
     deploy:
       resources:
         limits:
           cpus: '0.50'
           memory: 512M
+
+  alica-api:
+    <<: *runtime
+    image: unify-caddy-proxy:${RELEASE_ID:?RELEASE_ID is required}
+    container_name: unify-alica-api
+    user: '10000:10000'
+    command: [caddy, run, --config, /etc/caddy/Caddyfile, --adapter, caddyfile]
+    volumes:
+      - ./deploy/alica-v1/alica-api.Caddyfile:/etc/caddy/Caddyfile:ro
+    secrets: [alica-api-tls-key, alica-api-tls-cert]
+    networks: [alica-unify-private, alica-hermes-runtime]
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=16m,mode=1777
+      - /data:rw,noexec,nosuid,nodev,size=16m,mode=1777
+      - /config:rw,noexec,nosuid,nodev,size=16m,mode=1777
+    deploy:
+      resources:
+        limits: { cpus: '0.25', memory: 128M, pids: 64 }
+
+  herman-api:
+    <<: *runtime
+    image: unify-caddy-proxy:${RELEASE_ID:?RELEASE_ID is required}
+    container_name: unify-herman-api
+    user: '10000:10000'
+    command: [caddy, run, --config, /etc/caddy/Caddyfile, --adapter, caddyfile]
+    volumes:
+      - ./deploy/alica-v1/herman-api.Caddyfile:/etc/caddy/Caddyfile:ro
+    secrets: [herman-api-tls-key, herman-api-tls-cert]
+    networks: [herman-unify-private, herman-hermes-runtime]
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=16m,mode=1777
+      - /data:rw,noexec,nosuid,nodev,size=16m,mode=1777
+      - /config:rw,noexec,nosuid,nodev,size=16m,mode=1777
+    deploy:
+      resources:
+        limits: { cpus: '0.25', memory: 128M, pids: 64 }
 
   unify-core:
     <<: *runtime
@@ -178,8 +220,12 @@ secrets:
   framework-ca-cert: { file: ./secrets/framework-ca.crt }
   alica-tls-key: { file: ./secrets/alica.key }
   alica-tls-cert: { file: ./secrets/alica.crt }
+  alica-api-tls-key: { file: ./secrets/alica-api.key }
+  alica-api-tls-cert: { file: ./secrets/alica-api.crt }
   herman-tls-key: { file: ./secrets/herman.key }
   herman-tls-cert: { file: ./secrets/herman.crt }
+  herman-api-tls-key: { file: ./secrets/herman-api.key }
+  herman-api-tls-cert: { file: ./secrets/herman-api.crt }
 
 volumes:
   unify-postgres-data:
@@ -193,3 +239,9 @@ networks:
   herman-unify-private:
     internal: true
   unify-proxy:
+  alica-hermes-runtime:
+    external: true
+    name: alica-hermes_alica_net
+  herman-hermes-runtime:
+    external: true
+    name: alica-hermes_herman_net
