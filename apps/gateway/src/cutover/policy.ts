@@ -1,14 +1,7 @@
 import { GovernanceError } from '../governance/service.js';
 import { type MutationInput } from '../mutations/types.js';
 
-export const mutationDomains = [
-  'frameworks',
-  'work',
-  'profiles',
-  'worker',
-  'chat',
-  'memory-v4',
-] as const;
+export const mutationDomains = ['frameworks', 'work', 'profiles', 'chat', 'memory-v4'] as const;
 export type MutationDomain = (typeof mutationDomains)[number];
 export type DeploymentMode = 'read-only' | 'mutation-canary';
 

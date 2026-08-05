@@ -25,7 +25,7 @@ const values = new Map([
   ['agency_password', ''],
   ['dmm_username', ''],
   ['dmm_password', ''],
-  ['worker_token', ''],
+
   ['chat_password', ''],
   ['memory_v4_token', ''],
 ]);
@@ -52,7 +52,7 @@ for (const [uid, names] of [
       'agency_password',
       'dmm_username',
       'dmm_password',
-      'worker_token',
+
       'chat_password',
       'memory_v4_token',
     ],

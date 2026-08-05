@@ -43,8 +43,6 @@ vi.mock('ws', () => {
 import { MutationOwnerClient, type MutationInput } from './owner-client.js';
 
 const config = {
-  workerUrl: 'https://worker.test',
-  workerToken: 'worker-token',
   chatUrl: 'https://chat.test',
   chatPassword: 'chat-password',
   memoryUrl: 'https://memory.test',
@@ -234,25 +232,7 @@ describe('MutationOwnerClient', () => {
         'POST',
         '/api/chat/sessions',
       ],
-      [
-        input('worker.project.create', 'worker', 'project', 'new', { name: 'Project' }),
-        'POST',
-        '/api/kanban/projects',
-      ],
-      [
-        input('worker.task.comment', 'worker', 'task', 'task-1', { note: 'Comment' }),
-        'POST',
-        '/api/kanban/tasks/task-1/comments',
-      ],
-      [
-        input('worker.cron.create', 'worker', 'cronjob', 'new', {
-          harness: 'hermes',
-          title: 'Cron',
-          schedule: { kind: 'cron', expression: '0 9 * * *' },
-        }),
-        'POST',
-        '/api/cron/jobs',
-      ],
+
       [
         input('chat.message.send', 'chat', 'chat-session', 'session-1', {
           blocks: [{ kind: 'text', text: 'hello' }],
@@ -290,8 +270,6 @@ describe('MutationOwnerClient', () => {
       expect(call?.init.method).toBe(method);
     }
 
-    const worker = calls.find((call) => call.url.endsWith('/api/kanban/projects'))!;
-    expect(worker.init.headers).toMatchObject({ authorization: 'Bearer worker-token' });
     const memory = calls.find((call) => call.url.endsWith('/entities/project/unify/records'))!;
     expect(memory.init.headers).toMatchObject({ authorization: 'Bearer memory-token' });
   });

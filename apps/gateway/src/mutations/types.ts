@@ -1,5 +1,5 @@
 export type MutationTarget = {
-  owner: 'hermes' | 'worker' | 'chat' | 'memory-v4';
+  owner: 'hermes' | 'chat' | 'memory-v4';
   kind: string;
   nativeId: string;
   frameworkId?: string;

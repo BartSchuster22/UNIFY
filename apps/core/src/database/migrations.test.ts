@@ -27,7 +27,7 @@ test('discovers contiguous migrations and stable checksums', async () => {
   const migrations = await loadMigrations();
   assert.deepEqual(
     migrations.map((migration) => migration.version),
-    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
   );
   assert.equal(new Set(migrations.map((migration) => migration.checksum)).size, migrations.length);
   for (const migration of migrations) assert.match(migration.checksum, /^[a-f0-9]{64}$/);
@@ -89,10 +89,10 @@ test(
     try {
       await pool.query('DROP SCHEMA IF EXISTS core CASCADE');
       const first = await migrateDatabase(pool);
-      assert.deepEqual(first.applied, [1, 2, 3, 4, 5, 6, 7, 8]);
+      assert.deepEqual(first.applied, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
       const second = await migrateDatabase(pool);
       assert.deepEqual(second.applied, []);
-      assert.equal(second.previouslyApplied, 8);
+      assert.equal(second.previouslyApplied, 10);
       await verifyDatabase(pool);
       const storedMigration = await pool.query<{ checksum: string }>(
         'SELECT checksum FROM core.schema_migrations WHERE version = 1',

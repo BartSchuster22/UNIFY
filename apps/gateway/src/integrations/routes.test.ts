@@ -178,9 +178,8 @@ async function authenticated(
   notificationStore?: NotificationStore,
   cutoverPolicy = CutoverPolicy.fromEnv({
     DEPLOYMENT_MODE: 'mutation-canary',
-    MUTATION_DOMAINS: 'profiles,worker,chat,memory-v4',
-    MUTATION_ACCEPTANCE_REFS:
-      'profiles=test/PROFILES,worker=test/WORKER,chat=test/CHAT,memory-v4=test/MEMORY',
+    MUTATION_DOMAINS: 'profiles,chat,memory-v4',
+    MUTATION_ACCEPTANCE_REFS: 'profiles=test/PROFILES,chat=test/CHAT,memory-v4=test/MEMORY',
   }),
   adapter: SourceAdapter = new HermesAdapter(),
 ) {
@@ -235,8 +234,6 @@ function mutationFixture(): { governance: GovernanceStore; owners: MutationOwner
     appendAudit: async () => 'audit-login',
   };
   const owners = new MutationOwnerClient({
-    workerUrl: 'http://worker.invalid',
-    workerToken: 'token',
     chatUrl: 'http://chat.invalid',
     chatPassword: 'p',
     memoryUrl: 'http://memory.invalid',
@@ -394,7 +391,7 @@ describe('read-only integration routes', () => {
       (
         await app.inject({
           method: 'GET',
-          url: '/api/v1/resources?owner=worker',
+          url: '/api/v1/resources?owner=chat',
           headers: { cookie },
         })
       ).statusCode,

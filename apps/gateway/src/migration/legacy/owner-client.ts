@@ -2,7 +2,7 @@ import WebSocket from 'ws';
 import { GovernanceError } from '../../governance/service.js';
 
 export type MutationTarget = {
-  owner: 'hermes' | 'worker' | 'chat' | 'memory-v4';
+  owner: 'hermes' | 'chat' | 'memory-v4';
   kind: string;
   nativeId: string;
   frameworkId?: string;
@@ -20,8 +20,6 @@ type Owner = MutationTarget['owner'];
 type EndpointOwner = Exclude<Owner, 'hermes'>;
 type Session = { cookie: string; csrf?: string };
 type OwnerConfig = {
-  workerUrl: string;
-  workerToken: string;
   chatUrl: string;
   chatPassword: string;
   memoryUrl: string;
@@ -38,110 +36,6 @@ export type MutationDefinition = {
 };
 
 export const mutationDefinitions: Record<string, MutationDefinition> = {
-  'worker.project.create': {
-    owner: 'worker',
-    kind: 'project',
-    permission: 'work.manage',
-    executionPath: 'migration-legacy',
-  },
-  'worker.project.update': {
-    owner: 'worker',
-    kind: 'project',
-    permission: 'work.manage',
-    executionPath: 'migration-legacy',
-  },
-  'worker.project.start': {
-    owner: 'worker',
-    kind: 'project',
-    permission: 'work.manage',
-    executionPath: 'migration-legacy',
-  },
-  'worker.project.stop': {
-    owner: 'worker',
-    kind: 'project',
-    permission: 'work.manage',
-    executionPath: 'migration-legacy',
-  },
-  'worker.project.delete': {
-    owner: 'worker',
-    kind: 'project',
-    permission: 'work.manage',
-    executionPath: 'migration-legacy',
-    destructive: true,
-  },
-  'worker.task.create': {
-    owner: 'worker',
-    kind: 'task',
-    permission: 'work.manage',
-    executionPath: 'migration-legacy',
-  },
-  'worker.task.comment': {
-    owner: 'worker',
-    kind: 'task',
-    permission: 'work.manage',
-    executionPath: 'migration-legacy',
-  },
-  'worker.task.start': {
-    owner: 'worker',
-    kind: 'task',
-    permission: 'work.manage',
-    executionPath: 'migration-legacy',
-  },
-  'worker.task.move': {
-    owner: 'worker',
-    kind: 'task',
-    permission: 'work.manage',
-    executionPath: 'migration-legacy',
-  },
-  'worker.task.block': {
-    owner: 'worker',
-    kind: 'task',
-    permission: 'work.manage',
-    executionPath: 'migration-legacy',
-  },
-  'worker.task.unblock': {
-    owner: 'worker',
-    kind: 'task',
-    permission: 'work.manage',
-    executionPath: 'migration-legacy',
-  },
-  'worker.task.complete': {
-    owner: 'worker',
-    kind: 'task',
-    permission: 'work.manage',
-    executionPath: 'migration-legacy',
-  },
-  'worker.cron.create': {
-    owner: 'worker',
-    kind: 'cronjob',
-    permission: 'work.manage',
-    executionPath: 'migration-legacy',
-  },
-  'worker.cron.run': {
-    owner: 'worker',
-    kind: 'cronjob',
-    permission: 'work.manage',
-    executionPath: 'migration-legacy',
-  },
-  'worker.cron.pause': {
-    owner: 'worker',
-    kind: 'cronjob',
-    permission: 'work.manage',
-    executionPath: 'migration-legacy',
-  },
-  'worker.cron.resume': {
-    owner: 'worker',
-    kind: 'cronjob',
-    permission: 'work.manage',
-    executionPath: 'migration-legacy',
-  },
-  'worker.cron.delete': {
-    owner: 'worker',
-    kind: 'cronjob',
-    permission: 'work.manage',
-    executionPath: 'migration-legacy',
-    destructive: true,
-  },
   'chat.message.send': {
     owner: 'chat',
     kind: 'chat-session',
@@ -184,8 +78,6 @@ export class MutationOwnerClient {
       return value;
     };
     return new MutationOwnerClient({
-      workerUrl: required('WORKER_URL'),
-      workerToken: required('WORKER_TOKEN'),
       chatUrl: required('CHAT_URL'),
       chatPassword: required('CHAT_PASSWORD'),
       memoryUrl: required('MEMORY_V4_URL'),
@@ -331,16 +223,6 @@ export class MutationOwnerClient {
   private validatePayload(input: MutationInput): void {
     const { operationType: action, payload } = input;
 
-    if (action === 'worker.project.create') string(payload.name, 'name');
-    if (action === 'worker.task.create') {
-      string(payload.harness, 'harness');
-      string(payload.title, 'title');
-    }
-    if (action === 'worker.cron.create') {
-      string(payload.harness, 'harness');
-      string(payload.title, 'title');
-      record(payload.schedule, 'schedule');
-    }
     if (action === 'chat.message.send') nonEmptyArray(payload.blocks, 'blocks');
     if (action === 'chat.session.create') {
       string(payload.agent_id, 'agent_id');
@@ -400,57 +282,6 @@ export class MutationOwnerClient {
     const dryRun = input.mode === 'dry-run';
     const { operationType: action, target, payload } = input;
     const id = encodeURIComponent(target.nativeId);
-
-    if (action === 'worker.project.create')
-      return dryRun
-        ? { valid: true, dryRun: true }
-        : this.json('worker', 'POST', '/api/kanban/projects', payload);
-    if (action === 'worker.project.update')
-      return dryRun
-        ? { valid: true, dryRun: true }
-        : this.json('worker', 'PATCH', `/api/kanban/projects/${id}`, payload);
-    if (action === 'worker.project.delete')
-      return dryRun
-        ? { valid: true, dryRun: true }
-        : this.json('worker', 'DELETE', `/api/kanban/projects/${id}`, {
-            ...payload,
-            confirm: true,
-          });
-    if (action === 'worker.project.start' || action === 'worker.project.stop')
-      return dryRun
-        ? { valid: true, dryRun: true }
-        : this.json(
-            'worker',
-            'POST',
-            `/api/kanban/projects/${id}/${action.endsWith('start') ? 'start' : 'stop'}`,
-            payload,
-          );
-    if (action === 'worker.task.create')
-      return dryRun
-        ? { valid: true, dryRun: true }
-        : this.json('worker', 'POST', '/api/kanban/tasks', payload);
-    if (action.startsWith('worker.task.')) {
-      const taskAction = action.slice('worker.task.'.length);
-      return dryRun
-        ? { valid: true, dryRun: true }
-        : this.json(
-            'worker',
-            'POST',
-            `/api/kanban/tasks/${id}/${taskAction === 'comment' ? 'comments' : taskAction}`,
-            payload,
-          );
-    }
-    if (action === 'worker.cron.create')
-      return dryRun
-        ? { valid: true, dryRun: true }
-        : this.json('worker', 'POST', '/api/cron/jobs', payload);
-    if (action.startsWith('worker.cron.')) {
-      const cronAction = action.slice('worker.cron.'.length);
-      if (dryRun) return { valid: true, dryRun: true };
-      if (cronAction === 'delete')
-        return this.json('worker', 'DELETE', `/api/cron/jobs/${id}`, { ...payload, confirm: true });
-      return this.json('worker', 'POST', `/api/cron/jobs/${id}/${cronAction}`, payload);
-    }
 
     if (action === 'chat.message.send') {
       await this.assertUnifyChatSession(target.nativeId);
@@ -524,8 +355,7 @@ export class MutationOwnerClient {
       accept: 'application/json',
       'content-type': 'application/json',
     };
-    if (owner === 'worker') headers.authorization = `Bearer ${this.#config.workerToken}`;
-    else if (owner === 'memory-v4') headers.authorization = `Bearer ${this.#config.memoryToken}`;
+    if (owner === 'memory-v4') headers.authorization = `Bearer ${this.#config.memoryToken}`;
     else {
       const session = await this.session(owner);
       headers.cookie = session.cookie;
@@ -579,13 +409,7 @@ export class MutationOwnerClient {
   }
 
   private url(owner: EndpointOwner): string {
-    return base(
-      owner === 'worker'
-        ? this.#config.workerUrl
-        : owner === 'chat'
-          ? this.#config.chatUrl
-          : this.#config.memoryUrl,
-    );
+    return base(owner === 'chat' ? this.#config.chatUrl : this.#config.memoryUrl);
   }
 }
 
@@ -670,11 +494,7 @@ function string(value: unknown, field: string): string {
     throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, `${field} is required`);
   return value.trim();
 }
-function record(value: unknown, field: string): Record<string, unknown> {
-  if (!value || typeof value !== 'object' || Array.isArray(value))
-    throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, `${field} must be an object`);
-  return value as Record<string, unknown>;
-}
+
 function nonEmptyArray(value: unknown, field: string): unknown[] {
   if (!Array.isArray(value) || value.length === 0)
     throw new GovernanceError(

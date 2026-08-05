@@ -467,7 +467,8 @@ export const TaskCommentSchema = Type.Object(
 export const WorkScheduleSchema = Type.Object(
   {
     meta: ResourceMetaSchema,
-    projectId: canonicalIdSchema('project'),
+    projectId: Type.Union([canonicalIdSchema('project'), Type.Null()]),
+    taskId: Type.Union([canonicalIdSchema('task'), Type.Null()]),
     kind: Type.Union([Type.Literal('at'), Type.Literal('every'), Type.Literal('cron')]),
     expression: Type.String({ minLength: 1, maxLength: 200 }),
     timezone: Type.String({ minLength: 1, maxLength: 100 }),
@@ -485,7 +486,6 @@ export const WorkRunSchema = Type.Object(
     state: Type.Union([
       Type.Literal('queued'),
       Type.Literal('running'),
-      Type.Literal('blocked'),
       Type.Literal('succeeded'),
       Type.Literal('failed'),
       Type.Literal('cancelled'),
@@ -818,6 +818,17 @@ export const ProjectUpdateInputSchema = Type.Object(
   },
   { $id: 'ProjectUpdateInput', minProperties: 1, ...strict },
 );
+export const BoardCreateInputSchema = Type.Object(
+  {
+    name: Label,
+    lanes: Type.Optional(Type.Array(SlugSchema, { minItems: 1, maxItems: 50, uniqueItems: true })),
+  },
+  { $id: 'BoardCreateInput', ...strict },
+);
+export const BoardActionInputSchema = Type.Object(
+  { action: Type.Literal('archive') },
+  { $id: 'BoardActionInput', ...strict },
+);
 export const LifecycleActionInputSchema = Type.Object(
   {
     action: Type.Union([
@@ -861,9 +872,15 @@ export const TaskUpdateInputSchema = Type.Object(
         Type.Literal('urgent'),
       ]),
     ),
-    assigneeProfileId: Type.Optional(Type.Union([canonicalIdSchema('profile'), Type.Null()])),
   },
   { $id: 'TaskUpdateInput', minProperties: 1, ...strict },
+);
+export const TaskAssignmentInputSchema = Type.Object(
+  {
+    assignmentKind: Type.Union([Type.Literal('assignee'), Type.Literal('reviewer')]),
+    profileId: Type.Union([canonicalIdSchema('profile'), Type.Null()]),
+  },
+  { $id: 'TaskAssignmentInput', ...strict },
 );
 export const TaskTransitionInputSchema = Type.Object(
   {
@@ -895,15 +912,27 @@ export const WorkScheduleInputSchema = Type.Object(
     expression: Type.String({ minLength: 1, maxLength: 200 }),
     timezone: Type.String({ minLength: 1, maxLength: 100 }),
     enabled: Type.Boolean(),
+    nextRunAt: Type.Optional(TimestampSchema),
   },
   { $id: 'WorkScheduleInput', ...strict },
 );
 export const RunActionInputSchema = Type.Object(
   {
-    action: Type.Union([Type.Literal('run-now'), Type.Literal('cancel'), Type.Literal('retry')]),
+    action: Type.Union([Type.Literal('cancel'), Type.Literal('retry')]),
     reason: Type.Optional(Type.String({ minLength: 1, maxLength: 1_000 })),
   },
   { $id: 'RunActionInput', ...strict },
+);
+export const ScheduleActionInputSchema = Type.Object(
+  {
+    action: Type.Union([
+      Type.Literal('run-now'),
+      Type.Literal('pause'),
+      Type.Literal('resume'),
+      Type.Literal('delete'),
+    ]),
+  },
+  { $id: 'ScheduleActionInput', ...strict },
 );
 export const ConversationCreateInputSchema = Type.Object(
   {
@@ -1011,11 +1040,15 @@ const commandDefinitions = [
   ['ProjectCreateCommand', 'work.project.create.v1', ProjectCreateInputSchema],
   ['ProjectUpdateCommand', 'work.project.update.v1', ProjectUpdateInputSchema],
   ['ProjectLifecycleCommand', 'work.project.lifecycle.v1', LifecycleActionInputSchema],
+  ['BoardCreateCommand', 'work.board.create.v1', BoardCreateInputSchema],
+  ['BoardActionCommand', 'work.board.action.v1', BoardActionInputSchema],
   ['TaskCreateCommand', 'work.task.create.v1', TaskCreateInputSchema],
   ['TaskUpdateCommand', 'work.task.update.v1', TaskUpdateInputSchema],
+  ['TaskAssignmentCommand', 'work.task.assignment.v1', TaskAssignmentInputSchema],
   ['TaskTransitionCommand', 'work.task.transition.v1', TaskTransitionInputSchema],
   ['TaskCommentCommand', 'work.task.comment.v1', TaskCommentInputSchema],
   ['WorkScheduleCommand', 'work.schedule.upsert.v1', WorkScheduleInputSchema],
+  ['ScheduleActionCommand', 'work.schedule.action.v1', ScheduleActionInputSchema],
   ['RunActionCommand', 'work.run.action.v1', RunActionInputSchema],
   ['ConversationCreateCommand', 'conversation.create.v1', ConversationCreateInputSchema],
   ['ConversationUpdateCommand', 'conversation.update.v1', ConversationUpdateInputSchema],
@@ -1114,12 +1147,16 @@ export const InputSchemas: Record<string, TSchema> = {
   ModelRouteResolutionInput: ModelRouteResolutionInputSchema,
   ProjectCreateInput: ProjectCreateInputSchema,
   ProjectUpdateInput: ProjectUpdateInputSchema,
+  BoardCreateInput: BoardCreateInputSchema,
+  BoardActionInput: BoardActionInputSchema,
   LifecycleActionInput: LifecycleActionInputSchema,
   TaskCreateInput: TaskCreateInputSchema,
   TaskUpdateInput: TaskUpdateInputSchema,
+  TaskAssignmentInput: TaskAssignmentInputSchema,
   TaskTransitionInput: TaskTransitionInputSchema,
   TaskCommentInput: TaskCommentInputSchema,
   WorkScheduleInput: WorkScheduleInputSchema,
+  ScheduleActionInput: ScheduleActionInputSchema,
   RunActionInput: RunActionInputSchema,
   ConversationCreateInput: ConversationCreateInputSchema,
   ConversationUpdateInput: ConversationUpdateInputSchema,

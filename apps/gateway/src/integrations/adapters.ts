@@ -236,19 +236,6 @@ export function createDefaultAdapters(env: NodeJS.ProcessEnv = process.env): Sou
     ? { type: 'session', loginPath: '/auth/login', body: { password: env.CHAT_PASSWORD } }
     : { type: 'none' };
   return [
-    new ConfiguredReadAdapter({
-      id: 'worker-read-v1',
-      owners: ['worker'],
-      baseUrl: env.WORKER_URL,
-      auth: env.WORKER_TOKEN ? { type: 'bearer', token: env.WORKER_TOKEN } : { type: 'none' },
-      endpoints: [
-        { path: '/api/projects', key: 'projects', kind: 'project' },
-        { path: '/api/kanban/projects', key: 'boards', kind: 'kanban-board' },
-        { path: '/api/kanban/tasks', key: 'tasks', kind: 'task' },
-        { path: '/api/cron/jobs', key: 'jobs', kind: 'cronjob' },
-        { path: '/api/notifications/inbox', key: 'notifications', kind: 'notification' },
-      ],
-    }),
     new ChatReadAdapter({
       id: 'chat-read-v1',
       owners: ['chat'],

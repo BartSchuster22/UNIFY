@@ -90,6 +90,7 @@ export function commandEnvelopeSchema(
       idempotencyKey: IdempotencyKeySchema,
       issuedAt: TimestampSchema,
       expectedResourceVersion: Type.Optional(ResourceVersionSchema),
+      expectedSourceVersion: Type.Optional(ResourceVersionSchema),
       target: CommandTargetSchema,
       payload,
     },

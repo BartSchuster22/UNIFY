@@ -3693,6 +3693,83 @@
             }
           }
         }
+      },
+      "post": {
+        "tags": ["work"],
+        "operationId": "workBoardCreate",
+        "summary": "Create a project board",
+        "security": [{ "cookieSession": [], "csrfToken": [] }, { "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^prj_[0-9A-HJKMNP-TV-Z]{26}$" }
+          }
+        ],
+        "x-unify-reject-unknown-query": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/BoardCreateCommand" } }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Success",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CommandAccepted" } }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "403": {
+            "description": "Authorization denied",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "409": {
+            "description": "Resource or idempotency conflict",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "422": {
+            "description": "Command precondition failed",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          }
+        }
       }
     },
     "/work/boards/{boardId}": {
@@ -3715,6 +3792,85 @@
             "description": "Success",
             "content": {
               "application/json": { "schema": { "$ref": "#/components/schemas/Board" } }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "403": {
+            "description": "Authorization denied",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "409": {
+            "description": "Resource or idempotency conflict",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "422": {
+            "description": "Command precondition failed",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/work/boards/{boardId}/actions": {
+      "post": {
+        "tags": ["work"],
+        "operationId": "workBoardAction",
+        "summary": "Apply a board lifecycle action",
+        "security": [{ "cookieSession": [], "csrfToken": [] }, { "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "boardId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^brd_[0-9A-HJKMNP-TV-Z]{26}$" }
+          }
+        ],
+        "x-unify-reject-unknown-query": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/BoardActionCommand" } }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Success",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CommandAccepted" } }
             }
           },
           "400": {
@@ -4005,6 +4161,87 @@
           "required": true,
           "content": {
             "application/json": { "schema": { "$ref": "#/components/schemas/TaskUpdateCommand" } }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Success",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CommandAccepted" } }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "403": {
+            "description": "Authorization denied",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "409": {
+            "description": "Resource or idempotency conflict",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "422": {
+            "description": "Command precondition failed",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/work/tasks/{taskId}/assignments": {
+      "post": {
+        "tags": ["work"],
+        "operationId": "workTaskAssignment",
+        "summary": "Assign or unassign a task slot",
+        "security": [{ "cookieSession": [], "csrfToken": [] }, { "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^tsk_[0-9A-HJKMNP-TV-Z]{26}$" }
+          }
+        ],
+        "x-unify-reject-unknown-query": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/TaskAssignmentCommand" }
+            }
           }
         },
         "responses": {
@@ -4391,13 +4628,11 @@
             }
           }
         }
-      }
-    },
-    "/work/projects/{projectId}/schedules/{scheduleId}": {
-      "put": {
+      },
+      "post": {
         "tags": ["work"],
-        "operationId": "workScheduleUpsert",
-        "summary": "Create or update a project schedule",
+        "operationId": "workProjectScheduleCreate",
+        "summary": "Create a project schedule",
         "security": [{ "cookieSession": [], "csrfToken": [] }, { "serviceBearer": [] }],
         "parameters": [
           {
@@ -4405,7 +4640,80 @@
             "in": "path",
             "required": true,
             "schema": { "type": "string", "pattern": "^prj_[0-9A-HJKMNP-TV-Z]{26}$" }
+          }
+        ],
+        "x-unify-reject-unknown-query": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/WorkScheduleCommand" } }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Success",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CommandAccepted" } }
+            }
           },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "403": {
+            "description": "Authorization denied",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "409": {
+            "description": "Resource or idempotency conflict",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "422": {
+            "description": "Command precondition failed",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/work/schedules/{scheduleId}": {
+      "patch": {
+        "tags": ["work"],
+        "operationId": "workScheduleUpdate",
+        "summary": "Update a schedule",
+        "security": [{ "cookieSession": [], "csrfToken": [] }, { "serviceBearer": [] }],
+        "parameters": [
           {
             "name": "scheduleId",
             "in": "path",
@@ -4418,6 +4726,249 @@
           "required": true,
           "content": {
             "application/json": { "schema": { "$ref": "#/components/schemas/WorkScheduleCommand" } }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Success",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CommandAccepted" } }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "403": {
+            "description": "Authorization denied",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "409": {
+            "description": "Resource or idempotency conflict",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "422": {
+            "description": "Command precondition failed",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/work/tasks/{taskId}/schedules": {
+      "get": {
+        "tags": ["work"],
+        "operationId": "workTaskScheduleList",
+        "summary": "List task schedules",
+        "security": [{ "cookieSession": [] }, { "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^tsk_[0-9A-HJKMNP-TV-Z]{26}$" }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": { "$ref": "#/components/schemas/Cursor" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "minimum": 1, "maximum": 200, "default": 50 }
+          }
+        ],
+        "x-unify-reject-unknown-query": true,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/WorkScheduleList" } }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "403": {
+            "description": "Authorization denied",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "409": {
+            "description": "Resource or idempotency conflict",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "422": {
+            "description": "Command precondition failed",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["work"],
+        "operationId": "workTaskScheduleCreate",
+        "summary": "Create a task schedule",
+        "security": [{ "cookieSession": [], "csrfToken": [] }, { "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^tsk_[0-9A-HJKMNP-TV-Z]{26}$" }
+          }
+        ],
+        "x-unify-reject-unknown-query": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/WorkScheduleCommand" } }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Success",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CommandAccepted" } }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "403": {
+            "description": "Authorization denied",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "409": {
+            "description": "Resource or idempotency conflict",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "422": {
+            "description": "Command precondition failed",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          },
+          "503": {
+            "description": "Temporarily unavailable",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } }
+            }
+          }
+        }
+      }
+    },
+    "/work/schedules/{scheduleId}/actions": {
+      "post": {
+        "tags": ["work"],
+        "operationId": "workScheduleAction",
+        "summary": "Apply a schedule lifecycle action",
+        "security": [{ "cookieSession": [], "csrfToken": [] }, { "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "scheduleId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^sch_[0-9A-HJKMNP-TV-Z]{26}$" }
+          }
+        ],
+        "x-unify-reject-unknown-query": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ScheduleActionCommand" }
+            }
           }
         },
         "responses": {
@@ -6839,6 +7390,33 @@
           }
         }
       },
+      "BoardCreateInput": {
+        "$id": "BoardCreateInput",
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "minLength": 1, "maxLength": 200, "type": "string" },
+          "lanes": {
+            "minItems": 1,
+            "maxItems": 50,
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "$id": "Slug",
+              "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+              "type": "string"
+            }
+          }
+        }
+      },
+      "BoardActionInput": {
+        "$id": "BoardActionInput",
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["action"],
+        "properties": { "action": { "const": "archive", "type": "string" } }
+      },
       "LifecycleActionInput": {
         "$id": "LifecycleActionInput",
         "additionalProperties": false,
@@ -6899,8 +7477,22 @@
               { "const": "high", "type": "string" },
               { "const": "urgent", "type": "string" }
             ]
+          }
+        }
+      },
+      "TaskAssignmentInput": {
+        "$id": "TaskAssignmentInput",
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["assignmentKind", "profileId"],
+        "properties": {
+          "assignmentKind": {
+            "anyOf": [
+              { "const": "assignee", "type": "string" },
+              { "const": "reviewer", "type": "string" }
+            ]
           },
-          "assigneeProfileId": {
+          "profileId": {
             "anyOf": [
               { "pattern": "^prf_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
               { "type": "null" }
@@ -6961,7 +7553,24 @@
           },
           "expression": { "minLength": 1, "maxLength": 200, "type": "string" },
           "timezone": { "minLength": 1, "maxLength": 100, "type": "string" },
-          "enabled": { "type": "boolean" }
+          "enabled": { "type": "boolean" },
+          "nextRunAt": { "$id": "Timestamp", "format": "date-time", "type": "string" }
+        }
+      },
+      "ScheduleActionInput": {
+        "$id": "ScheduleActionInput",
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["action"],
+        "properties": {
+          "action": {
+            "anyOf": [
+              { "const": "run-now", "type": "string" },
+              { "const": "pause", "type": "string" },
+              { "const": "resume", "type": "string" },
+              { "const": "delete", "type": "string" }
+            ]
+          }
         }
       },
       "RunActionInput": {
@@ -6972,7 +7581,6 @@
         "properties": {
           "action": {
             "anyOf": [
-              { "const": "run-now", "type": "string" },
               { "const": "cancel", "type": "string" },
               { "const": "retry", "type": "string" }
             ]
@@ -9470,7 +10078,16 @@
         "$id": "WorkSchedule",
         "additionalProperties": false,
         "type": "object",
-        "required": ["meta", "projectId", "kind", "expression", "timezone", "enabled", "nextRunAt"],
+        "required": [
+          "meta",
+          "projectId",
+          "taskId",
+          "kind",
+          "expression",
+          "timezone",
+          "enabled",
+          "nextRunAt"
+        ],
         "properties": {
           "meta": {
             "$id": "ResourceMeta",
@@ -9489,7 +10106,18 @@
               "updatedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" }
             }
           },
-          "projectId": { "pattern": "^prj_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+          "projectId": {
+            "anyOf": [
+              { "pattern": "^prj_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+              { "type": "null" }
+            ]
+          },
+          "taskId": {
+            "anyOf": [
+              { "pattern": "^tsk_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+              { "type": "null" }
+            ]
+          },
           "kind": {
             "anyOf": [
               { "const": "at", "type": "string" },
@@ -9523,6 +10151,7 @@
               "required": [
                 "meta",
                 "projectId",
+                "taskId",
                 "kind",
                 "expression",
                 "timezone",
@@ -9547,7 +10176,18 @@
                     "updatedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" }
                   }
                 },
-                "projectId": { "pattern": "^prj_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+                "projectId": {
+                  "anyOf": [
+                    { "pattern": "^prj_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+                    { "type": "null" }
+                  ]
+                },
+                "taskId": {
+                  "anyOf": [
+                    { "pattern": "^tsk_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+                    { "type": "null" }
+                  ]
+                },
                 "kind": {
                   "anyOf": [
                     { "const": "at", "type": "string" },
@@ -9626,7 +10266,6 @@
             "anyOf": [
               { "const": "queued", "type": "string" },
               { "const": "running", "type": "string" },
-              { "const": "blocked", "type": "string" },
               { "const": "succeeded", "type": "string" },
               { "const": "failed", "type": "string" },
               { "const": "cancelled", "type": "string" }
@@ -9701,7 +10340,6 @@
                   "anyOf": [
                     { "const": "queued", "type": "string" },
                     { "const": "running", "type": "string" },
-                    { "const": "blocked", "type": "string" },
                     { "const": "succeeded", "type": "string" },
                     { "const": "failed", "type": "string" },
                     { "const": "cancelled", "type": "string" }
@@ -10815,6 +11453,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -10871,6 +11510,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -10934,6 +11574,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -10981,6 +11622,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -11035,6 +11677,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -11093,6 +11736,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -11140,6 +11784,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -11201,6 +11846,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -11271,6 +11917,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -11327,6 +11974,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -11384,6 +12032,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -11439,6 +12088,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -11486,6 +12136,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -11534,6 +12185,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -11581,6 +12233,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -11650,6 +12303,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -11719,6 +12373,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -11785,6 +12440,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -11822,6 +12478,117 @@
           }
         }
       },
+      "BoardCreateCommand": {
+        "$id": "BoardCreateCommand",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contractVersion",
+          "commandId",
+          "commandType",
+          "idempotencyKey",
+          "issuedAt",
+          "target",
+          "payload"
+        ],
+        "properties": {
+          "contractVersion": { "$id": "ContractVersion", "const": "core.v1", "type": "string" },
+          "commandId": { "pattern": "^cmd_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+          "commandType": { "const": "work.board.create.v1", "type": "string" },
+          "idempotencyKey": {
+            "$id": "IdempotencyKey",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{15,199}$",
+            "type": "string"
+          },
+          "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
+          "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "target": {
+            "$id": "CommandTarget",
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["kind"],
+            "properties": {
+              "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
+              "id": {
+                "$id": "CanonicalId",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
+                "type": "string"
+              }
+            }
+          },
+          "payload": {
+            "$id": "BoardCreateInput",
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": { "minLength": 1, "maxLength": 200, "type": "string" },
+              "lanes": {
+                "minItems": 1,
+                "maxItems": 50,
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "$id": "Slug",
+                  "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "BoardActionCommand": {
+        "$id": "BoardActionCommand",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contractVersion",
+          "commandId",
+          "commandType",
+          "idempotencyKey",
+          "issuedAt",
+          "target",
+          "payload"
+        ],
+        "properties": {
+          "contractVersion": { "$id": "ContractVersion", "const": "core.v1", "type": "string" },
+          "commandId": { "pattern": "^cmd_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+          "commandType": { "const": "work.board.action.v1", "type": "string" },
+          "idempotencyKey": {
+            "$id": "IdempotencyKey",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{15,199}$",
+            "type": "string"
+          },
+          "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
+          "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "target": {
+            "$id": "CommandTarget",
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["kind"],
+            "properties": {
+              "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
+              "id": {
+                "$id": "CanonicalId",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
+                "type": "string"
+              }
+            }
+          },
+          "payload": {
+            "$id": "BoardActionInput",
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["action"],
+            "properties": { "action": { "const": "archive", "type": "string" } }
+          }
+        }
+      },
       "TaskCreateCommand": {
         "$id": "TaskCreateCommand",
         "additionalProperties": false,
@@ -11846,6 +12613,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -11912,6 +12680,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -11942,8 +12711,64 @@
                   { "const": "high", "type": "string" },
                   { "const": "urgent", "type": "string" }
                 ]
+              }
+            }
+          }
+        }
+      },
+      "TaskAssignmentCommand": {
+        "$id": "TaskAssignmentCommand",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contractVersion",
+          "commandId",
+          "commandType",
+          "idempotencyKey",
+          "issuedAt",
+          "target",
+          "payload"
+        ],
+        "properties": {
+          "contractVersion": { "$id": "ContractVersion", "const": "core.v1", "type": "string" },
+          "commandId": { "pattern": "^cmd_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+          "commandType": { "const": "work.task.assignment.v1", "type": "string" },
+          "idempotencyKey": {
+            "$id": "IdempotencyKey",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{15,199}$",
+            "type": "string"
+          },
+          "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
+          "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "target": {
+            "$id": "CommandTarget",
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["kind"],
+            "properties": {
+              "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
+              "id": {
+                "$id": "CanonicalId",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
+                "type": "string"
+              }
+            }
+          },
+          "payload": {
+            "$id": "TaskAssignmentInput",
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["assignmentKind", "profileId"],
+            "properties": {
+              "assignmentKind": {
+                "anyOf": [
+                  { "const": "assignee", "type": "string" },
+                  { "const": "reviewer", "type": "string" }
+                ]
               },
-              "assigneeProfileId": {
+              "profileId": {
                 "anyOf": [
                   { "pattern": "^prf_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
                   { "type": "null" }
@@ -11977,6 +12802,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -12042,6 +12868,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -12102,6 +12929,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -12132,7 +12960,66 @@
               },
               "expression": { "minLength": 1, "maxLength": 200, "type": "string" },
               "timezone": { "minLength": 1, "maxLength": 100, "type": "string" },
-              "enabled": { "type": "boolean" }
+              "enabled": { "type": "boolean" },
+              "nextRunAt": { "$id": "Timestamp", "format": "date-time", "type": "string" }
+            }
+          }
+        }
+      },
+      "ScheduleActionCommand": {
+        "$id": "ScheduleActionCommand",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contractVersion",
+          "commandId",
+          "commandType",
+          "idempotencyKey",
+          "issuedAt",
+          "target",
+          "payload"
+        ],
+        "properties": {
+          "contractVersion": { "$id": "ContractVersion", "const": "core.v1", "type": "string" },
+          "commandId": { "pattern": "^cmd_[0-9A-HJKMNP-TV-Z]{26}$", "type": "string" },
+          "commandType": { "const": "work.schedule.action.v1", "type": "string" },
+          "idempotencyKey": {
+            "$id": "IdempotencyKey",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{15,199}$",
+            "type": "string"
+          },
+          "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
+          "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "target": {
+            "$id": "CommandTarget",
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["kind"],
+            "properties": {
+              "kind": { "pattern": "^[a-z][a-z0-9.-]{1,99}$", "type": "string" },
+              "id": {
+                "$id": "CanonicalId",
+                "pattern": "^(?:usr|ses|svc|crd|mfa|cmd|req|cor|frm|prf|agt|rec|pvd|mdl|prj|brd|tsk|cmt|sch|run|cvs|msg|att|chn|ntf|opc|aud|evt)_[0-9A-HJKMNP-TV-Z]{26}$",
+                "description": "A resource-kind prefix followed by an uppercase Crockford ULID.",
+                "type": "string"
+              }
+            }
+          },
+          "payload": {
+            "$id": "ScheduleActionInput",
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["action"],
+            "properties": {
+              "action": {
+                "anyOf": [
+                  { "const": "run-now", "type": "string" },
+                  { "const": "pause", "type": "string" },
+                  { "const": "resume", "type": "string" },
+                  { "const": "delete", "type": "string" }
+                ]
+              }
             }
           }
         }
@@ -12161,6 +13048,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -12184,7 +13072,6 @@
             "properties": {
               "action": {
                 "anyOf": [
-                  { "const": "run-now", "type": "string" },
                   { "const": "cancel", "type": "string" },
                   { "const": "retry", "type": "string" }
                 ]
@@ -12218,6 +13105,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -12270,6 +13158,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -12326,6 +13215,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -12373,6 +13263,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -12459,6 +13350,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -12516,6 +13408,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -12586,6 +13479,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -12641,6 +13535,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -12693,6 +13588,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,
@@ -12749,6 +13645,7 @@
           },
           "issuedAt": { "$id": "Timestamp", "format": "date-time", "type": "string" },
           "expectedResourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
+          "expectedSourceVersion": { "$id": "ResourceVersion", "minimum": 1, "type": "integer" },
           "target": {
             "$id": "CommandTarget",
             "additionalProperties": false,

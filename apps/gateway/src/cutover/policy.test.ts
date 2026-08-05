@@ -43,7 +43,7 @@ describe('CutoverPolicy', () => {
       executeEnabled: true,
       acceptanceRef: 'acceptance/CHAT-001',
     });
-    expect(() => active.assertAllowed(mutation('worker', 'execute'))).toThrowError(
+    expect(() => active.assertAllowed(mutation('memory-v4', 'execute'))).toThrowError(
       expect.objectContaining({ code: 'LEGACY_WRITE_CONTAINED' }),
     );
     const rolledBack = CutoverPolicy.fromEnv({ DEPLOYMENT_MODE: 'mutation-canary' });
@@ -76,7 +76,7 @@ describe('CutoverPolicy', () => {
       executeEnabled: true,
       acceptanceRef: 'phase6/hermes-work',
     });
-    expect(() => active.assertAllowed(mutation('worker', 'execute'))).toThrowError(
+    expect(() => active.assertAllowed(mutation('memory-v4', 'execute'))).toThrowError(
       expect.objectContaining({ code: 'LEGACY_WRITE_CONTAINED' }),
     );
   });

@@ -731,13 +731,7 @@ export function buildApp(options: AppOptions) {
           503,
           'Notification state is unavailable',
         );
-      const ownerCandidates: IntegrationOwner[] = [
-        'hermes',
-        'worker',
-        'chat',
-        'memory-v4',
-        'gateway',
-      ];
+      const ownerCandidates: IntegrationOwner[] = ['hermes', 'chat', 'memory-v4', 'gateway'];
       const allowedOwners = ownerCandidates.filter((owner) => canRead(current, owner));
       const source = await options.notificationStore.acknowledge(
         current.userId,
@@ -828,7 +822,6 @@ export function buildApp(options: AppOptions) {
     const permission: Partial<Record<ResourceRef['owner'], string>> = {
       hermes: 'profiles.read',
 
-      worker: 'work.read',
       chat: 'chat.read',
       'memory-v4': 'memory.read',
       gateway: 'operations.read',
@@ -911,7 +904,6 @@ export function buildApp(options: AppOptions) {
     const viewByOwner: Partial<Record<ResourceRef['owner'], string>> = {
       hermes: 'profiles',
 
-      worker: 'work',
       chat: 'chat',
       'memory-v4': 'memory',
       gateway: 'operations',
@@ -924,7 +916,7 @@ export function buildApp(options: AppOptions) {
   }
   function ownerValue(value?: string): IntegrationOwner | undefined {
     if (!value) return undefined;
-    const owners: IntegrationOwner[] = ['hermes', 'worker', 'chat', 'memory-v4', 'gateway'];
+    const owners: IntegrationOwner[] = ['hermes', 'chat', 'memory-v4', 'gateway'];
     if (!owners.includes(value as IntegrationOwner))
       throw new AuthError('INVALID_OWNER', 400, 'Unknown integration owner');
     return value as IntegrationOwner;

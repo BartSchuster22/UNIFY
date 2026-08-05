@@ -92,8 +92,6 @@ class Store implements GovernanceStore {
 
 function owners() {
   return new MutationOwnerClient({
-    workerUrl: 'http://worker.invalid',
-    workerToken: 'token',
     chatUrl: 'http://chat.invalid',
     chatPassword: 'p',
     memoryUrl: 'http://memory.invalid',
@@ -119,32 +117,6 @@ function memory(role: string, lifecycle: string): MutationInput {
 }
 
 describe('mutation policy', () => {
-  it('requires confirmation only when executing destructive operations', () => {
-    const client = owners();
-    const target = {
-      owner: 'worker' as const,
-      kind: 'project',
-      nativeId: 'temporary-project',
-    };
-    expect(() =>
-      client.validate({
-        operationType: 'worker.project.delete',
-        target,
-        payload: {},
-        mode: 'dry-run',
-        confirmed: false,
-      }),
-    ).not.toThrow();
-    expect(() =>
-      client.validate({
-        operationType: 'worker.project.delete',
-        target,
-        payload: {},
-        mode: 'execute',
-        confirmed: false,
-      }),
-    ).toThrowError(/confirmation/i);
-  });
   it('allows only active/working and evidence working-or-live MemoryV4 writes', () => {
     const client = owners();
     expect(() => client.validate(memory('active', 'working'))).not.toThrow();
@@ -158,9 +130,9 @@ describe('mutation policy', () => {
     const client = owners();
     expect(() =>
       client.validate({
-        operationType: 'worker.project.create',
-        target: { owner: 'chat', kind: 'project', nativeId: 'new' },
-        payload: { name: 'Project' },
+        operationType: 'chat.message.send',
+        target: { owner: 'memory-v4', kind: 'chat-session', nativeId: 'new' },
+        payload: { blocks: [{ kind: 'text', text: 'hello' }] },
         mode: 'validate',
         confirmed: false,
       }),
@@ -177,9 +149,17 @@ describe('mutation lifecycle', () => {
       .mockResolvedValue({ ok: true, credential: { token: 'raw', status: 'valid' } });
     const service = new MutationService(new GovernanceService(store), client);
     const input: MutationInput = {
-      operationType: 'worker.project.create',
-      target: { owner: 'worker', kind: 'project', nativeId: 'new' },
-      payload: { name: 'Project' },
+      operationType: 'memory.record.write',
+      target: { owner: 'memory-v4', kind: 'memory-record', nativeId: 'new' },
+      payload: {
+        entityType: 'project',
+        entityId: 'unify',
+        role: 'evidence',
+        lifecycle: 'live',
+        topic: 'phase8',
+        title: 'Evidence',
+        content: 'Verified',
+      },
       mode: 'execute',
       confirmed: false,
     };
@@ -232,9 +212,17 @@ describe('mutation lifecycle', () => {
     vi.spyOn(client, 'execute').mockRejectedValue(new Error('owner unavailable'));
     const service = new MutationService(new GovernanceService(store), client);
     const input: MutationInput = {
-      operationType: 'worker.project.create',
-      target: { owner: 'worker', kind: 'project', nativeId: 'new' },
-      payload: { name: 'Project' },
+      operationType: 'memory.record.write',
+      target: { owner: 'memory-v4', kind: 'memory-record', nativeId: 'new' },
+      payload: {
+        entityType: 'project',
+        entityId: 'unify',
+        role: 'evidence',
+        lifecycle: 'live',
+        topic: 'phase8',
+        title: 'Evidence',
+        content: 'Verified',
+      },
       mode: 'execute',
       confirmed: false,
     };

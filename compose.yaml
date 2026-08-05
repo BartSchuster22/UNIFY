@@ -59,8 +59,7 @@ services:
       FRAMEWORK_AUTH_ENV_NAMES: HERMES_MAIN_CONTROL_TOKEN
       HERMES_MAIN_CONTROL_TOKEN_FILE: /run/secrets/hermes_main_control_token
       HERMES_EVENT_POLL_MS: ${HERMES_EVENT_POLL_MS:-5000}
-      WORKER_URL: ${WORKER_URL:-http://127.0.0.1:8891}
-      WORKER_TOKEN_FILE: /run/secrets/worker_token
+
       CHAT_URL: ${CHAT_URL:-http://127.0.0.1:8787}
       CHAT_PASSWORD_FILE: /run/secrets/chat_password
       MEMORY_V4_URL: ${MEMORY_V4_URL:-http://127.0.0.1:18804}
@@ -70,7 +69,7 @@ services:
         gateway_database_url,
         gateway_auth_pepper,
         hermes_main_control_token,
-        worker_token,
+
         chat_password,
         memory_v4_token,
       ]
@@ -175,7 +174,7 @@ secrets:
   gateway_auth_pepper: { file: .secrets/gateway_auth_pepper }
   bootstrap_admin_password: { file: .secrets/bootstrap_admin_password }
   hermes_main_control_token: { file: .secrets/hermes_main_control_token }
-  worker_token: { file: .secrets/worker_token }
+
   chat_password: { file: .secrets/chat_password }
   memory_v4_token: { file: .secrets/memory_v4_token }
 volumes:

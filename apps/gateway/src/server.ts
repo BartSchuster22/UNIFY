@@ -21,11 +21,14 @@ async function secret(name: string): Promise<string> {
 const databaseUrl = await secret('DATABASE_URL');
 const authPepper = await secret('AUTH_PEPPER');
 const integrationEnv = { ...process.env };
-const legacyMigrationEnabled = process.env.ENABLE_LEGACY_MIGRATION_READERS === 'true';
-const integrationSecrets = ['WORKER_TOKEN', 'CHAT_PASSWORD', 'MEMORY_V4_TOKEN'];
-for (const name of integrationSecrets) {
-  const file = process.env[`${name}_FILE`];
-  if (file) integrationEnv[name] = (await readFile(file, 'utf8')).trim();
+const legacyReadersEnabled = process.env.ENABLE_LEGACY_MIGRATION_READERS === 'true';
+
+const integrationSecrets = ['CHAT_PASSWORD', 'MEMORY_V4_TOKEN'];
+if (legacyReadersEnabled) {
+  for (const name of integrationSecrets) {
+    const file = process.env[`${name}_FILE`];
+    if (file) integrationEnv[name] = (await readFile(file, 'utf8')).trim();
+  }
 }
 for (const name of (process.env.FRAMEWORK_AUTH_ENV_NAMES ?? '')
   .split(',')
@@ -48,8 +51,8 @@ const hermesGateway = new HermesGatewayService(
   frameworkRegistry,
   new PostgresFrameworkEventJournal(pool),
 );
-const adapters = createDefaultAdapters(integrationEnv);
-const legacyMutationOwners = legacyMigrationEnabled
+const adapters = legacyReadersEnabled ? createDefaultAdapters(integrationEnv) : [];
+const mutationOwners = legacyReadersEnabled
   ? (await import('./migration/legacy/owner-client.js')).MutationOwnerClient.fromEnv(integrationEnv)
   : undefined;
 const app = buildApp({
@@ -64,7 +67,8 @@ const app = buildApp({
     .map((origin) => origin.trim())
     .filter(Boolean),
   integrations: new IntegrationService(adapters),
-  ...(legacyMutationOwners ? { mutationOwners: legacyMutationOwners } : {}),
+  ...(mutationOwners ? { mutationOwners } : {}),
+
   notificationStore: new PostgresNotificationStore(pool),
   frameworkRegistry,
   hermesGateway,
