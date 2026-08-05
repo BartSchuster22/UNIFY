@@ -1820,9 +1820,9 @@ export interface components {
             /** @constant */
             expectedContractVersion: "hermes-control/v1";
             /** @constant */
-            expectedFrameworkVersion: "0.18.0";
+            expectedFrameworkVersion: "0.20.0";
             /** @constant */
-            expectedFrameworkCommit: "9e54eee44f1cbbe62247a36546e51ff8940373c6";
+            expectedFrameworkCommit: "b8b17b8cee50b85adb7fba6ea332dc06731b86f4";
             enabled: boolean;
         };
         FrameworkRegistration: {
@@ -1834,9 +1834,9 @@ export interface components {
             /** @constant */
             contractVersion: "hermes-control/v1";
             /** @constant */
-            frameworkVersion: "0.18.0";
+            frameworkVersion: "0.20.0";
             /** @constant */
-            frameworkCommit: "9e54eee44f1cbbe62247a36546e51ff8940373c6";
+            frameworkCommit: "b8b17b8cee50b85adb7fba6ea332dc06731b86f4";
             status: "verified" | "disabled" | "unavailable" | "unsupported";
             enabled: boolean;
             /** Format: date-time */
@@ -1856,9 +1856,9 @@ export interface components {
                 /** @constant */
                 contractVersion: "hermes-control/v1";
                 /** @constant */
-                frameworkVersion: "0.18.0";
+                frameworkVersion: "0.20.0";
                 /** @constant */
-                frameworkCommit: "9e54eee44f1cbbe62247a36546e51ff8940373c6";
+                frameworkCommit: "b8b17b8cee50b85adb7fba6ea332dc06731b86f4";
                 status: "verified" | "disabled" | "unavailable" | "unsupported";
                 enabled: boolean;
                 /** Format: date-time */

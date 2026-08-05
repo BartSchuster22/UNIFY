@@ -1,8 +1,8 @@
 import { Type, type Static, type TObject, type TSchema } from '@sinclair/typebox';
 
 export const HERMES_CONTROL_VERSION = 'hermes-control/v1' as const;
-export const PINNED_HERMES_RELEASE = '0.18.0' as const;
-export const PINNED_HERMES_COMMIT = '9e54eee44f1cbbe62247a36546e51ff8940373c6' as const;
+export const PINNED_HERMES_RELEASE = '0.20.0' as const;
+export const PINNED_HERMES_COMMIT = 'b8b17b8cee50b85adb7fba6ea332dc06731b86f4' as const;
 
 export const HermesContractVersionSchema = Type.Literal(HERMES_CONTROL_VERSION, {
   $id: 'HermesContractVersion',

@@ -2,7 +2,11 @@ import { execFile } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { promisify } from 'node:util';
 import pg from 'pg';
-import { PINNED_HERMES_COMMIT, type FrameworkScope } from '@aquiero/contracts';
+import {
+  PINNED_HERMES_COMMIT,
+  PINNED_HERMES_RELEASE,
+  type FrameworkScope,
+} from '@aquiero/contracts';
 import { buildHermesControlAdapter } from './app.js';
 import { PostgresAdapterEventStore } from './event-store.js';
 import { HermesCliRunner, HermesNativeSource } from './source.js';
@@ -12,7 +16,8 @@ const execFileAsync = promisify(execFile);
 const { Pool } = pg;
 
 const repo = required('HERMES_REPO');
-await verifyImmutableBaseline(repo);
+const hermesBin = process.env.HERMES_BIN ?? 'hermes';
+await verifyImmutableBaseline(repo, hermesBin);
 const databaseUrl = await secret('DATABASE_URL');
 const bearerToken = await optionalSecret('HERMES_ADAPTER_TOKEN');
 const bearerTokenBundleFile = process.env.HERMES_ADAPTER_TOKEN_BUNDLE_FILE;
@@ -50,7 +55,7 @@ const pythonVersion = (
 
 const pool = new Pool({ connectionString: databaseUrl, max: 8 });
 const source = new HermesNativeSource({
-  runner: new HermesCliRunner(process.env.HERMES_BIN ?? 'hermes', process.env.HERMES_HOME),
+  runner: new HermesCliRunner(hermesBin, process.env.HERMES_HOME),
   ...(process.env.HERMES_API_BASE_URL ? { apiBaseUrl: process.env.HERMES_API_BASE_URL } : {}),
   ...(apiToken ? { apiToken } : {}),
 });
@@ -82,17 +87,31 @@ for (const signal of ['SIGINT', 'SIGTERM'] as const)
     void app.close().finally(() => pool.end());
   });
 
-async function verifyImmutableBaseline(path: string) {
-  const head = (
-    await execFileAsync('git', ['-C', path, 'rev-parse', 'HEAD'], {
-      encoding: 'utf8',
-      timeout: 5_000,
-    })
-  ).stdout.trim();
-  if (head !== PINNED_HERMES_COMMIT)
-    throw new Error(`Hermes baseline ${head} is unsupported; expected ${PINNED_HERMES_COMMIT}`);
-  await execFileAsync('git', ['-C', path, 'diff', '--quiet'], { timeout: 5_000 });
-  await execFileAsync('git', ['-C', path, 'diff', '--cached', '--quiet'], { timeout: 5_000 });
+async function verifyImmutableBaseline(path: string, binary: string) {
+  try {
+    const head = (
+      await execFileAsync('git', ['-C', path, 'rev-parse', 'HEAD'], {
+        encoding: 'utf8',
+        timeout: 5_000,
+      })
+    ).stdout.trim();
+    if (head !== PINNED_HERMES_COMMIT)
+      throw new Error(`Hermes baseline ${head} is unsupported; expected ${PINNED_HERMES_COMMIT}`);
+    await execFileAsync('git', ['-C', path, 'diff', '--quiet'], { timeout: 5_000 });
+    await execFileAsync('git', ['-C', path, 'diff', '--cached', '--quiet'], { timeout: 5_000 });
+    return;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (!message.includes('not a git repository') && !message.includes('unknown revision'))
+      throw error;
+  }
+
+  const version = (await execFileAsync(binary, ['version'], { encoding: 'utf8', timeout: 5_000 }))
+    .stdout;
+  const release = /Hermes Agent v([^\s]+)/u.exec(version)?.[1];
+  const commit = /upstream\s+([0-9a-f]{8,40})/u.exec(version)?.[1];
+  if (release !== PINNED_HERMES_RELEASE || !commit || !PINNED_HERMES_COMMIT.startsWith(commit))
+    throw new Error('Installed Hermes release does not match the immutable supported baseline');
 }
 
 function required(name: string) {

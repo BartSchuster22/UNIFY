@@ -10645,11 +10645,11 @@
             "type": "string"
           },
           "expectedFrameworkVersion": {
-            "const": "0.18.0",
+            "const": "0.20.0",
             "type": "string"
           },
           "expectedFrameworkCommit": {
-            "const": "9e54eee44f1cbbe62247a36546e51ff8940373c6",
+            "const": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
             "type": "string"
           },
           "enabled": {
@@ -10734,11 +10734,11 @@
             "type": "string"
           },
           "frameworkVersion": {
-            "const": "0.18.0",
+            "const": "0.20.0",
             "type": "string"
           },
           "frameworkCommit": {
-            "const": "9e54eee44f1cbbe62247a36546e51ff8940373c6",
+            "const": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
             "type": "string"
           },
           "status": {
@@ -10865,11 +10865,11 @@
                   "type": "string"
                 },
                 "frameworkVersion": {
-                  "const": "0.18.0",
+                  "const": "0.20.0",
                   "type": "string"
                 },
                 "frameworkCommit": {
-                  "const": "9e54eee44f1cbbe62247a36546e51ff8940373c6",
+                  "const": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
                   "type": "string"
                 },
                 "status": {

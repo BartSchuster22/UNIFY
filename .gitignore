@@ -14,3 +14,5 @@ artifacts/
 .secrets/
 secrets/*
 !secrets/README.md
+deploy/alica-v1/secrets/
+deploy/alica-v1/backups/

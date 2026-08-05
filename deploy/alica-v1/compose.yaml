@@ -1,0 +1,198 @@
+name: unify-alica-v1
+
+x-runtime: &runtime
+  restart: unless-stopped
+  read_only: true
+  init: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  tmpfs:
+    - /tmp:rw,noexec,nosuid,nodev,size=32m,mode=1777
+  stop_grace_period: 20s
+
+services:
+  unify-postgres:
+    image: postgres:16.6-alpine@sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef
+    container_name: unify-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: unify
+      POSTGRES_USER: unify
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres-password
+    secrets: [postgres-password]
+    volumes:
+      - unify-postgres-data:/var/lib/postgresql/data
+    networks: [unify-db-private]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U unify -d unify]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    shm_size: 128m
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    stop_grace_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 1G
+
+  migrate:
+    image: unify-core:${RELEASE_ID:?RELEASE_ID is required}
+    command: [scripts/migrate.mjs, up]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    secrets: [database-url]
+    environment:
+      DATABASE_URL_FILE: /run/secrets/database-url
+    networks: [unify-db-private]
+    depends_on:
+      unify-postgres:
+        condition: service_healthy
+    restart: 'no'
+
+  bootstrap-admin:
+    image: unify-core:${RELEASE_ID:?RELEASE_ID is required}
+    command: [dist/cli/bootstrap-admin.js]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    secrets: [database-url, auth-pepper, bootstrap-admin-password]
+    environment:
+      DATABASE_URL_FILE: /run/secrets/database-url
+      AUTH_PEPPER_FILE: /run/secrets/auth-pepper
+      BOOTSTRAP_ADMIN_USERNAME: herman
+      BOOTSTRAP_ADMIN_PASSWORD_FILE: /run/secrets/bootstrap-admin-password
+      BOOTSTRAP_ADMIN_DISPLAY_NAME: Herman
+    networks: [unify-db-private]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: 'no'
+
+  alica-adapter:
+    <<: *runtime
+    image: unify-hermes-control-adapter:${RELEASE_ID:?RELEASE_ID is required}
+    container_name: unify-alica-adapter
+    environment:
+      HERMES_FRAMEWORK_ID: hermes-alica
+      HERMES_DISPLAY_NAME: Alica
+      HERMES_INSTANCE_ID: alica-v1-private
+      HERMES_ADAPTER_SCOPES: control:read,control:execute,control:events
+      DATABASE_URL_FILE: /run/secrets/database-url
+      HERMES_ADAPTER_TOKEN_BUNDLE_FILE: /run/secrets/alica-token-bundle
+      HERMES_ADAPTER_TLS_KEY_FILE: /run/secrets/alica-tls-key
+      HERMES_ADAPTER_TLS_CERT_FILE: /run/secrets/alica-tls-cert
+      RELEASE_ID: ${RELEASE_ID}
+    secrets: [database-url, alica-token-bundle, alica-tls-key, alica-tls-cert]
+    volumes:
+      - alica_data:/opt/data
+    networks: [unify-db-private, alica-unify-private]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+
+  herman-adapter:
+    <<: *runtime
+    image: unify-hermes-control-adapter:${RELEASE_ID:?RELEASE_ID is required}
+    container_name: unify-herman-adapter
+    environment:
+      HERMES_FRAMEWORK_ID: hermes-herman
+      HERMES_DISPLAY_NAME: Herman
+      HERMES_INSTANCE_ID: herman-v1-private
+      HERMES_ADAPTER_SCOPES: control:read,control:execute,control:events
+      DATABASE_URL_FILE: /run/secrets/database-url
+      HERMES_ADAPTER_TOKEN_BUNDLE_FILE: /run/secrets/herman-token-bundle
+      HERMES_ADAPTER_TLS_KEY_FILE: /run/secrets/herman-tls-key
+      HERMES_ADAPTER_TLS_CERT_FILE: /run/secrets/herman-tls-cert
+      RELEASE_ID: ${RELEASE_ID}
+    secrets: [database-url, herman-token-bundle, herman-tls-key, herman-tls-cert]
+    volumes:
+      - herman_data:/opt/data
+    networks: [unify-db-private, herman-unify-private]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+
+  unify-core:
+    <<: *runtime
+    image: unify-core:${RELEASE_ID:?RELEASE_ID is required}
+    container_name: unify-core
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: '8080'
+      RELEASE_ID: ${RELEASE_ID}
+      DATABASE_URL_FILE: /run/secrets/database-url
+      AUTH_PEPPER_FILE: /run/secrets/auth-pepper
+      FRAMEWORK_AUTH_ENV_NAMES: ALICA_FRAMEWORK_TOKEN,HERMAN_FRAMEWORK_TOKEN
+      ALICA_FRAMEWORK_TOKEN_FILE: /run/secrets/alica-token
+      HERMAN_FRAMEWORK_TOKEN_FILE: /run/secrets/herman-token
+      NODE_EXTRA_CA_CERTS: /run/secrets/framework-ca-cert
+      ALLOWED_ORIGINS: ${UNIFY_PUBLIC_ORIGIN:?UNIFY_PUBLIC_ORIGIN is required}
+      REQUESTS_PER_MINUTE: '600'
+    secrets:
+      - database-url
+      - auth-pepper
+      - alica-token
+      - herman-token
+      - framework-ca-cert
+    networks: [unify-db-private, alica-unify-private, herman-unify-private]
+    ports:
+      - 127.0.0.1:18080:8080
+    depends_on:
+      bootstrap-admin:
+        condition: service_completed_successfully
+      alica-adapter:
+        condition: service_healthy
+      herman-adapter:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 768M
+
+secrets:
+  postgres-password: { file: ./secrets/postgres-password }
+  database-url: { file: ./secrets/database-url }
+  auth-pepper: { file: ./secrets/auth-pepper }
+  bootstrap-admin-password: { file: ./secrets/bootstrap-admin-password }
+  alica-token: { file: ./secrets/alica-token }
+  herman-token: { file: ./secrets/herman-token }
+  alica-token-bundle: { file: ./secrets/alica-token-bundle.json }
+  herman-token-bundle: { file: ./secrets/herman-token-bundle.json }
+  framework-ca-cert: { file: ./secrets/framework-ca.crt }
+  alica-tls-key: { file: ./secrets/alica.key }
+  alica-tls-cert: { file: ./secrets/alica.crt }
+  herman-tls-key: { file: ./secrets/herman.key }
+  herman-tls-cert: { file: ./secrets/herman.crt }
+
+volumes:
+  unify-postgres-data:
+    name: unify-postgres-data-v1
+  alica_data:
+    external: true
+  herman_data:
+    external: true
+
+networks:
+  unify-db-private:
+    internal: true
+  alica-unify-private:
+    internal: true
+  herman-unify-private:
+    internal: true

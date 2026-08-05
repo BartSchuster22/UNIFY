@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily encrypted UNIFY PostgreSQL backup
+
+[Timer]
+OnCalendar=*-*-* 02:15:00 UTC
+RandomizedDelaySec=900
+Persistent=true
+Unit=unify-backup.service
+
+[Install]
+WantedBy=timers.target
