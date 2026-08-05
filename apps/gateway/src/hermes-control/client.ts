@@ -89,7 +89,7 @@ export class HermesControlClient {
 
   constructor(private readonly options: HermesControlClientOptions) {
     this.fetchImpl = options.fetchImpl ?? fetch;
-    this.timeoutMs = options.timeoutMs ?? 5_000;
+    this.timeoutMs = options.timeoutMs ?? 20_000;
     this.maxResponseBytes = options.maxResponseBytes ?? 8 * 1024 * 1024;
     this.retries = options.retries ?? 1;
     this.circuitFailureThreshold = options.circuitFailureThreshold ?? 3;

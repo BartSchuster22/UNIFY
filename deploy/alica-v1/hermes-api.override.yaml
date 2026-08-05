@@ -3,9 +3,9 @@ services:
     image: unify-hermes-api:${RELEASE_ID:?RELEASE_ID is required}
     command: [gateway, run]
     environment:
-      API_SERVER_ENABLED: "true"
+      API_SERVER_ENABLED: 'true'
       API_SERVER_HOST: 0.0.0.0
-      API_SERVER_PORT: "8642"
+      API_SERVER_PORT: '8642'
     secrets:
       - source: alica-api-token
         target: hermes-api-token
@@ -14,9 +14,9 @@ services:
     image: unify-hermes-api:${RELEASE_ID:?RELEASE_ID is required}
     command: [gateway, run]
     environment:
-      API_SERVER_ENABLED: "true"
+      API_SERVER_ENABLED: 'true'
       API_SERVER_HOST: 0.0.0.0
-      API_SERVER_PORT: "8642"
+      API_SERVER_PORT: '8642'
     secrets:
       - source: herman-api-token
         target: hermes-api-token

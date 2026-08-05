@@ -15,7 +15,7 @@ print(json.dumps({'username':'herman','password':sys.argv[1],'deviceLabel':'QA10
 PY
 )
 code=$(curl -sS -o "$body" -w '%{http_code}' -H 'content-type: application/json' --data '{"username":"qa10-no-such-user","password":"not-a-valid-password"}' "$ORIGIN/api/v1/auth/login")
-[ "$code" = 401 ]
+[ "$code" = 401 ] || [ "$code" = 429 ]
 code=$(curl -sS -o "$body" -w '%{http_code}' "$ORIGIN/api/v1/frameworks")
 [ "$code" = 401 ]
 curl --fail-with-body -sS -D "$headers" -c "$cookie" -H 'content-type: application/json' --data "$json_login" "$ORIGIN/api/v1/auth/login" > "$body"

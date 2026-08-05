@@ -89,7 +89,15 @@ services:
       HERMES_API_TOKEN_FILE: /run/secrets/alica-api-token
       NODE_EXTRA_CA_CERTS: /run/secrets/framework-ca-cert
       RELEASE_ID: ${RELEASE_ID}
-    secrets: [database-url-adapter, alica-token-bundle, alica-tls-key, alica-tls-cert, alica-api-token, framework-ca-cert]
+    secrets:
+      [
+        database-url-adapter,
+        alica-token-bundle,
+        alica-tls-key,
+        alica-tls-cert,
+        alica-api-token,
+        framework-ca-cert,
+      ]
     volumes:
       - /srv/alica-stack/data/alica:/opt/data
     networks: [unify-db-private, alica-unify-private]
@@ -121,7 +129,15 @@ services:
       HERMES_API_TOKEN_FILE: /run/secrets/herman-api-token
       NODE_EXTRA_CA_CERTS: /run/secrets/framework-ca-cert
       RELEASE_ID: ${RELEASE_ID}
-    secrets: [database-url-adapter, herman-token-bundle, herman-tls-key, herman-tls-cert, herman-api-token, framework-ca-cert]
+    secrets:
+      [
+        database-url-adapter,
+        herman-token-bundle,
+        herman-tls-key,
+        herman-tls-cert,
+        herman-api-token,
+        framework-ca-cert,
+      ]
     volumes:
       - /srv/alica-stack/data/herman:/opt/data
     networks: [unify-db-private, herman-unify-private]
