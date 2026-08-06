@@ -1,8 +1,14 @@
 # Phase 15 — UNIFY Web Copy, Container, and ALICA-v1 Rollout Plan
 
+## Status
+
+**COMPLETE — production accepted on 2026-08-06 UTC.**
+
+Implementation and production evidence: [phase-15-unify-web-production-evidence.md](phase-15-unify-web-production-evidence.md).
+
 ## Objective
 
-Copy the existing `uniui.aquiero.com` operator experience from the repository's `apps/uniui` source, build it as **UNIFY Web**, and run it on ALICA-v1 as a separately managed, hardened container. After private deployment acceptance, publish it through a new DNS subdomain and the existing containerized Caddy ingress.
+Copy the existing `uniui.aquiero.com` operator experience from the repository's `apps/uniui` source, build it as **UNIFY Web**, and run it on ALICA-v1 as a separately managed, hardened container. After private deployment acceptance, publish it through `uniui.aquiero.com` and the existing containerized Caddy ingress.
 
 UNIFY Web remains a presentation and same-origin API-proxy tier. UNIFY Core remains the central identity, policy, routing, audit, and framework-distribution gateway. The browser must not connect directly to Hermes runtimes.
 
@@ -140,7 +146,9 @@ No database migration or framework-data mutation is required for the initial UNI
 - DNS authority: `ns.udag.de`, `ns.udag.net`, and `ns.udag.org`
 - The exact DNS update mechanism or credentials must be supplied/operated by the domain owner; no DNS credentials are stored in this repository.
 
-## Information required before public activation
+## Completion
 
-- DNS provider access or confirmation that the user will change `uniui.aquiero.com` from `188.245.221.1` to `167.233.135.142`
-- Decision on when to retire the old UI service after the new public endpoint passes acceptance
+- DNS now resolves `uniui.aquiero.com` to `167.233.135.142`.
+- Public TLS, UI, API proxy, authentication, framework inventory, restart convergence, and QA10 passed.
+- The old UI route and container were retired only after acceptance.
+- Old definitions, image/container inspections, and checksums remain archived for rollback.

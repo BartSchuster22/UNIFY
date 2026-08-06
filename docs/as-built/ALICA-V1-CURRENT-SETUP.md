@@ -1,4 +1,4 @@
-# ALICA-v1 Current Production Setup — Five-Service As Built
+# ALICA-v1 Current Production Setup — Five-Service Core plus UNIFY Web
 
 ## Status
 
@@ -13,11 +13,12 @@ Secret values, private keys, passwords, connection strings, session material, an
 | Attribute | Current production value |
 |---|---|
 | Host | `ALICA-v1` (`167.233.135.142`) |
-| Public origin | `https://unify.167-233-135-142.sslip.io` |
-| Release | `phase-14.6-a14f6d73de73` |
-| Source commit | `a14f6d73de739b509bff7021eccc4a0cccac76a0` |
-| Compose project | `unify` |
-| Steady-state containers | Exactly five |
+| Core public origin | `https://unify.167-233-135-142.sslip.io` |
+| Web public origin | `https://uniui.aquiero.com` |
+| Release | `phase-15.0-56e451bb836e` |
+| Source commit | `56e451bb836efb3feb6ba9d5e0c8bf089692a426` |
+| Compose projects | `unify` (Core) and `unify-web` (Web) |
+| Steady-state containers | Five Core/platform containers plus one separately managed Web container |
 | Public ingress | Containerized Caddy |
 | Public application ports | TCP 80/443; no private service publishes a host port |
 | Database persistence | Existing volume `unify-postgres-data-v1` |
@@ -32,7 +33,7 @@ Secret values, private keys, passwords, connection strings, session material, an
 Public readiness returns the active release:
 
 ```json
-{"status":"ready","release":"phase-14.6-a14f6d73de73"}
+{"status":"ready","release":"phase-15.0-56e451bb836e"}
 ```
 
 ## Runtime topology
@@ -42,24 +43,25 @@ Internet
    │ TCP 80/443
    ▼
 unify-caddy-1
-   │ HTTP on unify_unify-ingress
-   ▼
-unify-unify-core-1
-   ├── private TLS on unify_alica-control-private
-   │      ▼
-   │   unify-alica-1
-   │      ├── Hermes gateway/API on loopback :8642
-   │      └── UNIFY control adapter on :28082
-   │
-   ├── private TLS on unify_herman-control-private
-   │      ▼
-   │   unify-herman-1
-   │      ├── Hermes gateway/API on loopback :8642
-   │      └── UNIFY control adapter on :28082
-   │
-   └── PostgreSQL on unify_unify-db-private
-          ▼
-       unify-unify-postgres-1
+   ├── uniui.aquiero.com → unify-web-unify-web-1:3000
+   │                         │ same-origin /api/v1 proxy
+   │                         ▼
+   └─────────────────────► unify-unify-core-1
+                             ├── private TLS on unify_alica-control-private
+                             │      ▼
+                             │   unify-alica-1
+                             │      ├── Hermes gateway/API on loopback :8642
+                             │      └── UNIFY control adapter on :28082
+                             │
+                             ├── private TLS on unify_herman-control-private
+                             │      ▼
+                             │   unify-herman-1
+                             │      ├── Hermes gateway/API on loopback :8642
+                             │      └── UNIFY control adapter on :28082
+                             │
+                             └── PostgreSQL on unify_unify-db-private
+                                    ▼
+                                 unify-unify-postgres-1
 ```
 
 Alica and Herman have separate control, database, and egress networks. They share no lateral Docker network. PostgreSQL joins separate Core, Alica, and Herman database networks; row-level security and distinct adapter login roles enforce framework tenancy.
@@ -73,8 +75,9 @@ Alica and Herman have separate control, database, and egress networks. They shar
 | `unify-alica-1` | `alica` | Supervised Alica Hermes runtime plus Alica control adapter | None |
 | `unify-herman-1` | `herman` | Supervised Herman Hermes runtime plus Herman control adapter | None |
 | `unify-unify-postgres-1` | `unify-postgres` | PostgreSQL 16.6 durable state | None |
+| `unify-web-unify-web-1` | `unify-web` in separate `unify-web` project | React/Mantine operator UI and same-origin Core API proxy | None |
 
-All five services use `restart: unless-stopped`, health checks, resource limits, dropped capabilities, `no-new-privileges`, and read-only roots where supported. Core has no Docker socket, Hermes binary, or framework-data mount.
+All services use `restart: unless-stopped`, health checks, resource limits, dropped capabilities, `no-new-privileges`, and read-only roots where supported. Core has no Docker socket, Hermes binary, or framework-data mount. Web joins only `unify_unify-ingress`; it has no secret mount, host port, framework/database network, or direct Hermes route.
 
 ## Immutable image inputs
 
@@ -82,7 +85,8 @@ All five services use `restart: unless-stopped`, health checks, resource limits,
 |---|---|
 | Hermes combined runtime | `localhost:5000/unify/hermes-runtime@sha256:4344acc7c8dea26c5100c13e719b4959c207f7f90dc609c45e69f638efd98961` |
 | UNIFY Core | `localhost:5000/unify/core@sha256:4297146005607af026ae58913e16e3bd9a38a7dfafcd1981cbf61f0c1b2b6ed5` |
-| Caddy | `localhost:5000/unify/caddy@sha256:d20541bd38dacf96857b0a8f3969b1f3518652c6008c947928c30c4ffe7c667b` |
+| Caddy | `localhost:5000/unify/caddy@sha256:c3f0e3c01e057a2a1c50a4791e13bc80d3e2a0159162269596e5cfa013c40a2f` |
+| UNIFY Web | `localhost:5000/unify/web@sha256:099c5ed58b91e1b4633176fba9f5ed1bd46e7b2ea7c14a55b20b1c3df85799d1` |
 | PostgreSQL | `postgres:16.6-alpine@sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef` |
 
 The temporary host-local release registry container was stopped and removed after activation. Pulled immutable images remain in the Docker image store; the registry data and release inputs are retained as rollback/reconstruction assets.
@@ -93,13 +97,15 @@ The temporary host-local release registry container was stopped and removed afte
 |---|---|
 | Installer root | `/opt/unify-five-service` |
 | Active release symlink | `/opt/unify-five-service/current` |
-| Active release | `/opt/unify-five-service/releases/phase-14.6-a14f6d73de73` |
-| Immutable source archive | `/opt/unify-phase14-source/a14f6d73de739b509bff7021eccc4a0cccac76a0` |
+| Active release | `/opt/unify-five-service/releases/phase-15.0-56e451bb836e` |
+| Immutable source archive | `/opt/unify-phase15-source/56e451bb836efb3feb6ba9d5e0c8bf089692a426` |
+| UNIFY Web deployment | `/opt/unify-web/releases/phase-15.0-56e451bb836e` |
 | Alica data | `/srv/alica-stack/data/alica` |
 | Herman data | `/srv/alica-stack/data/herman` |
 | Secrets | `/opt/unify/secrets` |
 | Encrypted backups | `/opt/unify/backups` |
 | Production evidence | `/opt/unify/evidence/phase14-6-cutover-20260806` |
+| UNIFY Web evidence | `/opt/unify/evidence/phase15-unify-web-20260806T160021Z` |
 | Pre-cutover rollback baseline | `/opt/unify/rollback/phase14-current` |
 | Retired definitions | `/opt/unify/retired/phase14-obsolete-topology-20260806` and `/srv/alica-stack/retired/phase14-obsolete-topology-20260806` |
 
@@ -144,6 +150,17 @@ Restore rehearsal passed: tables=26 migrations=9
 The restore creates an isolated temporary PostgreSQL container and volume, verifies backup and migration checksums, restores globals/data, validates the audit chain, and removes the temporary resources.
 
 ## Acceptance record
+
+Phase 15 UNIFY Web acceptance additionally passed:
+
+- digest-pinned, separately managed Web deployment;
+- public DNS and Let's Encrypt certificate for `uniui.aquiero.com`;
+- SPA, security headers, Core proxy, login/session/CSRF, and exact Alica/Herman inventory;
+- independent Web and Caddy restarts followed by public QA10;
+- retirement of the old UI route/container only after public acceptance;
+- checksummed production and rollback evidence.
+
+See [Phase 15 production evidence](../rebuild/phase-15-unify-web-production-evidence.md).
 
 Phase 14.6 production acceptance passed all required gates:
 
@@ -193,7 +210,8 @@ Retained:
 Verify the active installation:
 
 ```bash
-sudo node /opt/unify-phase14-source/a14f6d73de739b509bff7021eccc4a0cccac76a0/deploy/five-service/install.mjs \
+sudo env UNIFY_GIT_COMMIT=56e451bb836efb3feb6ba9d5e0c8bf089692a426 \
+  node /opt/unify-phase15-source/56e451bb836efb3feb6ba9d5e0c8bf089692a426/deploy/five-service/install.mjs \
   verify --root /opt/unify-five-service --project unify
 ```
 
@@ -204,6 +222,17 @@ sudo docker compose \
   --env-file /opt/unify-five-service/current/compose.env \
   -f /opt/unify-five-service/current/compose.resolved.yaml \
   -p unify ps
+```
+
+Verify UNIFY Web:
+
+```bash
+sudo docker compose \
+  --env-file /opt/unify-web/current/unify-web.env \
+  -f /opt/unify-web/current/compose.yaml \
+  -p unify-web ps
+curl --fail https://uniui.aquiero.com/healthz
+curl --fail https://uniui.aquiero.com/api/v1/health/ready
 ```
 
 Do not prune images, volumes, `/opt/unify/rollback`, `/opt/unify/backups`, `/opt/unify/secrets`, `/srv/alica-stack/data`, or retained proxy certificates until rollback retention is explicitly closed.
