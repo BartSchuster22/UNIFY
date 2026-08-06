@@ -1,10 +1,11 @@
-import type { HermesWorkOperation } from '@aquiero/contracts';
+import type { HermesConversationOperation, HermesWorkOperation } from '@aquiero/contracts';
 import { redactEvidence } from '../governance/canonical.js';
 import { GovernanceError } from '../governance/service.js';
 import type { GovernanceService } from '../governance/service.js';
 import type { OperationRecord } from '../governance/types.js';
 import type { HermesGatewayService } from '../hermes-control/service.js';
 import {
+  conversationMutationDefinitions,
   frameworkReconcileDefinition,
   workMutationDefinitions,
   type MutationDefinition,
@@ -47,7 +48,8 @@ export class MutationService {
     };
     const definition = this.definition(operationType);
     if (operationType === 'framework.reconcile') validateFrameworkCommand(input);
-    else validateWorkCommand(input, definition);
+    else if (operationType.startsWith('work.')) validateWorkCommand(input, definition);
+    else validateConversationCommand(input, definition);
     return input;
   }
 
@@ -149,6 +151,8 @@ export class MutationService {
     if (operationType === 'framework.reconcile') return frameworkReconcileDefinition;
     const work = workMutationDefinitions[operationType];
     if (work) return work;
+    const conversation = conversationMutationDefinitions[operationType];
+    if (conversation) return conversation;
     throw new GovernanceError('MUTATION_UNSUPPORTED', 422, 'Mutation type is not supported');
   }
 
@@ -166,9 +170,18 @@ export class MutationService {
         },
         context,
       );
-    return this.hermes.work(
+    if (input.operationType.startsWith('work.'))
+      return this.hermes.work(
+        input.target.frameworkId!,
+        input.operationType.slice('work.'.length) as HermesWorkOperation,
+        input.target.nativeId,
+        input.payload,
+        input.mode,
+        context,
+      );
+    return this.hermes.conversation(
       input.target.frameworkId!,
-      input.operationType.slice('work.'.length) as HermesWorkOperation,
+      input.operationType.slice('conversation.'.length) as HermesConversationOperation,
       input.target.nativeId,
       input.payload,
       input.mode,
@@ -196,12 +209,12 @@ function validateWorkCommand(input: MutationInput, definition: MutationDefinitio
   if (
     input.target.owner !== 'hermes' ||
     input.target.kind !== definition.kind ||
-    input.target.frameworkId !== 'hermes-main'
+    !input.target.frameworkId
   )
     throw new GovernanceError(
       'MUTATION_TARGET_INVALID',
       422,
-      'Work mutation must target its exact Hermes-owned resource in hermes-main',
+      'Work mutation must target its exact resource in one registered Hermes framework',
     );
   if (definition.destructive && !input.confirmed)
     throw new GovernanceError(
@@ -234,6 +247,23 @@ function validateWorkCommand(input: MutationInput, definition: MutationDefinitio
       422,
       'projectManager is required when starting PM planning',
     );
+}
+
+function validateConversationCommand(input: MutationInput, definition: MutationDefinition) {
+  if (
+    input.target.owner !== 'hermes' ||
+    input.target.kind !== definition.kind ||
+    !input.target.frameworkId
+  )
+    throw new GovernanceError(
+      'MUTATION_TARGET_INVALID',
+      422,
+      'Conversation mutation must target one exact session in one registered Hermes framework',
+    );
+  const required = input.operationType === 'conversation.session.create' ? 'title' : 'message';
+  const value = input.payload[required];
+  if (typeof value !== 'string' || !value.trim())
+    throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, `${required} is required`);
 }
 
 function validateFrameworkCommand(input: MutationInput) {

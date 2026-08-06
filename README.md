@@ -55,6 +55,7 @@ pnpm image:verify
 - [Phase 14.2 five-service Compose evidence](docs/rebuild/phase-14-2-five-service-compose-evidence.md)
 - [Phase 14.3 declarative configuration evidence](docs/rebuild/phase-14-3-declarative-configuration-evidence.md)
 - [Phase 14.4 installer and upgrade evidence](docs/rebuild/phase-14-4-installer-upgrade-evidence.md)
+- [Phase 14.5 automated and live acceptance evidence](docs/rebuild/phase-14-5-automated-live-acceptance-evidence.md)
 - [Five-service installer, upgrade, and rollback](docs/runbooks/FIVE-SERVICE-INSTALLER.md)
 - [Authentication](docs/security/AUTHENTICATION.md)
 - [Governed operations](docs/operations/MUTATIONS.md)

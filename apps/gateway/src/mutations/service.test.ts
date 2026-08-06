@@ -112,8 +112,8 @@ function taskInput(): MutationInput {
   };
 }
 
-function hermes(work: ReturnType<typeof vi.fn>) {
-  return { work, reconcile: vi.fn() } as never;
+function hermes(work: ReturnType<typeof vi.fn>, conversation = vi.fn()) {
+  return { work, conversation, reconcile: vi.fn() } as never;
 }
 
 describe('standalone mutation policy', () => {
@@ -163,6 +163,37 @@ describe('standalone mutation policy', () => {
       input.payload,
       'execute',
       expect.objectContaining({ idempotencyKey: 'hermes-work-key' }),
+    );
+  });
+
+  it('routes governed conversation mutations to the selected registered framework', async () => {
+    const conversation = vi.fn().mockResolvedValue({
+      data: { status: 'completed', operation: 'session.create', targetId: 'session-1' },
+    });
+    const service = new MutationService(
+      new GovernanceService(new Store()),
+      hermes(vi.fn(), conversation),
+    );
+    const input = service.parse({
+      operationType: 'conversation.session.create',
+      target: {
+        owner: 'hermes',
+        kind: 'session',
+        nativeId: 'session-1',
+        frameworkId: 'hermes-alica',
+      },
+      payload: { title: 'Phase 14.5 conversation' },
+      mode: 'execute',
+    });
+    const result = await service.run('u1', 'conversation-key', input);
+    expect(result.operation.state).toBe('verified');
+    expect(conversation).toHaveBeenCalledWith(
+      'hermes-alica',
+      'session.create',
+      'session-1',
+      input.payload,
+      'execute',
+      expect.objectContaining({ idempotencyKey: 'conversation-key' }),
     );
   });
 

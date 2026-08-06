@@ -229,7 +229,7 @@ export class HermesNativeSource implements AdapterSource {
       .map((line) => line.trim())
       .map((line) => {
         const match =
-          /^([a-z0-9][a-z0-9._-]*)\s{2,}(.+?)\s+\[(\d+) folder\(s\)\](?:\s+\[archived\])?$/i.exec(
+          /^([a-z0-9][a-z0-9._-]*)\s+(.+?)\s+\[(\d+) folder\(s\)\](?:\s+\[archived\])?$/i.exec(
             line,
           );
         return match

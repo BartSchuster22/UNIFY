@@ -22,6 +22,10 @@ const hermesWorkMigration = readFileSync(
   resolve(import.meta.dirname, '../migrations/005_hermes_work_cutover.up.sql'),
   'utf8',
 );
+const adapterIsolationMigration = readFileSync(
+  resolve(import.meta.dirname, '../migrations/008_framework_adapter_isolation.up.sql'),
+  'utf8',
+);
 describe('gateway foundation migration', () => {
   it.each([
     'users',
@@ -80,6 +84,31 @@ describe('UNIFY-owned Hermes adapter foundation migration', () => {
     expect(adapterMigration).toContain('previous_event_hash text');
     expect(adapterMigration).toContain(
       "event_hash text NOT NULL UNIQUE CHECK (event_hash ~ '^[a-f0-9]{64}$')",
+    );
+  });
+});
+
+describe('Hermes adapter database isolation migration', () => {
+  it('enforces per-framework RLS for every adapter persistence table', () => {
+    for (const table of [
+      'hermes_adapter_events',
+      'hermes_adapter_idempotency',
+      'hermes_adapter_audit',
+    ]) {
+      expect(adapterIsolationMigration).toContain(`ALTER TABLE ${table} ENABLE ROW LEVEL SECURITY`);
+      expect(adapterIsolationMigration).toContain(`ON ${table}`);
+    }
+    expect(adapterIsolationMigration).toContain("WHEN 'unify_alica_adapter' THEN 'hermes-alica'");
+    expect(adapterIsolationMigration).toContain("WHEN 'unify_herman_adapter' THEN 'hermes-herman'");
+  });
+
+  it('makes adapter audit append-only and revokes broad mutation privileges', () => {
+    expect(adapterIsolationMigration).toContain(
+      'REVOKE UPDATE, DELETE ON hermes_adapter_events, hermes_adapter_audit',
+    );
+    expect(adapterIsolationMigration).toContain('CREATE TRIGGER hermes_adapter_audit_immutable');
+    expect(adapterIsolationMigration).toContain(
+      "RAISE EXCEPTION 'hermes_adapter_audit is append-only'",
     );
   });
 });

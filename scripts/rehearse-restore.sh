@@ -30,14 +30,18 @@ for _ in $(seq 1 60); do
   sleep 1
 done
 docker exec "$CONTAINER" pg_isready -U postgres -d unify >/dev/null
-docker exec -i "$CONTAINER" pg_restore -U postgres -d unify --exit-on-error --no-owner < "$TMP/gateway.dump"
+docker exec -i "$CONTAINER" psql -U postgres -d postgres -v ON_ERROR_STOP=1 \
+  < "$TMP/postgres-globals.sql" >/dev/null
+docker exec -i "$CONTAINER" pg_restore -U postgres -d unify --exit-on-error --no-owner --no-acl \
+  < "$TMP/gateway.dump"
 TABLE_COUNT=$(docker exec "$CONTAINER" psql -U postgres -d unify -Atc \
   "SELECT count(*) FROM information_schema.tables WHERE table_schema='public'")
 MIGRATION_COUNT=$(docker exec "$CONTAINER" psql -U postgres -d unify -Atc \
   "SELECT count(*) FROM schema_migrations")
-docker run --rm --network "container:$CONTAINER" \
+AUDIT_IMAGE=${UNIFY_AUDIT_IMAGE:-${UNIFY_CORE_IMAGE:-unify-gateway:local}}
+docker run --rm --network "container:$CONTAINER" --entrypoint /nodejs/bin/node \
   -e DATABASE_URL=postgresql://postgres@127.0.0.1:5432/unify \
-  unify-gateway:local node dist/cli/verify-audit.js
+  "$AUDIT_IMAGE" dist/cli/verify-audit.js
 printf 'Restore rehearsal passed: tables=%s migrations=%s isolated_container=%s\n' \
   "$TABLE_COUNT" "$MIGRATION_COUNT" "$CONTAINER"
 printf 'Release manifest: %s\n' "$(tr '\n' ' ' < "$TMP/release.manifest")"

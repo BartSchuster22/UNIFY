@@ -30,6 +30,7 @@
     "five-service:check": "node scripts/verify-five-service-compose.mjs",
     "five-service:verify": "node scripts/verify-five-service-runtime.mjs",
     "five-service:installer:verify": "node scripts/verify-five-service-installer.mjs",
+    "phase-14-5:live": "node scripts/verify-hermes-combined-runtime.mjs && node scripts/verify-five-service-runtime.mjs && node scripts/verify-five-service-installer-runtime.mjs",
     "format:check": "prettier --check .",
     "contracts:generate": "pnpm --filter @aquiero/contracts build && node scripts/generate-contracts.mjs",
     "contracts:check": "pnpm --filter @aquiero/contracts build && node scripts/generate-contracts.mjs --check",

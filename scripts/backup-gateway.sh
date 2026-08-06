@@ -18,6 +18,9 @@ trap 'rm -rf "$TMP"' EXIT
 test -s "$KEY_FILE" || { echo "Missing backup encryption key: $KEY_FILE" >&2; exit 1; }
 docker compose -f "$COMPOSE_FILE" --project-name "$COMPOSE_PROJECT" exec -T unify-postgres \
   pg_dump -U unify -d unify --format=custom --no-owner --no-acl > "$TMP/gateway.dump"
+docker compose -f "$COMPOSE_FILE" --project-name "$COMPOSE_PROJECT" exec -T unify-postgres \
+  pg_dumpall -U unify --globals-only --no-role-passwords |
+  sed -E 's/ GRANTED BY [^;]+;/;/' > "$TMP/postgres-globals.sql"
 {
   printf 'created_at=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   printf 'git_commit=%s\n' "${UNIFY_GIT_COMMIT:-$(git rev-parse HEAD)}"
@@ -29,7 +32,7 @@ docker compose -f "$COMPOSE_FILE" --project-name "$COMPOSE_PROJECT" exec -T unif
 sha256sum apps/gateway/migrations/*.sql > "$TMP/migrations.sha256"
 sha256sum deploy/five-service/frameworks.json > "$TMP/declarative-config.sha256"
 docker compose -f "$COMPOSE_FILE" --project-name "$COMPOSE_PROJECT" config > "$TMP/compose.resolved.yaml"
-tar -C "$TMP" -cf - gateway.dump release.manifest migrations.sha256 declarative-config.sha256 compose.resolved.yaml |
+tar -C "$TMP" -cf - gateway.dump postgres-globals.sql release.manifest migrations.sha256 declarative-config.sha256 compose.resolved.yaml |
   openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -pass "file:$KEY_FILE" -out "$OUTPUT"
 sha256sum "$OUTPUT" > "$OUTPUT.sha256"
 chmod 600 "$OUTPUT" "$OUTPUT.sha256"

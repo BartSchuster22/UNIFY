@@ -112,9 +112,12 @@ describe('HermesNativeSource', () => {
   it('adapts Hermes projects and cronjobs and executes idempotent native task creation', async () => {
     const source = new HermesNativeSource({
       runner: new FixtureRunner({
-        'project list --all': '  alpha                    Alpha Project  [0 folder(s)]\n',
+        'project list --all':
+          '  alpha                    Alpha Project  [0 folder(s)]\nphase-14-5-hermes-herman Phase 14.5 hermes-herman  [0 folder(s)]\n',
         'project show alpha':
           '  name: Alpha Project\n  slug: alpha\n  about: Ship Alpha\n  board: alpha\n',
+        'project show phase-14-5-hermes-herman':
+          '  name: Phase 14.5 hermes-herman\n  slug: phase-14-5-hermes-herman\n  board: phase-14-5-hermes-herman\n',
         'cron list --all': `job-1 [paused]\n  Name: Daily checks\n  Schedule: every 1440m\n  Next run: 2026-07-22T09:00:00+00:00\n  Deliver: local\n`,
         'kanban --board alpha create Verify --body Run checks --assignee herman --priority 75 --idempotency-key idem-1 --json':
           JSON.stringify({
@@ -130,6 +133,12 @@ describe('HermesNativeSource', () => {
         name: 'Alpha Project',
         description: 'Ship Alpha',
         boardId: 'alpha',
+        archived: false,
+      },
+      {
+        id: 'phase-14-5-hermes-herman',
+        name: 'Phase 14.5 hermes-herman',
+        boardId: 'phase-14-5-hermes-herman',
         archived: false,
       },
     ]);

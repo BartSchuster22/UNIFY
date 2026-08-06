@@ -110,3 +110,18 @@ export const workMutationDefinitions: Record<string, MutationDefinition> = {
     destructive: true,
   },
 };
+
+export const conversationMutationDefinitions: Record<string, MutationDefinition> = {
+  'conversation.session.create': {
+    owner: 'hermes',
+    kind: 'session',
+    permission: 'chat.use',
+    executionPath: 'hermes-control',
+  },
+  'conversation.message.send': {
+    owner: 'hermes',
+    kind: 'session',
+    permission: 'chat.use',
+    executionPath: 'hermes-control',
+  },
+};

@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
 import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { request } from 'node:https';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -80,6 +81,71 @@ const composeJobs = (args, options = {}) =>
     env: environment,
     ...options,
   });
+
+const publicRequest = (method, path, { body, cookie, csrf, headers = {} } = {}) =>
+  new Promise((resolveRequest, rejectRequest) => {
+    const payload = body === undefined ? undefined : Buffer.from(JSON.stringify(body));
+    const connection = request(
+      {
+        hostname: 'localhost',
+        port: httpsPort,
+        path,
+        method,
+        rejectUnauthorized: false,
+        timeout: 15_000,
+        headers: {
+          accept: 'application/json',
+          ...(cookie ? { cookie } : {}),
+          ...(csrf ? { 'x-csrf-token': csrf } : {}),
+          ...(payload
+            ? { 'content-type': 'application/json', 'content-length': String(payload.length) }
+            : {}),
+          ...headers,
+        },
+      },
+      (response) => {
+        const chunks = [];
+        response.on('data', (chunk) => chunks.push(chunk));
+        response.once('end', () => {
+          const text = Buffer.concat(chunks).toString('utf8');
+          let parsed;
+          try {
+            parsed = text ? JSON.parse(text) : null;
+          } catch {
+            parsed = text;
+          }
+          resolveRequest({ status: response.statusCode, headers: response.headers, body: parsed });
+        });
+      },
+    );
+    connection.once('timeout', () => connection.destroy(new Error(`${method} ${path} timed out`)));
+    connection.once('error', rejectRequest);
+    if (payload) connection.write(payload);
+    connection.end();
+  });
+
+const rolePsql = (role, password, sql, expectedStatus = 0) => {
+  const result = spawnSync(
+    'docker',
+    [
+      'exec',
+      '-i',
+      `${project}-unify-postgres-1`,
+      '/bin/sh',
+      '-ceu',
+      `IFS= read -r PGPASSWORD; export PGPASSWORD; exec psql -h 127.0.0.1 -U ${role} -d unify -At -v ON_ERROR_STOP=1 -c "$1"`,
+      'phase-14.5-psql',
+      sql,
+    ],
+    { cwd: root, encoding: 'utf8', input: `${password}\n`, maxBuffer: 16 * 1024 * 1024 },
+  );
+  assert.equal(
+    result.status,
+    expectedStatus,
+    `Role-scoped SQL for ${role} returned ${result.status}: ${result.stderr?.trim() ?? ''}`,
+  );
+  return result.stdout?.trim() ?? '';
+};
 
 const waitFor = async (description, predicate, timeoutMs = 180_000) => {
   const deadline = Date.now() + timeoutMs;
@@ -177,6 +243,7 @@ try {
   const hermanToken = randomBytes(48).toString('base64url');
   const alicaDatabasePassword = randomBytes(32).toString('base64url');
   const hermanDatabasePassword = randomBytes(32).toString('base64url');
+  const backupEncryptionKey = randomBytes(48).toString('base64url');
   const databaseUrl = `postgresql://unify:${encodeURIComponent(password)}@unify-postgres:5432/unify`;
   const alicaDatabaseUrl = `postgresql://unify_alica_adapter:${encodeURIComponent(alicaDatabasePassword)}@unify-postgres:5432/unify`;
   const hermanDatabaseUrl = `postgresql://unify_herman_adapter:${encodeURIComponent(hermanDatabasePassword)}@unify-postgres:5432/unify`;
@@ -189,6 +256,7 @@ try {
     'bootstrap-admin-password': bootstrapPassword,
     'alica-token': alicaToken,
     'herman-token': hermanToken,
+    'backup-encryption-key': backupEncryptionKey,
     'alica-api-token': alicaApiToken,
     'herman-api-token': hermanApiToken,
     'alica-token-bundle.json': JSON.stringify({
@@ -202,6 +270,7 @@ try {
     writeFileSync(join(secrets, name), `${value}\n`);
     chmodSync(join(secrets, name), 0o644);
   }
+  chmodSync(join(secrets, 'backup-encryption-key'), 0o600);
 
   writeFileSync(
     join(fixture, 'cert-extensions.cnf'),
@@ -470,17 +539,363 @@ const fs=require('node:fs');
   assert.match(headers, /^HTTP\/2 200/mu);
   assert.match(headers, /strict-transport-security: max-age=31536000; includeSubDomains/iu);
 
-  compose(['restart']);
-  await waitFor('all five services after deterministic restart', () => {
-    const running = compose(['ps', '--services', '--status', 'running'])
-      .split('\n')
-      .filter(Boolean);
-    if (running.length !== 5) return false;
-    return compose(['ps', '--format', 'json'])
+  const readiness = await publicRequest('GET', '/api/v1/health/ready');
+  assert.equal(readiness.status, 200);
+  const login = await publicRequest('POST', '/api/v1/auth/login', {
+    body: { username: 'herman', password: bootstrapPassword, deviceLabel: 'phase-14.5-live' },
+  });
+  assert.equal(login.status, 200);
+  const setCookies = Array.isArray(login.headers['set-cookie'])
+    ? login.headers['set-cookie']
+    : [login.headers['set-cookie']].filter(Boolean);
+  const cookie = setCookies.map((value) => value.split(';', 1)[0]).join('; ');
+  const csrf = login.headers['x-csrf-token'];
+  assert.ok(cookie.includes('aquiero_session='));
+  assert.equal(typeof csrf, 'string');
+  assert.equal((await publicRequest('GET', '/api/v1/auth/me', { cookie })).status, 200);
+  const frameworkList = await publicRequest('GET', '/api/v1/frameworks', { cookie });
+  assert.equal(frameworkList.status, 200);
+  assert.deepEqual(frameworkList.body.items.map((item) => item.frameworkId).sort(), [
+    'hermes-alica',
+    'hermes-herman',
+  ]);
+
+  const mutation = (body, idempotencyKey) =>
+    publicRequest('POST', '/api/v1/mutations', {
+      body,
+      cookie,
+      csrf,
+      headers: { 'idempotency-key': idempotencyKey },
+    });
+  const workProjectIds = {};
+  const workProjectNames = {};
+  for (const frameworkId of ['hermes-alica', 'hermes-herman']) {
+    const projectId = `phase-14-5-${frameworkId}`;
+    const projectName = `Phase 14.5 ${frameworkId}`;
+    workProjectIds[frameworkId] = projectId;
+    workProjectNames[frameworkId] = projectName;
+    const body = {
+      operationType: 'work.project.create',
+      target: { owner: 'hermes', kind: 'project', nativeId: projectId, frameworkId },
+      payload: { name: projectName },
+      mode: 'execute',
+      confirmed: false,
+    };
+    const firstMutation = await mutation(body, `phase-14-5-work-${frameworkId}`);
+    assert.equal(firstMutation.status, 201);
+    assert.equal(firstMutation.body.replayed, false);
+    const replay = await mutation(body, `phase-14-5-work-${frameworkId}`);
+    assert.equal(replay.status, 200);
+    assert.equal(replay.body.replayed, true);
+    assert.equal(replay.body.operation.id, firstMutation.body.operation.id);
+  }
+
+  const concurrentProjectId = 'phase-14-5-concurrent-project';
+  const concurrentBody = {
+    operationType: 'work.project.create',
+    target: {
+      owner: 'hermes',
+      kind: 'project',
+      nativeId: concurrentProjectId,
+      frameworkId: 'hermes-alica',
+    },
+    payload: { name: 'Phase 14.5 concurrent idempotency' },
+    mode: 'execute',
+    confirmed: false,
+  };
+  const concurrent = await Promise.all(
+    Array.from({ length: 8 }, () => mutation(concurrentBody, 'phase-14-5-concurrent-key')),
+  );
+  assert.equal(concurrent.filter((response) => response.status === 201).length, 1);
+  assert.equal(concurrent.filter((response) => response.status === 200).length, 7);
+  assert.equal(new Set(concurrent.map((response) => response.body.operation.id)).size, 1);
+
+  for (const frameworkId of ['hermes-alica', 'hermes-herman']) {
+    const projects = await publicRequest(
+      'GET',
+      `/api/v1/frameworks/${frameworkId}/work/projects?limit=500`,
+      { cookie },
+    );
+    assert.equal(projects.status, 200);
+    const names = projects.body.items.map((item) => item.name);
+    assert.ok(
+      names.includes(workProjectNames[frameworkId]),
+      `${frameworkId} work projection mismatch: ${JSON.stringify(projects.body.items)}`,
+    );
+    const other = frameworkId === 'hermes-alica' ? 'hermes-herman' : 'hermes-alica';
+    assert.ok(!names.includes(workProjectNames[other]), `${frameworkId} leaked ${other} work data`);
+  }
+
+  const conversationTitles = {};
+  for (const frameworkId of ['hermes-alica', 'hermes-herman']) {
+    const targetId = `phase-14-5-session-${frameworkId}`;
+    const title = `Phase 14.5 conversation ${frameworkId}`;
+    conversationTitles[frameworkId] = title;
+    const created = await mutation(
+      {
+        operationType: 'conversation.session.create',
+        target: { owner: 'hermes', kind: 'session', nativeId: targetId, frameworkId },
+        payload: { title },
+        mode: 'execute',
+        confirmed: false,
+      },
+      `phase-14-5-session-${frameworkId}`,
+    );
+    assert.equal(created.status, 201);
+    const sessions = await publicRequest(
+      'GET',
+      `/api/v1/frameworks/${frameworkId}/conversations/sessions?limit=500`,
+      { cookie },
+    );
+    assert.equal(sessions.status, 200);
+    const session = sessions.body.items.find((item) => item.title === title);
+    assert.ok(session, `${frameworkId} did not return its created conversation`);
+    const sent = await mutation(
+      {
+        operationType: 'conversation.message.send',
+        target: { owner: 'hermes', kind: 'session', nativeId: session.id, frameworkId },
+        payload: { message: `Phase 14.5 message for ${frameworkId}` },
+        mode: 'execute',
+        confirmed: false,
+      },
+      `phase-14-5-message-${frameworkId}`,
+    );
+    assert.equal(sent.status, 201);
+    assert.equal(sent.body.operation.state, 'verified');
+    assert.equal(typeof sent.body.result.data.result.message.content, 'string');
+    const messages = await publicRequest(
+      'GET',
+      `/api/v1/frameworks/${frameworkId}/conversations/sessions/${encodeURIComponent(session.id)}/messages?limit=500`,
+      { cookie },
+    );
+    assert.equal(messages.status, 200);
+    const otherFramework = frameworkId === 'hermes-alica' ? 'hermes-herman' : 'hermes-alica';
+    assert.ok(
+      messages.body.items.every((item) => !JSON.stringify(item).includes(otherFramework)),
+      `${frameworkId} leaked ${otherFramework} conversation data`,
+    );
+  }
+
+  const tenantHashes = {
+    alica: randomBytes(32).toString('hex'),
+    herman: randomBytes(32).toString('hex'),
+  };
+  rolePsql(
+    'unify_alica_adapter',
+    alicaDatabasePassword,
+    `INSERT INTO hermes_adapter_audit(framework_id,event_type,outcome,request_id,correlation_id,event_hash) VALUES('hermes-alica','phase14.5','success','alica-request','alica-correlation','${tenantHashes.alica}')`,
+  );
+  rolePsql(
+    'unify_herman_adapter',
+    hermanDatabasePassword,
+    `INSERT INTO hermes_adapter_audit(framework_id,event_type,outcome,request_id,correlation_id,event_hash) VALUES('hermes-herman','phase14.5','success','herman-request','herman-correlation','${tenantHashes.herman}')`,
+  );
+  assert.equal(
+    rolePsql(
+      'unify_alica_adapter',
+      alicaDatabasePassword,
+      "SELECT string_agg(DISTINCT framework_id,',') FROM hermes_adapter_audit",
+    ),
+    'hermes-alica',
+  );
+  assert.equal(
+    rolePsql(
+      'unify_herman_adapter',
+      hermanDatabasePassword,
+      "SELECT string_agg(DISTINCT framework_id,',') FROM hermes_adapter_audit",
+    ),
+    'hermes-herman',
+  );
+  rolePsql(
+    'unify_alica_adapter',
+    alicaDatabasePassword,
+    `INSERT INTO hermes_adapter_audit(framework_id,event_type,outcome,request_id,correlation_id,event_hash) VALUES('hermes-herman','phase14.5','failure','cross-request','cross-correlation','${randomBytes(32).toString('hex')}')`,
+    1,
+  );
+  rolePsql(
+    'unify_alica_adapter',
+    alicaDatabasePassword,
+    "UPDATE hermes_adapter_audit SET outcome='failure' WHERE framework_id='hermes-alica'",
+    1,
+  );
+
+  const negativeNetworkProbe = String.raw`
+const fs=require('node:fs'),https=require('node:https'),net=require('node:net');
+const ca=fs.readFileSync('/run/secrets/framework-ca-cert');
+const token=fs.readFileSync('/run/secrets/alica-token','utf8').trim();
+const call=(authorization,servername='alica')=>new Promise((resolve,reject)=>{
+ const q=https.request({host:'alica',port:28082,path:'/control/v1/identity',ca,servername,headers:{authorization}},r=>{r.resume();r.on('end',()=>resolve(r.statusCode))});
+ q.on('error',reject);q.end();
+});
+(async()=>{
+ if(await call('Bearer wrong')!==401) throw new Error('wrong token was not rejected');
+ let tlsRejected=false;try{await call('Bearer '+token,'herman')}catch{tlsRejected=true}
+ if(!tlsRejected) throw new Error('wrong TLS server name was accepted');
+ await new Promise((resolve,reject)=>{const s=net.connect(8642,'alica');s.once('connect',()=>reject(new Error('native API escaped loopback')));s.once('error',()=>resolve());setTimeout(()=>{s.destroy();resolve()},3000)});
+})().catch(e=>{console.error(e);process.exit(1)});`;
+  compose(['exec', '-T', 'unify-core', '/nodejs/bin/node', '-e', negativeNetworkProbe]);
+  const crossNetworkProbe = String.raw`
+const net=require('node:net');
+const s=net.connect(28082,'herman');
+s.once('connect',()=>{console.error('cross-framework network reachable');process.exit(1)});
+s.once('error',()=>process.exit(0));
+setTimeout(()=>{s.destroy();process.exit(0)},3000);`;
+  compose(['exec', '-T', 'alica', '/usr/local/bin/node', '-e', crossNetworkProbe]);
+
+  compose(['exec', '-T', 'unify-core', '/nodejs/bin/node', 'dist/cli/verify-audit.js']);
+  const backupPath = join(fixture, 'backups', 'phase-14-5.tar.enc');
+  run('bash', ['scripts/backup-gateway.sh'], {
+    env: {
+      ...environment,
+      UNIFY_COMPOSE_FILE: composeFile,
+      UNIFY_COMPOSE_PROJECT: project,
+      BACKUP_ENCRYPTION_KEY_FILE: join(secrets, 'backup-encryption-key'),
+      BACKUP_FILE: backupPath,
+      UNIFY_GIT_COMMIT: 'phase-14.5-live-fixture',
+    },
+  });
+  run('bash', ['scripts/rehearse-restore.sh', backupPath], {
+    env: {
+      ...environment,
+      BACKUP_ENCRYPTION_KEY_FILE: join(secrets, 'backup-encryption-key'),
+      UNIFY_AUDIT_IMAGE: coreImage,
+    },
+  });
+
+  const frameworkHealth = (frameworkId) =>
+    publicRequest('GET', `/api/v1/frameworks/${frameworkId}/health`, { cookie });
+  const rotatingTokens = {
+    'hermes-alica': randomBytes(48).toString('base64url'),
+    'hermes-herman': randomBytes(48).toString('base64url'),
+  };
+  for (const [frameworkId, newToken] of Object.entries(rotatingTokens)) {
+    const short = frameworkId.slice('hermes-'.length);
+    const oldToken = short === 'alica' ? alicaToken : hermanToken;
+    writeFileSync(
+      join(secrets, `${short}-token-bundle.json`),
+      `${JSON.stringify({
+        active: { version: 'phase-14.5', token: newToken },
+        retiring: {
+          version: 'phase-14.3',
+          token: oldToken,
+          notAfter: new Date(Date.now() + 60_000).toISOString(),
+        },
+      })}\n`,
+    );
+    await new Promise((resolveWait) => setTimeout(resolveWait, 1_500));
+    assert.equal((await frameworkHealth(frameworkId)).status, 200);
+    writeFileSync(join(secrets, `${short}-token`), `${newToken}\n`);
+    writeFileSync(
+      join(secrets, `${short}-token-bundle.json`),
+      `${JSON.stringify({ active: { version: 'phase-14.5', token: newToken } })}\n`,
+    );
+    await new Promise((resolveWait) => setTimeout(resolveWait, 1_500));
+    assert.notEqual((await frameworkHealth(frameworkId)).status, 200);
+    compose(['restart', 'unify-core']);
+    await waitFor(
+      `${frameworkId} after token cutover`,
+      async () => (await frameworkHealth(frameworkId)).status === 200,
+    );
+  }
+
+  for (const framework of ['alica', 'herman']) {
+    for (const service of ['unify-hermes-gateway', 'unify-control-adapter']) {
+      const oldPid = compose([
+        'exec',
+        '-T',
+        framework,
+        '/command/s6-svstat',
+        '-o',
+        'pid',
+        `/run/service/${service}`,
+      ]);
+      compose(['exec', '-T', '--user', '10000:10000', framework, 'kill', '-TERM', oldPid]);
+      await waitFor(`${framework}/${service} child recovery`, () => {
+        const result = spawnSync(
+          'docker',
+          [
+            'compose',
+            '-f',
+            composeFile,
+            'exec',
+            '-T',
+            framework,
+            '/command/s6-svstat',
+            '-o',
+            'pid',
+            `/run/service/${service}`,
+          ],
+          { cwd: root, env: environment, encoding: 'utf8' },
+        );
+        return result.status === 0 && result.stdout.trim() !== oldPid;
+      });
+      await waitFor(`${framework}/${service} healthy`, () =>
+        compose(['ps', '--format', 'json'])
+          .split('\n')
+          .filter(Boolean)
+          .some((line) => {
+            const state = JSON.parse(line);
+            return state.Service === framework && state.Health === 'healthy';
+          }),
+      );
+    }
+  }
+
+  const caddyCertificateState = () =>
+    compose([
+      'exec',
+      '-T',
+      'caddy',
+      '/bin/sh',
+      '-c',
+      "find /data -type f \\( -name '*.crt' -o -name '*.key' \\) -exec sha256sum '{}' ';' | sort",
+    ]);
+  const certificateStateBefore = caddyCertificateState();
+  assert.notEqual(certificateStateBefore, '');
+
+  const allHealthy = () => {
+    const states = compose(['ps', '--format', 'json'])
       .split('\n')
       .filter(Boolean)
-      .every((line) => JSON.parse(line).Health === 'healthy');
-  });
+      .map((line) => JSON.parse(line));
+    return (
+      states.length === 5 &&
+      states.every((state) => state.State === 'running' && state.Health === 'healthy')
+    );
+  };
+  for (const service of ['alica', 'herman', 'unify-core', 'unify-postgres', 'caddy']) {
+    compose(['restart', service]);
+    await waitFor(`${service} individual restart`, allHealthy);
+  }
+  assert.equal(caddyCertificateState(), certificateStateBefore);
+
+  compose(['stop']);
+  assert.equal(compose(['ps', '--services', '--status', 'running']), '');
+  compose(['start']);
+  await waitFor('host-service-equivalent stop/start recovery', allHealthy);
+  for (let iteration = 0; iteration < 2; iteration += 1) {
+    compose(['restart']);
+    await waitFor(`all five services restart loop ${iteration + 1}`, allHealthy);
+  }
+  assert.equal((await frameworkHealth('hermes-alica')).status, 200);
+  assert.equal((await frameworkHealth('hermes-herman')).status, 200);
+  assert.equal(caddyCertificateState(), certificateStateBefore);
+  for (const frameworkId of ['hermes-alica', 'hermes-herman']) {
+    const projects = await publicRequest(
+      'GET',
+      `/api/v1/frameworks/${frameworkId}/work/projects?limit=500`,
+      { cookie },
+    );
+    assert.equal(projects.status, 200);
+    assert.ok(projects.body.items.some((item) => item.name === workProjectNames[frameworkId]));
+    const sessions = await publicRequest(
+      'GET',
+      `/api/v1/frameworks/${frameworkId}/conversations/sessions?limit=500`,
+      { cookie },
+    );
+    assert.equal(sessions.status, 200);
+    assert.ok(sessions.body.items.some((item) => item.title === conversationTitles[frameworkId]));
+  }
   assert.equal(projectContainers().length, 5);
   assert.equal(
     JSON.parse(composeJobs(['run', '--rm', '--no-deps', 'reconcile-database-roles'])).changed,
@@ -505,10 +920,12 @@ const fs=require('node:fs');
     ]),
     roleVerifiersBefore,
   );
-  assert.equal(projectContainers().length, 5);
+  assert.equal((await publicRequest('POST', '/api/v1/auth/logout', { cookie })).status, 403);
+  assert.equal((await publicRequest('POST', '/api/v1/auth/logout', { cookie, csrf })).status, 204);
+  assert.equal((await publicRequest('GET', '/api/v1/auth/me', { cookie })).status, 401);
 
   console.log(
-    `Five-service Compose clean-fixture acceptance: PASS project=${project} containers=5 ports=${httpPort},${httpsPort}`,
+    `Phase 14.5 five-service live acceptance: PASS project=${project} containers=5 ports=${httpPort},${httpsPort}`,
   );
 } catch (error) {
   try {
@@ -519,5 +936,7 @@ const fs=require('node:fs');
   }
   throw error;
 } finally {
-  cleanup();
+  if (process.env.UNIFY_P145_KEEP_FAILED === '1')
+    console.error(`Preserved Phase 14.5 fixture: ${fixture} project=${project}`);
+  else cleanup();
 }

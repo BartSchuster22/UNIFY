@@ -105,12 +105,23 @@ const networkName = (suffix) => Object.keys(config.networks).find((name) => name
 for (const suffix of [
   'unify-ingress',
   'unify-db-private',
+  'alica-db-private',
+  'herman-db-private',
   'alica-control-private',
   'herman-control-private',
 ])
   assert.equal(config.networks[networkName(suffix)].internal, true, `${suffix}: must be internal`);
 assert.deepEqual(memberships[networkName('alica-control-private')], ['alica', 'unify-core']);
 assert.deepEqual(memberships[networkName('herman-control-private')], ['herman', 'unify-core']);
+assert.deepEqual(memberships[networkName('unify-db-private')], ['unify-core', 'unify-postgres']);
+assert.deepEqual(memberships[networkName('alica-db-private')], ['alica', 'unify-postgres']);
+assert.deepEqual(memberships[networkName('herman-db-private')], ['herman', 'unify-postgres']);
+assert.ok(
+  !Object.values(memberships).some(
+    (members) => members.includes('alica') && members.includes('herman'),
+  ),
+  'Alica and Herman must not share any network namespace',
+);
 assert.deepEqual(memberships[networkName('alica-egress')], ['alica']);
 assert.deepEqual(memberships[networkName('herman-egress')], ['herman']);
 assert.deepEqual(memberships[networkName('caddy-egress')], ['caddy']);
@@ -170,6 +181,10 @@ const roleMigration = readFileSync(
   resolve(root, 'apps/gateway/migrations/007_framework_adapter_roles.up.sql'),
   'utf8',
 );
+const isolationMigration = readFileSync(
+  resolve(root, 'apps/gateway/migrations/008_framework_adapter_isolation.up.sql'),
+  'utf8',
+);
 for (const required of [
   'unify_hermes_adapter_runtime',
   'unify_alica_adapter',
@@ -179,6 +194,14 @@ for (const required of [
   'hermes_adapter_audit',
 ])
   assert.ok(roleMigration.includes(required), `Role migration is missing ${required}`);
+for (const required of [
+  'ENABLE ROW LEVEL SECURITY',
+  'hermes_adapter_events_tenant',
+  'hermes_adapter_idempotency_tenant',
+  'hermes_adapter_audit_tenant',
+  'hermes_adapter_audit_immutable',
+])
+  assert.ok(isolationMigration.includes(required), `Isolation migration is missing ${required}`);
 const backupScript = readFileSync(resolve(root, 'scripts/backup-gateway.sh'), 'utf8');
 assert.ok(backupScript.includes('exec -T unify-postgres'));
 assert.ok(backupScript.includes('deploy/five-service/compose.yaml'));

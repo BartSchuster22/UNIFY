@@ -76,12 +76,12 @@ The two adapter containers run the UNIFY-owned `hermes-control/v1` adapter in a 
           │ API       │           │ API       │
           │ adapter   │           │ adapter   │
           └─────┬─────┘           └─────┬─────┘
-                │                       │
-                └──────────┬────────────┘
-                           │ private database network
-                    ┌──────▼────────┐
-                    │unify-postgres │
-                    └───────────────┘
+                │ Alica-only DB         │ Herman-only DB
+                │ network               │ network
+                └──────────┐        ┌───┘
+                    ┌──────▼────────▼─┐
+                    │ unify-postgres  │
+                    └─────────────────┘
 ```
 
 Only Caddy publishes host ports. No framework, adapter, Core, or PostgreSQL port is published to the host.
@@ -174,10 +174,10 @@ Alica must never mount Herman data or secrets, and Herman must never mount Alica
 
 | Container | Processes | Persistent data | Network access |
 |---|---|---|---|
-| `alica` | Hermes gateway/API and Alica control adapter | Existing Alica Hermes data | Alica control network and database network |
-| `herman` | Hermes gateway/API and Herman control adapter | Existing Herman Hermes data | Herman control network and database network |
+| `alica` | Hermes gateway/API and Alica control adapter | Existing Alica Hermes data | Alica control network and Alica-only database network |
+| `herman` | Hermes gateway/API and Herman control adapter | Existing Herman Hermes data | Herman control network and Herman-only database network |
 | `unify-core` | Current production UNIFY Core/Gateway runtime | None outside PostgreSQL | Ingress, database, Alica control, and Herman control networks |
-| `unify-postgres` | PostgreSQL 16.6 pinned image | Existing UNIFY database volume | Database network only |
+| `unify-postgres` | PostgreSQL 16.6 pinned image | Existing UNIFY database volume | Core, Alica, and Herman private database networks |
 | `caddy` | Public HTTPS ingress | Caddy certificate state and access logs | Published 80/443 and private ingress network |
 
 ## Target network design
@@ -185,7 +185,9 @@ Alica must never mount Herman data or secrets, and Herman must never mount Alica
 | Network | Members | Internal | Purpose |
 |---|---|---:|---|
 | `unify-ingress` | `caddy`, `unify-core` | Yes | Caddy-to-Core HTTP only |
-| `unify-db-private` | `unify-core`, `alica`, `herman`, `unify-postgres` | Yes | PostgreSQL access; no published database port |
+| `unify-db-private` | `unify-core`, `unify-postgres` | Yes | Core PostgreSQL access; no published database port |
+| `alica-db-private` | `alica`, `unify-postgres` | Yes | Alica adapter PostgreSQL access with no Herman member |
+| `herman-db-private` | `herman`, `unify-postgres` | Yes | Herman adapter PostgreSQL access with no Alica member |
 | `alica-control-private` | `unify-core`, `alica` | Yes | Core-to-Alica adapter TLS only |
 | `herman-control-private` | `unify-core`, `herman` | Yes | Core-to-Herman adapter TLS only |
 | `alica-egress` | `alica` | No | Alica-only outbound provider/platform access; no other application member |
@@ -205,7 +207,7 @@ The three single-member egress networks preserve required provider/platform and 
 | Herman adapter | `herman-control-private`, `herman:28082`, TLS |
 | Alica native Hermes API | Loopback only, `127.0.0.1:8642` |
 | Herman native Hermes API | Loopback only, `127.0.0.1:8642` |
-| PostgreSQL | `unify-db-private`, `unify-postgres:5432` |
+| PostgreSQL | Three separate private database networks, `unify-postgres:5432` |
 
 Externally reachable ports after cutover must remain limited to 80 and 443.
 
@@ -423,6 +425,8 @@ The production Compose file must:
 **Exit gate:** an empty supported VPS can be installed non-interactively, a second identical run is a no-op, and an induced mid-install failure recovers safely.
 
 ### Phase 14.5 — Automated and live acceptance
+
+**Status: PASS (2026-08-06 UTC).** See [Phase 14.5 automated and live acceptance evidence](phase-14-5-automated-live-acceptance-evidence.md).
 
 Run unit, integration, Compose, security, and production-equivalent tests covering:
 
