@@ -15,12 +15,12 @@ const secrets = join(fixture, 'secrets');
 const alicaData = join(fixture, 'alica');
 const hermanData = join(fixture, 'herman');
 const suffix = `${process.pid}-${Date.now()}`;
-const project = `unify-phase142-${suffix}`;
+const project = `unify-phase143-${suffix}`;
 const postgresVolume = `${project}-postgres`;
 const caddyDataVolume = `${project}-caddy-data`;
 const caddyLogsVolume = `${project}-caddy-logs`;
 const hermesImage = process.env.HERMES_RUNTIME_IMAGE ?? 'unify/hermes-runtime:phase-14.1';
-const coreImage = process.env.UNIFY_CORE_IMAGE ?? 'unify-core:phase-14.2';
+const coreImage = process.env.UNIFY_CORE_IMAGE ?? 'unify-core:phase-14.3';
 const postgresImage =
   'postgres:16.6-alpine@sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef';
 const caddyImage = process.env.CADDY_IMAGE ?? 'unify-caddy:phase-14.2';
@@ -57,7 +57,7 @@ const [httpPort, httpsPort] = await Promise.all([freePort(), freePort()]);
 const environment = {
   ...process.env,
   COMPOSE_PROJECT_NAME: project,
-  RELEASE_ID: 'phase-14.2-fixture',
+  RELEASE_ID: 'phase-14.3-fixture',
   HERMES_RUNTIME_IMAGE: hermesImage,
   UNIFY_CORE_IMAGE: coreImage,
   CADDY_IMAGE: caddyImage,
@@ -175,12 +175,16 @@ try {
   const hermanApiToken = randomBytes(48).toString('base64url');
   const alicaToken = randomBytes(48).toString('base64url');
   const hermanToken = randomBytes(48).toString('base64url');
+  const alicaDatabasePassword = randomBytes(32).toString('base64url');
+  const hermanDatabasePassword = randomBytes(32).toString('base64url');
   const databaseUrl = `postgresql://unify:${encodeURIComponent(password)}@unify-postgres:5432/unify`;
+  const alicaDatabaseUrl = `postgresql://unify_alica_adapter:${encodeURIComponent(alicaDatabasePassword)}@unify-postgres:5432/unify`;
+  const hermanDatabaseUrl = `postgresql://unify_herman_adapter:${encodeURIComponent(hermanDatabasePassword)}@unify-postgres:5432/unify`;
   const values = {
     'postgres-password': password,
     'database-url': databaseUrl,
-    'alica-database-url': databaseUrl,
-    'herman-database-url': databaseUrl,
+    'alica-database-url': alicaDatabaseUrl,
+    'herman-database-url': hermanDatabaseUrl,
     'auth-pepper': authPepper,
     'bootstrap-admin-password': bootstrapPassword,
     'alica-token': alicaToken,
@@ -188,10 +192,10 @@ try {
     'alica-api-token': alicaApiToken,
     'herman-api-token': hermanApiToken,
     'alica-token-bundle.json': JSON.stringify({
-      active: { version: 'phase-14.2', token: alicaToken },
+      active: { version: 'phase-14.3', token: alicaToken },
     }),
     'herman-token-bundle.json': JSON.stringify({
-      active: { version: 'phase-14.2', token: hermanToken },
+      active: { version: 'phase-14.3', token: hermanToken },
     }),
   };
   for (const [name, value] of Object.entries(values)) {
@@ -301,8 +305,102 @@ try {
   compose(['config', '--quiet']);
   compose(['up', '-d', '--wait', 'unify-postgres']);
   composeJobs(['run', '--rm', '--no-deps', 'migrate']);
+  const firstRoleReconciliation = JSON.parse(
+    composeJobs(['run', '--rm', '--no-deps', 'reconcile-database-roles']),
+  );
+  assert.equal(firstRoleReconciliation.changed, 2);
+  const roleVerifiersBefore = docker([
+    'exec',
+    `${project}-unify-postgres-1`,
+    'psql',
+    '-U',
+    'unify',
+    '-d',
+    'unify',
+    '-At',
+    '-c',
+    "SELECT rolname||'|'||rolpassword FROM pg_authid WHERE rolname IN ('unify_alica_adapter','unify_herman_adapter') ORDER BY rolname",
+  ]);
+  const secondRoleReconciliation = JSON.parse(
+    composeJobs(['run', '--rm', '--no-deps', 'reconcile-database-roles']),
+  );
+  assert.equal(secondRoleReconciliation.changed, 0);
+  assert.equal(
+    docker([
+      'exec',
+      `${project}-unify-postgres-1`,
+      'psql',
+      '-U',
+      'unify',
+      '-d',
+      'unify',
+      '-At',
+      '-c',
+      "SELECT rolname||'|'||rolpassword FROM pg_authid WHERE rolname IN ('unify_alica_adapter','unify_herman_adapter') ORDER BY rolname",
+    ]),
+    roleVerifiersBefore,
+  );
   composeJobs(['run', '--rm', '--no-deps', 'bootstrap-admin']);
   compose(['up', '-d', '--wait']);
+  const firstFrameworkReconciliation = JSON.parse(
+    composeJobs(['run', '--rm', '--no-deps', 'reconcile-frameworks']),
+  );
+  assert.equal(firstFrameworkReconciliation.changed, 2);
+  const registrationsBefore = docker([
+    'exec',
+    `${project}-unify-postgres-1`,
+    'psql',
+    '-U',
+    'unify',
+    '-d',
+    'unify',
+    '-At',
+    '-c',
+    "SELECT id||'|'||created_at||'|'||updated_at||'|'||verified_at FROM framework_registrations ORDER BY id",
+  ]);
+  const auditsBefore = docker([
+    'exec',
+    `${project}-unify-postgres-1`,
+    'psql',
+    '-U',
+    'unify',
+    '-d',
+    'unify',
+    '-At',
+    '-c',
+    "SELECT count(*) FROM audit_events WHERE event_type='framework.reconcile'",
+  ]);
+  assert.equal(auditsBefore, '2');
+  const secondFrameworkReconciliation = JSON.parse(
+    composeJobs(['run', '--rm', '--no-deps', 'reconcile-frameworks']),
+  );
+  assert.equal(secondFrameworkReconciliation.changed, 0);
+  const registrationsAfter = docker([
+    'exec',
+    `${project}-unify-postgres-1`,
+    'psql',
+    '-U',
+    'unify',
+    '-d',
+    'unify',
+    '-At',
+    '-c',
+    "SELECT id||'|'||created_at||'|'||updated_at||'|'||verified_at FROM framework_registrations ORDER BY id",
+  ]);
+  assert.equal(registrationsAfter, registrationsBefore);
+  const auditsAfter = docker([
+    'exec',
+    `${project}-unify-postgres-1`,
+    'psql',
+    '-U',
+    'unify',
+    '-d',
+    'unify',
+    '-At',
+    '-c',
+    "SELECT count(*) FROM audit_events WHERE event_type='framework.reconcile'",
+  ]);
+  assert.equal(auditsAfter, auditsBefore);
 
   const projectContainers = () =>
     docker([
@@ -383,6 +481,30 @@ const fs=require('node:fs');
       .filter(Boolean)
       .every((line) => JSON.parse(line).Health === 'healthy');
   });
+  assert.equal(projectContainers().length, 5);
+  assert.equal(
+    JSON.parse(composeJobs(['run', '--rm', '--no-deps', 'reconcile-database-roles'])).changed,
+    0,
+  );
+  assert.equal(
+    JSON.parse(composeJobs(['run', '--rm', '--no-deps', 'reconcile-frameworks'])).changed,
+    0,
+  );
+  assert.equal(
+    docker([
+      'exec',
+      `${project}-unify-postgres-1`,
+      'psql',
+      '-U',
+      'unify',
+      '-d',
+      'unify',
+      '-At',
+      '-c',
+      "SELECT rolname||'|'||rolpassword FROM pg_authid WHERE rolname IN ('unify_alica_adapter','unify_herman_adapter') ORDER BY rolname",
+    ]),
+    roleVerifiersBefore,
+  );
   assert.equal(projectContainers().length, 5);
 
   console.log(

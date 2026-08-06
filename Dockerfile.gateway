@@ -25,6 +25,7 @@ LABEL org.opencontainers.image.title="UNIFY Gateway" \
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=8080
 WORKDIR /app
 COPY --from=build --chown=65532:65532 /out/ ./
+COPY --chown=65532:65532 --chmod=0444 deploy/five-service/frameworks.json /app/frameworks.json
 USER 65532:65532
 EXPOSE 8080
 STOPSIGNAL SIGTERM

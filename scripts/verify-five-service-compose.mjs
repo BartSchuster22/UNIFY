@@ -125,17 +125,63 @@ assert.equal(config.services['unify-core'].depends_on.herman.condition, 'service
 assert.equal(config.services.caddy.depends_on['unify-core'].condition, 'service_healthy');
 
 const jobs = render([composePath, jobsPath]);
-assert.deepEqual(
-  Object.keys(jobs.services).sort(),
-  [...expectedServices, 'bootstrap-admin', 'migrate'].sort(),
-);
-for (const name of ['migrate', 'bootstrap-admin']) {
+const expectedJobs = [
+  'bootstrap-admin',
+  'migrate',
+  'reconcile-database-roles',
+  'reconcile-frameworks',
+];
+assert.deepEqual(Object.keys(jobs.services).sort(), [...expectedServices, ...expectedJobs].sort());
+for (const name of expectedJobs) {
   const service = jobs.services[name];
   assert.equal(service.restart, 'no');
   assert.equal(service.read_only, true);
   assert.ok(service.cap_drop.includes('ALL'));
   assert.ok(service.security_opt.includes('no-new-privileges:true'));
 }
+const reconciliationNetworks = Object.keys(jobs.services['reconcile-frameworks'].networks);
+assert.ok(reconciliationNetworks.some((name) => name.endsWith('alica-control-private')));
+assert.ok(reconciliationNetworks.some((name) => name.endsWith('herman-control-private')));
+assert.ok(reconciliationNetworks.some((name) => name.endsWith('unify-db-private')));
+const frameworkDeclaration = JSON.parse(
+  readFileSync(resolve(root, 'deploy/five-service/frameworks.json'), 'utf8'),
+);
+assert.equal(frameworkDeclaration.schemaVersion, 'unify-framework-registrations/v1');
+assert.deepEqual(
+  frameworkDeclaration.frameworks.map(({ frameworkId, baseUrl, serviceAuthReference }) => ({
+    frameworkId,
+    baseUrl,
+    serviceAuthReference,
+  })),
+  [
+    {
+      frameworkId: 'hermes-alica',
+      baseUrl: 'https://alica:28082',
+      serviceAuthReference: 'env:ALICA_FRAMEWORK_TOKEN',
+    },
+    {
+      frameworkId: 'hermes-herman',
+      baseUrl: 'https://herman:28082',
+      serviceAuthReference: 'env:HERMAN_FRAMEWORK_TOKEN',
+    },
+  ],
+);
+const roleMigration = readFileSync(
+  resolve(root, 'apps/gateway/migrations/007_framework_adapter_roles.up.sql'),
+  'utf8',
+);
+for (const required of [
+  'unify_hermes_adapter_runtime',
+  'unify_alica_adapter',
+  'unify_herman_adapter',
+  'hermes_adapter_events',
+  'hermes_adapter_idempotency',
+  'hermes_adapter_audit',
+])
+  assert.ok(roleMigration.includes(required), `Role migration is missing ${required}`);
+const backupScript = readFileSync(resolve(root, 'scripts/backup-gateway.sh'), 'utf8');
+assert.ok(backupScript.includes('exec -T unify-postgres'));
+assert.ok(backupScript.includes('deploy/five-service/compose.yaml'));
 
 const caddyfile = readFileSync(resolve(root, 'deploy/five-service/Caddyfile'), 'utf8');
 for (const required of [

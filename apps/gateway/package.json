@@ -11,6 +11,8 @@
     "db:rollback": "node scripts/migrate.mjs down",
     "db:status": "node scripts/migrate.mjs status",
     "bootstrap-admin": "node dist/cli/bootstrap-admin.js",
+    "reconcile:database-roles": "node dist/cli/reconcile-database-roles.js",
+    "reconcile:frameworks": "node dist/cli/reconcile-frameworks.js",
     "start": "node dist/server.js",
     "clean": "rm -rf dist"
   },

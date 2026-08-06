@@ -53,6 +53,7 @@ pnpm image:verify
 - [Five-container single-instance rebuild plan](docs/rebuild/phase-14-five-container-topology-plan.md)
 - [Phase 14.1 combined framework runtime evidence](docs/rebuild/phase-14-1-combined-runtime-evidence.md)
 - [Phase 14.2 five-service Compose evidence](docs/rebuild/phase-14-2-five-service-compose-evidence.md)
+- [Phase 14.3 declarative configuration evidence](docs/rebuild/phase-14-3-declarative-configuration-evidence.md)
 - [Authentication](docs/security/AUTHENTICATION.md)
 - [Governed operations](docs/operations/MUTATIONS.md)
 - [Local Compose](docs/runbooks/LOCAL-COMPOSE.md)

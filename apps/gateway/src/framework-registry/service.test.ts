@@ -81,6 +81,17 @@ describe('FrameworkRegistryService', () => {
     expect((await store.get('hermes-dev'))?.serviceAuthReference).toBe('env:HERMES_CONTROL_TOKEN');
   });
 
+  it('reconciles an identical declaration without rewriting registration evidence', async () => {
+    const store = new MemoryStore();
+    const service = new FrameworkRegistryService(store, probe, () => 'fixture-token');
+    const first = await service.reconcile(input);
+    const stored = structuredClone(await store.get(input.frameworkId));
+    const second = await service.reconcile(input);
+    expect(first.changed).toBe(true);
+    expect(second.changed).toBe(false);
+    expect(await store.get(input.frameworkId)).toEqual(stored);
+  });
+
   it('fails closed when service authentication is unavailable', async () => {
     const service = new FrameworkRegistryService(new MemoryStore(), probe, () => undefined);
     await expect(service.register(input)).rejects.toMatchObject({

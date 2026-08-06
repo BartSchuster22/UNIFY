@@ -402,6 +402,8 @@ The production Compose file must:
 
 ### Phase 14.3 — Make configuration and registration declarative
 
+**Status: PASS (2026-08-06 UTC).** See [Phase 14.3 declarative configuration evidence](phase-14-3-declarative-configuration-evidence.md).
+
 - Replace hardcoded ALICA-v1 paths and post-install assumptions with validated installation inputs.
 - Add idempotent framework registration reconciliation for the two local service endpoints.
 - Preserve framework identity, credential, provenance, circuit, and audit behavior.

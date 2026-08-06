@@ -57,6 +57,74 @@ services:
         max-size: 5m
         max-file: '2'
 
+  reconcile-database-roles:
+    image: ${UNIFY_CORE_IMAGE:?UNIFY_CORE_IMAGE is required}
+    command: [dist/cli/reconcile-database-roles.js]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: 'no'
+    secrets:
+      - source: core-database-url
+        target: database-url
+      - source: alica-database-url
+        target: alica-database-url
+      - source: herman-database-url
+        target: herman-database-url
+    environment:
+      DATABASE_URL_FILE: /run/secrets/database-url
+      ALICA_DATABASE_URL_FILE: /run/secrets/alica-database-url
+      HERMAN_DATABASE_URL_FILE: /run/secrets/herman-database-url
+    networks: [unify-db-private]
+    depends_on:
+      unify-postgres: { condition: service_healthy }
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=16m,mode=1777
+    cpus: 0.5
+    mem_limit: 256m
+    pids_limit: 128
+    logging:
+      driver: json-file
+      options:
+        max-size: 5m
+        max-file: '2'
+
+  reconcile-frameworks:
+    image: ${UNIFY_CORE_IMAGE:?UNIFY_CORE_IMAGE is required}
+    command: [dist/cli/reconcile-frameworks.js]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: 'no'
+    secrets:
+      - source: core-database-url
+        target: database-url
+      - source: alica-token
+        target: alica-token
+      - source: herman-token
+        target: herman-token
+      - framework-ca-cert
+    environment:
+      DATABASE_URL_FILE: /run/secrets/database-url
+      ALICA_FRAMEWORK_TOKEN_FILE: /run/secrets/alica-token
+      HERMAN_FRAMEWORK_TOKEN_FILE: /run/secrets/herman-token
+      FRAMEWORK_REGISTRATION_FILE: /app/frameworks.json
+      NODE_EXTRA_CA_CERTS: /run/secrets/framework-ca-cert
+    networks: [unify-db-private, alica-control-private, herman-control-private]
+    depends_on:
+      alica: { condition: service_healthy }
+      herman: { condition: service_healthy }
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=16m,mode=1777
+    cpus: 0.5
+    mem_limit: 256m
+    pids_limit: 128
+    logging:
+      driver: json-file
+      options:
+        max-size: 5m
+        max-file: '2'
+
 secrets:
   bootstrap-admin-password:
     file: ${SECRETS_DIR:-./secrets}/bootstrap-admin-password

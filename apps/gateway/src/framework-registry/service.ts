@@ -83,6 +83,12 @@ export class FrameworkRegistryService {
   }
 
   async register(input: FrameworkRegistrationInput): Promise<FrameworkRegistration> {
+    return (await this.reconcile(input)).registration;
+  }
+
+  async reconcile(
+    input: FrameworkRegistrationInput,
+  ): Promise<{ registration: FrameworkRegistration; changed: boolean }> {
     validateBaseUrl(input.baseUrl);
     if (input.expectedContractVersion !== HERMES_CONTROL_VERSION)
       throw new FrameworkRegistryError(
@@ -152,6 +158,20 @@ export class FrameworkRegistryService {
 
     const now = new Date().toISOString();
     const existing = await this.store.get(input.frameworkId);
+    const desiredStatus = input.enabled ? 'verified' : 'disabled';
+    if (
+      existing &&
+      existing.displayName === input.displayName &&
+      existing.baseUrl === normalizeBaseUrl(input.baseUrl) &&
+      existing.serviceAuthReference === input.serviceAuthReference &&
+      existing.enabled === input.enabled &&
+      existing.status === desiredStatus &&
+      existing.contractVersion === input.expectedContractVersion &&
+      existing.frameworkVersion === input.expectedFrameworkVersion &&
+      existing.frameworkCommit === input.expectedFrameworkCommit &&
+      sameScopes(existing.scopes, input.scopes)
+    )
+      return { registration: publicRegistration(existing), changed: false };
     const record: FrameworkRegistrationRecord = {
       frameworkId: input.frameworkId,
       displayName: input.displayName,
@@ -162,18 +182,26 @@ export class FrameworkRegistryService {
       contractVersion: input.expectedContractVersion,
       frameworkVersion: input.expectedFrameworkVersion,
       frameworkCommit: input.expectedFrameworkCommit,
-      status: input.enabled ? 'verified' : 'disabled',
+      status: desiredStatus,
       enabled: input.enabled,
       verifiedAt: now,
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
     };
-    return publicRegistration(await this.store.upsert(record));
+    return { registration: publicRegistration(await this.store.upsert(record)), changed: true };
   }
 
   async remove(frameworkId: string) {
     return this.store.remove(frameworkId);
   }
+}
+
+function sameScopes(left: readonly FrameworkScope[], right: readonly FrameworkScope[]) {
+  const sortedRight = [...right].sort();
+  return (
+    left.length === sortedRight.length &&
+    [...left].sort().every((scope, index) => scope === sortedRight[index])
+  );
 }
 
 function publicRegistration(record: FrameworkRegistrationRecord): FrameworkRegistration {

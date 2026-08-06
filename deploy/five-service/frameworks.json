@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "unify-framework-registrations/v1",
+  "frameworks": [
+    {
+      "frameworkId": "hermes-alica",
+      "displayName": "Alica",
+      "baseUrl": "https://alica:28082",
+      "serviceAuthReference": "env:ALICA_FRAMEWORK_TOKEN",
+      "scopes": ["control:read", "control:execute", "control:events"],
+      "expectedContractVersion": "hermes-control/v1",
+      "expectedFrameworkVersion": "0.20.0",
+      "expectedFrameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+      "enabled": true
+    },
+    {
+      "frameworkId": "hermes-herman",
+      "displayName": "Herman",
+      "baseUrl": "https://herman:28082",
+      "serviceAuthReference": "env:HERMAN_FRAMEWORK_TOKEN",
+      "scopes": ["control:read", "control:execute", "control:events"],
+      "expectedContractVersion": "hermes-control/v1",
+      "expectedFrameworkVersion": "0.20.0",
+      "expectedFrameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+      "enabled": true
+    }
+  ]
+}

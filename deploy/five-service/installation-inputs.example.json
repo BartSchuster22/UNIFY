@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "unify-five-service-installation/v1",
+  "releaseId": "phase-14.3-example",
+  "publicHost": "unify.example.com",
+  "publicOrigin": "https://unify.example.com",
+  "paths": {
+    "alicaData": "/srv/unify/data/alica",
+    "hermanData": "/srv/unify/data/herman",
+    "secrets": "/srv/unify/secrets",
+    "backups": "/srv/unify/backups"
+  },
+  "volumes": {
+    "postgres": "unify-postgres-data-v1",
+    "caddyData": "unify-caddy-data-v1",
+    "caddyLogs": "unify-caddy-logs-v1"
+  },
+  "images": {
+    "hermesRuntime": "registry.example.com/unify/hermes-runtime@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "core": "registry.example.com/unify/core@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "caddy": "registry.example.com/unify/caddy@sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  }
+}
