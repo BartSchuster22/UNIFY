@@ -30,7 +30,7 @@ services:
       HERMES_ADAPTER_TLS_KEY_FILE: /run/secrets/adapter-tls-key
       HERMES_ADAPTER_TLS_CERT_FILE: /run/secrets/adapter-tls-cert
       HERMES_ADAPTER_TLS_CA_FILE: /run/secrets/framework-ca-cert
-      HERMES_ADAPTER_TLS_SERVER_NAME: alica
+      HERMES_ADAPTER_TLS_SERVER_NAME: alica-adapter
       DATABASE_URL_FILE: /run/secrets/database-url
       NODE_EXTRA_CA_CERTS: /run/secrets/framework-ca-cert
       RELEASE_ID: ${RELEASE_ID:?RELEASE_ID is required}
@@ -54,7 +54,11 @@ services:
     tmpfs:
       - /run:rw,exec,nosuid,nodev,size=32m,mode=0755
       - /tmp:rw,noexec,nosuid,nodev,size=64m,mode=1777
-    networks: [alica-db-private, alica-control-private, alica-egress]
+    networks:
+      alica-db-private: {}
+      alica-control-private:
+        aliases: [alica-adapter]
+      alica-egress: {}
     depends_on:
       unify-postgres: { condition: service_healthy }
     cpus: 1.0
@@ -78,7 +82,7 @@ services:
       HERMES_ADAPTER_TLS_KEY_FILE: /run/secrets/adapter-tls-key
       HERMES_ADAPTER_TLS_CERT_FILE: /run/secrets/adapter-tls-cert
       HERMES_ADAPTER_TLS_CA_FILE: /run/secrets/framework-ca-cert
-      HERMES_ADAPTER_TLS_SERVER_NAME: herman
+      HERMES_ADAPTER_TLS_SERVER_NAME: herman-adapter
       DATABASE_URL_FILE: /run/secrets/database-url
       NODE_EXTRA_CA_CERTS: /run/secrets/framework-ca-cert
       RELEASE_ID: ${RELEASE_ID:?RELEASE_ID is required}
@@ -102,7 +106,11 @@ services:
     tmpfs:
       - /run:rw,exec,nosuid,nodev,size=32m,mode=0755
       - /tmp:rw,noexec,nosuid,nodev,size=64m,mode=1777
-    networks: [herman-db-private, herman-control-private, herman-egress]
+    networks:
+      herman-db-private: {}
+      herman-control-private:
+        aliases: [herman-adapter]
+      herman-egress: {}
     depends_on:
       unify-postgres: { condition: service_healthy }
     cpus: 1.0

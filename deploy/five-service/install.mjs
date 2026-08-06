@@ -407,7 +407,7 @@ function prepareTlsSecrets(directory) {
         'rsa:3072',
         '-nodes',
         '-subj',
-        `/CN=${framework}`,
+        `/CN=${framework}-adapter`,
         '-keyout',
         join(temporary, `${framework}.key`),
         '-out',
@@ -415,7 +415,7 @@ function prepareTlsSecrets(directory) {
       ]);
       writeFileSync(
         join(temporary, `${framework}.ext`),
-        `subjectAltName=DNS:${framework}\nextendedKeyUsage=serverAuth\n`,
+        `subjectAltName=DNS:${framework}-adapter\nextendedKeyUsage=serverAuth\n`,
       );
       run('openssl', [
         'x509',

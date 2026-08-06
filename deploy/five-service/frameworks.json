@@ -4,7 +4,7 @@
     {
       "frameworkId": "hermes-alica",
       "displayName": "Alica",
-      "baseUrl": "https://alica:28082",
+      "baseUrl": "https://alica-adapter:28082",
       "serviceAuthReference": "env:ALICA_FRAMEWORK_TOKEN",
       "scopes": ["control:read", "control:execute", "control:events"],
       "expectedContractVersion": "hermes-control/v1",
@@ -15,7 +15,7 @@
     {
       "frameworkId": "hermes-herman",
       "displayName": "Herman",
-      "baseUrl": "https://herman:28082",
+      "baseUrl": "https://herman-adapter:28082",
       "serviceAuthReference": "env:HERMAN_FRAMEWORK_TOKEN",
       "scopes": ["control:read", "control:execute", "control:events"],
       "expectedContractVersion": "hermes-control/v1",

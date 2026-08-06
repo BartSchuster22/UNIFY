@@ -129,8 +129,8 @@ for (const network of Object.values(config.networks)) assert.notEqual(network.ex
 
 assert.equal(config.services.alica.environment.PORT, '28082');
 assert.equal(config.services.herman.environment.PORT, '28082');
-assert.equal(config.services.alica.environment.HERMES_ADAPTER_TLS_SERVER_NAME, 'alica');
-assert.equal(config.services.herman.environment.HERMES_ADAPTER_TLS_SERVER_NAME, 'herman');
+assert.equal(config.services.alica.environment.HERMES_ADAPTER_TLS_SERVER_NAME, 'alica-adapter');
+assert.equal(config.services.herman.environment.HERMES_ADAPTER_TLS_SERVER_NAME, 'herman-adapter');
 assert.equal(config.services['unify-core'].depends_on.alica.condition, 'service_healthy');
 assert.equal(config.services['unify-core'].depends_on.herman.condition, 'service_healthy');
 assert.equal(config.services.caddy.depends_on['unify-core'].condition, 'service_healthy');
@@ -167,12 +167,12 @@ assert.deepEqual(
   [
     {
       frameworkId: 'hermes-alica',
-      baseUrl: 'https://alica:28082',
+      baseUrl: 'https://alica-adapter:28082',
       serviceAuthReference: 'env:ALICA_FRAMEWORK_TOKEN',
     },
     {
       frameworkId: 'hermes-herman',
-      baseUrl: 'https://herman:28082',
+      baseUrl: 'https://herman-adapter:28082',
       serviceAuthReference: 'env:HERMAN_FRAMEWORK_TOKEN',
     },
   ],

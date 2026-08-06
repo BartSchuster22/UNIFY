@@ -304,7 +304,7 @@ try {
         'rsa:2048',
         '-nodes',
         '-subj',
-        `/CN=${framework}`,
+        `/CN=${framework}-adapter`,
         '-keyout',
         join(secrets, `${framework}.key`),
         '-out',
@@ -314,7 +314,7 @@ try {
     );
     writeFileSync(
       join(fixture, `${framework}-extensions.cnf`),
-      `subjectAltName=DNS:${framework}\nextendedKeyUsage=serverAuth\n`,
+      `subjectAltName=DNS:${framework}-adapter\nextendedKeyUsage=serverAuth\n`,
     );
     run(
       'openssl',
@@ -515,7 +515,7 @@ try {
   const probe = String.raw`
 const fs=require('node:fs');
 (async()=>{
- for (const [host,file,id] of [['alica','alica-token','hermes-alica'],['herman','herman-token','hermes-herman']]) {
+ for (const [host,file,id] of [['alica-adapter','alica-token','hermes-alica'],['herman-adapter','herman-token','hermes-herman']]) {
   const token=fs.readFileSync('/run/secrets/'+file,'utf8').trim();
   const r=await fetch('https://'+host+':28082/control/v1/identity',{headers:{authorization:'Bearer '+token}});
   if(!r.ok) throw new Error(host+' HTTP '+r.status);
@@ -723,13 +723,13 @@ const fs=require('node:fs');
 const fs=require('node:fs'),https=require('node:https'),net=require('node:net');
 const ca=fs.readFileSync('/run/secrets/framework-ca-cert');
 const token=fs.readFileSync('/run/secrets/alica-token','utf8').trim();
-const call=(authorization,servername='alica')=>new Promise((resolve,reject)=>{
- const q=https.request({host:'alica',port:28082,path:'/control/v1/identity',ca,servername,headers:{authorization}},r=>{r.resume();r.on('end',()=>resolve(r.statusCode))});
+const call=(authorization,servername='alica-adapter')=>new Promise((resolve,reject)=>{
+ const q=https.request({host:'alica-adapter',port:28082,path:'/control/v1/identity',ca,servername,headers:{authorization}},r=>{r.resume();r.on('end',()=>resolve(r.statusCode))});
  q.on('error',reject);q.end();
 });
 (async()=>{
  if(await call('Bearer wrong')!==401) throw new Error('wrong token was not rejected');
- let tlsRejected=false;try{await call('Bearer '+token,'herman')}catch{tlsRejected=true}
+ let tlsRejected=false;try{await call('Bearer '+token,'herman-adapter')}catch{tlsRejected=true}
  if(!tlsRejected) throw new Error('wrong TLS server name was accepted');
  await new Promise((resolve,reject)=>{const s=net.connect(8642,'alica');s.once('connect',()=>reject(new Error('native API escaped loopback')));s.once('error',()=>resolve());setTimeout(()=>{s.destroy();resolve()},3000)});
 })().catch(e=>{console.error(e);process.exit(1)});`;
