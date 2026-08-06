@@ -41,6 +41,7 @@ pnpm image:verify
 
 ## Current architecture
 
+- [ALICA-v1 production as-built](docs/as-built/ALICA-V1-CURRENT-SETUP.md)
 - [Source-of-truth matrix](docs/architecture/SOURCE-OF-TRUTH.md)
 - [Canonical resource identity](docs/architecture/RESOURCE-IDENTITY.md)
 - [Hermes control contract](docs/architecture/HERMES-CONTROL-V1.md)
@@ -48,6 +49,7 @@ pnpm image:verify
 - [Native conversations](docs/rebuild/phase-09-native-agent-conversations.md)
 - [Legacy runtime removal](docs/rebuild/phase-10-remove-legacy-runtime.md)
 - [Lightweight production images](docs/rebuild/phase-11-lightweight-production-image.md)
+- [Five-container single-instance rebuild plan](docs/rebuild/phase-14-five-container-topology-plan.md)
 - [Authentication](docs/security/AUTHENTICATION.md)
 - [Governed operations](docs/operations/MUTATIONS.md)
 - [Local Compose](docs/runbooks/LOCAL-COMPOSE.md)
