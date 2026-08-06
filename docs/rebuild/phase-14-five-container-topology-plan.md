@@ -414,6 +414,8 @@ The production Compose file must:
 
 ### Phase 14.4 — Build the installer and upgrade path
 
+**Status: PASS (2026-08-06 UTC).** See [Phase 14.4 installer and upgrade evidence](phase-14-4-installer-upgrade-evidence.md).
+
 - Implement preflight, secret preparation, Compose rendering, image verification, migration, startup, registration, backup setup, smoke testing, and manifest output.
 - Add `install`, `verify`, `upgrade`, and `rollback` modes or equivalent explicit commands.
 - Ensure a failed upgrade does not delete the previous images or rollback definitions.

@@ -20,7 +20,7 @@ docker compose -f "$COMPOSE_FILE" --project-name "$COMPOSE_PROJECT" exec -T unif
   pg_dump -U unify -d unify --format=custom --no-owner --no-acl > "$TMP/gateway.dump"
 {
   printf 'created_at=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-  printf 'git_commit=%s\n' "$(git rev-parse HEAD)"
+  printf 'git_commit=%s\n' "${UNIFY_GIT_COMMIT:-$(git rev-parse HEAD)}"
   printf 'hermes_runtime_image=%s\n' "$(docker image inspect "${HERMES_RUNTIME_IMAGE:?required}" --format '{{.Id}}')"
   printf 'core_image=%s\n' "$(docker image inspect "${UNIFY_CORE_IMAGE:?required}" --format '{{.Id}}')"
   printf 'caddy_image=%s\n' "$(docker image inspect "${CADDY_IMAGE:?required}" --format '{{.Id}}')"

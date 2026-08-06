@@ -54,6 +54,8 @@ pnpm image:verify
 - [Phase 14.1 combined framework runtime evidence](docs/rebuild/phase-14-1-combined-runtime-evidence.md)
 - [Phase 14.2 five-service Compose evidence](docs/rebuild/phase-14-2-five-service-compose-evidence.md)
 - [Phase 14.3 declarative configuration evidence](docs/rebuild/phase-14-3-declarative-configuration-evidence.md)
+- [Phase 14.4 installer and upgrade evidence](docs/rebuild/phase-14-4-installer-upgrade-evidence.md)
+- [Five-service installer, upgrade, and rollback](docs/runbooks/FIVE-SERVICE-INSTALLER.md)
 - [Authentication](docs/security/AUTHENTICATION.md)
 - [Governed operations](docs/operations/MUTATIONS.md)
 - [Local Compose](docs/runbooks/LOCAL-COMPOSE.md)
