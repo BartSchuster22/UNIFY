@@ -2,7 +2,7 @@
 
 ## Status
 
-**Plan only.** This document does not authorize or perform a production cutover.
+**IMPLEMENTED AND ACCEPTED (2026-08-06 UTC).** Phases 14.0 through 14.6 passed, and the obsolete topology was retired only after production acceptance. See [Phase 14.6 production cutover evidence](phase-14-6-production-cutover-evidence.md).
 
 ## Objective
 
@@ -125,8 +125,8 @@ The native API must bind only to loopback. Its bearer token remains mandatory an
 The control adapter continues to expose authenticated TLS to UNIFY Core on the framework's private Docker network:
 
 ```text
-https://alica:28082
-https://herman:28082
+https://alica-adapter:28082
+https://herman-adapter:28082
 ```
 
 This leaves one encrypted and authenticated inter-container hop and removes the redundant adapter-to-private-Caddy-to-local-Hermes hop.
@@ -300,8 +300,8 @@ Replace the manual post-start registration dependency with idempotent reconcilia
 Desired registrations:
 
 ```text
-hermes-alica  -> https://alica:28082
-hermes-herman -> https://herman:28082
+hermes-alica  -> https://alica-adapter:28082
+hermes-herman -> https://herman-adapter:28082
 ```
 
 Requirements:
@@ -313,7 +313,7 @@ Requirements:
 - make repeated startup reconciliation a no-op when configuration matches;
 - do not delay Core readiness forever if one framework is temporarily unhealthy; expose accurate degraded readiness and framework status according to the accepted health contract.
 
-For low-risk transition, the combined containers may temporarily carry the old Docker DNS aliases `alica-adapter` and `herman-adapter`. Certificates may include old and new DNS SANs during the rollback window. The final accepted registration endpoints must use `alica` and `herman`.
+Production retains the Docker DNS aliases `alica-adapter` and `herman-adapter` because the preserved leaf certificates use those DNS identities. The accepted declarative endpoints use those aliases, avoiding certificate replacement during cutover. A future certificate rotation may add canonical service-name SANs before endpoint renaming.
 
 ## Automated installation behavior
 
@@ -449,6 +449,8 @@ Run unit, integration, Compose, security, and production-equivalent tests coveri
 
 ### Phase 14.6 — Controlled ALICA-v1 cutover
 
+**Status: PASS (2026-08-06 UTC).** See [Phase 14.6 production cutover evidence](phase-14-6-production-cutover-evidence.md).
+
 1. Announce a bounded maintenance window and stop new mutations.
 2. Run pre-cutover QA10 and require PASS.
 3. Create and verify fresh database and framework-data backups.
@@ -468,6 +470,8 @@ Run unit, integration, Compose, security, and production-equivalent tests coveri
 **Exit gate:** every production gate passes and the user explicitly accepts retirement of obsolete deployment artifacts.
 
 ### Phase 14.7 — Retire obsolete topology
+
+**Status: PASS (2026-08-06 UTC).** The user authorized retirement conditional on Phase 14.6 acceptance; retirement began only after every production gate passed. Runtime records, active legacy definitions, old networks, and host Caddy activation were removed. Rollback archives, images, volumes, data, backups, and secrets remain retained. See [Phase 14.6 production cutover evidence](phase-14-6-production-cutover-evidence.md).
 
 Only after Phase 14.6 passes:
 

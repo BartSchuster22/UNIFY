@@ -42,6 +42,7 @@ pnpm image:verify
 ## Current architecture
 
 - [ALICA-v1 production as-built](docs/as-built/ALICA-V1-CURRENT-SETUP.md)
+- [ALICA-v1 pre-Phase-14 production snapshot](docs/as-built/ALICA-V1-PRE-PHASE14-SNAPSHOT.md)
 - [Source-of-truth matrix](docs/architecture/SOURCE-OF-TRUTH.md)
 - [Canonical resource identity](docs/architecture/RESOURCE-IDENTITY.md)
 - [Hermes control contract](docs/architecture/HERMES-CONTROL-V1.md)
@@ -56,6 +57,7 @@ pnpm image:verify
 - [Phase 14.3 declarative configuration evidence](docs/rebuild/phase-14-3-declarative-configuration-evidence.md)
 - [Phase 14.4 installer and upgrade evidence](docs/rebuild/phase-14-4-installer-upgrade-evidence.md)
 - [Phase 14.5 automated and live acceptance evidence](docs/rebuild/phase-14-5-automated-live-acceptance-evidence.md)
+- [Phase 14.6 production cutover and obsolete-topology retirement evidence](docs/rebuild/phase-14-6-production-cutover-evidence.md)
 - [Five-service installer, upgrade, and rollback](docs/runbooks/FIVE-SERVICE-INSTALLER.md)
 - [Authentication](docs/security/AUTHENTICATION.md)
 - [Governed operations](docs/operations/MUTATIONS.md)
