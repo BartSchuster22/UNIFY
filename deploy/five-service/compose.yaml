@@ -217,11 +217,7 @@ services:
         protocol: tcp
         mode: host
     healthcheck:
-      test:
-        [
-          CMD-SHELL,
-          'wget -q --spider --no-check-certificate https://$$UNIFY_PUBLIC_HOST:8443/healthz',
-        ]
+      test: [CMD, /bin/busybox, nc, -z, 127.0.0.1, '8443']
       interval: 10s
       timeout: 5s
       retries: 6
