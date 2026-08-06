@@ -1,0 +1,73 @@
+# syntax=docker/dockerfile:1.7
+
+ARG SOURCE_DATE_EPOCH=0
+ARG HERMES_BASE_IMAGE=nousresearch/hermes-agent@sha256:fcbe95482353e41cd30d39ddfc0f57ba3720f6da6969a7a69cdfb0d84b045cb6
+ARG NODE_BUILD_IMAGE=node:22.22.2-bookworm-slim@sha256:9f6d5975c7dca860947d3915877f85607946403fc55349f39b4bc3688448bb6e
+
+FROM ${NODE_BUILD_IMAGE} AS adapter-build
+ARG SOURCE_DATE_EPOCH
+WORKDIR /workspace
+RUN corepack enable && corepack prepare pnpm@10.33.2 --activate
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
+COPY packages/contracts/package.json packages/contracts/package.json
+COPY apps/hermes-control-adapter/package.json apps/hermes-control-adapter/package.json
+RUN pnpm install --frozen-lockfile --filter @aquiero/hermes-control-adapter...
+COPY packages/contracts packages/contracts
+COPY apps/hermes-control-adapter apps/hermes-control-adapter
+RUN pnpm --filter @aquiero/contracts build \
+  && pnpm --filter @aquiero/hermes-control-adapter build \
+  && pnpm --filter @aquiero/hermes-control-adapter deploy --prod --legacy /opt/unify-adapter \
+  && rm -rf /opt/unify-adapter/node_modules/.cache \
+  && find /opt/unify-adapter -exec touch -h -d "@${SOURCE_DATE_EPOCH}" {} +
+
+FROM ${HERMES_BASE_IMAGE} AS runtime
+ARG SOURCE_DATE_EPOCH
+ARG HERMES_BASE_IMAGE
+ARG HERMES_RELEASE=0.20.0
+ARG HERMES_COMMIT=b8b17b8cee50b85adb7fba6ea332dc06731b86f4
+ARG UNIFY_ADAPTER_RELEASE=development
+
+USER root
+COPY --from=adapter-build /usr/local/bin/node /usr/local/bin/node
+COPY --from=adapter-build --chown=10000:10001 /opt/unify-adapter /opt/unify-adapter
+COPY --chmod=755 deploy/hermes-runtime/rootfs/etc/cont-init.d/10-hermes-api-secret /etc/cont-init.d/10-hermes-api-secret
+COPY --chmod=755 deploy/hermes-runtime/rootfs/etc/s6-overlay/s6-rc.d/unify-hermes-gateway/run /etc/s6-overlay/s6-rc.d/unify-hermes-gateway/run
+COPY deploy/hermes-runtime/rootfs/etc/s6-overlay/s6-rc.d/unify-hermes-gateway/type /etc/s6-overlay/s6-rc.d/unify-hermes-gateway/type
+COPY --chmod=755 deploy/hermes-runtime/rootfs/etc/s6-overlay/s6-rc.d/unify-control-adapter/run /etc/s6-overlay/s6-rc.d/unify-control-adapter/run
+COPY deploy/hermes-runtime/rootfs/etc/s6-overlay/s6-rc.d/unify-control-adapter/type /etc/s6-overlay/s6-rc.d/unify-control-adapter/type
+COPY deploy/hermes-runtime/rootfs/etc/s6-overlay/s6-rc.d/unify-control-adapter/dependencies.d/unify-hermes-gateway /etc/s6-overlay/s6-rc.d/unify-control-adapter/dependencies.d/unify-hermes-gateway
+COPY deploy/hermes-runtime/rootfs/etc/s6-overlay/s6-rc.d/user/contents.d/unify-hermes-gateway /etc/s6-overlay/s6-rc.d/user/contents.d/unify-hermes-gateway
+COPY deploy/hermes-runtime/rootfs/etc/s6-overlay/s6-rc.d/user/contents.d/unify-control-adapter /etc/s6-overlay/s6-rc.d/user/contents.d/unify-control-adapter
+COPY --chmod=755 deploy/hermes-runtime/healthcheck.mjs /opt/unify-adapter/healthcheck.mjs
+RUN rm -f /etc/s6-overlay/s6-rc.d/user/contents.d/main-hermes \
+  && /usr/local/bin/node --version \
+  && /opt/hermes/bin/hermes version
+
+ENV HOME=/opt/data \
+    HERMES_HOME=/opt/data \
+    HERMES_REPO=/opt/hermes \
+    HERMES_BIN=/opt/hermes/bin/hermes \
+    HERMES_API_BASE_URL=http://127.0.0.1:8642 \
+    HERMES_API_HOST=127.0.0.1 \
+    HERMES_API_PORT=8642 \
+    HERMES_API_TOKEN_FILE=/run/secrets/hermes-api-token \
+    HOST=0.0.0.0 \
+    PORT=28082 \
+    HERMES_ADAPTER_TLS_SERVER_NAME=hermes-runtime \
+    EXPECTED_HERMES_RELEASE=${HERMES_RELEASE} \
+    EXPECTED_HERMES_COMMIT=${HERMES_COMMIT} \
+    UNIFY_ADAPTER_RELEASE=${UNIFY_ADAPTER_RELEASE}
+
+LABEL org.opencontainers.image.title="UNIFY Hermes combined runtime" \
+      org.opencontainers.image.description="Pinned Hermes runtime and colocated UNIFY control adapter" \
+      org.opencontainers.image.base.name="${HERMES_BASE_IMAGE}" \
+      com.aquiero.image.role="hermes-runtime-control-adapter" \
+      com.aquiero.hermes.release="${HERMES_RELEASE}" \
+      com.aquiero.hermes.commit="${HERMES_COMMIT}" \
+      com.aquiero.control-adapter.release="${UNIFY_ADAPTER_RELEASE}"
+
+EXPOSE 28082
+HEALTHCHECK --interval=10s --timeout=8s --start-period=20s --retries=3 \
+  CMD ["/usr/local/bin/node", "/opt/unify-adapter/healthcheck.mjs"]
+
+CMD ["sleep", "infinity"]

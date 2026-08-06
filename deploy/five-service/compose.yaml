@@ -1,0 +1,285 @@
+name: unify
+
+x-runtime: &runtime
+  restart: unless-stopped
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  stop_grace_period: 30s
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: '3'
+
+services:
+  alica:
+    <<: *runtime
+    # s6 needs CHOWN/DAC_OVERRIDE/FOWNER for its mounted data and supervise trees,
+    # then SETGID/SETUID to drop both application children to UID/GID 10000.
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
+    image: ${HERMES_RUNTIME_IMAGE:?HERMES_RUNTIME_IMAGE is required}
+    hostname: alica
+    environment:
+      HERMES_FRAMEWORK_ID: hermes-alica
+      HERMES_DISPLAY_NAME: Alica
+      HERMES_INSTANCE_ID: alica-v1-private
+      HERMES_ADAPTER_SCOPES: control:read,control:execute,control:events
+      HERMES_API_TOKEN_FILE: /run/secrets/hermes-api-token
+      HERMES_ADAPTER_TOKEN_BUNDLE_FILE: /run/secrets/adapter-token-bundle
+      HERMES_ADAPTER_TLS_KEY_FILE: /run/secrets/adapter-tls-key
+      HERMES_ADAPTER_TLS_CERT_FILE: /run/secrets/adapter-tls-cert
+      HERMES_ADAPTER_TLS_CA_FILE: /run/secrets/framework-ca-cert
+      HERMES_ADAPTER_TLS_SERVER_NAME: alica
+      DATABASE_URL_FILE: /run/secrets/database-url
+      NODE_EXTRA_CA_CERTS: /run/secrets/framework-ca-cert
+      RELEASE_ID: ${RELEASE_ID:?RELEASE_ID is required}
+      PORT: '28082'
+    secrets:
+      - source: alica-api-token
+        target: hermes-api-token
+      - source: alica-token-bundle
+        target: adapter-token-bundle
+      - source: alica-tls-key
+        target: adapter-tls-key
+      - source: alica-tls-cert
+        target: adapter-tls-cert
+      - source: alica-database-url
+        target: database-url
+      - framework-ca-cert
+    volumes:
+      - type: bind
+        source: ${ALICA_DATA_PATH:?ALICA_DATA_PATH is required}
+        target: /opt/data
+    tmpfs:
+      - /run:rw,exec,nosuid,nodev,size=32m,mode=0755
+      - /tmp:rw,noexec,nosuid,nodev,size=64m,mode=1777
+    networks: [unify-db-private, alica-control-private, alica-egress]
+    depends_on:
+      unify-postgres: { condition: service_healthy }
+    cpus: 1.0
+    mem_limit: 1g
+    pids_limit: 256
+
+  herman:
+    <<: *runtime
+    # s6 needs CHOWN/DAC_OVERRIDE/FOWNER for its mounted data and supervise trees,
+    # then SETGID/SETUID to drop both application children to UID/GID 10000.
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
+    image: ${HERMES_RUNTIME_IMAGE:?HERMES_RUNTIME_IMAGE is required}
+    hostname: herman
+    environment:
+      HERMES_FRAMEWORK_ID: hermes-herman
+      HERMES_DISPLAY_NAME: Herman
+      HERMES_INSTANCE_ID: herman-v1-private
+      HERMES_ADAPTER_SCOPES: control:read,control:execute,control:events
+      HERMES_API_TOKEN_FILE: /run/secrets/hermes-api-token
+      HERMES_ADAPTER_TOKEN_BUNDLE_FILE: /run/secrets/adapter-token-bundle
+      HERMES_ADAPTER_TLS_KEY_FILE: /run/secrets/adapter-tls-key
+      HERMES_ADAPTER_TLS_CERT_FILE: /run/secrets/adapter-tls-cert
+      HERMES_ADAPTER_TLS_CA_FILE: /run/secrets/framework-ca-cert
+      HERMES_ADAPTER_TLS_SERVER_NAME: herman
+      DATABASE_URL_FILE: /run/secrets/database-url
+      NODE_EXTRA_CA_CERTS: /run/secrets/framework-ca-cert
+      RELEASE_ID: ${RELEASE_ID:?RELEASE_ID is required}
+      PORT: '28082'
+    secrets:
+      - source: herman-api-token
+        target: hermes-api-token
+      - source: herman-token-bundle
+        target: adapter-token-bundle
+      - source: herman-tls-key
+        target: adapter-tls-key
+      - source: herman-tls-cert
+        target: adapter-tls-cert
+      - source: herman-database-url
+        target: database-url
+      - framework-ca-cert
+    volumes:
+      - type: bind
+        source: ${HERMAN_DATA_PATH:?HERMAN_DATA_PATH is required}
+        target: /opt/data
+    tmpfs:
+      - /run:rw,exec,nosuid,nodev,size=32m,mode=0755
+      - /tmp:rw,noexec,nosuid,nodev,size=64m,mode=1777
+    networks: [unify-db-private, herman-control-private, herman-egress]
+    depends_on:
+      unify-postgres: { condition: service_healthy }
+    cpus: 1.0
+    mem_limit: 1g
+    pids_limit: 256
+
+  unify-core:
+    <<: *runtime
+    image: ${UNIFY_CORE_IMAGE:?UNIFY_CORE_IMAGE is required}
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: '8080'
+      RELEASE_ID: ${RELEASE_ID:?RELEASE_ID is required}
+      DATABASE_URL_FILE: /run/secrets/database-url
+      AUTH_PEPPER_FILE: /run/secrets/auth-pepper
+      FRAMEWORK_AUTH_ENV_NAMES: ALICA_FRAMEWORK_TOKEN,HERMAN_FRAMEWORK_TOKEN
+      ALICA_FRAMEWORK_TOKEN_FILE: /run/secrets/alica-token
+      HERMAN_FRAMEWORK_TOKEN_FILE: /run/secrets/herman-token
+      NODE_EXTRA_CA_CERTS: /run/secrets/framework-ca-cert
+      ALLOWED_ORIGINS: ${UNIFY_PUBLIC_ORIGIN:?UNIFY_PUBLIC_ORIGIN is required}
+      REQUESTS_PER_MINUTE: '600'
+    secrets:
+      - source: core-database-url
+        target: database-url
+      - auth-pepper
+      - alica-token
+      - herman-token
+      - framework-ca-cert
+    networks: [unify-ingress, unify-db-private, alica-control-private, herman-control-private]
+    depends_on:
+      unify-postgres: { condition: service_healthy }
+      alica: { condition: service_healthy }
+      herman: { condition: service_healthy }
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=32m,mode=1777
+    cpus: 1.0
+    mem_limit: 768m
+    pids_limit: 256
+
+  unify-postgres:
+    image: postgres:16.6-alpine@sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef
+    hostname: unify-postgres
+    user: '70:70'
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    stop_grace_period: 60s
+    environment:
+      POSTGRES_DB: unify
+      POSTGRES_USER: unify
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres-password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    secrets: [postgres-password]
+    volumes:
+      - unify-postgres-data:/var/lib/postgresql/data
+    tmpfs:
+      - /run/postgresql:rw,nosuid,nodev,size=16m,mode=0770,uid=70,gid=70
+      - /tmp:rw,noexec,nosuid,nodev,size=32m,mode=1777
+    networks: [unify-db-private]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U unify -d unify]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    shm_size: 128m
+    cpus: 1.0
+    mem_limit: 1g
+    pids_limit: 256
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+
+  caddy:
+    image: ${CADDY_IMAGE:?CADDY_IMAGE is required}
+    hostname: caddy
+    user: '10000:10000'
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    stop_grace_period: 30s
+    command: [caddy, run, --config, /etc/caddy/Caddyfile, --adapter, caddyfile]
+    environment:
+      UNIFY_PUBLIC_HOST: ${UNIFY_PUBLIC_HOST:?UNIFY_PUBLIC_HOST is required}
+    volumes:
+      - caddy-data:/data
+      - caddy-logs:/var/log/caddy
+    tmpfs:
+      - /config:rw,noexec,nosuid,nodev,size=16m,mode=0750,uid=10000,gid=10000
+      - /tmp:rw,noexec,nosuid,nodev,size=16m,mode=1777
+    networks: [unify-ingress, caddy-egress]
+    ports:
+      - target: 8080
+        published: ${CADDY_HTTP_PORT:-80}
+        protocol: tcp
+        mode: host
+      - target: 8443
+        published: ${CADDY_HTTPS_PORT:-443}
+        protocol: tcp
+        mode: host
+    healthcheck:
+      test:
+        [
+          CMD-SHELL,
+          'wget -q --spider --no-check-certificate https://$$UNIFY_PUBLIC_HOST:8443/healthz',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+    depends_on:
+      unify-core: { condition: service_healthy }
+    cpus: 0.5
+    mem_limit: 256m
+    pids_limit: 128
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+
+secrets:
+  postgres-password:
+    file: ${SECRETS_DIR:-./secrets}/postgres-password
+  core-database-url:
+    file: ${SECRETS_DIR:-./secrets}/database-url
+  alica-database-url:
+    file: ${SECRETS_DIR:-./secrets}/alica-database-url
+  herman-database-url:
+    file: ${SECRETS_DIR:-./secrets}/herman-database-url
+  auth-pepper:
+    file: ${SECRETS_DIR:-./secrets}/auth-pepper
+  alica-token:
+    file: ${SECRETS_DIR:-./secrets}/alica-token
+  herman-token:
+    file: ${SECRETS_DIR:-./secrets}/herman-token
+  alica-api-token:
+    file: ${SECRETS_DIR:-./secrets}/alica-api-token
+  herman-api-token:
+    file: ${SECRETS_DIR:-./secrets}/herman-api-token
+  alica-token-bundle:
+    file: ${SECRETS_DIR:-./secrets}/alica-token-bundle.json
+  herman-token-bundle:
+    file: ${SECRETS_DIR:-./secrets}/herman-token-bundle.json
+  framework-ca-cert:
+    file: ${SECRETS_DIR:-./secrets}/framework-ca.crt
+  alica-tls-key:
+    file: ${SECRETS_DIR:-./secrets}/alica.key
+  alica-tls-cert:
+    file: ${SECRETS_DIR:-./secrets}/alica.crt
+  herman-tls-key:
+    file: ${SECRETS_DIR:-./secrets}/herman.key
+  herman-tls-cert:
+    file: ${SECRETS_DIR:-./secrets}/herman.crt
+
+volumes:
+  unify-postgres-data:
+    name: ${UNIFY_POSTGRES_VOLUME:-unify-postgres-data-v1}
+  caddy-data:
+    name: ${CADDY_DATA_VOLUME:-unify-caddy-data-v1}
+  caddy-logs:
+    name: ${CADDY_LOGS_VOLUME:-unify-caddy-logs-v1}
+
+networks:
+  unify-ingress:
+    internal: true
+  unify-db-private:
+    internal: true
+  alica-control-private:
+    internal: true
+  herman-control-private:
+    internal: true
+  alica-egress: {}
+  herman-egress: {}
+  caddy-egress: {}

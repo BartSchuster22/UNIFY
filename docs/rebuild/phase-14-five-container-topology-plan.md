@@ -188,8 +188,11 @@ Alica must never mount Herman data or secrets, and Herman must never mount Alica
 | `unify-db-private` | `unify-core`, `alica`, `herman`, `unify-postgres` | Yes | PostgreSQL access; no published database port |
 | `alica-control-private` | `unify-core`, `alica` | Yes | Core-to-Alica adapter TLS only |
 | `herman-control-private` | `unify-core`, `herman` | Yes | Core-to-Herman adapter TLS only |
+| `alica-egress` | `alica` | No | Alica-only outbound provider/platform access; no other application member |
+| `herman-egress` | `herman` | No | Herman-only outbound provider/platform access; no other application member |
+| `caddy-egress` | `caddy` | No | ACME and certificate-maintenance egress; no other application member |
 
-Caddy joins a normal bridge network that permits outbound ACME traffic while reaching Core through a dedicated private connection. If Docker cannot combine the required ACME egress and an internal-only ingress network cleanly, give Caddy a second egress-capable network on which no other application container is attached.
+The three single-member egress networks preserve required provider/platform and ACME access without placing Alica, Herman, or Caddy on a shared lateral network. Caddy reaches Core only through the dedicated internal ingress network.
 
 ## Port and endpoint rules
 
@@ -373,6 +376,8 @@ The production Compose file must:
 
 ### Phase 14.1 — Build the combined framework runtime
 
+**Status: PASS (2026-08-06 UTC).** See [Phase 14.1 combined runtime evidence](phase-14-1-combined-runtime-evidence.md).
+
 - Create the derived pinned Hermes+adapter image.
 - Add s6 services for the Hermes gateway and adapter.
 - Bind the native Hermes API to loopback only.
@@ -385,7 +390,9 @@ The production Compose file must:
 
 ### Phase 14.2 — Build the five-service Compose stack
 
-- Define `alica`, `herman`, `unify-core`, `unify-postgres`, and `caddy` in one Compose project.
+**Status: PASS (2026-08-06 UTC).** See [Phase 14.2 five-service Compose evidence](phase-14-2-five-service-compose-evidence.md).
+
+- Define exactly five long-running services.
 - Add target networks, secrets, volumes, limits, hardening, and health checks.
 - Containerize the existing public Caddy behavior and persist ACME state.
 - Remove private proxy services and external framework-network dependencies.

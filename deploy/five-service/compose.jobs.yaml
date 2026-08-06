@@ -1,0 +1,62 @@
+services:
+  migrate:
+    image: ${UNIFY_CORE_IMAGE:?UNIFY_CORE_IMAGE is required}
+    command: [scripts/migrate.mjs, up]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: 'no'
+    secrets:
+      - source: core-database-url
+        target: database-url
+    environment:
+      DATABASE_URL_FILE: /run/secrets/database-url
+    networks: [unify-db-private]
+    depends_on:
+      unify-postgres: { condition: service_healthy }
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=16m,mode=1777
+    cpus: 0.5
+    mem_limit: 256m
+    pids_limit: 128
+    logging:
+      driver: json-file
+      options:
+        max-size: 5m
+        max-file: '2'
+
+  bootstrap-admin:
+    image: ${UNIFY_CORE_IMAGE:?UNIFY_CORE_IMAGE is required}
+    command: [dist/cli/bootstrap-admin.js]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: 'no'
+    secrets:
+      - source: core-database-url
+        target: database-url
+      - auth-pepper
+      - bootstrap-admin-password
+    environment:
+      DATABASE_URL_FILE: /run/secrets/database-url
+      AUTH_PEPPER_FILE: /run/secrets/auth-pepper
+      BOOTSTRAP_ADMIN_USERNAME: ${BOOTSTRAP_ADMIN_USERNAME:-herman}
+      BOOTSTRAP_ADMIN_PASSWORD_FILE: /run/secrets/bootstrap-admin-password
+      BOOTSTRAP_ADMIN_DISPLAY_NAME: ${BOOTSTRAP_ADMIN_DISPLAY_NAME:-Herman}
+    networks: [unify-db-private]
+    depends_on:
+      unify-postgres: { condition: service_healthy }
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=16m,mode=1777
+    cpus: 0.5
+    mem_limit: 256m
+    pids_limit: 128
+    logging:
+      driver: json-file
+      options:
+        max-size: 5m
+        max-file: '2'
+
+secrets:
+  bootstrap-admin-password:
+    file: ${SECRETS_DIR:-./secrets}/bootstrap-admin-password

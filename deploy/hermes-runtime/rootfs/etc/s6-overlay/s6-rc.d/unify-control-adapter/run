@@ -1,0 +1,10 @@
+#!/command/with-contenv bash
+set -euo pipefail
+
+export HOME="${HERMES_HOME:-/opt/data}"
+export HERMES_BIN="${HERMES_BIN:-/opt/hermes/bin/hermes}"
+export HERMES_API_BASE_URL="http://127.0.0.1:${HERMES_API_PORT:-8642}"
+export HOST="${HOST:-0.0.0.0}"
+export PORT="${PORT:-9443}"
+
+exec /command/s6-setuidgid hermes /usr/local/bin/node /opt/unify-adapter/dist/server.js
