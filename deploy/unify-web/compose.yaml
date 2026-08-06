@@ -1,0 +1,35 @@
+name: unify-web
+
+services:
+  unify-web:
+    image: ${UNIFY_WEB_IMAGE:?UNIFY_WEB_IMAGE is required and must be digest-pinned}
+    user: '65532:65532'
+    restart: unless-stopped
+    read_only: true
+    init: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    stop_grace_period: 15s
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: '3000'
+      GATEWAY_INTERNAL_URL: ${UNIFY_CORE_INTERNAL_URL:-http://unify-core:8080}
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=16m,mode=0700,uid=65532,gid=65532
+    networks:
+      unify-ingress:
+        aliases: [unify-web]
+    cpus: 0.5
+    mem_limit: 192m
+    pids_limit: 100
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+
+networks:
+  unify-ingress:
+    external: true
+    name: ${UNIFY_INGRESS_NETWORK:-unify_unify-ingress}

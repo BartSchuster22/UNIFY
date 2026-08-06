@@ -27,3 +27,32 @@
 		format json
 	}
 }
+
+uniui.aquiero.com {
+	encode zstd gzip
+
+	@health path /healthz
+	reverse_proxy @health unify-web:3000 {
+		health_uri /healthz
+		health_interval 15s
+		health_timeout 3s
+	}
+	reverse_proxy unify-web:3000
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy no-referrer
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+	}
+
+	log {
+		output file /var/log/caddy/unify-web-access.log {
+			roll_size 10MiB
+			roll_keep 3
+		}
+		format json
+	}
+}

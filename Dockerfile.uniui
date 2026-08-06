@@ -19,10 +19,11 @@ COPY apps/uniui apps/uniui
 RUN pnpm --filter @aquiero/uniui build
 
 FROM ${NODE_RUNTIME_IMAGE} AS runtime
-LABEL org.opencontainers.image.title="UNIFY Operator UI" \
+LABEL org.opencontainers.image.title="UNIFY Web" \
+      org.opencontainers.image.description="UNIFY operator web interface and same-origin Core API proxy" \
       org.opencontainers.image.source="https://github.com/BartSchuster22/UNIFY" \
       org.opencontainers.image.licenses="UNLICENSED"
-ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000 GATEWAY_INTERNAL_URL=http://gateway:8080
+ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000 GATEWAY_INTERNAL_URL=http://unify-core:8080
 WORKDIR /app
 COPY --from=build --chown=65532:65532 /workspace/apps/uniui/dist ./public
 COPY --chown=65532:65532 apps/uniui/server.mjs ./server.mjs

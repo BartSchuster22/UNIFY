@@ -131,7 +131,8 @@ services:
       ALICA_FRAMEWORK_TOKEN_FILE: /run/secrets/alica-token
       HERMAN_FRAMEWORK_TOKEN_FILE: /run/secrets/herman-token
       NODE_EXTRA_CA_CERTS: /run/secrets/framework-ca-cert
-      ALLOWED_ORIGINS: ${UNIFY_PUBLIC_ORIGIN:?UNIFY_PUBLIC_ORIGIN is required}
+      # UNIFY Web is a same-origin browser proxy on its dedicated production host.
+      ALLOWED_ORIGINS: ${UNIFY_PUBLIC_ORIGIN:?UNIFY_PUBLIC_ORIGIN is required},https://uniui.aquiero.com
       REQUESTS_PER_MINUTE: '600'
     secrets:
       - source: core-database-url

@@ -133,6 +133,10 @@ assert.equal(config.services.alica.environment.HERMES_ADAPTER_TLS_SERVER_NAME, '
 assert.equal(config.services.herman.environment.HERMES_ADAPTER_TLS_SERVER_NAME, 'herman-adapter');
 assert.equal(config.services['unify-core'].depends_on.alica.condition, 'service_healthy');
 assert.equal(config.services['unify-core'].depends_on.herman.condition, 'service_healthy');
+assert.equal(
+  config.services['unify-core'].environment.ALLOWED_ORIGINS,
+  'https://localhost,https://uniui.aquiero.com',
+);
 assert.equal(config.services.caddy.depends_on['unify-core'].condition, 'service_healthy');
 
 const jobs = render([composePath, jobsPath]);
@@ -211,8 +215,11 @@ for (const required of [
   'http_port 8080',
   'https_port 8443',
   'reverse_proxy unify-core:8080',
+  'uniui.aquiero.com',
+  'reverse_proxy unify-web:3000',
   'Strict-Transport-Security',
   '/var/log/caddy/unify-access.log',
+  '/var/log/caddy/unify-web-access.log',
 ])
   assert.ok(caddyfile.includes(required), `Caddyfile is missing ${required}`);
 assert.ok(!caddyfile.includes('docker.sock'));
