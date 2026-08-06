@@ -361,6 +361,8 @@ The production Compose file must:
 
 ### Phase 14.0 — Freeze baseline and produce rollback assets
 
+**Status: PASS (2026-08-06 UTC).** See [Phase 14.0 baseline evidence](phase-14-0-baseline-evidence.md).
+
 - Record current repository commit, image IDs/digests, Compose configurations, container inspections, networks, volumes, bind mounts, secret checksums, systemd units, and public DNS/TLS state.
 - Run the existing production QA10 once and require PASS before changing architecture.
 - Create and verify a fresh encrypted PostgreSQL backup.
