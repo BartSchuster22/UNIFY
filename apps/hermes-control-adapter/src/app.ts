@@ -4,6 +4,7 @@ import {
   HERMES_CONTROL_VERSION,
   HermesConversationCommandSchema,
   HermesControlCommandSchema,
+  HermesModelManagementCommandSchema,
   HermesProfileCommandSchema,
   HermesWorkCommandSchema,
   PINNED_HERMES_COMMIT,
@@ -11,10 +12,16 @@ import {
   type FrameworkScope,
   type HermesConversationCommand,
   type HermesControlCommand,
+  type HermesModelManagementCommand,
   type HermesProfileCommand,
   type HermesWorkCommand,
 } from '@aquiero/contracts';
-import { SecondConsumerForbiddenError, sourceVersion, SourceUnavailableError } from './source.js';
+import {
+  ModelConfirmationRequiredError,
+  SecondConsumerForbiddenError,
+  sourceVersion,
+  SourceUnavailableError,
+} from './source.js';
 import { IdempotencyBusyError, IdempotencyConflictError } from './event-store.js';
 import type { AdapterEventStore, AdapterSource, CapabilityFamily } from './types.js';
 
@@ -67,7 +74,9 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
       frameworkId: options.frameworkId,
       eventType: request.url.startsWith('/control/v1/commands/profiles')
         ? 'hermes.adapter.command.profiles'
-        : request.url.startsWith('/control/v1/commands/work')
+        : request.url.startsWith('/control/v1/commands/models')
+          ? 'hermes.adapter.command.models'
+          : request.url.startsWith('/control/v1/commands/work')
           ? 'hermes.adapter.command.work'
           : request.url.startsWith('/control/v1/commands/conversations')
             ? 'hermes.adapter.command.conversations'
@@ -168,6 +177,7 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
   app.get('/control/v1/capabilities', async () => {
     requireScope(scopes, 'control:read');
     const conversations = options.source.conversationsConfigured();
+    const modelManagement = options.source.modelManagementConfigured();
     return response(options, `adapter:${options.releaseId ?? 'development'}`, {
       capabilities: {
         'profiles.read': supported('control:read'),
@@ -197,7 +207,24 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
           ...(!scopes.has('control:execute') ? { reasonCode: 'SCOPE_NOT_CONFIGURED' } : {}),
           constraints: { authority: 'hermes-native', optimisticConcurrency: true },
         },
-        'providers.credentials.execute': unsupported('NO_IDEMPOTENT_NONINTERACTIVE_INTERFACE'),
+        'providers.credentials.execute': modelManagement
+          ? {
+              status: scopes.has('control:secrets') ? 'supported' : 'forbidden',
+              modes: scopes.has('control:secrets') ? ['validate', 'dry-run', 'execute'] : [],
+              requiredScopes: ['control:secrets'],
+              ...(!scopes.has('control:secrets') ? { reasonCode: 'SCOPE_NOT_CONFIGURED' } : {}),
+              constraints: { authority: 'hermes-native', secretValuesReturned: false },
+            }
+          : unavailable('HERMES_MANAGEMENT_API_NOT_CONFIGURED'),
+        'models.execute': modelManagement
+          ? {
+              status: scopes.has('control:execute') ? 'supported' : 'forbidden',
+              modes: scopes.has('control:execute') ? ['validate', 'dry-run', 'execute'] : [],
+              requiredScopes: ['control:execute'],
+              ...(!scopes.has('control:execute') ? { reasonCode: 'SCOPE_NOT_CONFIGURED' } : {}),
+              constraints: { authority: 'hermes-native', appliesToNewSessions: true },
+            }
+          : unavailable('HERMES_MANAGEMENT_API_NOT_CONFIGURED'),
         'work.execute': {
           status: scopes.has('control:execute') ? 'supported' : 'forbidden',
           modes: scopes.has('control:execute') ? ['validate', 'dry-run', 'execute'] : [],
@@ -226,12 +253,14 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
 
   app.get('/control/v1/providers', async (request) => {
     requireScope(scopes, 'control:read');
-    return collection(options, await options.source.providers(), pageQuery(request.query));
+    const query = request.query as Record<string, unknown>;
+    return collection(options, await options.source.providers(query.refresh === 'true'), pageQuery(query));
   });
 
   app.get('/control/v1/models', async (request) => {
     requireScope(scopes, 'control:read');
-    return collection(options, await options.source.models(), pageQuery(request.query));
+    const query = request.query as Record<string, unknown>;
+    return collection(options, await options.source.models(query.refresh === 'true'), pageQuery(query));
   });
 
   app.get('/control/v1/work/projects', async (request) => {
@@ -444,6 +473,84 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
     },
   );
 
+  app.post<{ Body: HermesModelManagementCommand }>(
+    '/control/v1/commands/models',
+    { schema: { body: HermesModelManagementCommandSchema } },
+    async (request) => {
+      const command = request.body;
+      const credentialOperation = command.operation.startsWith('provider.credential.');
+      requireScope(scopes, credentialOperation ? 'control:secrets' : 'control:execute');
+      validateModelManagementPayload(command);
+      const before = credentialOperation
+        ? await options.source.providers()
+        : await options.source.models();
+      if (command.expectedSourceVersion && command.expectedSourceVersion !== before.sourceVersion)
+        throw new AdapterError(
+          'source_version_mismatch',
+          409,
+          'Expected source version does not match current Hermes model configuration',
+        );
+      const operationId = randomUUID();
+      if (command.mode !== 'execute') {
+        const status = command.mode === 'validate' ? 'validated' : 'dry-run';
+        const result = response(options, before.sourceVersion, {
+          operationId,
+          status,
+          replayed: false,
+          operation: command.operation,
+          targetId: command.targetId,
+          result: {},
+          emittedEvents: 0,
+        });
+        await auditCommand(request, 'success', operationId, status);
+        return result;
+      }
+      const ownerResult = await options.source.executeModelManagement(command);
+      const after = credentialOperation
+        ? await options.source.providers()
+        : await options.source.models();
+      const result = response(options, after.sourceVersion, {
+        operationId,
+        status: 'completed',
+        replayed: false,
+        operation: command.operation,
+        targetId: command.targetId,
+        result: ownerResult,
+        emittedEvents: 0,
+      });
+      const committed = await options.events.commit({
+        frameworkId: options.frameworkId,
+        capability: credentialOperation ? 'providers.credentials.execute' : 'models.execute',
+        idempotencyKey: command.idempotencyKey,
+        requestHash: sourceVersion(safeModelManagementCommand(command)),
+        command: safeModelManagementCommand(command),
+        response: result,
+        events: [
+          {
+            family: credentialOperation ? 'providers' : 'models',
+            type: command.operation,
+            sourceVersion: after.sourceVersion,
+            correlationId: command.correlationId,
+            operationId,
+            payload: { targetId: command.targetId },
+          },
+        ],
+      });
+      if (committed.replayed) {
+        const data = committed.response.data;
+        if (data && typeof data === 'object' && !Array.isArray(data))
+          (data as Record<string, unknown>).replayed = true;
+      }
+      await auditCommand(
+        request,
+        'success',
+        operationId,
+        committed.replayed ? 'replayed' : 'completed',
+      );
+      return committed.response;
+    },
+  );
+
   app.post<{ Body: HermesWorkCommand }>(
     '/control/v1/commands/work',
     { schema: { body: HermesWorkCommandSchema } },
@@ -588,6 +695,27 @@ function verifyProfileResult(command: HermesProfileCommand, exists: boolean) {
       'Hermes profile mutation could not be verified by authoritative readback',
       true,
     );
+}
+
+function validateModelManagementPayload(command: HermesModelManagementCommand) {
+  if (command.operation === 'model.select') {
+    const providerId = command.payload.providerId;
+    if (typeof providerId !== 'string' || !providerId.trim())
+      throw new AdapterError('invalid_request', 400, 'Provider id is required');
+    return;
+  }
+  if (command.operation === 'provider.credential.set') {
+    const credential = command.payload.credential;
+    if (typeof credential !== 'string' || !credential.trim() || credential.length > 32_768)
+      throw new AdapterError('invalid_request', 400, 'Credential is required');
+  }
+}
+
+function safeModelManagementCommand(
+  command: HermesModelManagementCommand,
+): HermesModelManagementCommand {
+  if (command.operation !== 'provider.credential.set') return command;
+  return { ...command, payload: { ...command.payload, credential: '[REDACTED]' } };
 }
 
 function validateConversationPayload(command: HermesConversationCommand) {
@@ -802,6 +930,8 @@ function mapError(error: unknown) {
     return new AdapterError('SECOND_CONSUMER_FORBIDDEN', 403, error.message);
   if (error instanceof SourceUnavailableError)
     return new AdapterError('capability_unavailable', 503, error.message, true);
+  if (error instanceof ModelConfirmationRequiredError)
+    return new AdapterError('MODEL_CONFIRMATION_REQUIRED', 409, error.message);
   if (error instanceof IdempotencyConflictError)
     return new AdapterError('idempotency_conflict', 409, error.message);
   if (error instanceof IdempotencyBusyError)

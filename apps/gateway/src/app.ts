@@ -254,7 +254,7 @@ export function buildApp(options: AppOptions) {
     cursor?: string;
     limit?: string | number;
   };
-  type FrameworkPageQuery = Pick<ReadQuery, 'cursor' | 'limit'>;
+  type FrameworkPageQuery = Pick<ReadQuery, 'cursor' | 'limit' | 'refresh'>;
   app.get<{ Querystring: Pick<ReadQuery, 'cursor' | 'limit'> }>(
     '/api/v1/operations',
     async (request) => {
@@ -445,6 +445,17 @@ export function buildApp(options: AppOptions) {
     },
   );
   app.get<{ Params: { frameworkId: string }; Querystring: FrameworkPageQuery }>(
+    '/api/v1/frameworks/:frameworkId/models',
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'models.read');
+      return requireHermesGateway().models(
+        request.params.frameworkId,
+        frameworkPageQuery(request.query),
+      );
+    },
+  );
+  app.get<{ Params: { frameworkId: string }; Querystring: FrameworkPageQuery }>(
     '/api/v1/frameworks/:frameworkId/work/projects',
     async (request) => {
       const current = await session(request);
@@ -606,6 +617,7 @@ export function buildApp(options: AppOptions) {
     return {
       ...(query.cursor ? { cursor: query.cursor } : {}),
       ...(limit !== undefined ? { limit } : {}),
+      ...(query.refresh === true || query.refresh === 'true' ? { refresh: true } : {}),
     };
   }
   function notificationOwners(current: SessionRecord): string[] {

@@ -6,6 +6,7 @@ import type {
   HermesEventEnvelope,
   HermesMessage,
   HermesModel,
+  HermesModelManagementCommand,
   HermesProfile,
   HermesProfileCommand,
   HermesProject,
@@ -15,7 +16,7 @@ import type {
   HermesWorkCommand,
 } from '@aquiero/contracts';
 
-export type CapabilityFamily = 'profiles' | 'providers' | 'work' | 'conversations';
+export type CapabilityFamily = 'profiles' | 'providers' | 'models' | 'work' | 'conversations';
 
 export interface Snapshot<T> {
   items: T[];
@@ -25,8 +26,9 @@ export interface Snapshot<T> {
 export interface AdapterSource {
   profiles(): Promise<Snapshot<HermesProfile>>;
   executeProfile(command: HermesProfileCommand): Promise<Record<string, unknown>>;
-  providers(): Promise<Snapshot<HermesProvider>>;
-  models(): Promise<Snapshot<HermesModel>>;
+  providers(refresh?: boolean): Promise<Snapshot<HermesProvider>>;
+  models(refresh?: boolean): Promise<Snapshot<HermesModel>>;
+  executeModelManagement(command: HermesModelManagementCommand): Promise<Record<string, unknown>>;
   projects(): Promise<Snapshot<HermesProject>>;
   boards(): Promise<Snapshot<HermesBoard>>;
   tasks(boardId: string): Promise<Snapshot<HermesTask>>;
@@ -37,6 +39,7 @@ export interface AdapterSource {
   messages(sessionId: string): Promise<Snapshot<HermesMessage>>;
   health(): Promise<Record<string, 'healthy' | 'degraded' | 'unavailable'>>;
   conversationsConfigured(): boolean;
+  modelManagementConfigured(): boolean;
 }
 
 export interface DerivedEventInput {
@@ -54,7 +57,11 @@ export interface IdempotentCommitInput {
   idempotencyKey: string;
   requestHash: string;
   command:
-    HermesControlCommand | HermesProfileCommand | HermesWorkCommand | HermesConversationCommand;
+    | HermesControlCommand
+    | HermesProfileCommand
+    | HermesModelManagementCommand
+    | HermesWorkCommand
+    | HermesConversationCommand;
   response: Record<string, unknown>;
   events: DerivedEventInput[];
 }

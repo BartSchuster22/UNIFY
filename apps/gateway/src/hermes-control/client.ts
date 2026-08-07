@@ -10,6 +10,8 @@ import {
   HermesEventsResponseSchema,
   HermesHealthResponseSchema,
   HermesMessagesResponseSchema,
+  HermesModelsResponseSchema,
+  HermesModelManagementResultSchema,
   HermesProfilesResponseSchema,
   HermesProjectsResponseSchema,
   HermesProvidersResponseSchema,
@@ -23,6 +25,8 @@ import {
   type HermesCronjob,
   type HermesEventEnvelope,
   type HermesMessage,
+  type HermesModel,
+  type HermesModelManagementCommand,
   type HermesProfile,
   type HermesProject,
   type HermesProvider,
@@ -42,6 +46,7 @@ type CollectionResponse<T> = {
 };
 export type HermesProfilesResponse = CollectionResponse<HermesProfile>;
 export type HermesProvidersResponse = CollectionResponse<HermesProvider>;
+export type HermesModelsResponse = CollectionResponse<HermesModel>;
 export type HermesProjectsResponse = CollectionResponse<HermesProject>;
 export type HermesBoardsResponse = CollectionResponse<HermesBoard>;
 export type HermesTasksResponse = CollectionResponse<HermesTask>;
@@ -121,6 +126,10 @@ export class HermesControlClient {
     );
   }
 
+  models(query: PageQuery = {}): Promise<HermesModelsResponse> {
+    return this.request('GET', pagePath('/control/v1/models', query), HermesModelsResponseSchema);
+  }
+
   projects(query: PageQuery = {}): Promise<HermesProjectsResponse> {
     return this.request(
       'GET',
@@ -175,6 +184,18 @@ export class HermesControlClient {
 
   work(command: HermesWorkCommand): Promise<Static<typeof HermesWorkResultSchema>> {
     return this.request('POST', '/control/v1/commands/work', HermesWorkResultSchema, command);
+  }
+
+  modelManagement(
+    command: HermesModelManagementCommand,
+  ): Promise<Static<typeof HermesModelManagementResultSchema>> {
+    return this.request(
+      'POST',
+      '/control/v1/commands/models',
+      HermesModelManagementResultSchema,
+      command,
+      185_000,
+    );
   }
 
   conversation(
@@ -335,12 +356,14 @@ export class HermesControlClient {
 export interface PageQuery {
   cursor?: string;
   limit?: number;
+  refresh?: boolean;
 }
 
 function pagePath(path: string, query: PageQuery) {
   const params = new URLSearchParams();
   if (query.cursor) params.set('cursor', query.cursor);
   if (query.limit !== undefined) params.set('limit', String(query.limit));
+  if (query.refresh) params.set('refresh', 'true');
   const value = params.toString();
   return value ? `${path}?${value}` : path;
 }

@@ -1,4 +1,8 @@
-import type { HermesConversationOperation, HermesWorkOperation } from '@aquiero/contracts';
+import type {
+  HermesConversationOperation,
+  HermesModelManagementOperation,
+  HermesWorkOperation,
+} from '@aquiero/contracts';
 import { redactEvidence } from '../governance/canonical.js';
 import { GovernanceError } from '../governance/service.js';
 import type { GovernanceService } from '../governance/service.js';
@@ -7,6 +11,7 @@ import type { HermesGatewayService } from '../hermes-control/service.js';
 import {
   conversationMutationDefinitions,
   frameworkReconcileDefinition,
+  modelMutationDefinitions,
   workMutationDefinitions,
   type MutationDefinition,
   type MutationInput,
@@ -48,6 +53,8 @@ export class MutationService {
     };
     const definition = this.definition(operationType);
     if (operationType === 'framework.reconcile') validateFrameworkCommand(input);
+    else if (operationType.startsWith('model.') || operationType.startsWith('provider.'))
+      validateModelCommand(input, definition);
     else if (operationType.startsWith('work.')) validateWorkCommand(input, definition);
     else validateConversationCommand(input, definition);
     return input;
@@ -71,7 +78,7 @@ export class MutationService {
       ...(idempotencyKey ? { idempotencyKey } : {}),
       mode: input.mode,
       policyDecision: 'allowed',
-      payload: input,
+      payload: redactEvidence(input),
     });
     if (claim.kind === 'replayed') {
       return { replayed: true, operation: claim.operation, result: claim.operation.result };
@@ -151,6 +158,8 @@ export class MutationService {
     if (operationType === 'framework.reconcile') return frameworkReconcileDefinition;
     const work = workMutationDefinitions[operationType];
     if (work) return work;
+    const model = modelMutationDefinitions[operationType];
+    if (model) return model;
     const conversation = conversationMutationDefinitions[operationType];
     if (conversation) return conversation;
     throw new GovernanceError('MUTATION_UNSUPPORTED', 422, 'Mutation type is not supported');
@@ -179,6 +188,15 @@ export class MutationService {
         input.mode,
         context,
       );
+    if (input.operationType.startsWith('model.') || input.operationType.startsWith('provider.'))
+      return this.hermes.modelManagement(
+        input.target.frameworkId!,
+        input.operationType as HermesModelManagementOperation,
+        input.target.nativeId,
+        input.payload,
+        input.mode,
+        context,
+      );
     return this.hermes.conversation(
       input.target.frameworkId!,
       input.operationType.slice('conversation.'.length) as HermesConversationOperation,
@@ -202,6 +220,31 @@ export class MutationService {
     if (raw.frameworkId !== undefined)
       target.frameworkId = requiredString(raw.frameworkId, 'target.frameworkId');
     return target;
+  }
+}
+
+function validateModelCommand(input: MutationInput, definition: MutationDefinition) {
+  if (
+    input.target.owner !== 'hermes' ||
+    input.target.kind !== definition.kind ||
+    !input.target.frameworkId
+  )
+    throw new GovernanceError(
+      'MUTATION_TARGET_INVALID',
+      422,
+      'Model management must target one exact model or provider in one Hermes framework',
+    );
+  if (definition.destructive && !input.confirmed)
+    throw new GovernanceError('CONFIRMATION_REQUIRED', 409, 'Credential removal requires confirmation');
+  if (input.operationType === 'model.select') {
+    const providerId = input.payload.providerId;
+    if (typeof providerId !== 'string' || !providerId.trim())
+      throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'providerId is required');
+  }
+  if (input.operationType === 'provider.credential.set') {
+    const credential = input.payload.credential;
+    if (typeof credential !== 'string' || !credential.trim() || credential.length > 32_768)
+      throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'credential is required');
   }
 }
 

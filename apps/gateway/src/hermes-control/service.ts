@@ -7,6 +7,8 @@ import {
   type HermesConversationCommand,
   type HermesConversationOperation,
   type HermesControlCommand,
+  type HermesModelManagementCommand,
+  type HermesModelManagementOperation,
   type HermesWorkCommand,
   type HermesWorkOperation,
 } from '@aquiero/contracts';
@@ -66,6 +68,10 @@ export class HermesGatewayService {
     return projectCollection(await this.read(frameworkId, (client) => client.providers(query)));
   }
 
+  async models(frameworkId: string, query: PageQuery) {
+    return projectCollection(await this.read(frameworkId, (client) => client.models(query)));
+  }
+
   async projects(frameworkId: string, query: PageQuery) {
     return projectCollection(await this.read(frameworkId, (client) => client.projects(query)));
   }
@@ -92,6 +98,42 @@ export class HermesGatewayService {
     return projectCollection(
       await this.read(frameworkId, (client) => client.messages(sessionId, query)),
     );
+  }
+
+  async modelManagement(
+    frameworkId: string,
+    operation: HermesModelManagementOperation,
+    targetId: string,
+    payload: Record<string, unknown>,
+    mode: 'validate' | 'dry-run' | 'execute',
+    context: GatewayCommandContext,
+  ) {
+    const command: HermesModelManagementCommand = {
+      mode,
+      idempotencyKey: gatewayIdempotencyKey(context.actorUserId, context.idempotencyKey),
+      requestId: context.operationId,
+      correlationId: context.operationId,
+      actor: { type: 'user', id: context.actorUserId },
+      payload,
+      operation,
+      targetId,
+    };
+    const scope: FrameworkScope = operation.startsWith('provider.credential.')
+      ? 'control:secrets'
+      : 'control:execute';
+    return this.call(frameworkId, scope, async (client) => {
+      const result = await client.modelManagement(command);
+      assertProvenance(frameworkId, result);
+      const expectedStatus =
+        mode === 'validate' ? 'validated' : mode === 'dry-run' ? 'dry-run' : 'completed';
+      if (result.data.status !== expectedStatus)
+        throw new GovernanceError(
+          'FRAMEWORK_VERIFICATION_FAILED',
+          502,
+          'Hermes model-management command did not return the expected terminal status',
+        );
+      return projectEnvelope(result);
+    });
   }
 
   async work(

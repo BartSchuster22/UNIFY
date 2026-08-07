@@ -80,7 +80,9 @@ services:
       HERMES_FRAMEWORK_ID: hermes-alica
       HERMES_DISPLAY_NAME: Alica
       HERMES_INSTANCE_ID: alica-v1-private
-      HERMES_ADAPTER_SCOPES: control:read,control:execute,control:events
+      HERMES_ADAPTER_SCOPES: control:read,control:execute,control:events,control:secrets
+      HERMES_MANAGEMENT_BASE_URL: http://127.0.0.1:29119
+      HERMES_MANAGEMENT_AUTOSTART: 'true'
       DATABASE_URL_FILE: /run/secrets/database-url-adapter
       HERMES_ADAPTER_TOKEN_BUNDLE_FILE: /run/secrets/alica-token-bundle
       HERMES_ADAPTER_TLS_KEY_FILE: /run/secrets/alica-tls-key
@@ -120,7 +122,9 @@ services:
       HERMES_FRAMEWORK_ID: hermes-herman
       HERMES_DISPLAY_NAME: Herman
       HERMES_INSTANCE_ID: herman-v1-private
-      HERMES_ADAPTER_SCOPES: control:read,control:execute,control:events
+      HERMES_ADAPTER_SCOPES: control:read,control:execute,control:events,control:secrets
+      HERMES_MANAGEMENT_BASE_URL: http://127.0.0.1:29119
+      HERMES_MANAGEMENT_AUTOSTART: 'true'
       DATABASE_URL_FILE: /run/secrets/database-url-adapter
       HERMES_ADAPTER_TOKEN_BUNDLE_FILE: /run/secrets/herman-token-bundle
       HERMES_ADAPTER_TLS_KEY_FILE: /run/secrets/herman-tls-key

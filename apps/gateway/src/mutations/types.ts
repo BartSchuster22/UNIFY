@@ -28,6 +28,28 @@ export const frameworkReconcileDefinition: MutationDefinition = {
   executionPath: 'hermes-control',
 };
 
+export const modelMutationDefinitions: Record<string, MutationDefinition> = {
+  'model.select': {
+    owner: 'hermes',
+    kind: 'model',
+    permission: 'models.manage',
+    executionPath: 'hermes-control',
+  },
+  'provider.credential.set': {
+    owner: 'hermes',
+    kind: 'provider',
+    permission: 'credentials.manage',
+    executionPath: 'hermes-control',
+  },
+  'provider.credential.remove': {
+    owner: 'hermes',
+    kind: 'provider',
+    permission: 'credentials.manage',
+    executionPath: 'hermes-control',
+    destructive: true,
+  },
+};
+
 export const workMutationDefinitions: Record<string, MutationDefinition> = {
   'work.project.create': {
     owner: 'hermes',

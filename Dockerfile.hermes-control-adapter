@@ -15,7 +15,8 @@ COPY apps/hermes-control-adapter apps/hermes-control-adapter
 RUN pnpm --filter @aquiero/contracts build \
  && pnpm --filter @aquiero/hermes-control-adapter build \
  && pnpm --filter @aquiero/hermes-control-adapter deploy --prod --legacy /out \
- && rm -rf /out/node_modules/.cache
+ && rm -rf /out/node_modules/.cache \
+ && chmod -R a+rX /out
 
 FROM ${HERMES_RUNTIME_IMAGE} AS runtime
 LABEL org.opencontainers.image.title="UNIFY Hermes Control Adapter" \

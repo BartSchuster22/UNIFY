@@ -80,8 +80,9 @@ services:
       ALLOWED_ORIGINS: https://uniui.aquiero.com,http://127.0.0.1:${UNIUI_PORT:-3000},http://localhost:${UNIUI_PORT:-3000},http://127.0.0.1:${CHAT_PWA_PORT:-3101},http://localhost:${CHAT_PWA_PORT:-3101},http://127.0.0.1:${ALERTS_PWA_PORT:-3102},http://localhost:${ALERTS_PWA_PORT:-3102}
       FRAMEWORK_AUTH_ENV_NAMES: HERMES_MAIN_CONTROL_TOKEN
       HERMES_MAIN_CONTROL_TOKEN_FILE: /run/secrets/hermes_main_control_token
+      NODE_EXTRA_CA_CERTS: /run/secrets/hermes_adapter_ca
       HERMES_EVENT_POLL_MS: ${HERMES_EVENT_POLL_MS:-5000}
-    secrets: [gateway_database_url, gateway_auth_pepper, hermes_main_control_token]
+    secrets: [gateway_database_url, gateway_auth_pepper, hermes_main_control_token, hermes_adapter_ca]
     network_mode: host
     depends_on:
       postgres: { condition: service_healthy }
@@ -90,6 +91,48 @@ services:
     mem_limit: 512m
     cpus: 0.75
     stop_grace_period: 30s
+
+  hermes-main-adapter:
+    build:
+      context: .
+      dockerfile: Dockerfile.hermes-control-adapter
+    image: unify-hermes-control-adapter:local
+    user: '1001:1000'
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 160
+    mem_limit: 768m
+    cpus: 1.0
+    init: true
+    stop_grace_period: 30s
+    restart: unless-stopped
+    tmpfs: ['/tmp:uid=1001,gid=1000,mode=0700']
+    network_mode: host
+    environment:
+      HOST: 127.0.0.1
+      PORT: 28082
+      RELEASE_ID: ${RELEASE_ID:-local-compose}
+      DATABASE_URL_FILE: /run/secrets/gateway_database_url
+      HERMES_FRAMEWORK_ID: hermes-main
+      HERMES_DISPLAY_NAME: Herman
+      HERMES_INSTANCE_ID: herman-local-private
+      HERMES_ADAPTER_SCOPES: control:read,control:execute,control:events,control:secrets
+      HERMES_ADAPTER_TOKEN_FILE: /run/secrets/hermes_main_control_token
+      HERMES_ADAPTER_TLS_KEY_FILE: /run/secrets/hermes_adapter_tls_key
+      HERMES_ADAPTER_TLS_CERT_FILE: /run/secrets/hermes_adapter_tls_cert
+      HERMES_MANAGEMENT_BASE_URL: http://127.0.0.1:29119
+      HERMES_MANAGEMENT_AUTOSTART: 'true'
+      HERMES_HOME: /opt/data
+    secrets:
+      [gateway_database_url, hermes_main_control_token, hermes_adapter_tls_key, hermes_adapter_tls_cert]
+    volumes:
+      - type: bind
+        source: /home/herman/.hermes
+        target: /opt/data
+    depends_on:
+      postgres: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
 
   bootstrap-admin:
     <<: *job-hardening
@@ -160,5 +203,8 @@ secrets:
   gateway_auth_pepper: { file: .secrets/gateway_auth_pepper }
   bootstrap_admin_password: { file: .secrets/bootstrap_admin_password }
   hermes_main_control_token: { file: .secrets/hermes_main_control_token }
+  hermes_adapter_ca: { file: .secrets/hermes_adapter_ca.crt }
+  hermes_adapter_tls_key: { file: .secrets/hermes_adapter_tls.key }
+  hermes_adapter_tls_cert: { file: .secrets/hermes_adapter_tls.crt }
 volumes:
   postgres_data: {}

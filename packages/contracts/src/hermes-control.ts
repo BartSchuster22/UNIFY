@@ -212,6 +212,16 @@ export const HermesProviderSchema = Type.Object(
       Type.Literal('unknown'),
     ]),
     selected: Type.Boolean(),
+    authType: Type.Optional(
+      Type.Union([
+        Type.Literal('api_key'),
+        Type.Literal('oauth'),
+        Type.Literal('none'),
+        Type.Literal('unknown'),
+      ]),
+    ),
+    credentialMutable: Type.Optional(Type.Boolean()),
+    modelCount: Type.Optional(Type.Integer({ minimum: 0 })),
   },
   { $id: 'HermesProvider', additionalProperties: false },
 );
@@ -436,6 +446,42 @@ export const HermesProfileResultSchema = controlResponse(
       replayed: Type.Boolean(),
       operation: HermesProfileOperationSchema,
       targetId: Type.String({ minLength: 1, maxLength: 128 }),
+      result: Type.Record(Type.String(), Type.Unknown()),
+      emittedEvents: Type.Integer({ minimum: 0 }),
+    },
+    { additionalProperties: false },
+  ),
+);
+
+export const HermesModelManagementOperationSchema = Type.Union(
+  [
+    Type.Literal('model.select'),
+    Type.Literal('provider.credential.set'),
+    Type.Literal('provider.credential.remove'),
+  ],
+  { $id: 'HermesModelManagementOperation' },
+);
+export const HermesModelManagementCommandSchema = Type.Object(
+  {
+    ...HermesControlCommandProperties,
+    operation: HermesModelManagementOperationSchema,
+    targetId: Type.String({ minLength: 1, maxLength: 300 }),
+  },
+  { $id: 'HermesModelManagementCommand', additionalProperties: false },
+);
+export const HermesModelManagementResultSchema = controlResponse(
+  'HermesModelManagementResult',
+  Type.Object(
+    {
+      operationId: Type.String({ minLength: 1, maxLength: 200 }),
+      status: Type.Union([
+        Type.Literal('validated'),
+        Type.Literal('dry-run'),
+        Type.Literal('completed'),
+      ]),
+      replayed: Type.Boolean(),
+      operation: HermesModelManagementOperationSchema,
+      targetId: Type.String({ minLength: 1, maxLength: 300 }),
       result: Type.Record(Type.String(), Type.Unknown()),
       emittedEvents: Type.Integer({ minimum: 0 }),
     },
@@ -780,6 +826,8 @@ export type HermesMessage = Static<typeof HermesMessageSchema>;
 export type HermesControlCommand = Static<typeof HermesControlCommandSchema>;
 export type HermesProfileOperation = Static<typeof HermesProfileOperationSchema>;
 export type HermesProfileCommand = Static<typeof HermesProfileCommandSchema>;
+export type HermesModelManagementOperation = Static<typeof HermesModelManagementOperationSchema>;
+export type HermesModelManagementCommand = Static<typeof HermesModelManagementCommandSchema>;
 export type HermesWorkOperation = Static<typeof HermesWorkOperationSchema>;
 export type HermesWorkCommand = Static<typeof HermesWorkCommandSchema>;
 export type HermesConversationOperation = Static<typeof HermesConversationOperationSchema>;
@@ -827,6 +875,9 @@ export const HermesControlSchemas = [
   HermesProfileOperationSchema,
   HermesProfileCommandSchema,
   HermesProfileResultSchema,
+  HermesModelManagementOperationSchema,
+  HermesModelManagementCommandSchema,
+  HermesModelManagementResultSchema,
   HermesWorkOperationSchema,
   HermesWorkCommandSchema,
   HermesWorkResultSchema,

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Value } from '@sinclair/typebox/value';
 import {
   HERMES_CONTROL_VERSION,
@@ -30,6 +30,7 @@ afterEach(async () => Promise.all(apps.splice(0).map((app) => app.close())));
 
 const source: AdapterSource = {
   conversationsConfigured: () => true,
+  modelManagementConfigured: () => true,
   profiles: async () => ({
     items: [
       { id: 'default', displayName: 'Default', active: true, gatewayStatus: 'running' },
@@ -76,6 +77,10 @@ const source: AdapterSource = {
   }),
   cronjobs: async () => ({ items: [], sourceVersion: 'sha256:cronjobs' }),
   executeProfile: async (command) => ({ operation: command.operation, targetId: command.targetId }),
+  executeModelManagement: async (command) => ({
+    operation: command.operation,
+    targetId: command.targetId,
+  }),
   executeWork: async (command) => ({ operation: command.operation, targetId: command.targetId }),
   executeConversation: async (command) => ({
     operation: command.operation,
@@ -288,6 +293,45 @@ describe('Hermes control adapter', () => {
       code: 'SECOND_CONSUMER_FORBIDDEN',
       retryable: false,
     });
+  });
+
+  it('requires the dedicated secrets scope for credentials and emits no credential material', async () => {
+    const credential = 'adapter-secret-must-not-persist';
+    const executeModelManagement = vi.fn().mockResolvedValue({ changed: true });
+    const managedSource: AdapterSource = { ...source, executeModelManagement };
+    const payload = {
+      ...command({ payload: { credential } }),
+      operation: 'provider.credential.set',
+      targetId: 'openrouter',
+    };
+
+    const denied = await create(managedSource).inject({
+      method: 'POST',
+      url: '/control/v1/commands/models',
+      headers: auth,
+      payload,
+    });
+    expect(denied.statusCode).toBe(403);
+    expect(executeModelManagement).not.toHaveBeenCalled();
+
+    const events = new MemoryAdapterEventStore();
+    const allowed = await create(
+      managedSource,
+      ['control:read', 'control:execute', 'control:events', 'control:secrets'],
+      events,
+    ).inject({
+      method: 'POST',
+      url: '/control/v1/commands/models',
+      headers: auth,
+      payload,
+    });
+    expect(allowed.statusCode).toBe(200);
+    expect(executeModelManagement).toHaveBeenCalledWith(
+      expect.objectContaining({ payload: { credential } }),
+    );
+    expect(JSON.stringify(allowed.json())).not.toContain(credential);
+    expect(JSON.stringify(events.audits)).not.toContain(credential);
+    expect(JSON.stringify(await events.list('hermes-dev', 0, 100))).not.toContain(credential);
   });
 
   it('executes native profile lifecycle with source-version concurrency and verified readback', async () => {

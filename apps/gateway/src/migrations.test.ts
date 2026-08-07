@@ -26,6 +26,10 @@ const adapterIsolationMigration = readFileSync(
   resolve(import.meta.dirname, '../migrations/008_framework_adapter_isolation.up.sql'),
   'utf8',
 );
+const modelEventsMigration = readFileSync(
+  resolve(import.meta.dirname, '../migrations/009_hermes_model_events.up.sql'),
+  'utf8',
+);
 describe('gateway foundation migration', () => {
   it.each([
     'users',
@@ -109,6 +113,14 @@ describe('Hermes adapter database isolation migration', () => {
     expect(adapterIsolationMigration).toContain('CREATE TRIGGER hermes_adapter_audit_immutable');
     expect(adapterIsolationMigration).toContain(
       "RAISE EXCEPTION 'hermes_adapter_audit is append-only'",
+    );
+  });
+});
+
+describe('Hermes model event migration', () => {
+  it('allows model events in the derived adapter event stream', () => {
+    expect(modelEventsMigration).toContain(
+      "'profiles','providers','models','work','conversations'",
     );
   });
 });

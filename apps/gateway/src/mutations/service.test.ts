@@ -112,8 +112,12 @@ function taskInput(): MutationInput {
   };
 }
 
-function hermes(work: ReturnType<typeof vi.fn>, conversation = vi.fn()) {
-  return { work, conversation, reconcile: vi.fn() } as never;
+function hermes(
+  work: ReturnType<typeof vi.fn>,
+  conversation = vi.fn(),
+  modelManagement = vi.fn(),
+) {
+  return { work, conversation, modelManagement, reconcile: vi.fn() } as never;
 }
 
 describe('standalone mutation policy', () => {
@@ -195,6 +199,78 @@ describe('standalone mutation policy', () => {
       'execute',
       expect.objectContaining({ idempotencyKey: 'conversation-key' }),
     );
+  });
+
+  it('routes credential management with dedicated RBAC and never persists the credential', async () => {
+    const store = new Store();
+    const modelManagement = vi.fn().mockResolvedValue({
+      data: { status: 'completed', operation: 'provider.credential.set', targetId: 'openrouter' },
+    });
+    const service = new MutationService(
+      new GovernanceService(store),
+      hermes(vi.fn(), vi.fn(), modelManagement),
+    );
+    const input = service.parse({
+      operationType: 'provider.credential.set',
+      target: {
+        owner: 'hermes',
+        kind: 'provider',
+        nativeId: 'openrouter',
+        frameworkId: 'hermes-alica',
+      },
+      payload: { credential: 'raw-provider-secret' },
+      mode: 'execute',
+      confirmed: false,
+    });
+
+    expect(service.permission(input)).toBe('credentials.manage');
+    const result = await service.run('u1', 'credential-key', input);
+    expect(result.operation.state).toBe('verified');
+    expect(modelManagement).toHaveBeenCalledWith(
+      'hermes-alica',
+      'provider.credential.set',
+      'openrouter',
+      { credential: 'raw-provider-secret' },
+      'execute',
+      expect.objectContaining({ idempotencyKey: 'credential-key' }),
+    );
+    expect(
+      JSON.stringify({
+        operations: [...store.operations.values()],
+        evidence: store.evidence,
+        audits: store.audits,
+      }),
+    ).not.toContain('raw-provider-secret');
+  });
+
+  it('requires confirmation for credential removal and maps model selection to models.manage', () => {
+    const service = new MutationService(new GovernanceService(new Store()), hermes(vi.fn()));
+    expect(() =>
+      service.parse({
+        operationType: 'provider.credential.remove',
+        target: {
+          owner: 'hermes',
+          kind: 'provider',
+          nativeId: 'openrouter',
+          frameworkId: 'hermes-main',
+        },
+        payload: {},
+        mode: 'execute',
+        confirmed: false,
+      }),
+    ).toThrow(/confirmation/i);
+    const model = service.parse({
+      operationType: 'model.select',
+      target: {
+        owner: 'hermes',
+        kind: 'model',
+        nativeId: 'openai/gpt-5',
+        frameworkId: 'hermes-main',
+      },
+      payload: { providerId: 'openrouter', confirmExpensiveModel: true },
+      mode: 'execute',
+    });
+    expect(service.permission(model)).toBe('models.manage');
   });
 
   it('records Hermes failure as an error rather than a successful result', async () => {

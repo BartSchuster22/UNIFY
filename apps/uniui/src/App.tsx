@@ -390,7 +390,12 @@ function View({ view, principal }: { view: ViewId; principal: Principal }) {
     case 'frameworks':
       return <FrameworksView />;
     case 'models':
-      return <ModelsView canManageCredentials={false} />;
+      return (
+        <ModelsView
+          canManageCredentials={principal.permissions.includes('credentials.manage')}
+          canManageModels={principal.permissions.includes('models.manage')}
+        />
+      );
     case 'profiles':
       return <ProfilesView canManage={false} canManageModels={false} canDelete={false} />;
     case 'work':

@@ -1,4 +1,5 @@
 import { execFile } from 'node:child_process';
+import { randomBytes } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { promisify } from 'node:util';
 import pg from 'pg';
@@ -10,6 +11,7 @@ import {
 import { buildHermesControlAdapter } from './app.js';
 import { PostgresAdapterEventStore } from './event-store.js';
 import { HermesCliRunner, HermesNativeSource } from './source.js';
+import { startPrivateHermesManagement } from './management-process.js';
 import { FileRotatingBearerTokenVerifier } from './token-credentials.js';
 
 const execFileAsync = promisify(execFile);
@@ -47,6 +49,22 @@ const https =
       }
     : undefined;
 const apiToken = await optionalSecret('HERMES_API_TOKEN');
+const managementBaseUrl = process.env.HERMES_MANAGEMENT_BASE_URL;
+const managementAutostart = process.env.HERMES_MANAGEMENT_AUTOSTART === 'true';
+const managementToken = managementBaseUrl
+  ? managementAutostart
+    ? randomBytes(32).toString('base64url')
+    : await optionalSecret('HERMES_MANAGEMENT_SESSION_TOKEN')
+  : undefined;
+const managementProcess =
+  managementAutostart && managementBaseUrl && managementToken
+    ? await startPrivateHermesManagement(
+        hermesBin,
+        managementBaseUrl,
+        managementToken,
+        process.env.HERMES_HOME,
+      )
+    : undefined;
 const pythonVersion = (
   await execFileAsync('python3', ['--version'], { encoding: 'utf8', timeout: 5_000 })
 ).stdout
@@ -58,6 +76,8 @@ const source = new HermesNativeSource({
   runner: new HermesCliRunner(hermesBin, process.env.HERMES_HOME),
   ...(process.env.HERMES_API_BASE_URL ? { apiBaseUrl: process.env.HERMES_API_BASE_URL } : {}),
   ...(apiToken ? { apiToken } : {}),
+  ...(managementBaseUrl ? { managementBaseUrl } : {}),
+  ...(managementToken ? { managementToken } : {}),
 });
 const app = buildHermesControlAdapter({
   frameworkId: process.env.HERMES_FRAMEWORK_ID ?? 'hermes-dev',
@@ -84,6 +104,7 @@ await app.listen({ host, port });
 
 for (const signal of ['SIGINT', 'SIGTERM'] as const)
   process.once(signal, () => {
+    managementProcess?.kill('SIGTERM');
     void app.close().finally(() => pool.end());
   });
 
@@ -110,7 +131,12 @@ async function verifyImmutableBaseline(path: string, binary: string) {
     .stdout;
   const release = /Hermes Agent v([^\s]+)/u.exec(version)?.[1];
   const commit = /upstream\s+([0-9a-f]{8,40})/u.exec(version)?.[1];
-  if (release !== PINNED_HERMES_RELEASE || !commit || !PINNED_HERMES_COMMIT.startsWith(commit))
+  const carriedCommit = /local\s+([0-9a-f]{8,40})/u.exec(version)?.[1];
+  const immutableDockerBuild = commit === '413ed6b9' && carriedCommit === '9e54eee4';
+  if (
+    release !== PINNED_HERMES_RELEASE ||
+    (!immutableDockerBuild && (!commit || !PINNED_HERMES_COMMIT.startsWith(commit)))
+  )
     throw new Error('Installed Hermes release does not match the immutable supported baseline');
 }
 

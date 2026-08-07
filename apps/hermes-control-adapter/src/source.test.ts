@@ -220,6 +220,46 @@ describe('HermesNativeSource', () => {
     await expect(source.messages('external')).rejects.toBeInstanceOf(SecondConsumerForbiddenError);
   });
 
+  it('maps the existing Hermes management inventory and never exposes key environment names', async () => {
+    const source = new HermesNativeSource({
+      runner: new FixtureRunner({}),
+      managementBaseUrl: 'http://127.0.0.1:29119',
+      managementToken: 'private-token',
+      fetchImpl: async (input, init) => {
+        expect(init?.headers).toMatchObject({ 'x-hermes-session-token': 'private-token' });
+        return Response.json({
+          provider: 'openrouter',
+          model: 'openai/gpt-5',
+          providers: [
+            {
+              slug: 'openrouter',
+              name: 'OpenRouter',
+              auth_type: 'api_key',
+              authenticated: true,
+              key_env: 'OPENROUTER_API_KEY',
+              models: ['openai/gpt-5'],
+              capabilities: { 'openai/gpt-5': { reasoning: true } },
+            },
+          ],
+        });
+      },
+    });
+
+    expect((await source.providers()).items[0]).toMatchObject({
+      id: 'openrouter',
+      authType: 'api_key',
+      credentialStatus: 'configured',
+      selected: true,
+      modelCount: 1,
+    });
+    expect((await source.models()).items[0]).toMatchObject({
+      id: 'openai/gpt-5',
+      providerId: 'openrouter',
+      selected: true,
+    });
+    expect(JSON.stringify(await source.providers())).not.toContain('OPENROUTER_API_KEY');
+  });
+
   it('rejects unsafe Hermes API endpoints before issuing a request', () => {
     expect(validateApiBaseUrl('http://127.0.0.1:8642/')).toBe('http://127.0.0.1:8642');
     expect(validateApiBaseUrl('https://hermes.example')).toBe('https://hermes.example');

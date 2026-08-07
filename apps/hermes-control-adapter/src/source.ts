@@ -7,6 +7,7 @@ import type {
   HermesConversationCommand,
   HermesMessage,
   HermesModel,
+  HermesModelManagementCommand,
   HermesProfile,
   HermesProfileCommand,
   HermesProject,
@@ -16,6 +17,7 @@ import type {
   HermesWorkCommand,
 } from '@aquiero/contracts';
 import type { AdapterSource, Snapshot } from './types.js';
+import { HermesManagementApi, HermesManagementError } from './management-api.js';
 
 const execFileAsync = promisify(execFile);
 const ansi = new RegExp(String.raw`\u001B\[[0-9;]*m`, 'g');
@@ -49,20 +51,30 @@ export interface HermesNativeSourceOptions {
   runner: CommandRunner;
   apiBaseUrl?: string;
   apiToken?: string;
+  managementBaseUrl?: string;
+  managementToken?: string;
   fetchImpl?: typeof fetch;
 }
 
 export class HermesNativeSource implements AdapterSource {
   private readonly fetchImpl: typeof fetch;
   private readonly apiBaseUrl: string | undefined;
+  private readonly management: HermesManagementApi | undefined;
 
   constructor(private readonly options: HermesNativeSourceOptions) {
     this.fetchImpl = options.fetchImpl ?? fetch;
     this.apiBaseUrl = options.apiBaseUrl ? validateApiBaseUrl(options.apiBaseUrl) : undefined;
+    this.management = options.managementBaseUrl
+      ? new HermesManagementApi(options.managementBaseUrl, this.fetchImpl, options.managementToken)
+      : undefined;
   }
 
   conversationsConfigured() {
     return Boolean(this.apiBaseUrl);
+  }
+
+  modelManagementConfigured() {
+    return Boolean(this.management);
   }
 
   async profiles(): Promise<Snapshot<HermesProfile>> {
@@ -131,7 +143,13 @@ export class HermesNativeSource implements AdapterSource {
     }
   }
 
-  async providers(): Promise<Snapshot<HermesProvider>> {
+  async providers(refresh = false): Promise<Snapshot<HermesProvider>> {
+    if (this.management) {
+      const inventory = await this.management.inventory(refresh);
+      return snapshot(
+        inventory.providers.map((row) => mapManagementProvider(row, inventory.provider)),
+      );
+    }
     const output = stripAnsi(await this.options.runner.run(['status', '--all']));
     const selectedName = /^\s*Provider:\s+(.+)$/m.exec(output)?.[1]?.trim();
     const providers = new Map<string, HermesProvider>();
@@ -174,7 +192,34 @@ export class HermesNativeSource implements AdapterSource {
     return snapshot([...providers.values()].sort((a, b) => a.id.localeCompare(b.id)));
   }
 
-  async models(): Promise<Snapshot<HermesModel>> {
+  async models(refresh = false): Promise<Snapshot<HermesModel>> {
+    if (this.management) {
+      const inventory = await this.management.inventory(refresh);
+      const items: HermesModel[] = [];
+      for (const raw of inventory.providers) {
+        const row = record(raw);
+        const provider = optionalString(row.slug ?? row.provider);
+        if (!provider || !Array.isArray(row.models)) continue;
+        const capabilities = recordOrEmpty(row.capabilities);
+        for (const rawModel of row.models) {
+          const id = optionalString(rawModel);
+          if (!id) continue;
+          const modelCapabilities = recordOrEmpty(capabilities[id]);
+          items.push({
+            id,
+            providerId: provider,
+            displayName: id,
+            capabilities: [
+              'text',
+              'tool-use',
+              ...(modelCapabilities.reasoning === true ? (['reasoning'] as const) : []),
+            ],
+            selected: provider === inventory.provider && id === inventory.model,
+          });
+        }
+      }
+      return snapshot(items);
+    }
     const status = stripAnsi(await this.options.runner.run(['status', '--all']));
     const selectedModel = /^\s*Model:\s+(.+)$/m.exec(status)?.[1]?.trim();
     const selectedProvider = /^\s*Provider:\s+(.+)$/m.exec(status)?.[1]?.trim();
@@ -220,6 +265,43 @@ export class HermesNativeSource implements AdapterSource {
           left.id.localeCompare(right.id),
       ),
     );
+  }
+
+  async executeModelManagement(
+    command: HermesModelManagementCommand,
+  ): Promise<Record<string, unknown>> {
+    if (!this.management)
+      throw new SourceUnavailableError('Hermes management API is not configured');
+    const payload = record(command.payload);
+    try {
+      switch (command.operation) {
+        case 'model.select': {
+          const providerId = payloadString(payload, 'providerId', 200);
+          const result = await this.management.selectModel(
+            providerId,
+            command.targetId,
+            payload.confirmExpensiveModel === true,
+          );
+          if (result.ok === false && result.confirm_required === true)
+            throw new ModelConfirmationRequiredError(
+              optionalString(result.confirm_message) ?? 'Expensive model confirmation is required',
+            );
+          return { selected: result.ok !== false, providerId, modelId: command.targetId };
+        }
+        case 'provider.credential.set':
+          return await this.management.setCredential(
+            command.targetId,
+            payloadString(payload, 'credential', 32_768),
+          );
+        case 'provider.credential.remove':
+          return await this.management.removeCredential(command.targetId);
+      }
+      throw new SourceUnavailableError('Hermes model-management operation is unsupported');
+    } catch (error) {
+      if (error instanceof HermesManagementError)
+        throw new SourceUnavailableError(error.message);
+      throw error;
+    }
   }
 
   async projects(): Promise<Snapshot<HermesProject>> {
@@ -627,6 +709,14 @@ export class HermesNativeSource implements AdapterSource {
     } catch {
       checks.cli = 'unavailable';
     }
+    if (this.management) {
+      try {
+        await this.management.inventory(false);
+        checks.management = 'healthy';
+      } catch {
+        checks.management = 'unavailable';
+      }
+    } else checks.management = 'degraded';
     if (!this.apiBaseUrl) checks.conversations = 'degraded';
     else {
       try {
@@ -669,6 +759,34 @@ export class HermesNativeSource implements AdapterSource {
 
 export class SourceUnavailableError extends Error {}
 export class SecondConsumerForbiddenError extends Error {}
+export class ModelConfirmationRequiredError extends Error {}
+
+function mapManagementProvider(raw: Record<string, unknown>, selectedProvider: string): HermesProvider {
+  const id = optionalString(raw.slug ?? raw.provider) ?? 'unknown';
+  const authenticated = raw.authenticated === true || raw.configured === true;
+  const authTypeRaw = optionalString(raw.auth_type ?? raw.authType)?.toLowerCase();
+  const authType: HermesProvider['authType'] =
+    authTypeRaw === 'oauth'
+      ? 'oauth'
+      : authTypeRaw === 'none' || authTypeRaw === 'local'
+        ? 'none'
+        : authTypeRaw === 'api_key' || authTypeRaw === 'apikey' || authTypeRaw === 'key'
+          ? 'api_key'
+          : 'unknown';
+  return {
+    id,
+    displayName: optionalString(raw.name ?? raw.label) ?? id,
+    credentialStatus: authenticated ? 'configured' : authType === 'none' ? 'configured' : 'missing',
+    selected: id.toLowerCase() === selectedProvider.toLowerCase(),
+    authType,
+    credentialMutable: authType === 'api_key' || authType === 'unknown',
+    modelCount: Array.isArray(raw.models)
+      ? raw.models.length
+      : Number.isInteger(raw.total_models)
+        ? Number(raw.total_models)
+        : 0,
+  };
+}
 
 const INTERNAL_SESSION_SOURCES = new Set(['api_server', 'cli', 'tui', 'terminal', 'acp', 'local']);
 
@@ -725,6 +843,12 @@ function record(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value))
     throw new Error('Expected object');
   return value as Record<string, unknown>;
+}
+
+function recordOrEmpty(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
 }
 
 function arrayFrom(value: unknown, keys: string[]): unknown[] {
