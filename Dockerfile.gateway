@@ -12,10 +12,12 @@ COPY apps/gateway/package.json apps/gateway/package.json
 RUN pnpm install --frozen-lockfile --filter @aquiero/gateway...
 COPY packages/contracts packages/contracts
 COPY apps/gateway apps/gateway
+COPY deploy/five-service/frameworks.json /tmp/frameworks.json
 RUN pnpm --filter @aquiero/contracts build \
   && pnpm --filter @aquiero/gateway build \
   && pnpm --filter @aquiero/gateway deploy --prod --legacy /out \
-  && rm -rf /out/node_modules/.cache
+  && rm -rf /out/node_modules/.cache \
+  && chmod 0444 /tmp/frameworks.json
 
 FROM ${NODE_RUNTIME_IMAGE} AS runtime
 LABEL org.opencontainers.image.title="UNIFY Gateway" \
@@ -25,8 +27,7 @@ LABEL org.opencontainers.image.title="UNIFY Gateway" \
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=8080
 WORKDIR /app
 COPY --from=build --chown=65532:65532 /out/ ./
-COPY --chown=65532:65532 deploy/five-service/frameworks.json /app/frameworks.json
-RUN chmod 0444 /app/frameworks.json
+COPY --from=build --chown=65532:65532 /tmp/frameworks.json /app/frameworks.json
 USER 65532:65532
 EXPOSE 8080
 STOPSIGNAL SIGTERM
