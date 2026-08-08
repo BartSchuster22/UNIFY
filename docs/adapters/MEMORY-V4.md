@@ -39,6 +39,47 @@ Mutation requests require the normal UNIFY session cookie, matching CSRF header 
 cookie, the exact RBAC permission, and `Idempotency-Key`. `If-Match` and
 `X-MemoryV4-Reason` are preserved where the upstream operation requires them.
 
+## Framework-facing Hermes tools
+
+The combined Hermes runtime embeds the `unify-memory` backend plugin. It exposes five
+model-callable tools and calls only the dedicated Gateway service API; it never receives
+the MemoryV4 service credential and cannot connect to MemoryV4 directly.
+
+| Hermes tool | Gateway service operation | Registration scope | Governance |
+|---|---|---|---|
+| `unify_memory_search` | `POST /api/v1/framework-tools/memory/search` | `memory:read` | scoped retrieval |
+| `unify_memory_context` | `POST /api/v1/framework-tools/memory/context` | `memory:read` | scoped entity context |
+| `unify_memory_get` | `POST /api/v1/framework-tools/memory/get` | `memory:read` | scoped record read |
+| `unify_memory_remember` | `POST /api/v1/framework-tools/memory/remember` | `memory:write` | forced active/working, `author_only` record |
+| `unify_memory_update` | `POST /api/v1/framework-tools/memory/update` | `memory:write` | idempotent `If-Match` update |
+
+Framework service authentication reuses that framework's distinct control bearer from
+its read-only token bundle. The Gateway compares token digests in constant shape,
+requires exactly one enabled and verified registration match, and then checks the
+registration's exact memory scope. MemoryV4 sees delegated actor
+`unify:framework:{frameworkId}`. Gateway audit records only the framework ID, operation,
+outcome, required scope, request ID, and upstream status; query/content and credentials
+are excluded.
+
+The write tools deliberately cannot create canonical records, promote, supersede,
+transition, resolve review findings, administer usage, or call arbitrary adapter paths.
+`operation_id` is mandatory and produces a stable idempotency key; callers reuse it for
+a retry and change it for an intentional second write. Updates additionally require the
+current record version. The plugin pins MemoryV4 contract `1.0.0`, rejects redirects and
+non-JSON responses, bounds response size, and permits plaintext only to loopback or the
+isolated `unify-core` service name.
+
+Runtime configuration:
+
+```text
+UNIFY_MEMORY_GATEWAY_URL=http://unify-core:8080
+UNIFY_MEMORY_TOKEN_BUNDLE_FILE=/run/secrets/adapter-token-bundle
+```
+
+The Gateway and framework share only their framework-specific internal control network.
+The Gateway alone joins `memory-v4-private`; that external network must be created with
+`internal: true` by `deploy/memory-v4/compose.yaml` before the five-service stack starts.
+
 ## Identity and scope
 
 The Gateway never forwards browser credentials to MemoryV4. It uses one server-side

@@ -170,6 +170,8 @@ function parseScopes(value: string | undefined): FrameworkScope[] {
     'control:secrets',
     'control:delivery',
     'control:approval',
+    'memory:read',
+    'memory:write',
   ]);
   const scopes = (value ?? 'control:read,control:execute,control:events')
     .split(',')

@@ -6,6 +6,7 @@ import {
   type FrameworkRegistrationInput,
   type FrameworkScope,
 } from '@aquiero/contracts';
+import { createHash, timingSafeEqual } from 'node:crypto';
 import type {
   FrameworkConnection,
   FrameworkProbe,
@@ -44,6 +45,40 @@ export class FrameworkRegistryService {
   async get(frameworkId: string): Promise<FrameworkRegistration | null> {
     const value = await this.store.get(frameworkId);
     return value ? publicRegistration(value) : null;
+  }
+
+  async authenticateBearer(
+    bearerToken: string | undefined,
+    requiredScope: Extract<FrameworkScope, 'memory:read' | 'memory:write'>,
+  ): Promise<{ frameworkId: string; scopes: FrameworkScope[] }> {
+    if (!bearerToken || bearerToken.length < 16 || bearerToken.length > 4_096)
+      throw new FrameworkRegistryError(
+        'FRAMEWORK_AUTH_INVALID',
+        401,
+        'Framework service authentication is invalid',
+      );
+    let matched: FrameworkRegistrationRecord | undefined;
+    let matches = 0;
+    for (const record of await this.store.list()) {
+      const expected = this.resolveAuth(record.serviceAuthReference);
+      if (expected && sameSecret(expected, bearerToken)) {
+        matched = record;
+        matches += 1;
+      }
+    }
+    if (matches !== 1 || !matched || !matched.enabled || matched.status !== 'verified')
+      throw new FrameworkRegistryError(
+        'FRAMEWORK_AUTH_INVALID',
+        401,
+        'Framework service authentication is invalid',
+      );
+    if (!matched.scopes.includes(requiredScope))
+      throw new FrameworkRegistryError(
+        'FRAMEWORK_SCOPE_DENIED',
+        403,
+        'Framework registration does not grant the required scope',
+      );
+    return { frameworkId: matched.frameworkId, scopes: [...matched.scopes] };
   }
 
   async connection(
@@ -194,6 +229,12 @@ export class FrameworkRegistryService {
   async remove(frameworkId: string) {
     return this.store.remove(frameworkId);
   }
+}
+
+function sameSecret(left: string, right: string): boolean {
+  const leftDigest = createHash('sha256').update(left).digest();
+  const rightDigest = createHash('sha256').update(right).digest();
+  return timingSafeEqual(leftDigest, rightDigest);
 }
 
 function sameScopes(left: readonly FrameworkScope[], right: readonly FrameworkScope[]) {

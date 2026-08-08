@@ -10861,6 +10861,14 @@
           {
             "const": "control:events",
             "type": "string"
+          },
+          {
+            "const": "memory:read",
+            "type": "string"
+          },
+          {
+            "const": "memory:write",
+            "type": "string"
           }
         ]
       },
@@ -10928,6 +10936,14 @@
                 },
                 {
                   "const": "control:events",
+                  "type": "string"
+                },
+                {
+                  "const": "memory:read",
+                  "type": "string"
+                },
+                {
+                  "const": "memory:write",
                   "type": "string"
                 }
               ]
@@ -11017,6 +11033,14 @@
                 },
                 {
                   "const": "control:events",
+                  "type": "string"
+                },
+                {
+                  "const": "memory:read",
+                  "type": "string"
+                },
+                {
+                  "const": "memory:write",
                   "type": "string"
                 }
               ]
@@ -11148,6 +11172,14 @@
                       },
                       {
                         "const": "control:events",
+                        "type": "string"
+                      },
+                      {
+                        "const": "memory:read",
+                        "type": "string"
+                      },
+                      {
+                        "const": "memory:write",
                         "type": "string"
                       }
                     ]

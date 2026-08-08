@@ -3,7 +3,7 @@ name: memory-v4
 services:
   memory-v4:
     image: ${MEMORY_V4_IMAGE:?set MEMORY_V4_IMAGE to an immutable image digest}
-    user: "65532:65532"
+    user: '65532:65532'
     restart: unless-stopped
     init: true
     read_only: true
@@ -15,7 +15,7 @@ services:
       MEMORYV4_API_KEY_FILE: /run/secrets/memory-v4-token
       MEMORYV4_API_ACTOR: unify-gateway
       MEMORYV4_API_SCOPE: ${MEMORY_V4_SCOPE_PATH:?set MEMORY_V4_SCOPE_PATH}
-      MEMORYV4_API_ALLOW_ACTOR_DELEGATION: "true"
+      MEMORYV4_API_ALLOW_ACTOR_DELEGATION: 'true'
       MEMORYV4_API_PERMISSIONS: memory.read,memory.search,memory.create-working,memory.create,memory.edit,memory.promote,memory.archive,memory.review,memory.audit.read,memory.admin
       MEMORYV4_DB_PATH: /data/memoryv4.sqlite3
       MEMORYV4_BACKUP_DIR: /backups
@@ -49,7 +49,7 @@ services:
       driver: json-file
       options:
         max-size: 10m
-        max-file: "3"
+        max-file: '3'
 
 networks:
   memory-private:

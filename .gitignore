@@ -16,3 +16,5 @@ secrets/*
 !secrets/README.md
 deploy/alica-v1/secrets/
 deploy/alica-v1/backups/
+__pycache__/
+*.py[cod]

@@ -125,7 +125,36 @@ assert.ok(
 assert.deepEqual(memberships[networkName('alica-egress')], ['alica']);
 assert.deepEqual(memberships[networkName('herman-egress')], ['herman']);
 assert.deepEqual(memberships[networkName('caddy-egress')], ['caddy']);
-for (const network of Object.values(config.networks)) assert.notEqual(network.external, true);
+assert.deepEqual(memberships[networkName('memory-v4-private')], ['unify-core']);
+for (const [name, network] of Object.entries(config.networks)) {
+  if (name.endsWith('memory-v4-private')) assert.equal(network.external, true);
+  else assert.notEqual(network.external, true);
+}
+
+for (const framework of ['alica', 'herman']) {
+  assert.equal(
+    config.services[framework].environment.UNIFY_MEMORY_GATEWAY_URL,
+    'http://unify-core:8080',
+  );
+  assert.equal(
+    config.services[framework].environment.UNIFY_MEMORY_TOKEN_BUNDLE_FILE,
+    '/run/secrets/adapter-token-bundle',
+  );
+  assert.match(
+    config.services[framework].environment.HERMES_ADAPTER_SCOPES,
+    /(?:^|,)memory:read(?:,|$)/,
+  );
+  assert.match(
+    config.services[framework].environment.HERMES_ADAPTER_SCOPES,
+    /(?:^|,)memory:write(?:,|$)/,
+  );
+}
+assert.equal(config.services['unify-core'].environment.MEMORY_V4_URL, 'http://memory-v4:8000');
+assert.equal(
+  config.services['unify-core'].environment.MEMORY_V4_TOKEN_FILE,
+  '/run/secrets/memory-v4-token',
+);
+assert.equal(config.services['unify-core'].environment.MEMORY_V4_ALLOW_PRIVATE_HTTP, 'true');
 
 assert.equal(config.services.alica.environment.PORT, '28082');
 assert.equal(config.services.herman.environment.PORT, '28082');

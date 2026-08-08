@@ -1854,13 +1854,13 @@ export interface components {
                 emittedEvents: number;
             };
         };
-        FrameworkScope: "control:read" | "control:execute" | "control:secrets" | "control:delivery" | "control:approval" | "control:events";
+        FrameworkScope: "control:read" | "control:execute" | "control:secrets" | "control:delivery" | "control:approval" | "control:events" | "memory:read" | "memory:write";
         FrameworkRegistrationInput: {
             frameworkId: string;
             displayName: string;
             baseUrl: string;
             serviceAuthReference: string;
-            scopes: ("control:read" | "control:execute" | "control:secrets" | "control:delivery" | "control:approval" | "control:events")[];
+            scopes: ("control:read" | "control:execute" | "control:secrets" | "control:delivery" | "control:approval" | "control:events" | "memory:read" | "memory:write")[];
             /** @constant */
             expectedContractVersion: "hermes-control/v1";
             /** @constant */
@@ -1874,7 +1874,7 @@ export interface components {
             displayName: string;
             baseUrl: string;
             serviceAuthConfigured: boolean;
-            scopes: ("control:read" | "control:execute" | "control:secrets" | "control:delivery" | "control:approval" | "control:events")[];
+            scopes: ("control:read" | "control:execute" | "control:secrets" | "control:delivery" | "control:approval" | "control:events" | "memory:read" | "memory:write")[];
             /** @constant */
             contractVersion: "hermes-control/v1";
             /** @constant */
@@ -1896,7 +1896,7 @@ export interface components {
                 displayName: string;
                 baseUrl: string;
                 serviceAuthConfigured: boolean;
-                scopes: ("control:read" | "control:execute" | "control:secrets" | "control:delivery" | "control:approval" | "control:events")[];
+                scopes: ("control:read" | "control:execute" | "control:secrets" | "control:delivery" | "control:approval" | "control:events" | "memory:read" | "memory:write")[];
                 /** @constant */
                 contractVersion: "hermes-control/v1";
                 /** @constant */

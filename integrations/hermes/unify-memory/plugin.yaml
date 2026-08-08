@@ -1,0 +1,11 @@
+name: unify-memory
+version: 1.0.0
+description: 'Governed framework-facing MemoryV4 tools routed exclusively through the UNIFY Gateway.'
+author: Aquiero
+kind: backend
+provides_tools:
+  - unify_memory_search
+  - unify_memory_context
+  - unify_memory_get
+  - unify_memory_remember
+  - unify_memory_update

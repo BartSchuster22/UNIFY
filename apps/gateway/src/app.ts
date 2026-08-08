@@ -17,6 +17,7 @@ import type { FrameworkRegistryService } from './framework-registry/service.js';
 import type { HermesGatewayService } from './hermes-control/service.js';
 import { MemoryV4AdapterError, type MemoryV4Adapter } from './memory-v4/client.js';
 import { memoryRoute } from './memory-v4/types.js';
+import { registerFrameworkMemoryRoutes } from './framework-memory/routes.js';
 export interface AppOptions {
   authStore: AuthStore;
   authPepper: string;
@@ -830,6 +831,13 @@ export function buildApp(options: AppOptions) {
       evidenceIds: operation.evidenceIds,
     };
   }
+  if (options.frameworkRegistry && options.memoryV4Adapter)
+    registerFrameworkMemoryRoutes(app, {
+      registry: options.frameworkRegistry,
+      adapter: options.memoryV4Adapter,
+      governance,
+    });
+
   function clear(reply: FastifyReply) {
     reply.clearCookie(SESSION_COOKIE, cookieOptions);
     reply.clearCookie(CSRF_COOKIE, cookieOptions);

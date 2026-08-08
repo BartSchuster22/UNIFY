@@ -637,6 +637,8 @@ export const FrameworkScopeSchema = Type.Union(
     Type.Literal('control:delivery'),
     Type.Literal('control:approval'),
     Type.Literal('control:events'),
+    Type.Literal('memory:read'),
+    Type.Literal('memory:write'),
   ],
   { $id: 'FrameworkScope' },
 );

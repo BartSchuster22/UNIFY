@@ -110,6 +110,25 @@ describe('FrameworkRegistryService', () => {
     });
   });
 
+  it('authenticates framework bearer tokens in constant-shape form and enforces memory scopes', async () => {
+    const store = new MemoryStore();
+    const service = new FrameworkRegistryService(store, probe, (reference) =>
+      reference === input.serviceAuthReference ? 'fixture-token-with-adequate-length' : undefined,
+    );
+    await service.register({ ...input, scopes: ['control:read', 'memory:read'] });
+    await expect(
+      service.authenticateBearer('fixture-token-with-adequate-length', 'memory:read'),
+    ).resolves.toMatchObject({ frameworkId: input.frameworkId });
+    await expect(
+      service.authenticateBearer('fixture-token-with-adequate-length', 'memory:write'),
+    ).rejects.toMatchObject({ code: 'FRAMEWORK_SCOPE_DENIED', statusCode: 403 });
+    for (const token of [undefined, 'wrong-token-with-adequate-length'])
+      await expect(service.authenticateBearer(token, 'memory:read')).rejects.toMatchObject({
+        code: 'FRAMEWORK_AUTH_INVALID',
+        statusCode: 401,
+      });
+  });
+
   it('rejects URLs containing credentials, paths, or non-loopback plaintext', async () => {
     const service = new FrameworkRegistryService(new MemoryStore(), probe, () => 'token');
     for (const baseUrl of [

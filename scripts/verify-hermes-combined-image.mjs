@@ -17,6 +17,7 @@ for (const expected of [
   'PORT=28082',
   'EXPOSE 28082',
   'HERMES_REPO=/opt/hermes',
+  'integrations/hermes/unify-memory /opt/hermes/plugins/unify_memory',
   'com.aquiero.image.role="hermes-runtime-control-adapter"',
   'HEALTHCHECK',
 ])
@@ -73,5 +74,21 @@ assert.ok(health.includes("getJson('/control/v1/version'"));
 assert.ok(health.includes("required('HERMES_ADAPTER_TLS_CA_FILE')"));
 assert.ok(health.includes("required('EXPECTED_HERMES_COMMIT')"));
 assert.ok(!health.includes('rejectUnauthorized: false'));
+
+const memoryManifest = read('integrations/hermes/unify-memory/plugin.yaml');
+const memoryTools = read('integrations/hermes/unify-memory/tools.py');
+for (const tool of [
+  'unify_memory_search',
+  'unify_memory_context',
+  'unify_memory_get',
+  'unify_memory_remember',
+  'unify_memory_update',
+]) {
+  assert.ok(memoryManifest.includes(`- ${tool}`));
+  assert.ok(memoryTools.includes(`"${tool}"`));
+}
+assert.ok(memoryTools.includes('/api/v1/framework-tools/memory/'));
+assert.ok(!memoryTools.includes('MEMORY_V4_TOKEN'));
+assert.ok(!memoryTools.includes('memory-v4:8000'));
 
 console.log('Hermes combined image static contract: PASS');
