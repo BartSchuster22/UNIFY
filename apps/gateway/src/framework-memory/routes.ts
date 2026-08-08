@@ -262,7 +262,7 @@ async function execute(
     await audit(options, request, identity.frameworkId, operation, 'success', result.statusCode);
     return send(reply, result);
   } catch (error) {
-    await audit(options, request, identity.frameworkId, operation, 'failed');
+    await audit(options, request, identity.frameworkId, operation, 'failure');
     throw error;
   }
 }
