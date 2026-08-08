@@ -14,6 +14,7 @@ fi
 # persistent runtime profile. Reconcile the desired state on every container
 # start so a new or existing framework profile receives the governed tools.
 setpriv --reuid "$HERMES_UID" --regid "$HERMES_GID" --clear-groups \
+  env HERMES_HOME=/opt/data \
   "$HERMES_BIN" plugins enable unify-memory --no-allow-tool-override >/dev/null
 
 printf '%s\n' 'UNIFY governed memory plugin enabled'

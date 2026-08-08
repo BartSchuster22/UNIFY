@@ -95,6 +95,7 @@ assert.ok(!memoryTools.includes('MEMORY_V4_URL'));
 assert.ok(memoryInit.includes('plugins enable unify-memory --no-allow-tool-override'));
 assert.ok(memoryInit.includes('setpriv --reuid'));
 assert.ok(memoryInit.includes('--clear-groups'));
+assert.ok(memoryInit.includes('env HERMES_HOME=/opt/data'));
 assert.ok(!memoryTools.includes('memory-v4:8000'));
 
 console.log('Hermes combined image static contract: PASS');
