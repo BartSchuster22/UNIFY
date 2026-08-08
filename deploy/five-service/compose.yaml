@@ -270,7 +270,7 @@ secrets:
   herman-token:
     file: ${SECRETS_DIR:-./secrets}/herman-token
   memory-v4-token:
-    file: ${MEMORY_V4_TOKEN_SOURCE:-/opt/memory-v4/secrets/api-key}
+    file: ${MEMORY_V4_TOKEN_SOURCE:-/opt/unify/secrets/memory-v4-token}
   alica-api-token:
     file: ${SECRETS_DIR:-./secrets}/alica-api-token
   herman-api-token:
