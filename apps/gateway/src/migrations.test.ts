@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -30,6 +31,26 @@ const modelEventsMigration = readFileSync(
   resolve(import.meta.dirname, '../migrations/009_hermes_model_events.up.sql'),
   'utf8',
 );
+const hermesBaselineMigration = readFileSync(
+  resolve(import.meta.dirname, '../migrations/006_hermes_020_baseline.up.sql'),
+);
+const migrationRunner = readFileSync(
+  resolve(import.meta.dirname, '../scripts/migrate.mjs'),
+  'utf8',
+);
+
+describe('migration checksum governance', () => {
+  it('accepts only the one deployed baseline variant against the pinned current baseline', () => {
+    const current = createHash('sha256').update(hermesBaselineMigration).digest('hex');
+    expect(current).toBe('b4519c95a8d07b63fc7d19ab2c4f2c89d28ecb0dbdf28b59d360dd881c62bb33');
+    expect(migrationRunner).toContain(current);
+    expect(migrationRunner).toContain(
+      '6cd122ab7c73b1791b3e3c9c769fd06853aa9005835500c691f76950003e4c08',
+    );
+    expect(migrationRunner).toContain('appliedChecksum !== checksum && !compatible');
+  });
+});
+
 describe('gateway foundation migration', () => {
   it.each([
     'users',

@@ -4,6 +4,17 @@ import { resolve, join } from 'node:path';
 import pg from 'pg';
 
 const { Client } = pg;
+const compatibleAppliedChecksums = new Map([
+  [
+    '006_hermes_020_baseline',
+    new Map([
+      [
+        'b4519c95a8d07b63fc7d19ab2c4f2c89d28ecb0dbdf28b59d360dd881c62bb33',
+        new Set(['6cd122ab7c73b1791b3e3c9c769fd06853aa9005835500c691f76950003e4c08']),
+      ],
+    ]),
+  ],
+]);
 const direction = process.argv[2] ?? 'up';
 if (!['up', 'down', 'status'].includes(direction))
   throw new Error(`Unknown direction: ${direction}`);
@@ -40,7 +51,13 @@ try {
       const sql = await readFile(join(directory, file), 'utf8');
       const checksum = createHash('sha256').update(sql).digest('hex');
       if (applied.has(version)) {
-        if (applied.get(version) !== checksum) throw new Error(`Checksum mismatch for ${version}`);
+        const appliedChecksum = applied.get(version);
+        const compatible = compatibleAppliedChecksums
+          .get(version)
+          ?.get(checksum)
+          ?.has(appliedChecksum);
+        if (appliedChecksum !== checksum && !compatible)
+          throw new Error(`Checksum mismatch for ${version}`);
         continue;
       }
       await client.query('BEGIN');
