@@ -32,6 +32,7 @@ import {
 } from '@tabler/icons-react';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { ApiError, api } from './api';
+import { MemoryEditor } from './MemoryEditor';
 import type {
   MemoryArtifact,
   MemoryAuditEvent,
@@ -41,7 +42,7 @@ import type {
   MemoryRetrievalEvent,
 } from './types';
 
-type MemorySection = 'records' | 'search' | 'entities' | 'connections' | 'evidence';
+type MemorySection = 'records' | 'search' | 'entities' | 'connections' | 'govern' | 'evidence';
 type Page<T, K extends string> = Record<K, T[]> & { next_cursor: string | null };
 type MemoryStatus = { status: 'ready'; contractVersion: string };
 type CapabilityOperation = {
@@ -90,7 +91,17 @@ function memoryPagePath(path: string, scope: string, params: Record<string, stri
   return `${path}?${query.toString()}`;
 }
 
-export function MemoryView({ canReadAudit }: { canReadAudit: boolean }) {
+export function MemoryView({
+  canReadAudit,
+  canWrite,
+  canPromote,
+  canAdmin,
+}: {
+  canReadAudit: boolean;
+  canWrite: boolean;
+  canPromote: boolean;
+  canAdmin: boolean;
+}) {
   const [section, setSection] = useState<MemorySection>('records');
   const [scope, setScope] = useState('');
   const [scopeInput, setScopeInput] = useState('');
@@ -200,6 +211,7 @@ export function MemoryView({ canReadAudit }: { canReadAudit: boolean }) {
     { value: 'search', label: 'Search' },
     { value: 'entities', label: 'Entities' },
     { value: 'connections', label: 'Relations & artifacts' },
+    ...(canWrite || canPromote || canAdmin ? [{ value: 'govern', label: 'Governed editing' }] : []),
     ...(canReadAudit ? [{ value: 'evidence', label: 'Evidence' }] : []),
   ];
   const operationCount = capabilities?.operations.filter(
@@ -215,8 +227,8 @@ export function MemoryView({ canReadAudit }: { canReadAudit: boolean }) {
           </Text>
           <Title order={1}>Memory &amp; knowledge</Title>
           <Text c="dimmed">
-            Read-only records, entities, relationships, artifacts, search results and source
-            evidence from authoritative MemoryV4.
+            Governed records, entities, relationships, artifacts, search results and source evidence
+            from authoritative MemoryV4.
           </Text>
         </div>
         <Group gap="xs">
@@ -234,10 +246,14 @@ export function MemoryView({ canReadAudit }: { canReadAudit: boolean }) {
         </Group>
       </Group>
 
-      <Alert color="blue" icon={<IconShieldCheck size={18} />} title="Read-only UNIFY surface">
-        This screen performs only allowlisted GET requests through the UNIFY Gateway. MemoryV4 owns
-        content, governance, scope enforcement and durable evidence; no create, edit, promotion or
-        lifecycle action is available here.
+      <Alert
+        color={canWrite || canPromote || canAdmin ? 'blue' : 'gray'}
+        icon={<IconShieldCheck size={18} />}
+        title={canWrite || canPromote || canAdmin ? 'Governed editing enabled' : 'Read-only role'}
+      >
+        {canWrite || canPromote || canAdmin
+          ? 'Your UNIFY role exposes only its allowlisted editing actions. Every mutation is CSRF-protected, idempotent, scope-confined, attributed to your named identity and evidenced by both systems.'
+          : 'Your UNIFY role performs only allowlisted GET requests. No create, edit, promotion or lifecycle action is exposed.'}
       </Alert>
 
       <Paper withBorder p="md">
@@ -356,6 +372,17 @@ export function MemoryView({ canReadAudit }: { canReadAudit: boolean }) {
           ) : null}
           {section === 'connections' ? (
             <ConnectionsSection relations={relations} artifacts={artifacts} />
+          ) : null}
+          {section === 'govern' && (canWrite || canPromote || canAdmin) ? (
+            <MemoryEditor
+              scope={scope}
+              selectedRecord={selectedRecord}
+              selectedEntity={selectedContext?.entity ?? null}
+              canWrite={canWrite}
+              canPromote={canPromote}
+              canAdmin={canAdmin}
+              onChanged={() => load()}
+            />
           ) : null}
           {section === 'evidence' && canReadAudit ? <EvidenceSection scope={scope} /> : null}
         </>

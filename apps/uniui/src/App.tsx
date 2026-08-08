@@ -406,7 +406,14 @@ function View({ view, principal }: { view: ViewId; principal: Principal }) {
     case 'chat':
       return <ChatView canUse={principal.permissions.includes('chat.use')} />;
     case 'memory':
-      return <MemoryView canReadAudit={principal.permissions.includes('audit.read')} />;
+      return (
+        <MemoryView
+          canReadAudit={principal.permissions.includes('audit.read')}
+          canWrite={principal.permissions.includes('memory.write')}
+          canPromote={principal.permissions.includes('memory.promote')}
+          canAdmin={principal.permissions.includes('memory.admin')}
+        />
+      );
 
     case 'audit':
       return <AuditView />;

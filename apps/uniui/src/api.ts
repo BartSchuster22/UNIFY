@@ -36,6 +36,21 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   return response.status === 204 ? (undefined as T) : ((await response.json()) as T);
 }
 
+export function memoryMutation<T>(
+  path: string,
+  method: 'POST' | 'PATCH',
+  options: { body?: unknown; version?: number; reason?: string } = {},
+): Promise<T> {
+  const headers = new Headers({ 'idempotency-key': crypto.randomUUID() });
+  if (options.version !== undefined) headers.set('if-match', String(options.version));
+  if (options.reason) headers.set('x-memoryv4-reason', options.reason);
+  return api<T>(path, {
+    method,
+    headers,
+    ...(options.body === undefined ? {} : { body: JSON.stringify(options.body) }),
+  });
+}
+
 export interface HermesCollection<T extends Record<string, unknown>> {
   items: T[];
   meta: {

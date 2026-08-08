@@ -3,15 +3,16 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { api } from './api';
+import { ApiError, api, memoryMutation } from './api';
 import { MemoryView } from './MemoryView';
 import type { MemoryEntity, MemoryRecord } from './types';
 
 vi.mock('./api', async (importOriginal) => {
   const original = await importOriginal<typeof import('./api')>();
-  return { ...original, api: vi.fn() };
+  return { ...original, api: vi.fn(), memoryMutation: vi.fn() };
 });
 const mockedApi = vi.mocked(api);
+const mockedMemoryMutation = vi.mocked(memoryMutation);
 
 const record: MemoryRecord = {
   id: 'rec_1',
@@ -143,16 +144,25 @@ function implementation(path: string) {
 
 beforeEach(() => {
   mockedApi.mockImplementation(async (path) => implementation(path) as never);
+  mockedMemoryMutation.mockResolvedValue({ ...record, version: 4 } as never);
 });
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
 });
 
-function renderView(canReadAudit = true) {
+function renderView(
+  canReadAudit = true,
+  permissions: { canWrite?: boolean; canPromote?: boolean; canAdmin?: boolean } = {},
+) {
   return render(
     <MantineProvider>
-      <MemoryView canReadAudit={canReadAudit} />
+      <MemoryView
+        canReadAudit={canReadAudit}
+        canWrite={permissions.canWrite ?? false}
+        canPromote={permissions.canPromote ?? false}
+        canAdmin={permissions.canAdmin ?? false}
+      />
     </MantineProvider>,
   );
 }
@@ -237,7 +247,7 @@ describe('MemoryView', () => {
     expect(screen.queryByText('Evidence', { selector: 'span' })).not.toBeInTheDocument();
     rerender(
       <MantineProvider>
-        <MemoryView canReadAudit />
+        <MemoryView canReadAudit canWrite={false} canPromote={false} canAdmin={false} />
       </MantineProvider>,
     );
     await userEvent.click(screen.getByText('Evidence', { selector: 'span' }));
@@ -280,5 +290,81 @@ describe('MemoryView', () => {
     expect(failure).toHaveTextContent('No empty result is inferred');
     expect(screen.queryByText('No records visible')).not.toBeInTheDocument();
     expect(screen.getByText('Unavailable')).toBeInTheDocument();
+  });
+
+  it('edits the selected record with an exact version precondition and explicit confirmation', async () => {
+    renderView(true, { canWrite: true });
+    await screen.findByText('Connected');
+    await userEvent.click(screen.getByRole('button', { name: /Governed deployment decision/ }));
+    await userEvent.click(screen.getByText('Governed editing', { selector: 'span' }));
+    await userEvent.click(screen.getByRole('combobox', { name: 'Governed action' }));
+    await userEvent.click(screen.getByText('Edit selected record', { selector: 'span' }));
+    const title = screen.getByRole('textbox', { name: 'Title' });
+    await userEvent.clear(title);
+    await userEvent.type(title, 'Reviewed deployment decision');
+    await userEvent.click(
+      screen.getByRole('checkbox', {
+        name: /reviewed the target, scope and authoritative effect/i,
+      }),
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Save record edit' }));
+    await waitFor(() =>
+      expect(mockedMemoryMutation).toHaveBeenCalledWith(
+        '/memory/records/rec_1',
+        'PATCH',
+        expect.objectContaining({
+          version: 3,
+          body: expect.objectContaining({ title: 'Reviewed deployment decision' }),
+        }),
+      ),
+    );
+    expect(await screen.findByRole('status')).toHaveTextContent('version 4');
+  });
+
+  it('gates promotion independently and requires a durable reason', async () => {
+    renderView(false, { canPromote: true });
+    await screen.findByText('Connected');
+    await userEvent.click(screen.getByRole('button', { name: /Governed deployment decision/ }));
+    await userEvent.click(screen.getByText('Governed editing', { selector: 'span' }));
+    expect(screen.getByRole('combobox', { name: 'Governed action' })).toHaveValue(
+      'Promote selected record',
+    );
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'Governance reason' }),
+      'Reviewed and accepted as canonical',
+    );
+    await userEvent.click(
+      screen.getByRole('checkbox', {
+        name: /reviewed the target, scope and authoritative effect/i,
+      }),
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Promote record' }));
+    await waitFor(() =>
+      expect(mockedMemoryMutation).toHaveBeenCalledWith('/memory/records/rec_1/promote', 'POST', {
+        version: 3,
+        reason: 'Reviewed and accepted as canonical',
+      }),
+    );
+  });
+
+  it('reports version conflicts without silently overwriting authoritative memory', async () => {
+    mockedMemoryMutation.mockRejectedValue(
+      new ApiError(412, { code: 'version_conflict', message: 'record version does not match' }),
+    );
+    renderView(true, { canWrite: true });
+    await screen.findByText('Connected');
+    await userEvent.click(screen.getByRole('button', { name: /Governed deployment decision/ }));
+    await userEvent.click(screen.getByText('Governed editing', { selector: 'span' }));
+    await userEvent.click(screen.getByRole('combobox', { name: 'Governed action' }));
+    await userEvent.click(screen.getByText('Edit selected record', { selector: 'span' }));
+    await userEvent.click(
+      screen.getByRole('checkbox', {
+        name: /reviewed the target, scope and authoritative effect/i,
+      }),
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Save record edit' }));
+    expect(
+      await screen.findByRole('alert', { name: 'Governed action rejected' }),
+    ).toHaveTextContent('changed after it was loaded');
   });
 });

@@ -212,6 +212,8 @@ describe('Mantine UNIUI gates', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Toggle navigation' }));
     await userEvent.click(screen.getByText('Memory & knowledge'));
     expect(await screen.findByRole('heading', { name: 'Memory & knowledge' })).toBeInTheDocument();
+    expect(screen.getByRole('alert', { name: 'Read-only role' })).toBeInTheDocument();
+    expect(screen.queryByText('Governed editing', { selector: 'span' })).not.toBeInTheDocument();
   });
 
   it('announces a truthful empty framework registry instead of hiding it', async () => {
