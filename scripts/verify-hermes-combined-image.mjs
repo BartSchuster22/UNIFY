@@ -18,6 +18,7 @@ for (const expected of [
   'EXPOSE 28082',
   'HERMES_REPO=/opt/hermes',
   'integrations/hermes/unify-memory /opt/hermes/plugins/unify_memory',
+  '15-unify-memory-plugin /etc/cont-init.d/15-unify-memory-plugin',
   'com.aquiero.image.role="hermes-runtime-control-adapter"',
   'HEALTHCHECK',
 ])
@@ -77,6 +78,7 @@ assert.ok(!health.includes('rejectUnauthorized: false'));
 
 const memoryManifest = read('integrations/hermes/unify-memory/plugin.yaml');
 const memoryTools = read('integrations/hermes/unify-memory/tools.py');
+const memoryInit = read('deploy/hermes-runtime/rootfs/etc/cont-init.d/15-unify-memory-plugin');
 for (const tool of [
   'unify_memory_search',
   'unify_memory_context',
@@ -89,6 +91,9 @@ for (const tool of [
 }
 assert.ok(memoryTools.includes('/api/v1/framework-tools/memory/'));
 assert.ok(!memoryTools.includes('MEMORY_V4_TOKEN'));
+assert.ok(!memoryTools.includes('MEMORY_V4_URL'));
+assert.ok(memoryInit.includes('plugins enable unify-memory --no-allow-tool-override'));
+assert.ok(memoryInit.includes('s6-setuidgid'));
 assert.ok(!memoryTools.includes('memory-v4:8000'));
 
 console.log('Hermes combined image static contract: PASS');

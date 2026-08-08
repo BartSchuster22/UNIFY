@@ -1,0 +1,19 @@
+#!/bin/sh
+set -eu
+
+HERMES_BIN=${HERMES_BIN:-/opt/hermes/bin/hermes}
+HERMES_UID=${HERMES_UID:-10000}
+HERMES_GID=${HERMES_GID:-10001}
+
+if [ ! -x "$HERMES_BIN" ]; then
+  echo "UNIFY memory plugin initialization failed: Hermes CLI is unavailable" >&2
+  exit 1
+fi
+
+# The plugin is part of the immutable image, but Hermes plugins are opt-in in the
+# persistent runtime profile. Reconcile the desired state on every container
+# start so a new or existing framework profile receives the governed tools.
+s6-setuidgid "$HERMES_UID:$HERMES_GID" \
+  "$HERMES_BIN" plugins enable unify-memory --no-allow-tool-override >/dev/null
+
+printf '%s\n' 'UNIFY governed memory plugin enabled'
