@@ -68,6 +68,7 @@ import { ProfilesView } from './ProfilesView';
 import { ModelsView } from './ModelsView';
 import { ChatView } from './ChatView';
 import { FrameworksView } from './FrameworksView';
+import { MemoryView } from './MemoryView';
 import type {
   ApiFailure,
   Collection,
@@ -88,6 +89,7 @@ type ViewId =
   | 'profiles'
   | 'work'
   | 'chat'
+  | 'memory'
   | 'audit'
   | 'operations'
   | 'mutations'
@@ -108,6 +110,7 @@ const NAV: NavItem[] = [
   { id: 'profiles', label: 'Profiles', icon: IconUsers, permission: 'profiles.read' },
   { id: 'work', label: 'Work & Kanban', icon: IconClipboardList, permission: 'work.read' },
   { id: 'chat', label: 'Chat', icon: IconMessages, permission: 'chat.read' },
+  { id: 'memory', label: 'Memory & knowledge', icon: IconBooks, permission: 'memory.read' },
 
   { id: 'audit', label: 'Audit', icon: IconShieldCheck, permission: 'audit.read' },
   { id: 'operations', label: 'Operations', icon: IconActivity, permission: 'operations.read' },
@@ -402,6 +405,8 @@ function View({ view, principal }: { view: ViewId; principal: Principal }) {
       return <WorkView canManage={principal.permissions.includes('work.manage')} />;
     case 'chat':
       return <ChatView canUse={principal.permissions.includes('chat.use')} />;
+    case 'memory':
+      return <MemoryView canReadAudit={principal.permissions.includes('audit.read')} />;
 
     case 'audit':
       return <AuditView />;

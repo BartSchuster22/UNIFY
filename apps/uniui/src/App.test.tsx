@@ -51,6 +51,20 @@ function response(body: unknown, status = 200) {
 function authenticatedFetch(input: RequestInfo | URL): Promise<Response> {
   const url = String(input);
   if (url.endsWith('/auth/me')) return response(principal);
+  if (url.endsWith('/memory/status'))
+    return response({ status: 'ready', contractVersion: '1.0.0' });
+  if (url.endsWith('/memory/capabilities'))
+    return response({
+      service: 'memoryv4-core',
+      contract_version: '1.0.0',
+      api_style: 'unversioned-v1',
+      architecture: {},
+      operations: [],
+    });
+  if (url.includes('/memory/records')) return response({ records: [], next_cursor: null });
+  if (url.includes('/memory/entities')) return response({ entities: [], next_cursor: null });
+  if (url.includes('/memory/relations')) return response({ relations: [], next_cursor: null });
+  if (url.includes('/memory/artifacts')) return response({ artifacts: [], next_cursor: null });
   if (url.endsWith('/frameworks'))
     return response({
       items: [
@@ -176,6 +190,28 @@ describe('Mantine UNIUI gates', () => {
     render(<App />);
     await screen.findByRole('heading', { name: 'Control plane' });
     expect(screen.getByText('Safety actions')).toBeInTheDocument();
+  });
+
+  it('gates the MemoryV4 read surface with memory.read', async () => {
+    vi.stubGlobal('fetch', vi.fn(authenticatedFetch));
+    const first = render(<App />);
+    await screen.findByRole('heading', { name: 'Control plane' });
+    expect(screen.queryByText('Memory & knowledge')).not.toBeInTheDocument();
+    first.unmount();
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL) =>
+        String(input).endsWith('/auth/me')
+          ? response({ ...principal, permissions: [...principal.permissions, 'memory.read'] })
+          : authenticatedFetch(input),
+      ),
+    );
+    render(<App />);
+    await screen.findByRole('heading', { name: 'Control plane' });
+    await userEvent.click(screen.getByRole('button', { name: 'Toggle navigation' }));
+    await userEvent.click(screen.getByText('Memory & knowledge'));
+    expect(await screen.findByRole('heading', { name: 'Memory & knowledge' })).toBeInTheDocument();
   });
 
   it('announces a truthful empty framework registry instead of hiding it', async () => {

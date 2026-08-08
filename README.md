@@ -47,6 +47,8 @@ pnpm image:verify
 - [Canonical resource identity](docs/architecture/RESOURCE-IDENTITY.md)
 - [Hermes control contract](docs/architecture/HERMES-CONTROL-V1.md)
 - [Governed MemoryV4 adapter](docs/adapters/MEMORY-V4.md)
+- [UNIUI Memory & Knowledge read-only surface](docs/adapters/UNIUI-MEMORY.md)
+- [UNIUI Memory & Knowledge acceptance evidence](docs/evidence/UNIUI-MEMORY-REPORT.md)
 - [MemoryV4 adapter acceptance evidence](docs/evidence/MEMORY-V4-ADAPTER-REPORT.md)
 - [Native work management](docs/rebuild/phase-08-native-work-management.md)
 - [Native conversations](docs/rebuild/phase-09-native-agent-conversations.md)

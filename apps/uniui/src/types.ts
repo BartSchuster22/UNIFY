@@ -89,3 +89,93 @@ export interface SessionSummary {
   expiresAt: string;
   revokedAt: string | null;
 }
+
+export interface MemoryEntityRef {
+  entity_type: string;
+  id: string;
+}
+
+export interface MemoryEntity extends MemoryEntityRef {
+  name: string;
+  scope_path: string;
+  attrs: Record<string, unknown>;
+  version: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MemoryRecord {
+  id: string;
+  title: string;
+  content: string;
+  role: 'canonical' | 'active' | 'evidence' | 'exhaust';
+  lifecycle: 'live' | 'working' | 'superseded' | 'archived' | 'expired';
+  write_policy: 'team_editable' | 'author_only' | 'admin_only' | 'immutable';
+  scope_path: string;
+  entity: MemoryEntityRef | null;
+  topic: string | null;
+  tags: string[];
+  confidence: number | null;
+  source_refs: string[];
+  provenance: Record<string, unknown>;
+  attrs: Record<string, unknown>;
+  author_actor: string;
+  version: number;
+  supersedes: string | null;
+  superseded_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MemoryObjectRef {
+  kind: 'entity' | 'record' | 'artifact';
+  id: string;
+  entity_type?: string;
+}
+
+export interface MemoryRelation {
+  id: string;
+  from: MemoryObjectRef;
+  to: MemoryObjectRef;
+  relation_type: string;
+  scope_path: string;
+  author_actor: string;
+  version: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MemoryArtifact {
+  id: string;
+  record_id: string | null;
+  entity: MemoryEntityRef | null;
+  artifact_type: string;
+  uri: string;
+  checksum: string | null;
+  scope_path: string;
+  author_actor: string;
+  version: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MemoryAuditEvent {
+  id: number;
+  action: string;
+  object_type: string;
+  object_id: string;
+  actor: string;
+  scope_path: string;
+  detail: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface MemoryRetrievalEvent {
+  id: number;
+  query: string;
+  scope_path: string;
+  actor: string;
+  result_count: number;
+  degraded: boolean;
+  created_at: string;
+}
