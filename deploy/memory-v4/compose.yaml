@@ -1,0 +1,63 @@
+name: memory-v4
+
+services:
+  memory-v4:
+    image: ${MEMORY_V4_IMAGE:?set MEMORY_V4_IMAGE to an immutable image digest}
+    user: "65532:65532"
+    restart: unless-stopped
+    init: true
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      MEMORYV4_API_KEY_FILE: /run/secrets/memory-v4-token
+      MEMORYV4_API_ACTOR: unify-gateway
+      MEMORYV4_API_SCOPE: ${MEMORY_V4_SCOPE_PATH:?set MEMORY_V4_SCOPE_PATH}
+      MEMORYV4_API_ALLOW_ACTOR_DELEGATION: "true"
+      MEMORYV4_API_PERMISSIONS: memory.read,memory.search,memory.create-working,memory.create,memory.edit,memory.promote,memory.archive,memory.review,memory.audit.read,memory.admin
+      MEMORYV4_DB_PATH: /data/memoryv4.sqlite3
+      MEMORYV4_BACKUP_DIR: /backups
+    volumes:
+      - memory-data:/data
+      - memory-backups:/backups
+      - type: bind
+        source: ${MEMORY_V4_TOKEN_SOURCE:?set MEMORY_V4_TOKEN_SOURCE}
+        target: /run/secrets/memory-v4-token
+        read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=32m,mode=0700,uid=65532,gid=65532
+    networks:
+      memory-private:
+        aliases:
+          - memory-v4
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).read()
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    cpus: 1
+    mem_limit: 512m
+    pids_limit: 128
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+networks:
+  memory-private:
+    name: ${MEMORY_V4_PRIVATE_NETWORK:-unify_memory-private}
+    internal: true
+
+volumes:
+  memory-data:
+    name: ${MEMORY_V4_DATA_VOLUME:-memory-v4-data-v1}
+  memory-backups:
+    name: ${MEMORY_V4_BACKUP_VOLUME:-memory-v4-backups-v1}
