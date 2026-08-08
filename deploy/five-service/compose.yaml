@@ -301,7 +301,7 @@ volumes:
 networks:
   memory-v4-private:
     external: true
-    name: ${MEMORY_V4_NETWORK:-memory-v4-private}
+    name: ${MEMORY_V4_NETWORK:-unify_memory-private}
   unify-ingress:
     internal: true
   unify-db-private:
