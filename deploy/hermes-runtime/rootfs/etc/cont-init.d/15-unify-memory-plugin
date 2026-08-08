@@ -13,7 +13,7 @@ fi
 # The plugin is part of the immutable image, but Hermes plugins are opt-in in the
 # persistent runtime profile. Reconcile the desired state on every container
 # start so a new or existing framework profile receives the governed tools.
-s6-setuidgid "$HERMES_UID:$HERMES_GID" \
+setpriv --reuid "$HERMES_UID" --regid "$HERMES_GID" --clear-groups \
   "$HERMES_BIN" plugins enable unify-memory --no-allow-tool-override >/dev/null
 
 printf '%s\n' 'UNIFY governed memory plugin enabled'
