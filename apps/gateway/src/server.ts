@@ -9,6 +9,7 @@ import { FrameworkRegistryService } from './framework-registry/service.js';
 import { HttpFrameworkProbe } from './framework-registry/probe.js';
 import { PostgresFrameworkEventJournal } from './hermes-control/event-journal.js';
 import { HermesGatewayService } from './hermes-control/service.js';
+import { MemoryV4Adapter } from './memory-v4/client.js';
 async function secret(name: string): Promise<string> {
   const file = process.env[`${name}_FILE`];
   const value = file ? await readFile(file, 'utf8') : process.env[name];
@@ -39,6 +40,22 @@ const hermesGateway = new HermesGatewayService(
   frameworkRegistry,
   new PostgresFrameworkEventJournal(pool),
 );
+const memoryV4Url = process.env.MEMORY_V4_URL?.trim();
+const memoryV4ScopePath = process.env.MEMORY_V4_SCOPE_PATH?.trim();
+if (memoryV4Url && !memoryV4ScopePath)
+  throw new Error('MEMORY_V4_SCOPE_PATH is required when MEMORY_V4_URL is configured');
+if (!memoryV4Url && memoryV4ScopePath)
+  throw new Error('MEMORY_V4_URL is required when MEMORY_V4_SCOPE_PATH is configured');
+const memoryV4Adapter = memoryV4Url
+  ? new MemoryV4Adapter({
+      baseUrl: memoryV4Url,
+      bearerToken: await secret('MEMORY_V4_TOKEN'),
+      scopePath: memoryV4ScopePath!,
+      timeoutMs: Number(process.env.MEMORY_V4_TIMEOUT_MS ?? 8_000),
+      maxResponseBytes: Number(process.env.MEMORY_V4_MAX_RESPONSE_BYTES ?? 16 * 1024 * 1024),
+      retries: Number(process.env.MEMORY_V4_RETRIES ?? 1),
+    })
+  : undefined;
 const app = buildApp({
   authStore: new PostgresAuthStore(pool),
   governanceStore: new PostgresGovernanceStore(pool),
@@ -53,6 +70,7 @@ const app = buildApp({
   notificationStore: new PostgresNotificationStore(pool),
   frameworkRegistry,
   hermesGateway,
+  ...(memoryV4Adapter ? { memoryV4Adapter } : {}),
 
   requestRateLimit: Number(process.env.REQUESTS_PER_MINUTE ?? 600),
 });

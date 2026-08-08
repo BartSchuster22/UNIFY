@@ -77,10 +77,10 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
         : request.url.startsWith('/control/v1/commands/models')
           ? 'hermes.adapter.command.models'
           : request.url.startsWith('/control/v1/commands/work')
-          ? 'hermes.adapter.command.work'
-          : request.url.startsWith('/control/v1/commands/conversations')
-            ? 'hermes.adapter.command.conversations'
-            : 'hermes.adapter.command.reconcile',
+            ? 'hermes.adapter.command.work'
+            : request.url.startsWith('/control/v1/commands/conversations')
+              ? 'hermes.adapter.command.conversations'
+              : 'hermes.adapter.command.reconcile',
       outcome,
       requestId: body.requestId ?? request.id,
       correlationId: body.correlationId ?? request.id,
@@ -254,13 +254,21 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
   app.get('/control/v1/providers', async (request) => {
     requireScope(scopes, 'control:read');
     const query = request.query as Record<string, unknown>;
-    return collection(options, await options.source.providers(query.refresh === 'true'), pageQuery(query));
+    return collection(
+      options,
+      await options.source.providers(query.refresh === 'true'),
+      pageQuery(query),
+    );
   });
 
   app.get('/control/v1/models', async (request) => {
     requireScope(scopes, 'control:read');
     const query = request.query as Record<string, unknown>;
-    return collection(options, await options.source.models(query.refresh === 'true'), pageQuery(query));
+    return collection(
+      options,
+      await options.source.models(query.refresh === 'true'),
+      pageQuery(query),
+    );
   });
 
   app.get('/control/v1/work/projects', async (request) => {

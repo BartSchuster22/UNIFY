@@ -112,11 +112,7 @@ function taskInput(): MutationInput {
   };
 }
 
-function hermes(
-  work: ReturnType<typeof vi.fn>,
-  conversation = vi.fn(),
-  modelManagement = vi.fn(),
-) {
+function hermes(work: ReturnType<typeof vi.fn>, conversation = vi.fn(), modelManagement = vi.fn()) {
   return { work, conversation, modelManagement, reconcile: vi.fn() } as never;
 }
 

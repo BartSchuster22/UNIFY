@@ -71,10 +71,7 @@ const models = {
 function renderModels(canManageCredentials = true, canManageModels = true) {
   return render(
     <MantineProvider>
-      <ModelsView
-        canManageCredentials={canManageCredentials}
-        canManageModels={canManageModels}
-      />
+      <ModelsView canManageCredentials={canManageCredentials} canManageModels={canManageModels} />
     </MantineProvider>,
   );
 }
@@ -124,8 +121,12 @@ describe('Models/providers Hermes management', () => {
     expect(screen.getByText('Auth: configured')).toBeInTheDocument();
     expect(screen.getByLabelText('API credential')).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Remove' })).toBeEnabled();
-    expect(screen.queryByText(/Full model-catalog discovery is not advertised/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/OPENROUTER_API_KEY|sha256:abcd|secret:\/\//i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Full model-catalog discovery is not advertised/),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/OPENROUTER_API_KEY|sha256:abcd|secret:\/\//i),
+    ).not.toBeInTheDocument();
   });
 
   it('sends a credential only in the governed mutation body and clears it after success', async () => {
@@ -163,7 +164,9 @@ describe('Models/providers Hermes management', () => {
     };
     vi.stubGlobal('fetch', fetchFixture(denied));
     renderModels(false, false);
-    expect(await screen.findByText(/Provider credential changes are forbidden/)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Provider credential changes are forbidden/),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText('API credential')).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Remove' })).toBeDisabled();
   });

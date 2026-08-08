@@ -1,5 +1,9 @@
 # Adapter SDK Contract
 
+> The generic migration adapter SDK described here is historical. The dedicated
+> MemoryV4 client is governed by [MEMORY-V4.md](MEMORY-V4.md) and does not revive a
+> generic federation runtime or `ResourceRef` owner.
+
 Framework integrations implement `FrameworkAdapter`; Gateway and UI code must not import framework internals. Each adapter exposes capabilities, reads canonical resource references, and performs explicit-mode mutations.
 
 ## Request context

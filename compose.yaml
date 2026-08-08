@@ -82,7 +82,20 @@ services:
       HERMES_MAIN_CONTROL_TOKEN_FILE: /run/secrets/hermes_main_control_token
       NODE_EXTRA_CA_CERTS: /run/secrets/hermes_adapter_ca
       HERMES_EVENT_POLL_MS: ${HERMES_EVENT_POLL_MS:-5000}
-    secrets: [gateway_database_url, gateway_auth_pepper, hermes_main_control_token, hermes_adapter_ca]
+      MEMORY_V4_URL: ${MEMORY_V4_URL:-}
+      MEMORY_V4_SCOPE_PATH: ${MEMORY_V4_SCOPE_PATH:-}
+      MEMORY_V4_TOKEN_FILE: /run/secrets/memory_v4_token
+      MEMORY_V4_TIMEOUT_MS: ${MEMORY_V4_TIMEOUT_MS:-8000}
+      MEMORY_V4_MAX_RESPONSE_BYTES: ${MEMORY_V4_MAX_RESPONSE_BYTES:-16777216}
+      MEMORY_V4_RETRIES: ${MEMORY_V4_RETRIES:-1}
+    secrets:
+      [
+        gateway_database_url,
+        gateway_auth_pepper,
+        hermes_main_control_token,
+        hermes_adapter_ca,
+        memory_v4_token,
+      ]
     network_mode: host
     depends_on:
       postgres: { condition: service_healthy }
@@ -125,7 +138,12 @@ services:
       HERMES_MANAGEMENT_AUTOSTART: 'true'
       HERMES_HOME: /opt/data
     secrets:
-      [gateway_database_url, hermes_main_control_token, hermes_adapter_tls_key, hermes_adapter_tls_cert]
+      [
+        gateway_database_url,
+        hermes_main_control_token,
+        hermes_adapter_tls_key,
+        hermes_adapter_tls_cert,
+      ]
     volumes:
       - type: bind
         source: /home/herman/.hermes
@@ -203,6 +221,7 @@ secrets:
   gateway_auth_pepper: { file: .secrets/gateway_auth_pepper }
   bootstrap_admin_password: { file: .secrets/bootstrap_admin_password }
   hermes_main_control_token: { file: .secrets/hermes_main_control_token }
+  memory_v4_token: { file: .secrets/memory_v4_token }
   hermes_adapter_ca: { file: .secrets/hermes_adapter_ca.crt }
   hermes_adapter_tls_key: { file: .secrets/hermes_adapter_tls.key }
   hermes_adapter_tls_cert: { file: .secrets/hermes_adapter_tls.crt }

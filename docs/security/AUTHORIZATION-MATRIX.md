@@ -38,3 +38,5 @@ Legend: **R** read, **M** non-destructive manage/use, **D** destructive or high-
 6. Self-management of sessions/devices is available to every named user through dedicated routes.
 7. Permission or scope changes invalidate affected event subscriptions and refresh tokens according to policy.
 8. Protected profiles and autonomy ceilings remain server policies even for Administrators unless an explicit, separately audited override exists.
+9. Memory permissions admit only the corresponding dedicated adapter route family; the configured MemoryV4 scope and upstream grant independently narrow authority.
+10. Memory mutations additionally require CSRF and an idempotency key, and are audited in both Gateway and MemoryV4 with delegated named-user identity.

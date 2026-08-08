@@ -298,8 +298,7 @@ export class HermesNativeSource implements AdapterSource {
       }
       throw new SourceUnavailableError('Hermes model-management operation is unsupported');
     } catch (error) {
-      if (error instanceof HermesManagementError)
-        throw new SourceUnavailableError(error.message);
+      if (error instanceof HermesManagementError) throw new SourceUnavailableError(error.message);
       throw error;
     }
   }
@@ -761,7 +760,10 @@ export class SourceUnavailableError extends Error {}
 export class SecondConsumerForbiddenError extends Error {}
 export class ModelConfirmationRequiredError extends Error {}
 
-function mapManagementProvider(raw: Record<string, unknown>, selectedProvider: string): HermesProvider {
+function mapManagementProvider(
+  raw: Record<string, unknown>,
+  selectedProvider: string,
+): HermesProvider {
   const id = optionalString(raw.slug ?? raw.provider) ?? 'unknown';
   const authenticated = raw.authenticated === true || raw.configured === true;
   const authTypeRaw = optionalString(raw.auth_type ?? raw.authType)?.toLowerCase();

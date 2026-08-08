@@ -58,11 +58,19 @@
 /api/v1/chat/uploads
 /api/v1/chat/files/{fileId}
 
-/api/v1/memory/records
-/api/v1/memory/records/{recordId}
+/api/v1/memory/status
+/api/v1/memory/capabilities
+/api/v1/memory/schema
+/api/v1/memory/entities[/{entityType}/{entityId}]
+/api/v1/memory/records[/{recordId}]
+/api/v1/memory/relations
+/api/v1/memory/artifacts
+/api/v1/memory/context/{entityType}/{entityId}
 /api/v1/memory/search
-/api/v1/memory/audit
+/api/v1/memory/review/findings
+/api/v1/memory/audit/events
 /api/v1/memory/retrieval-events
+/api/v1/memory/usage
 
 /api/v1/operations
 /api/v1/operations/{operationId}

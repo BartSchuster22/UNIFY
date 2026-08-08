@@ -1320,6 +1320,9 @@ export interface components {
             displayName: string;
             credentialStatus: "configured" | "missing" | "unknown";
             selected: boolean;
+            authType?: "api_key" | "oauth" | "none" | "unknown";
+            credentialMutable?: boolean;
+            modelCount?: number;
         };
         HermesProvidersResponse: {
             /** @constant */
@@ -1336,6 +1339,9 @@ export interface components {
                     displayName: string;
                     credentialStatus: "configured" | "missing" | "unknown";
                     selected: boolean;
+                    authType?: "api_key" | "oauth" | "none" | "unknown";
+                    credentialMutable?: boolean;
+                    modelCount?: number;
                 }[];
                 page: {
                     nextCursor?: string;
@@ -1661,6 +1667,44 @@ export interface components {
                 emittedEvents: number;
             };
         };
+        HermesModelManagementOperation: "model.select" | "provider.credential.set" | "provider.credential.remove";
+        HermesModelManagementCommand: {
+            mode: "validate" | "dry-run" | "execute";
+            idempotencyKey: string;
+            expectedSourceVersion?: string;
+            requestId: string;
+            correlationId: string;
+            actor: {
+                type: "user" | "service";
+                id: string;
+            };
+            payload: {
+                [key: string]: unknown;
+            };
+            operation: "model.select" | "provider.credential.set" | "provider.credential.remove";
+            targetId: string;
+        };
+        HermesModelManagementResult: {
+            /** @constant */
+            contractVersion: "hermes-control/v1";
+            frameworkId: string;
+            frameworkVersion: string;
+            frameworkCommit: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            data: {
+                operationId: string;
+                status: "validated" | "dry-run" | "completed";
+                replayed: boolean;
+                operation: "model.select" | "provider.credential.set" | "provider.credential.remove";
+                targetId: string;
+                result: {
+                    [key: string]: unknown;
+                };
+                emittedEvents: number;
+            };
+        };
         HermesWorkOperation: "project.create" | "project.rename" | "project.archive" | "task.create" | "task.start" | "task.block" | "task.unblock" | "task.complete" | "cron.create" | "cron.run" | "cron.pause" | "cron.resume" | "cron.delete";
         HermesWorkCommand: {
             mode: "validate" | "dry-run" | "execute";
@@ -1959,6 +2003,9 @@ export interface components {
             displayName: string;
             credentialStatus: "configured" | "missing" | "unknown";
             selected: boolean;
+            authType?: "api_key" | "oauth" | "none" | "unknown";
+            credentialMutable?: boolean;
+            modelCount?: number;
             /** @constant */
             owner: "hermes";
             frameworkId: string;
@@ -1984,6 +2031,9 @@ export interface components {
                 displayName: string;
                 credentialStatus: "configured" | "missing" | "unknown";
                 selected: boolean;
+                authType?: "api_key" | "oauth" | "none" | "unknown";
+                credentialMutable?: boolean;
+                modelCount?: number;
                 /** @constant */
                 owner: "hermes";
                 frameworkId: string;

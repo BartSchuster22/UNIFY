@@ -7,8 +7,12 @@ Production and local runtime no longer contain:
 - legacy read adapters or adapter SDK clients;
 - owner HTTP clients or login/session handling;
 - integration refresh, normalized-resource, cross-owner search, event federation, or shadow-comparison routes;
-- Agency, DMM, Worker, `/CHAT`, or MemoryV4 connection settings;
+- Agency, DMM, Worker, or `/CHAT` connection settings;
 - feature flags capable of re-enabling migration readers.
+
+The dedicated governed MemoryV4 boundary added later is specified independently in
+[MEMORY-V4.md](MEMORY-V4.md). It is an exact route allowlist, not this retired
+federation subsystem.
 
 The retired Gateway routes return `404`:
 

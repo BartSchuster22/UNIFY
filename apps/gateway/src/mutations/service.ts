@@ -235,7 +235,11 @@ function validateModelCommand(input: MutationInput, definition: MutationDefiniti
       'Model management must target one exact model or provider in one Hermes framework',
     );
   if (definition.destructive && !input.confirmed)
-    throw new GovernanceError('CONFIRMATION_REQUIRED', 409, 'Credential removal requires confirmation');
+    throw new GovernanceError(
+      'CONFIRMATION_REQUIRED',
+      409,
+      'Credential removal requires confirmation',
+    );
   if (input.operationType === 'model.select') {
     const providerId = input.payload.providerId;
     if (typeof providerId !== 'string' || !providerId.trim())

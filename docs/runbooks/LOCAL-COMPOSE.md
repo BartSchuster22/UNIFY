@@ -23,7 +23,25 @@ node scripts/prepare-compose-secrets.mjs --force
 
 After rotation, remove the local database volume or rotate the database credential consistently. Never commit `.secrets/`.
 
-The generated local secrets are limited to PostgreSQL, Gateway session/CSRF material, and the bootstrap administrator. The stack does not generate or mount credentials for retired upstream services.
+The generated local secrets are limited to PostgreSQL, Gateway session/CSRF material, the bootstrap administrator, Hermes control, and the optional MemoryV4 adapter. The stack does not generate or mount credentials for retired upstream services.
+
+## Optional MemoryV4 adapter
+
+The adapter is disabled by default. To connect one governed MemoryV4 deployment,
+replace `.secrets/memory_v4_token` with a delegated MemoryV4 service grant and start
+Gateway with an explicit URL and maximum scope:
+
+```bash
+MEMORY_V4_URL=https://memoryv4.internal.example \
+MEMORY_V4_SCOPE_PATH=tenant:example \
+docker compose up -d --build gateway
+```
+
+Authenticate to Gateway as a named user with `memory.read`, then request
+`GET /api/v1/memory/status`. A ready response proves authenticated reachability and
+the pinned `1.0.0` contract. Do not use a public URL or a global grant for
+a tenant deployment. Gateway startup fails closed if URL and scope are only partially
+configured; upstream failures remain isolated to memory routes.
 
 ## Start and verify
 
@@ -61,7 +79,7 @@ It creates named user `admin` and fails closed if any user already exists. Obtai
 - PostgreSQL runs as UID/GID 70; Gateway, UNIUI, Chat, and Alerts run as UID/GID 10001.
 - Root filesystems are read-only; only declared volumes/tmpfs paths are writable.
 - Every service drops all Linux capabilities and sets `no-new-privileges`.
-- Database and Gateway secrets are mounted as files, not embedded in images or browser assets.
+- Database, Gateway, Hermes, and MemoryV4 secrets are mounted as files, not embedded in images or browser assets.
 - Gateway and every web shell listen only on `127.0.0.1`; PostgreSQL is loopback-only in the local acceptance stack.
 - Health checks cover PostgreSQL, Gateway readiness, UNIUI, Chat, and Alerts.
 - Gateway and every web shell handle `SIGTERM`/`SIGINT` for graceful shutdown.

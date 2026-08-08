@@ -181,8 +181,7 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
 
   const credentialCapability = capabilities?.data.capabilities['providers.credentials.execute'];
   const modelCapability = capabilities?.data.capabilities['models.execute'];
-  const credentialEnabled =
-    canManageCredentials && credentialCapability?.status === 'supported';
+  const credentialEnabled = canManageCredentials && credentialCapability?.status === 'supported';
   const modelEnabled = canManageModels && modelCapability?.status === 'supported';
   const configured =
     providers?.items.filter((item) => item.credentialStatus === 'configured').length ?? 0;
@@ -206,10 +205,13 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
     <Stack gap="md">
       <Group justify="space-between" align="flex-start">
         <div>
-          <Text size="xs" fw={800} tt="uppercase">Hermes source of truth</Text>
+          <Text size="xs" fw={800} tt="uppercase">
+            Hermes source of truth
+          </Text>
           <Title order={1}>Models & Providers</Title>
           <Text c="dimmed">
-            Catalogue, selection, and credential status come directly from the selected Hermes framework.
+            Catalogue, selection, and credential status come directly from the selected Hermes
+            framework.
           </Text>
         </div>
         <Button
@@ -228,7 +230,11 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
         onChange={(value) => setFrameworkId(value ?? '')}
         placeholder="No verified Hermes framework"
       />
-      {error ? <Alert color="red" icon={<IconAlertTriangle size={18} />}>{error}</Alert> : null}
+      {error ? (
+        <Alert color="red" icon={<IconAlertTriangle size={18} />}>
+          {error}
+        </Alert>
+      ) : null}
       {notice ? <Alert color="teal">{notice}</Alert> : null}
       {!loading && !frameworks.length ? (
         <Alert color="yellow">No enabled, verified Hermes framework is registered.</Alert>
@@ -244,20 +250,38 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
         <Alert color="blue">Model selection is read-only for your role.</Alert>
       ) : null}
       {loading && !providers ? (
-        <Group><Loader size="sm" /><Text>Loading Hermes catalogue…</Text></Group>
+        <Group>
+          <Loader size="sm" />
+          <Text>Loading Hermes catalogue…</Text>
+        </Group>
       ) : null}
       {providers && models ? (
         <>
           <Group>
             <Badge color="teal">Hermes · current</Badge>
-            <Text size="sm" c="dimmed">Framework {providers.meta.frameworkId}</Text>
-            <Text size="sm" c="dimmed">Observed {formatDate(providers.meta.observedAt)}</Text>
+            <Text size="sm" c="dimmed">
+              Framework {providers.meta.frameworkId}
+            </Text>
+            <Text size="sm" c="dimmed">
+              Observed {formatDate(providers.meta.observedAt)}
+            </Text>
           </Group>
           <Grid>
-            <Grid.Col span={{ base: 12, sm: 3 }}><Summary label="Providers" value={providers.items.length} /></Grid.Col>
-            <Grid.Col span={{ base: 12, sm: 3 }}><Summary label="Models" value={models.items.length} /></Grid.Col>
-            <Grid.Col span={{ base: 12, sm: 3 }}><Summary label="Credentials configured" value={configured} /></Grid.Col>
-            <Grid.Col span={{ base: 12, sm: 3 }}><Summary label="Selected" value={selectedModel?.displayName ?? selectedProvider?.displayName ?? 'Unknown'} /></Grid.Col>
+            <Grid.Col span={{ base: 12, sm: 3 }}>
+              <Summary label="Providers" value={providers.items.length} />
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, sm: 3 }}>
+              <Summary label="Models" value={models.items.length} />
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, sm: 3 }}>
+              <Summary label="Credentials configured" value={configured} />
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, sm: 3 }}>
+              <Summary
+                label="Selected"
+                value={selectedModel?.displayName ?? selectedProvider?.displayName ?? 'Unknown'}
+              />
+            </Grid.Col>
           </Grid>
           <Grid>
             {providers.items.map((provider) => {
@@ -270,22 +294,37 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                       <Group justify="space-between" align="flex-start">
                         <div>
                           <Text fw={700}>{provider.displayName}</Text>
-                          <Text size="xs" c="dimmed">{provider.id}</Text>
+                          <Text size="xs" c="dimmed">
+                            {provider.id}
+                          </Text>
                         </div>
-                        {provider.selected ? <Badge leftSection={<IconSparkles size={12} />}>Selected provider</Badge> : null}
+                        {provider.selected ? (
+                          <Badge leftSection={<IconSparkles size={12} />}>Selected provider</Badge>
+                        ) : null}
                       </Group>
                       <Group>
-                        <Badge color={credentialColor(provider.credentialStatus)}>Auth: {provider.credentialStatus}</Badge>
+                        <Badge color={credentialColor(provider.credentialStatus)}>
+                          Auth: {provider.credentialStatus}
+                        </Badge>
                         <Badge variant="light">{provider.authType ?? 'unknown auth'}</Badge>
                         <Badge variant="light">{providerModels.length} models</Badge>
                       </Group>
                       {providerModels.length ? (
                         <Stack gap="xs">
                           {providerModels.map((model) => (
-                            <Group key={`${provider.id}:${model.id}`} justify="space-between" wrap="nowrap">
+                            <Group
+                              key={`${provider.id}:${model.id}`}
+                              justify="space-between"
+                              wrap="nowrap"
+                            >
                               <div>
-                                <Text size="sm" fw={model.selected ? 700 : 500}>{model.displayName}</Text>
-                                <Text size="xs" c="dimmed">{model.id}{model.costTier ? ` · ${model.costTier}` : ''}</Text>
+                                <Text size="sm" fw={model.selected ? 700 : 500}>
+                                  {model.displayName}
+                                </Text>
+                                <Text size="xs" c="dimmed">
+                                  {model.id}
+                                  {model.costTier ? ` · ${model.costTier}` : ''}
+                                </Text>
                               </div>
                               <Button
                                 size="xs"
@@ -293,7 +332,12 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                                 disabled={!modelEnabled || model.selected}
                                 loading={busy === `model.select:${model.id}`}
                                 onClick={() => {
-                                  if (!window.confirm('Select this Hermes model for new sessions? Model pricing may differ. Existing sessions are unchanged.')) return;
+                                  if (
+                                    !window.confirm(
+                                      'Select this Hermes model for new sessions? Model pricing may differ. Existing sessions are unchanged.',
+                                    )
+                                  )
+                                    return;
                                   void mutate('model.select', 'model', model.id, {
                                     providerId: provider.id,
                                     confirmExpensiveModel: true,
@@ -305,9 +349,15 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                             </Group>
                           ))}
                         </Stack>
-                      ) : <Text size="sm" c="dimmed">Hermes reports no models for this provider.</Text>}
+                      ) : (
+                        <Text size="sm" c="dimmed">
+                          Hermes reports no models for this provider.
+                        </Text>
+                      )}
                       {provider.authType === 'oauth' ? (
-                        <Text size="sm" c="dimmed">OAuth sign-in is managed by Hermes. No token field is exposed here.</Text>
+                        <Text size="sm" c="dimmed">
+                          OAuth sign-in is managed by Hermes. No token field is exposed here.
+                        </Text>
                       ) : (
                         <Group align="flex-end" wrap="nowrap">
                           <PasswordInput
@@ -315,41 +365,82 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                             placeholder="Stored only by Hermes"
                             value={credentials[provider.id] ?? ''}
                             disabled={!credentialEnabled}
-                            onChange={(event) => setCredentials((current) => ({ ...current, [provider.id]: event.currentTarget.value }))}
+                            onChange={(event) =>
+                              setCredentials((current) => ({
+                                ...current,
+                                [provider.id]: event.currentTarget.value,
+                              }))
+                            }
                             style={{ flex: 1 }}
                           />
                           <Button
-                            disabled={!credentialEnabled || !(credentials[provider.id] ?? '').trim()}
+                            disabled={
+                              !credentialEnabled || !(credentials[provider.id] ?? '').trim()
+                            }
                             loading={busy === credentialKey}
-                            onClick={() => void mutate('provider.credential.set', 'provider', provider.id, { credential: credentials[provider.id] })}
-                          >Save</Button>
+                            onClick={() =>
+                              void mutate('provider.credential.set', 'provider', provider.id, {
+                                credential: credentials[provider.id],
+                              })
+                            }
+                          >
+                            Save
+                          </Button>
                           <Button
                             color="red"
                             variant="light"
-                            disabled={!credentialEnabled || provider.credentialStatus !== 'configured'}
+                            disabled={
+                              !credentialEnabled || provider.credentialStatus !== 'configured'
+                            }
                             loading={busy === `provider.credential.remove:${provider.id}`}
                             onClick={() => {
-                              if (!window.confirm(`Remove the ${provider.displayName} credential from Hermes?`)) return;
-                              void mutate('provider.credential.remove', 'provider', provider.id, {}, true);
+                              if (
+                                !window.confirm(
+                                  `Remove the ${provider.displayName} credential from Hermes?`,
+                                )
+                              )
+                                return;
+                              void mutate(
+                                'provider.credential.remove',
+                                'provider',
+                                provider.id,
+                                {},
+                                true,
+                              );
                             }}
-                          >Remove</Button>
+                          >
+                            Remove
+                          </Button>
                         </Group>
                       )}
-                      <Text size="xs" c="dimmed">Credential values, fingerprints, variable names, and secret locations are never returned to UNIUI.</Text>
+                      <Text size="xs" c="dimmed">
+                        Credential values, fingerprints, variable names, and secret locations are
+                        never returned to UNIUI.
+                      </Text>
                     </Stack>
                   </Card>
                 </Grid.Col>
               );
             })}
           </Grid>
-          {!providers.items.length ? <Alert color="yellow">Hermes returned no providers. UNIFY uses no external fallback.</Alert> : null}
+          {!providers.items.length ? (
+            <Alert color="yellow">
+              Hermes returned no providers. UNIFY uses no external fallback.
+            </Alert>
+          ) : null}
         </>
       ) : null}
     </Stack>
   );
 }
 
-function CapabilityAlert({ label, capability }: { label: string; capability: { status: string; reasonCode?: string } | undefined }) {
+function CapabilityAlert({
+  label,
+  capability,
+}: {
+  label: string;
+  capability: { status: string; reasonCode?: string } | undefined;
+}) {
   return (
     <Alert color="blue">
       {label} {capability ? `are ${capability.status}` : 'are unavailable'}
@@ -360,8 +451,12 @@ function CapabilityAlert({ label, capability }: { label: string; capability: { s
 function Summary({ label, value }: { label: string; value: string | number }) {
   return (
     <Card withBorder>
-      <Text size="xs" c="dimmed" tt="uppercase" fw={700}>{label}</Text>
-      <Text size="xl" fw={800}>{value}</Text>
+      <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
+        {label}
+      </Text>
+      <Text size="xl" fw={800}>
+        {value}
+      </Text>
     </Card>
   );
 }

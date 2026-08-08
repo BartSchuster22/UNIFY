@@ -15,6 +15,8 @@ import { FixedWindowRateLimiter } from './security/rate-limiter.js';
 import { FrameworkRegistryError } from './framework-registry/service.js';
 import type { FrameworkRegistryService } from './framework-registry/service.js';
 import type { HermesGatewayService } from './hermes-control/service.js';
+import { MemoryV4AdapterError, type MemoryV4Adapter } from './memory-v4/client.js';
+import { memoryRoute } from './memory-v4/types.js';
 export interface AppOptions {
   authStore: AuthStore;
   authPepper: string;
@@ -27,6 +29,7 @@ export interface AppOptions {
   requestRateLimit?: number;
   frameworkRegistry?: FrameworkRegistryService;
   hermesGateway?: HermesGatewayService;
+  memoryV4Adapter?: MemoryV4Adapter;
 }
 const SESSION_COOKIE = 'aquiero_session';
 const CSRF_COOKIE = 'aquiero_csrf';
@@ -88,17 +91,22 @@ export function buildApp(options: AppOptions) {
     const domainError =
       error instanceof AuthError ||
       error instanceof GovernanceError ||
-      error instanceof FrameworkRegistryError
+      error instanceof FrameworkRegistryError ||
+      error instanceof MemoryV4AdapterError
         ? error
         : null;
     const status = domainError?.statusCode ?? 500;
+    const retryable =
+      domainError instanceof MemoryV4AdapterError
+        ? domainError.retryable
+        : status === 429 || status >= 500;
     if (!domainError) request.log.error({ err: error }, 'request failed');
     void reply.status(status).send({
       error: {
         code: domainError?.code ?? 'INTERNAL_ERROR',
         message: domainError?.message ?? 'Internal server error',
         requestId: request.id,
-        retryable: status === 429 || status >= 500,
+        retryable,
       },
     });
   });
@@ -307,6 +315,97 @@ export function buildApp(options: AppOptions) {
       });
     },
   );
+  app.get('/api/v1/memory/status', async (request) => {
+    const current = await session(request);
+    auth.requirePermission(current, 'memory.read');
+    if (!options.memoryV4Adapter)
+      throw new MemoryV4AdapterError(
+        'MEMORY_ADAPTER_UNAVAILABLE',
+        503,
+        'MemoryV4 adapter is not configured',
+        true,
+      );
+    return options.memoryV4Adapter.probe(current.userId, request.id);
+  });
+
+  app.all<{
+    Params: { '*': string };
+    Querystring: Record<string, unknown>;
+    Body: unknown;
+  }>('/api/v1/memory/*', { bodyLimit: 15 * 1024 * 1024 }, async (request, reply) => {
+    const current = await session(request);
+    const path = `/${request.params['*']}`;
+    const route = memoryRoute(request.method, path);
+    if (!route)
+      throw new MemoryV4AdapterError(
+        'MEMORY_ROUTE_NOT_FOUND',
+        404,
+        'MemoryV4 adapter route is not available',
+      );
+    if (route.mutation) {
+      const header = request.headers['x-csrf-token'];
+      auth.verifyCsrf(
+        current,
+        Array.isArray(header) ? header[0] : header,
+        request.cookies[CSRF_COOKIE],
+      );
+    }
+    auth.requirePermission(current, route.permission);
+    if (!options.memoryV4Adapter)
+      throw new MemoryV4AdapterError(
+        'MEMORY_ADAPTER_UNAVAILABLE',
+        503,
+        'MemoryV4 adapter is not configured',
+        true,
+      );
+    const rawIdempotency = request.headers['idempotency-key'];
+    const rawMatch = request.headers['if-match'];
+    const rawReason = request.headers['x-memoryv4-reason'];
+    try {
+      const result = await options.memoryV4Adapter.execute({
+        method: request.method as 'GET' | 'POST' | 'PATCH',
+        path,
+        route,
+        actorUserId: current.userId,
+        requestId: request.id,
+        query: request.query,
+        ...(request.body === undefined ? {} : { body: request.body }),
+        ...(typeof rawIdempotency === 'string' ? { idempotencyKey: rawIdempotency } : {}),
+        ...(typeof rawMatch === 'string' ? { ifMatch: rawMatch } : {}),
+        ...(typeof rawReason === 'string' ? { reason: rawReason } : {}),
+      });
+      if (result.idempotencyReplayed)
+        reply.header('idempotency-replayed', result.idempotencyReplayed);
+      reply.header('x-memoryv4-contract-version', result.contractVersion);
+      if (route.mutation)
+        await governance?.audit({
+          actorUserId: current.userId,
+          sessionId: current.sessionId,
+          action: `memory.adapter.${request.method.toLowerCase()}`,
+          outcome: 'success',
+          requestId: request.id,
+          target: { path },
+          details: { upstreamStatus: result.statusCode },
+        });
+      return reply.status(result.statusCode).send(result.body);
+    } catch (error) {
+      if (route.mutation)
+        await governance?.audit({
+          actorUserId: current.userId,
+          sessionId: current.sessionId,
+          action: `memory.adapter.${request.method.toLowerCase()}`,
+          outcome:
+            error instanceof MemoryV4AdapterError && error.statusCode < 500 ? 'denied' : 'failure',
+          requestId: request.id,
+          target: { path },
+          details: {
+            code: error instanceof MemoryV4AdapterError ? error.code : 'MEMORY_ADAPTER_FAILED',
+          },
+        });
+      throw error;
+    }
+  });
+
   app.get('/api/v1/frameworks', async (request) => {
     const current = await session(request);
     auth.requirePermission(current, 'frameworks.read');

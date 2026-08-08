@@ -61,11 +61,17 @@ describe('HermesManagementApi', () => {
       return Response.json({ ok: true, key: 'OPENROUTER_API_KEY', removed: true });
     };
     const api = new HermesManagementApi('http://127.0.0.1:29119', fetchImpl, 'private-token');
-    await expect(api.selectModel('openrouter', 'openai/gpt-5', true)).resolves.toMatchObject({ ok: true });
+    await expect(api.selectModel('openrouter', 'openai/gpt-5', true)).resolves.toMatchObject({
+      ok: true,
+    });
     const setResult = await api.setCredential('openrouter', 'secret-value');
     const removeResult = await api.removeCredential('openrouter');
     expect(setResult).toMatchObject({ changed: true, configured: true, providerId: 'openrouter' });
-    expect(removeResult).toMatchObject({ changed: true, configured: false, providerId: 'openrouter' });
+    expect(removeResult).toMatchObject({
+      changed: true,
+      configured: false,
+      providerId: 'openrouter',
+    });
 
     expect(JSON.stringify(requests)).toContain('secret-value');
     expect(JSON.stringify({ setResult, removeResult })).not.toContain('secret-value');

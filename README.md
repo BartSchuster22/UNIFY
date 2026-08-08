@@ -2,7 +2,7 @@
 
 Aquiero's standalone Core, authenticated Gateway, Hermes framework control plane, and Mantine operator UI.
 
-UNIFY owns native profiles, work, conversations, attachments, routing, authorization, audit, and access-plane state. Registered Hermes framework endpoints remain the only supported framework runtime dependency. Production has no connection path to Agency, DMM, Worker, `/CHAT`, or MemoryV4.
+UNIFY owns native profiles, work, conversations, attachments, routing, authorization, audit, and access-plane state. Registered Hermes framework endpoints remain the supported framework runtime dependency. A dedicated, governed MemoryV4 adapter is the only supported external-memory connection; production has no connection path to Agency, DMM, Worker, or `/CHAT`.
 
 ## Runtime invariants
 
@@ -10,7 +10,7 @@ UNIFY owns native profiles, work, conversations, attachments, routing, authoriza
 - Core owns native profiles, work, conversations, messages, attachments, routing, and durable events.
 - Gateway owns authentication, authorization, framework registrations, operations, audit, and derived notifications.
 - Framework operations use only registered, versioned Hermes control endpoints and scoped credentials.
-- Agency, DMM, Worker, `/CHAT`, and MemoryV4 are not valid runtime owners or configured upstream services.
+- Agency, DMM, Worker, and `/CHAT` are not valid runtime owners or configured upstream services; MemoryV4 is external memory truth behind the dedicated Gateway adapter and is not a UNIFY resource owner.
 - Rendering a route never mutates state.
 - Meaningful writes require capability and policy checks, idempotency, exact targets, and durable evidence.
 - UNIFY does not introduce a second board writer, scheduler, dispatcher, webhook owner, or responder.
@@ -35,7 +35,7 @@ pnpm standalone:check
 pnpm image:verify
 ```
 
-`standalone:check` fails if retired adapters, owner clients, proxy routes, owner values, environment variables, secrets, or migration runtime paths return.
+`standalone:check` fails if retired generic adapters, owner clients, proxy routes, owner values, environment variables, secrets, or migration runtime paths return. The narrow MemoryV4 allowlist is documented and tested separately.
 
 `image:verify` builds the pinned distroless production images, exercises health and graceful shutdown under the Compose security restrictions, emits CycloneDX SBOMs, and fails on fixable HIGH or CRITICAL vulnerabilities.
 
@@ -46,6 +46,8 @@ pnpm image:verify
 - [Source-of-truth matrix](docs/architecture/SOURCE-OF-TRUTH.md)
 - [Canonical resource identity](docs/architecture/RESOURCE-IDENTITY.md)
 - [Hermes control contract](docs/architecture/HERMES-CONTROL-V1.md)
+- [Governed MemoryV4 adapter](docs/adapters/MEMORY-V4.md)
+- [MemoryV4 adapter acceptance evidence](docs/evidence/MEMORY-V4-ADAPTER-REPORT.md)
 - [Native work management](docs/rebuild/phase-08-native-work-management.md)
 - [Native conversations](docs/rebuild/phase-09-native-agent-conversations.md)
 - [Legacy runtime removal](docs/rebuild/phase-10-remove-legacy-runtime.md)
@@ -66,4 +68,4 @@ pnpm image:verify
 - [Local Compose](docs/runbooks/LOCAL-COMPOSE.md)
 - [Production cutover](docs/runbooks/PRODUCTION-CUTOVER.md)
 
-Earlier discovery, planning, and evidence documents are retained as historical records. Where they describe legacy adapters, owners, routes, or credentials, this README and the Phase 10 report supersede them.
+Earlier discovery, planning, and evidence documents are retained as historical records. Where they describe legacy generic adapters, owners, routes, or credentials, this README, the Phase 10 report, and the dedicated MemoryV4 adapter contract supersede them.

@@ -23,7 +23,10 @@ export class HermesManagementApi {
     const value = record(await this.request(`/api/model/options?${query.toString()}`));
     return {
       providers: Array.isArray(value.providers)
-        ? value.providers.filter((item): item is JsonRecord => Boolean(item) && typeof item === 'object' && !Array.isArray(item))
+        ? value.providers.filter(
+            (item): item is JsonRecord =>
+              Boolean(item) && typeof item === 'object' && !Array.isArray(item),
+          )
         : [],
       provider: string(value.provider),
       model: string(value.model),
@@ -67,7 +70,9 @@ export class HermesManagementApi {
     const variables = record(await this.request('/api/env'));
     const matches = Object.entries(variables).filter(([, raw]) => {
       const row = record(raw);
-      return string(row.provider).toLowerCase() === providerId.toLowerCase() && row.is_password !== false;
+      return (
+        string(row.provider).toLowerCase() === providerId.toLowerCase() && row.is_password !== false
+      );
     });
     if (matches.length !== 1)
       throw new HermesManagementError(
@@ -131,9 +136,7 @@ export function validateManagementBaseUrl(value: string) {
 }
 
 function record(value: unknown): JsonRecord {
-  return value && typeof value === 'object' && !Array.isArray(value)
-    ? (value as JsonRecord)
-    : {};
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as JsonRecord) : {};
 }
 
 function string(value: unknown) {
