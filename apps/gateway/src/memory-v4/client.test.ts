@@ -54,6 +54,15 @@ describe('MemoryV4 adapter contract', () => {
           scopePath: 'tenant:acme',
         }),
     ).toThrow(/requires HTTPS/);
+    expect(
+      () =>
+        new MemoryV4Adapter({
+          baseUrl: 'http://memory-v4:8000',
+          bearerToken: 'service-token',
+          scopePath: 'tenant:acme',
+          allowPrivateHttp: true,
+        }),
+    ).not.toThrow();
   });
 
   it('delegates the named actor, pins scope, and never forwards caller credentials', async () => {

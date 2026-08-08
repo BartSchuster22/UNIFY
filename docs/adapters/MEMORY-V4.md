@@ -78,15 +78,17 @@ The adapter is disabled unless both URL and scope are configured:
 MEMORY_V4_URL=https://memoryv4.internal.example
 MEMORY_V4_SCOPE_PATH=tenant:example
 MEMORY_V4_TOKEN_FILE=/run/secrets/memory_v4_token
+MEMORY_V4_ALLOW_PRIVATE_HTTP=false
 MEMORY_V4_TIMEOUT_MS=8000
 MEMORY_V4_MAX_RESPONSE_BYTES=16777216
 MEMORY_V4_RETRIES=1
 ```
 
 The URL must be a bare HTTP(S) origin with no embedded credentials, path, query, or
-fragment. Production should use private networking and TLS. The MemoryV4 grant must
-have `allow_actor_delegation=true`, the same or narrower scope, and only the
-permissions required by the enabled UNIFY roles.
+fragment. Production should use private networking and TLS. The default rejects non-loopback HTTP;
+`MEMORY_V4_ALLOW_PRIVATE_HTTP=true` is permitted only when both services share a Docker network
+marked `internal: true`. The MemoryV4 grant must have `allow_actor_delegation=true`, the same or
+narrower scope, and only the permissions required by the enabled UNIFY roles.
 
 ## Verification
 

@@ -28,6 +28,7 @@ export interface MemoryV4AdapterOptions {
   retries?: number;
   circuitFailureThreshold?: number;
   circuitResetMs?: number;
+  allowPrivateHttp?: boolean;
   fetchImpl?: typeof fetch;
   sleep?: (milliseconds: number) => Promise<void>;
 }
@@ -77,8 +78,10 @@ export class MemoryV4Adapter {
       (base.pathname !== '/' && base.pathname !== '')
     )
       throw new Error('MEMORY_V4_URL must be an HTTP(S) origin without credentials or a path');
-    if (base.protocol === 'http:' && !isLoopback(base.hostname))
-      throw new Error('MEMORY_V4_URL requires HTTPS except for loopback development');
+    if (base.protocol === 'http:' && !isLoopback(base.hostname) && !options.allowPrivateHttp)
+      throw new Error(
+        'MEMORY_V4_URL requires HTTPS except for loopback development or an explicitly isolated private network',
+      );
     if (!options.bearerToken.trim()) throw new Error('MEMORY_V4_TOKEN must not be empty');
     this.scopePath = validateScopePath(options.scopePath);
     this.baseUrl = base.origin;

@@ -42,6 +42,9 @@ const hermesGateway = new HermesGatewayService(
 );
 const memoryV4Url = process.env.MEMORY_V4_URL?.trim();
 const memoryV4ScopePath = process.env.MEMORY_V4_SCOPE_PATH?.trim();
+const memoryV4AllowPrivateHttp = process.env.MEMORY_V4_ALLOW_PRIVATE_HTTP?.trim();
+if (memoryV4AllowPrivateHttp && !['true', 'false'].includes(memoryV4AllowPrivateHttp))
+  throw new Error('MEMORY_V4_ALLOW_PRIVATE_HTTP must be true or false');
 if (memoryV4Url && !memoryV4ScopePath)
   throw new Error('MEMORY_V4_SCOPE_PATH is required when MEMORY_V4_URL is configured');
 if (!memoryV4Url && memoryV4ScopePath)
@@ -54,6 +57,7 @@ const memoryV4Adapter = memoryV4Url
       timeoutMs: Number(process.env.MEMORY_V4_TIMEOUT_MS ?? 8_000),
       maxResponseBytes: Number(process.env.MEMORY_V4_MAX_RESPONSE_BYTES ?? 16 * 1024 * 1024),
       retries: Number(process.env.MEMORY_V4_RETRIES ?? 1),
+      allowPrivateHttp: memoryV4AllowPrivateHttp === 'true',
     })
   : undefined;
 const app = buildApp({
