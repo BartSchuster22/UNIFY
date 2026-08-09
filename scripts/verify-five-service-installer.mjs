@@ -18,6 +18,12 @@ import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 const root = resolve(import.meta.dirname, '..');
+const qa10Runner = readFileSync(resolve(root, 'deploy/alica-v1/qa10-production.sh'), 'utf8');
+for (const scope of ['control:secrets', 'memory:read', 'memory:write'])
+  assert.ok(
+    qa10Runner.includes(`'${scope}'`),
+    `Production QA10 registration must preserve ${scope}`,
+  );
 const fixture = mkdtempSync(join(tmpdir(), 'unify-installer-'));
 const installRoot = join(fixture, 'managed');
 const partialRoot = join(fixture, 'partial');

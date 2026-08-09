@@ -31,7 +31,7 @@ register() {
   id=$1; name=$2; endpoint=$3; reference=$4
   payload=$(python3 - "$id" "$name" "$endpoint" "$reference" <<'PY'
 import json,sys
-print(json.dumps({'frameworkId':sys.argv[1],'displayName':sys.argv[2],'baseUrl':sys.argv[3],'serviceAuthReference':sys.argv[4],'scopes':['control:read','control:execute','control:events'],'expectedContractVersion':'hermes-control/v1','expectedFrameworkVersion':'0.20.0','expectedFrameworkCommit':'b8b17b8cee50b85adb7fba6ea332dc06731b86f4','enabled':True}))
+print(json.dumps({'frameworkId':sys.argv[1],'displayName':sys.argv[2],'baseUrl':sys.argv[3],'serviceAuthReference':sys.argv[4],'scopes':['control:read','control:execute','control:events','control:secrets','memory:read','memory:write'],'expectedContractVersion':'hermes-control/v1','expectedFrameworkVersion':'0.20.0','expectedFrameworkCommit':'b8b17b8cee50b85adb7fba6ea332dc06731b86f4','enabled':True}))
 PY
 )
   for replay in 1 2; do
