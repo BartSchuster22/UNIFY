@@ -362,6 +362,7 @@ function validateWorkCommand(input: MutationInput, definition: MutationDefinitio
       422,
       'projectManager is required when starting PM planning',
     );
+  validateExpectedSourceVersion(input.payload.expectedSourceVersion);
 }
 
 function validateConversationCommand(input: MutationInput, definition: MutationDefinition) {
@@ -375,10 +376,56 @@ function validateConversationCommand(input: MutationInput, definition: MutationD
       422,
       'Conversation mutation must target one exact session in one registered Hermes framework',
     );
-  const required = input.operationType === 'conversation.session.create' ? 'title' : 'message';
-  const value = input.payload[required];
-  if (typeof value !== 'string' || !value.trim())
-    throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, `${required} is required`);
+  if (input.operationType === 'conversation.session.create') {
+    const title = input.payload.title;
+    if (typeof title !== 'string' || !title.trim() || title.length > 500)
+      throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'title is required');
+  } else validateConversationMessage(input.payload.message);
+  validateExpectedSourceVersion(input.payload.expectedSourceVersion);
+}
+
+function validateConversationMessage(message: unknown) {
+  if (typeof message === 'string' && message.trim() && message.length <= 1_000_000) return;
+  if (!Array.isArray(message) || message.length === 0 || message.length > 10)
+    throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'message is required');
+  let useful = false;
+  for (const value of message) {
+    if (!value || typeof value !== 'object' || Array.isArray(value))
+      throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'message block is invalid');
+    const block = value as Record<string, unknown>;
+    if (block.type === 'text') {
+      if (typeof block.text !== 'string' || !block.text.trim() || block.text.length > 1_000_000)
+        throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'text block is invalid');
+      useful = true;
+      continue;
+    }
+    if (block.type === 'image_url') {
+      const image = block.image_url;
+      const url =
+        image && typeof image === 'object' && !Array.isArray(image)
+          ? (image as Record<string, unknown>).url
+          : undefined;
+      if (
+        typeof url !== 'string' ||
+        !/^data:image\/(?:png|jpeg|webp|gif);base64,[a-zA-Z0-9+/=]+$/.test(url) ||
+        url.length > 2_100_000
+      )
+        throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'image block is invalid');
+      useful = true;
+      continue;
+    }
+    throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'message block type is unsupported');
+  }
+  if (!useful) throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'message is required');
+}
+
+function validateExpectedSourceVersion(value: unknown) {
+  if (value !== undefined && (typeof value !== 'string' || !value.trim()))
+    throw new GovernanceError(
+      'MUTATION_PAYLOAD_INVALID',
+      422,
+      'expectedSourceVersion must be a non-empty string',
+    );
 }
 
 function validateFrameworkCommand(input: MutationInput) {

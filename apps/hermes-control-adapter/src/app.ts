@@ -574,6 +574,13 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
       requireScope(scopes, 'control:execute');
       const command = request.body;
       validateWorkPayload(command);
+      const beforeVersion = await workSourceVersion(options.source, command);
+      if (command.expectedSourceVersion && command.expectedSourceVersion !== beforeVersion)
+        throw new AdapterError(
+          'source_version_mismatch',
+          409,
+          'Expected source version does not match current Hermes work state',
+        );
       const operationId = randomUUID();
       if (command.mode !== 'execute') {
         const status = command.mode === 'validate' ? 'validated' : 'dry-run';
@@ -640,6 +647,16 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
       requireScope(scopes, 'control:execute');
       const command = request.body;
       validateConversationPayload(command);
+      const beforeVersion =
+        command.operation === 'session.create'
+          ? (await options.source.sessions()).sourceVersion
+          : (await options.source.messages(command.targetId)).sourceVersion;
+      if (command.expectedSourceVersion && command.expectedSourceVersion !== beforeVersion)
+        throw new AdapterError(
+          'source_version_mismatch',
+          409,
+          'Expected source version does not match current Hermes conversation state',
+        );
       const operationId = randomUUID();
       if (command.mode !== 'execute') {
         const status = command.mode === 'validate' ? 'validated' : 'dry-run';
@@ -833,6 +850,17 @@ function validateWorkPayload(command: HermesWorkCommand) {
     (typeof command.payload.projectManager !== 'string' || !command.payload.projectManager.trim())
   )
     throw new AdapterError('invalid_request', 400, 'Project manager is required to start planning');
+}
+
+function workSourceVersion(source: AdapterSource, command: HermesWorkCommand): Promise<string> {
+  if (command.operation.startsWith('project.'))
+    return source.projects().then((snapshot) => snapshot.sourceVersion);
+  if (command.operation.startsWith('cron.'))
+    return source.cronjobs().then((snapshot) => snapshot.sourceVersion);
+  const boardId = command.payload.boardId;
+  if (typeof boardId !== 'string' || !boardId.trim())
+    throw new AdapterError('invalid_request', 400, 'Work payload boardId is required');
+  return source.tasks(boardId).then((snapshot) => snapshot.sourceVersion);
 }
 
 function response(options: HermesControlAdapterOptions, version: string, data: unknown) {

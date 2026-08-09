@@ -702,8 +702,13 @@ export class HermesNativeSource implements AdapterSource {
     if (command.operation === 'session.create') {
       const title = requiredString(command.payload.title, 'session title');
       const model = optionalString(command.payload.model);
+      const profileId = optionalString(command.payload.profileId);
       const result = record(
-        await this.api('/api/sessions', 'POST', { title, ...(model ? { model } : {}) }),
+        await this.api('/api/sessions', 'POST', {
+          title,
+          ...(model ? { model } : {}),
+          ...(profileId ? { profile: profileId } : {}),
+        }),
       );
       const session = record(result.session);
       if (!isInternalSession(session))

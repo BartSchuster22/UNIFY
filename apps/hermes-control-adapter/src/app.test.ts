@@ -343,6 +343,45 @@ describe('Hermes control adapter', () => {
     });
   });
 
+  it('fails Work and Chat commands closed on stale owner source versions', async () => {
+    const executeWork = vi.fn(source.executeWork);
+    const executeConversation = vi.fn(source.executeConversation);
+    const app = create({ ...source, executeWork, executeConversation });
+    const staleWork = await app.inject({
+      method: 'POST',
+      url: '/control/v1/commands/work',
+      headers: auth,
+      payload: {
+        ...command({
+          expectedSourceVersion: 'sha256:stale',
+          payload: { boardId: 'board-1' },
+        }),
+        operation: 'task.complete',
+        targetId: 'task-1',
+      },
+    });
+    expect(staleWork.statusCode).toBe(409);
+    expect(staleWork.json().error.code).toBe('source_version_mismatch');
+    expect(executeWork).not.toHaveBeenCalled();
+
+    const staleChat = await app.inject({
+      method: 'POST',
+      url: '/control/v1/commands/conversations',
+      headers: auth,
+      payload: {
+        ...command({
+          expectedSourceVersion: 'sha256:stale',
+          payload: { message: 'hello' },
+        }),
+        operation: 'message.send',
+        targetId: 'session-1',
+      },
+    });
+    expect(staleChat.statusCode).toBe(409);
+    expect(staleChat.json().error.code).toBe('source_version_mismatch');
+    expect(executeConversation).not.toHaveBeenCalled();
+  });
+
   it('reports source outage as unavailable rather than authoritative empty data', async () => {
     const unavailableSource: AdapterSource = {
       ...source,

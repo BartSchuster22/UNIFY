@@ -87,22 +87,28 @@ function renderWork(canManage = true) {
 describe('UNIFY Work & Kanban', () => {
   beforeEach(() => {
     window.history.replaceState(null, '', '/?view=work');
-    mockedApi.mockResolvedValue({
-      items: [
-        {
-          frameworkId: 'hermes-alica',
-          displayName: 'Alica',
-          enabled: true,
-          status: 'verified',
-        },
-        {
-          frameworkId: 'hermes-herman',
-          displayName: 'Herman',
-          enabled: true,
-          status: 'verified',
-        },
-      ],
-    } as never);
+    mockedApi.mockImplementation(async (path) => {
+      if (path.endsWith('/capabilities'))
+        return {
+          data: { capabilities: { 'work.execute': { status: 'supported' } } },
+        } as never;
+      return {
+        items: [
+          {
+            frameworkId: 'hermes-alica',
+            displayName: 'Alica',
+            enabled: true,
+            status: 'verified',
+          },
+          {
+            frameworkId: 'hermes-herman',
+            displayName: 'Herman',
+            enabled: true,
+            status: 'verified',
+          },
+        ],
+      } as never;
+    });
     vi.spyOn(gateway, 'hermesProjects').mockResolvedValue(projects);
     vi.spyOn(gateway, 'hermesBoards').mockResolvedValue(boards);
     vi.spyOn(gateway, 'hermesTasks').mockResolvedValue(tasks);
@@ -112,7 +118,7 @@ describe('UNIFY Work & Kanban', () => {
       operation: {
         operationId: 'op-1',
         operationType: 'work.project.create',
-        state: 'succeeded',
+        state: 'verified',
         mode: 'execute',
         updatedAt: '2026-07-20T12:00:00.000Z',
       },
@@ -134,6 +140,7 @@ describe('UNIFY Work & Kanban', () => {
     expect(gateway.hermesBoards).toHaveBeenCalledWith('hermes-herman');
     expect(gateway.hermesCronjobs).toHaveBeenCalledWith('hermes-herman');
     expect(gateway.hermesProjects).not.toHaveBeenCalledWith('hermes-alica');
+    expect(mockedApi).toHaveBeenCalledWith('/frameworks/hermes-herman/capabilities');
   });
 
   it('shows Hermes operational attention, Kanban and Cronjobs overview', async () => {
@@ -183,7 +190,55 @@ describe('UNIFY Work & Kanban', () => {
     });
   });
 
-  it('shows native cron controls and persists notification rules in Settings', async () => {
+  it('pins task writes to the exact framework and authoritative task source version', async () => {
+    window.history.replaceState(null, '', '/?view=work&workPage=board');
+    renderWork();
+    await screen.findByText('Blocked release');
+    fireEvent.click(screen.getAllByRole('button', { name: 'Complete' })[0]!);
+    await waitFor(() => expect(gateway.mutate).toHaveBeenCalled());
+    expect(vi.mocked(gateway.mutate).mock.calls[0]?.[0]).toMatchObject({
+      operationType: 'work.task.complete',
+      target: {
+        owner: 'hermes',
+        kind: 'task',
+        nativeId: 'TASK-3',
+        frameworkId: 'hermes-alica',
+      },
+      payload: { boardId: 'alpha', expectedSourceVersion: 'sha256:test' },
+    });
+  });
+
+  it('fails work writes closed when Hermes reports the capability unavailable', async () => {
+    mockedApi.mockImplementation(async (path) => {
+      if (path.endsWith('/capabilities'))
+        return {
+          data: {
+            capabilities: {
+              'work.execute': { status: 'unavailable', reason: 'Hermes work owner offline' },
+            },
+          },
+        } as never;
+      return {
+        items: [
+          {
+            frameworkId: 'hermes-alica',
+            displayName: 'Alica',
+            enabled: true,
+            status: 'verified',
+          },
+        ],
+      } as never;
+    });
+    window.history.replaceState(null, '', '/?view=work&workPage=cronjobs');
+    renderWork();
+    expect(
+      await screen.findByRole('alert', { name: 'Native work mutations unavailable' }),
+    ).toHaveTextContent('Hermes work owner offline');
+    expect(screen.queryByRole('button', { name: 'New Cronjob' })).not.toBeInTheDocument();
+    expect(gateway.mutate).not.toHaveBeenCalled();
+  });
+
+  it('shows native cron controls and refuses browser-owned notification fallback truth', async () => {
     renderWork();
     await screen.findByText('Blocked release');
     fireEvent.click(screen.getByRole('radio', { name: 'Cronjobs' }));
@@ -192,15 +247,9 @@ describe('UNIFY Work & Kanban', () => {
     expect(screen.getByRole('button', { name: 'New Cronjob' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('radio', { name: 'Settings' }));
     expect(
-      await screen.findByRole('heading', { name: 'Notification rules setup' }),
-    ).toBeInTheDocument();
-    fireEvent.click(screen.getByLabelText('Telegram notifications'));
-    fireEvent.change(screen.getByLabelText('Telegram destination'), {
-      target: { value: '1371039817' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'Save notification rules' }));
-    expect(JSON.parse(localStorage.getItem('unify-work-notification-rules') ?? '{}')).toMatchObject(
-      { telegram: true, telegramDestination: '1371039817' },
-    );
+      await screen.findByRole('alert', { name: 'Authoritative notification settings unavailable' }),
+    ).toHaveTextContent('does not expose notification-rule inventory or mutation');
+    expect(screen.queryByLabelText('Telegram destination')).not.toBeInTheDocument();
+    expect(localStorage.getItem('unify-work-notification-rules')).toBeNull();
   });
 });

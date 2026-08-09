@@ -202,6 +202,40 @@ describe('standalone mutation policy', () => {
     );
   });
 
+  it('accepts only bounded inline multimodal Hermes messages', () => {
+    const service = new MutationService(new GovernanceService(new Store()), hermes(vi.fn()));
+    const base = {
+      operationType: 'conversation.message.send',
+      target: {
+        owner: 'hermes',
+        kind: 'session',
+        nativeId: 'session-1',
+        frameworkId: 'hermes-alica',
+      },
+      mode: 'execute',
+      confirmed: false,
+    };
+    expect(() =>
+      service.parse({
+        ...base,
+        payload: {
+          sessionId: 'session-1',
+          expectedSourceVersion: 'messages:v2',
+          message: [
+            { type: 'text', text: 'Inspect this' },
+            { type: 'image_url', image_url: { url: 'data:image/png;base64,AA==' } },
+          ],
+        },
+      }),
+    ).not.toThrow();
+    for (const message of [
+      [{ type: 'image_url', image_url: { url: 'https://example.com/private.png' } }],
+      [{ type: 'file', url: 'data:text/plain;base64,QQ==' }],
+      [{ type: 'text', text: '' }],
+    ])
+      expect(() => service.parse({ ...base, payload: { message } })).toThrow();
+  });
+
   it('governs profile rename with framework isolation, source version, confirmation, and replay', async () => {
     const store = new Store();
     const profileManagement = vi.fn().mockResolvedValue({

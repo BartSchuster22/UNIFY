@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   HermesNativeSource,
   SecondConsumerForbiddenError,
@@ -276,6 +276,67 @@ describe('HermesNativeSource', () => {
 
     const unavailable = new HermesNativeSource({ runner: new FixtureRunner({}) });
     await expect(unavailable.sessions()).rejects.toThrow('not configured');
+  });
+
+  it('routes profile-bound sessions and bounded inline messages to the native API', async () => {
+    const fetchImpl = vi.fn(async (input: string | URL | Request) => {
+      const url = String(input);
+      if (url.endsWith('/api/sessions'))
+        return Response.json({ session: { id: 's-new', source: 'api_server' } });
+      if (url.endsWith('/api/sessions/s-1'))
+        return Response.json({ session: { id: 's-1', source: 'api_server' } });
+      if (url.endsWith('/api/sessions/s-1/chat'))
+        return Response.json({ message: { id: 'm-new' } });
+      return new Response('{}', { status: 404 });
+    });
+    const source = new HermesNativeSource({
+      runner: new FixtureRunner({}),
+      apiBaseUrl: 'https://hermes.test',
+      fetchImpl,
+    });
+    const base = {
+      mode: 'execute' as const,
+      requestId: 'request-chat',
+      correlationId: 'correlation-chat',
+      actor: { type: 'service' as const, id: 'unify-core' },
+    };
+    await source.executeConversation({
+      ...base,
+      idempotencyKey: 'create-session-key',
+      operation: 'session.create',
+      targetId: 'new',
+      payload: {
+        title: 'Governed session',
+        profileId: 'default',
+        model: 'gpt-5.6-sol',
+      },
+    });
+    await source.executeConversation({
+      ...base,
+      idempotencyKey: 'send-message-key',
+      operation: 'message.send',
+      targetId: 's-1',
+      payload: {
+        message: [
+          { type: 'text', text: 'Inspect this' },
+          { type: 'image_url', image_url: { url: 'data:image/png;base64,AA==' } },
+        ],
+      },
+    });
+    const calls = fetchImpl.mock.calls as unknown as Array<
+      [string | URL | Request, RequestInit | undefined]
+    >;
+    expect(JSON.parse(String(calls[0]?.[1]?.body))).toMatchObject({
+      title: 'Governed session',
+      profile: 'default',
+      model: 'gpt-5.6-sol',
+    });
+    expect(JSON.parse(String(calls[2]?.[1]?.body))).toEqual({
+      message: [
+        { type: 'text', text: 'Inspect this' },
+        { type: 'image_url', image_url: { url: 'data:image/png;base64,AA==' } },
+      ],
+    });
   });
 
   it('fails closed for external-channel session lists and message histories', async () => {

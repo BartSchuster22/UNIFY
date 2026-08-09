@@ -1,12 +1,13 @@
 import { MantineProvider } from '@mantine/core';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { api } from './api';
+import { api, gateway } from './api';
 import { FrameworkProvider } from './FrameworkContext';
 import { ChatView } from './ChatView';
 
 vi.mock('./api', () => ({ api: vi.fn(), gateway: { mutate: vi.fn() } }));
 const mockedApi = vi.mocked(api);
+const mockedMutate = vi.mocked(gateway.mutate);
 
 const meta = {
   frameworkId: 'hermes-alica',
@@ -142,6 +143,74 @@ describe('ChatView', () => {
     expect(screen.getByText(/NO_IDEMPOTENT_NONINTERACTIVE_INTERFACE/)).toBeInTheDocument();
     expect(screen.getByLabelText('Message')).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Create session' })).toBeDisabled();
+  });
+
+  it('creates and sends through verified exact-profile governed Hermes operations', async () => {
+    const baseImplementation = mockedApi.getMockImplementation()!;
+    mockedApi.mockImplementation(async (path: string, init?: RequestInit) => {
+      if (path.endsWith('/capabilities'))
+        return {
+          meta,
+          data: {
+            capabilities: {
+              'conversations.sessions.read': { status: 'supported', modes: ['read'] },
+              'conversations.execute': { status: 'supported', modes: ['execute'] },
+            },
+          },
+        } as never;
+      return baseImplementation(path, init);
+    });
+    mockedMutate.mockResolvedValue({
+      replayed: false,
+      operation: {
+        operationId: 'op-chat',
+        operationType: 'conversation.session.create',
+        state: 'verified',
+        mode: 'execute',
+        updatedAt: '2026-07-22T02:35:25.976Z',
+      },
+      result: { ok: true },
+    });
+    renderView(true);
+    await screen.findByText('Internal API conversation');
+    fireEvent.change(screen.getByRole('textbox', { name: 'New internal session' }), {
+      target: { value: 'Governed chat' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Create session' }));
+    await waitFor(() => expect(mockedMutate).toHaveBeenCalledTimes(1));
+    expect(mockedMutate.mock.calls[0]?.[0]).toMatchObject({
+      operationType: 'conversation.session.create',
+      target: {
+        owner: 'hermes',
+        kind: 'session',
+        nativeId: 'new',
+        frameworkId: 'hermes-alica',
+      },
+      payload: {
+        title: 'Governed chat',
+        profileId: 'default',
+        model: 'gpt-5.6-sol',
+        expectedSourceVersion: 'sha256:native',
+      },
+      mode: 'execute',
+    });
+
+    fireEvent.change(screen.getByLabelText('Message'), { target: { value: 'Hello Hermes' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
+    await waitFor(() => expect(mockedMutate).toHaveBeenCalledTimes(2));
+    expect(mockedMutate.mock.calls[1]?.[0]).toMatchObject({
+      operationType: 'conversation.message.send',
+      target: {
+        owner: 'hermes',
+        kind: 'session',
+        nativeId: 'ses-internal',
+        frameworkId: 'hermes-alica',
+      },
+      payload: {
+        message: 'Hello Hermes',
+        expectedSourceVersion: 'sha256:native',
+      },
+    });
   });
 
   it('rechecks profiles, sessions and capabilities on demand', async () => {

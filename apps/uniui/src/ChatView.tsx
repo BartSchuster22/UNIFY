@@ -66,10 +66,16 @@ export function ChatView({ canUse }: { canUse: boolean }) {
   const [loading, setLoading] = useState(true);
   const [mutating, setMutating] = useState(false);
   const [failure, setFailure] = useState('');
+  const [notice, setNotice] = useState('');
   const [title, setTitle] = useState('');
+  const [selectedProfileId, setSelectedProfileId] = useState('');
   const [draft, setDraft] = useState('');
   const [attachment, setAttachment] = useState<File | null>(null);
   const requestGeneration = useRef(0);
+  const selectedFramework = useRef(frameworkId);
+  const selectedSession = useRef(selectedSessionId);
+  selectedFramework.current = frameworkId;
+  selectedSession.current = selectedSessionId;
 
   const loadMessages = useCallback(
     async (sessionId: string, generation = requestGeneration.current) => {
@@ -119,8 +125,15 @@ export function ChatView({ canUse }: { canUse: boolean }) {
       setProfiles(profileResponse);
       setSessions(internalSessions);
       setCapabilities(capabilityResponse);
-      const nextId = internalSessions.items.some((item) => item.id === selectedSessionId)
-        ? selectedSessionId
+      setSelectedProfileId((current) =>
+        profileResponse.items.some((item) => item.id === current)
+          ? current
+          : (profileResponse.items.find((item) => item.active)?.id ??
+            profileResponse.items[0]?.id ??
+            ''),
+      );
+      const nextId = internalSessions.items.some((item) => item.id === selectedSession.current)
+        ? selectedSession.current
         : (internalSessions.items[0]?.id ?? '');
       setSelectedSessionId(nextId);
       if (nextId) await loadMessages(nextId, generation);
@@ -131,7 +144,7 @@ export function ChatView({ canUse }: { canUse: boolean }) {
     } finally {
       if (generation === requestGeneration.current) setLoading(false);
     }
-  }, [frameworkId, loadMessages, selectedSessionId]);
+  }, [frameworkId, loadMessages]);
 
   useEffect(() => {
     void load();
@@ -144,42 +157,74 @@ export function ChatView({ canUse }: { canUse: boolean }) {
   const executeCapability = capabilities?.data.capabilities['conversations.execute'];
   const canExecute = executeCapability?.status === 'supported' && canUse;
   const observed = sessions?.meta ?? profiles?.meta;
+  const selectedProfile = profiles?.items.find((profile) => profile.id === selectedProfileId);
 
   async function createSession() {
-    if (!canExecute || !title.trim()) return;
+    if (!canExecute || !title.trim() || !selectedProfile || !frameworkId || !sessions) return;
+    const requestedFramework = frameworkId;
     setMutating(true);
     setFailure('');
+    setNotice('');
     try {
-      await gateway.mutate({
-        operationType: 'conversation.session.create',
-        target: {
-          owner: 'hermes',
-          kind: 'session',
-          nativeId: 'new',
-          frameworkId,
+      const response = await gateway.mutate(
+        {
+          operationType: 'conversation.session.create',
+          target: {
+            owner: 'hermes',
+            kind: 'session',
+            nativeId: 'new',
+            frameworkId: requestedFramework,
+          },
+          payload: {
+            title: title.trim(),
+            profileId: selectedProfile.id,
+            ...(selectedProfile.model ? { model: selectedProfile.model } : {}),
+            expectedSourceVersion: sessions.meta.sourceVersion,
+          },
+          mode: 'execute',
+          confirmed: false,
         },
-        payload: { title: title.trim() },
-        mode: 'execute',
-        confirmed: false,
-      });
+        crypto.randomUUID(),
+      );
+      if (selectedFramework.current !== requestedFramework) return;
+      if (response.operation.state !== 'verified')
+        throw new Error(`Hermes session creation did not verify (${response.operation.state}).`);
       setTitle('');
+      setNotice(
+        response.replayed
+          ? 'The internal session already existed; governed evidence was replayed.'
+          : `Created an internal session for ${selectedProfile.displayName} in Hermes.`,
+      );
       await load();
     } catch (cause) {
-      setFailure(cause instanceof Error ? cause.message : 'Session creation failed');
+      if (selectedFramework.current === requestedFramework)
+        setFailure(cause instanceof Error ? cause.message : 'Session creation failed');
     } finally {
-      setMutating(false);
+      if (selectedFramework.current === requestedFramework) setMutating(false);
     }
   }
 
   async function sendMessage() {
-    if (!canExecute || !selectedSessionId || (!draft.trim() && !attachment)) return;
+    if (
+      !canExecute ||
+      !selectedSessionId ||
+      (!draft.trim() && !attachment) ||
+      !frameworkId ||
+      !messages
+    )
+      return;
+    const requestedFramework = frameworkId;
+    const requestedSession = selectedSessionId;
     setMutating(true);
     setFailure('');
+    setNotice('');
     try {
       let message: unknown = draft.trim();
       if (attachment) {
         if (!attachment.type.startsWith('image/'))
           throw new Error('Only image attachments are supported');
+        if (!['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(attachment.type))
+          throw new Error('Image must be PNG, JPEG, WebP, or GIF');
         if (attachment.size > 1_500_000)
           throw new Error('Image attachment must be 1.5 MB or smaller');
         message = [
@@ -187,25 +232,44 @@ export function ChatView({ canUse }: { canUse: boolean }) {
           { type: 'image_url', image_url: { url: await fileDataUrl(attachment) } },
         ];
       }
-      await gateway.mutate({
-        operationType: 'conversation.message.send',
-        target: {
-          owner: 'hermes',
-          kind: 'session',
-          nativeId: selectedSessionId,
-          frameworkId,
+      const response = await gateway.mutate(
+        {
+          operationType: 'conversation.message.send',
+          target: {
+            owner: 'hermes',
+            kind: 'session',
+            nativeId: requestedSession,
+            frameworkId: requestedFramework,
+          },
+          payload: { message, expectedSourceVersion: messages.meta.sourceVersion },
+          mode: 'execute',
+          confirmed: false,
         },
-        payload: { message },
-        mode: 'execute',
-        confirmed: false,
-      });
+        crypto.randomUUID(),
+      );
+      if (
+        selectedFramework.current !== requestedFramework ||
+        selectedSession.current !== requestedSession
+      )
+        return;
+      if (response.operation.state !== 'verified')
+        throw new Error(`Hermes message send did not verify (${response.operation.state}).`);
       setDraft('');
       setAttachment(null);
-      await loadMessages(selectedSessionId);
+      setNotice(
+        response.replayed
+          ? 'The message had already been accepted; governed evidence was replayed.'
+          : 'Hermes accepted the message for this internal session.',
+      );
+      await loadMessages(requestedSession);
     } catch (cause) {
-      setFailure(cause instanceof Error ? cause.message : 'Message send failed');
+      if (
+        selectedFramework.current === requestedFramework &&
+        selectedSession.current === requestedSession
+      )
+        setFailure(cause instanceof Error ? cause.message : 'Message send failed');
     } finally {
-      setMutating(false);
+      if (selectedFramework.current === requestedFramework) setMutating(false);
     }
   }
 
@@ -266,6 +330,11 @@ export function ChatView({ canUse }: { canUse: boolean }) {
           {failure}
         </Alert>
       ) : null}
+      {notice ? (
+        <Alert color="teal" title="Conversation operation verified">
+          {notice}
+        </Alert>
+      ) : null}
       {loading && !sessions ? <Loader aria-label="Loading internal conversations" /> : null}
 
       <Group align="stretch" wrap="nowrap" className="chat-grid">
@@ -274,6 +343,18 @@ export function ChatView({ canUse }: { canUse: boolean }) {
             Profiles
           </Text>
           <Stack gap="xs">
+            <Select
+              label="Agent profile"
+              description="Hermes profile and model for the new internal session"
+              value={selectedProfileId}
+              onChange={(value) => setSelectedProfileId(value ?? '')}
+              data={(profiles?.items ?? []).map((profile) => ({
+                value: profile.id,
+                label: `${profile.displayName}${profile.model ? ` · ${profile.model}` : ''}`,
+              }))}
+              disabled={!canExecute || mutating}
+              allowDeselect={false}
+            />
             <TextInput
               label="New internal session"
               placeholder="Session title"
@@ -284,7 +365,7 @@ export function ChatView({ canUse }: { canUse: boolean }) {
             <Button
               size="xs"
               onClick={() => void createSession()}
-              disabled={!canExecute || !title.trim()}
+              disabled={!canExecute || !title.trim() || !selectedProfile || mutating}
               loading={mutating}
             >
               Create session

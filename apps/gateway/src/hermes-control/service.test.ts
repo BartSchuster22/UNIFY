@@ -167,6 +167,53 @@ describe('HermesGatewayService profile/provider truth', () => {
     expect(command.payload).toEqual({ credential: 'owner-only-secret' });
   });
 
+  it('promotes Work and Chat source preconditions without leaking them into owner payloads', async () => {
+    const body = {
+      ...meta,
+      data: {
+        operationId: 'owner-operation',
+        status: 'completed',
+        replayed: false,
+        operation: 'task.complete',
+        targetId: 'TASK-1',
+        result: {},
+        emittedEvents: 0,
+      },
+    };
+    const workHarness = service(body);
+    await workHarness.gateway.work(
+      'hermes-main',
+      'task.complete',
+      'TASK-1',
+      { boardId: 'alpha', expectedSourceVersion: 'tasks:v4' },
+      'execute',
+      { actorUserId: 'operator', operationId: 'work-op', idempotencyKey: 'work-key' },
+    );
+    const workCommand = JSON.parse(
+      String(vi.mocked(workHarness.fetchImpl).mock.calls[0]?.[1]?.body),
+    ) as Record<string, unknown>;
+    expect(workCommand.expectedSourceVersion).toBe('tasks:v4');
+    expect(workCommand.payload).toEqual({ boardId: 'alpha' });
+
+    const chatHarness = service({
+      ...body,
+      data: { ...body.data, operation: 'message.send', targetId: 'session-1' },
+    });
+    await chatHarness.gateway.conversation(
+      'hermes-main',
+      'message.send',
+      'session-1',
+      { sessionId: 'session-1', message: 'hello', expectedSourceVersion: 'messages:v8' },
+      'execute',
+      { actorUserId: 'operator', operationId: 'chat-op', idempotencyKey: 'chat-key' },
+    );
+    const chatCommand = JSON.parse(
+      String(vi.mocked(chatHarness.fetchImpl).mock.calls[0]?.[1]?.body),
+    ) as Record<string, unknown>;
+    expect(chatCommand.expectedSourceVersion).toBe('messages:v8');
+    expect(chatCommand.payload).toEqual({ sessionId: 'session-1', message: 'hello' });
+  });
+
   it('fails closed on framework provenance mismatch', async () => {
     const { gateway } = service({
       ...meta,

@@ -193,13 +193,20 @@ export class HermesGatewayService {
     mode: 'validate' | 'dry-run' | 'execute',
     context: GatewayCommandContext,
   ) {
+    const expectedSourceVersion = optionalString(
+      payload.expectedSourceVersion,
+      'expectedSourceVersion',
+    );
+    const ownerPayload = { ...payload };
+    delete ownerPayload.expectedSourceVersion;
     const command: HermesWorkCommand = {
       mode,
       idempotencyKey: gatewayIdempotencyKey(context.actorUserId, context.idempotencyKey),
+      ...(expectedSourceVersion ? { expectedSourceVersion } : {}),
       requestId: context.operationId,
       correlationId: context.operationId,
       actor: { type: 'user', id: context.actorUserId },
-      payload,
+      payload: ownerPayload,
       operation,
       targetId,
     };
@@ -226,13 +233,20 @@ export class HermesGatewayService {
     mode: 'validate' | 'dry-run' | 'execute',
     context: GatewayCommandContext,
   ) {
+    const expectedSourceVersion = optionalString(
+      payload.expectedSourceVersion,
+      'expectedSourceVersion',
+    );
+    const ownerPayload = { ...payload };
+    delete ownerPayload.expectedSourceVersion;
     const command: HermesConversationCommand = {
       mode,
       idempotencyKey: gatewayIdempotencyKey(context.actorUserId, context.idempotencyKey),
+      ...(expectedSourceVersion ? { expectedSourceVersion } : {}),
       requestId: context.operationId,
       correlationId: context.operationId,
       actor: { type: 'user', id: context.actorUserId },
-      payload,
+      payload: ownerPayload,
       operation,
       targetId,
     };

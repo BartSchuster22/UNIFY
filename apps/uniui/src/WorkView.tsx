@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   Card,
-  Checkbox,
   Code,
   Divider,
   Group,
@@ -22,16 +21,9 @@ import {
   TextInput,
   Title,
 } from '@mantine/core';
-import {
-  IconActivity,
-  IconCalendar,
-  IconClipboardList,
-  IconPlus,
-  IconRefresh,
-  IconSettings,
-} from '@tabler/icons-react';
+import { IconCalendar, IconClipboardList, IconPlus, IconRefresh } from '@tabler/icons-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ApiError, gateway } from './api';
+import { ApiError, api, gateway } from './api';
 import { useFrameworkContext } from './FrameworkContext';
 import type { Collection, MutationRequest, UnifiedResource } from './types';
 
@@ -53,6 +45,12 @@ type CronForm = {
   schedule: string;
   timezone: string;
 };
+
+type WorkCapability = {
+  status: 'supported' | 'unsupported' | 'unavailable';
+  reason?: string;
+};
+type CapabilityEnvelope = { data: { capabilities: Record<string, WorkCapability> } };
 
 const lanes = ['triage', 'todo', 'ready', 'running', 'blocked', 'done', 'archived'] as const;
 const pageOptions: Array<{ value: WorkPage; label: string }> = [
@@ -84,21 +82,29 @@ export function WorkView({ canManage }: { canManage: boolean }) {
     () => new URLSearchParams(window.location.search).get('project') ?? '',
   );
   const [busy, setBusy] = useState(false);
+  const [workCapability, setWorkCapability] = useState<WorkCapability>();
   const loadGeneration = useRef(0);
+  const selectedFramework = useRef(frameworkId);
+  selectedFramework.current = frameworkId;
 
   const load = useCallback(async () => {
     const generation = ++loadGeneration.current;
     if (!frameworkId) {
       setData({ items: [] });
+      setWorkCapability(undefined);
       setLoading(false);
       return;
     }
     setLoading(true);
     setFailure(undefined);
     try {
-      const response = await loadHermesWork(frameworkId);
+      const [response, capabilityResponse] = await Promise.all([
+        loadHermesWork(frameworkId),
+        api<CapabilityEnvelope>(`/frameworks/${encodeURIComponent(frameworkId)}/capabilities`),
+      ]);
       if (generation !== loadGeneration.current) return;
       setData(response);
+      setWorkCapability(capabilityResponse.data.capabilities['work.execute']);
       const projects = nativeProjects(response.items);
       setSelectedProject((current) => current || projects[0]?.slug || '');
     } catch (error) {
@@ -144,24 +150,41 @@ export function WorkView({ canManage }: { canManage: boolean }) {
     window.history.replaceState(null, '', url);
   }
 
+  const canExecuteWork = canManage && workCapability?.status === 'supported';
+
   async function mutate(request: MutationRequest, success: string) {
+    if (request.confirmed && !window.confirm('Confirm this destructive Hermes work operation.'))
+      return undefined;
     setBusy(true);
     setFailure(undefined);
     setNotice(undefined);
+    const requestedFramework = frameworkId;
     try {
-      if (!frameworkId) throw new Error('Select an enabled, verified framework');
-      const response = await gateway.mutate({
-        ...request,
-        target: { ...request.target, frameworkId },
-      });
-      setNotice(success);
+      if (!requestedFramework) throw new Error('Select an enabled, verified framework');
+      if (!canManage) throw new Error('work.manage permission is required');
+      if (workCapability?.status !== 'supported')
+        throw new Error(
+          workCapability?.reason ??
+            'Native Hermes work mutations are not supported by this framework',
+        );
+      const response = await gateway.mutate(
+        {
+          ...request,
+          target: { ...request.target, frameworkId: requestedFramework },
+        },
+        crypto.randomUUID(),
+      );
+      if (selectedFramework.current !== requestedFramework) return undefined;
+      if (response.operation.state !== 'verified')
+        throw new Error(`Hermes work operation did not verify (${response.operation.state}).`);
+      setNotice(response.replayed ? `${success} Governed evidence was replayed.` : success);
       await load();
       return response.result;
     } catch (error) {
-      setFailure(errorMessage(error));
+      if (selectedFramework.current === requestedFramework) setFailure(errorMessage(error));
       return undefined;
     } finally {
-      setBusy(false);
+      if (selectedFramework.current === requestedFramework) setBusy(false);
     }
   }
 
@@ -193,6 +216,15 @@ export function WorkView({ canManage }: { canManage: boolean }) {
       {frameworkError || selectionIssue ? (
         <Alert color="red" title="Framework selection unavailable">
           {frameworkError || selectionIssue}
+        </Alert>
+      ) : null}
+      {!canManage ? (
+        <Alert color="yellow" title="Read-only work access">
+          `work.manage` permission is required for native Hermes mutations.
+        </Alert>
+      ) : workCapability && workCapability.status !== 'supported' ? (
+        <Alert color="yellow" title="Native work mutations unavailable">
+          {workCapability.reason ?? `Hermes reports work.execute as ${workCapability.status}.`}
         </Alert>
       ) : null}
 
@@ -260,7 +292,7 @@ export function WorkView({ canManage }: { canManage: boolean }) {
               onSelect={setSelectedProject}
               onDetails={(slug) => navigate('details', slug)}
               onMutate={mutate}
-              canManage={canManage}
+              canManage={canExecuteWork}
               busy={busy}
             />
           )}
@@ -270,7 +302,7 @@ export function WorkView({ canManage }: { canManage: boolean }) {
               projects={projects}
               onSelect={setSelectedProject}
               onMutate={mutate}
-              canManage={canManage}
+              canManage={canExecuteWork}
               busy={busy}
             />
           )}
@@ -280,12 +312,12 @@ export function WorkView({ canManage }: { canManage: boolean }) {
               selectedProject={selected?.slug ?? ''}
               onMutate={mutate}
               onCreated={(slug) => navigate('board', slug)}
-              canManage={canManage}
+              canManage={canExecuteWork}
               busy={busy}
             />
           )}
           {page === 'cronjobs' && (
-            <Cronjobs jobs={cronjobs} onMutate={mutate} canManage={canManage} busy={busy} />
+            <Cronjobs jobs={cronjobs} onMutate={mutate} canManage={canExecuteWork} busy={busy} />
           )}
           {page === 'settings' && <NotificationSettings />}
         </>
@@ -562,6 +594,7 @@ function TaskCard({
     await onMutate(
       mutation(`work.task.${name}`, 'task', id, {
         boardId: text(task.data.boardId) || text(task.data.projectSlug),
+        expectedSourceVersion: task.resource.sourceVersion,
         ...(name === 'block' ? { reason: 'Blocked from UNIFY Work & Kanban' } : {}),
       }),
       `${name} succeeded for ${id}.`,
@@ -650,7 +683,10 @@ function ProjectDetails({
     setForm((current) => ({ ...current, [key]: value }));
   const save = () =>
     onMutate(
-      mutation('work.project.rename', 'project', project.slug, { name: form.name.trim() }),
+      mutation('work.project.rename', 'project', project.slug, {
+        name: form.name.trim(),
+        expectedSourceVersion: project.sourceVersion,
+      }),
       `Updated project ${project.slug}.`,
     );
   return (
@@ -729,7 +765,13 @@ function ProjectDetails({
               loading={busy}
               onClick={() =>
                 void onMutate(
-                  mutation('work.project.archive', 'project', project.slug, {}, true),
+                  mutation(
+                    'work.project.archive',
+                    'project',
+                    project.slug,
+                    { expectedSourceVersion: project.sourceVersion },
+                    true,
+                  ),
                   `Archived ${project.slug}.`,
                 )
               }
@@ -998,6 +1040,9 @@ function Cronjobs({
     schedule: 'every 1d',
     timezone: 'UTC',
   });
+  const scheduleValid =
+    form.mode !== 'at' ||
+    (Boolean(form.schedule) && !Number.isNaN(new Date(form.schedule).getTime()));
   const visible = jobs.filter(
     (job) =>
       filter === 'all' ||
@@ -1013,12 +1058,13 @@ function Cronjobs({
         `work.cron.${name}`,
         'cronjob',
         text(job.data.nativeId) || job.resource.nativeId,
-        {},
+        { expectedSourceVersion: job.resource.sourceVersion },
         name === 'delete',
       ),
       `${name} succeeded for ${job.title}.`,
     );
   const create = async () => {
+    if (!scheduleValid) return;
     const schedule = form.mode === 'at' ? new Date(form.schedule).toISOString() : form.schedule;
     const result = await onMutate(
       mutation('work.cron.create', 'cronjob', form.name || slugify(form.title), {
@@ -1210,7 +1256,7 @@ function Cronjobs({
           />
           <Button
             loading={busy}
-            disabled={!form.title || !form.prompt || !form.schedule}
+            disabled={!form.title || !form.prompt || !form.schedule || !scheduleValid}
             onClick={() => void create()}
           >
             Save Cronjob
@@ -1222,100 +1268,14 @@ function Cronjobs({
 }
 
 function NotificationSettings() {
-  const [rules, setRules] = useState(() => notificationRules());
-  const update = (key: keyof NotificationRules, value: string | boolean) =>
-    setRules((current: NotificationRules) => ({ ...current, [key]: value }));
-  const save = () => {
-    localStorage.setItem('unify-work-notification-rules', JSON.stringify(rules));
-  };
   return (
     <Stack>
-      <Group>
-        <IconSettings size={26} />
-        <Box>
-          <Title order={2}>Settings</Title>
-          <Text c="dimmed">Hermes Work notification rules setup.</Text>
-        </Box>
-      </Group>
-      <Card withBorder>
-        <Group justify="space-between">
-          <Box>
-            <Text size="xs" fw={800} tt="uppercase" c="dimmed">
-              Notifications
-            </Text>
-            <Title order={3}>Notification rules setup</Title>
-            <Text c="dimmed">
-              Choose how Hermes project events surface in UNIFY and external channels.
-            </Text>
-          </Box>
-          <IconActivity size={24} />
-        </Group>
-        <SimpleGrid cols={{ base: 1, md: 2 }} mt="lg">
-          <Select
-            label="Toast minimum severity"
-            value={rules.severity}
-            onChange={(value) => update('severity', value ?? 'warning')}
-            data={[
-              { value: 'info', label: 'Info' },
-              { value: 'warning', label: 'Warning' },
-              { value: 'critical', label: 'Critical' },
-            ]}
-          />
-          <TextInput
-            label="Telegram destination"
-            value={rules.telegramDestination}
-            onChange={(event) => update('telegramDestination', event.currentTarget.value)}
-            placeholder="chat or topic ID"
-          />
-          <Checkbox
-            label="UNIFY inbox and realtime"
-            checked={rules.inbox}
-            onChange={(event) => update('inbox', event.currentTarget.checked)}
-          />
-          <Checkbox
-            label="Browser toast"
-            checked={rules.toast}
-            onChange={(event) => update('toast', event.currentTarget.checked)}
-          />
-          <Checkbox
-            label="Telegram notifications"
-            checked={rules.telegram}
-            onChange={(event) => update('telegram', event.currentTarget.checked)}
-          />
-          <Checkbox
-            label="Notify on blocked cards"
-            checked={rules.blocked}
-            onChange={(event) => update('blocked', event.currentTarget.checked)}
-          />
-          <Checkbox
-            label="Notify on failed cronjobs"
-            checked={rules.cronFailed}
-            onChange={(event) => update('cronFailed', event.currentTarget.checked)}
-          />
-          <Checkbox
-            label="Notify on project completion"
-            checked={rules.completed}
-            onChange={(event) => update('completed', event.currentTarget.checked)}
-          />
-        </SimpleGrid>
-        <Group mt="lg">
-          <Button onClick={save}>Save notification rules</Button>
-          <Button
-            variant="light"
-            onClick={() => {
-              const defaults = defaultNotificationRules();
-              setRules(defaults);
-              localStorage.setItem('unify-work-notification-rules', JSON.stringify(defaults));
-            }}
-          >
-            Reset notifications
-          </Button>
-        </Group>
-        <Text size="xs" c="dimmed" mt="sm">
-          These are UNIFY display rules. Project-specific delivery targets remain part of project
-          configuration.
-        </Text>
-      </Card>
+      <Title order={2}>Settings</Title>
+      <Alert color="yellow" title="Authoritative notification settings unavailable">
+        The selected Hermes Work contract does not expose notification-rule inventory or mutation.
+        UNIFY therefore does not store browser-only fallback rules or raw delivery targets. Cronjob
+        delivery remains the authoritative metadata returned by Hermes.
+      </Alert>
     </Stack>
   );
 }
@@ -1431,16 +1391,7 @@ type ProjectView = {
   status: string;
   counts: Record<string, number>;
   data: Record<string, unknown>;
-};
-type NotificationRules = {
-  severity: string;
-  inbox: boolean;
-  toast: boolean;
-  telegram: boolean;
-  telegramDestination: string;
-  blocked: boolean;
-  cronFailed: boolean;
-  completed: boolean;
+  sourceVersion: string;
 };
 
 function nativeProjects(items: UnifiedResource[]): ProjectView[] {
@@ -1459,6 +1410,7 @@ function nativeProjects(items: UnifiedResource[]): ProjectView[] {
         text(item.data.status) || text(item.data.lifecycleState) || current?.status || 'active',
       counts: Object.keys(counts).length ? numberRecord(counts) : (current?.counts ?? {}),
       data: { ...(current?.data ?? {}), ...item.data },
+      sourceVersion: current?.sourceVersion ?? item.resource.sourceVersion ?? '',
     });
   }
   return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
@@ -1535,28 +1487,7 @@ function workPageFromUrl(): WorkPage {
   const value = new URLSearchParams(window.location.search).get('workPage');
   return pageOptions.some((item) => item.value === value) ? (value as WorkPage) : 'overview';
 }
-function defaultNotificationRules(): NotificationRules {
-  return {
-    severity: 'warning',
-    inbox: true,
-    toast: true,
-    telegram: false,
-    telegramDestination: '',
-    blocked: true,
-    cronFailed: true,
-    completed: false,
-  };
-}
-function notificationRules(): NotificationRules {
-  try {
-    return {
-      ...defaultNotificationRules(),
-      ...record(JSON.parse(localStorage.getItem('unify-work-notification-rules') ?? '{}')),
-    } as NotificationRules;
-  } catch {
-    return defaultNotificationRules();
-  }
-}
+
 function Empty({ text: value }: { text: string }) {
   return (
     <Paper withBorder p="xl">
