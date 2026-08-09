@@ -318,6 +318,46 @@ describe('Mantine UNIUI gates', () => {
     expect(screen.getByText(/Profile changes are read-only for your role/)).toBeInTheDocument();
   });
 
+  it('passes credentials.manage through the shell to enable the guided provider workflow', async () => {
+    window.history.replaceState(null, '', '/?view=models&framework=hermes-herman');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url.endsWith('/auth/me'))
+          return response({
+            ...principal,
+            permissions: [...principal.permissions, 'credentials.manage'],
+          });
+        if (url.includes('/frameworks/hermes-herman/providers'))
+          return response({
+            meta: { ...hermesMeta, owner: 'hermes', frameworkId: 'hermes-herman' },
+            items: [
+              {
+                id: 'openrouter',
+                displayName: 'OpenRouter',
+                credentialStatus: 'missing',
+                selected: false,
+                authType: 'api_key',
+                credentialMutable: true,
+                owner: 'hermes',
+                frameworkId: 'hermes-herman',
+                sourceVersion: 'providers:v3',
+                observedAt: hermesMeta.observedAt,
+              },
+            ],
+            page: { hasMore: false },
+          });
+        return twoFrameworkFetch(input);
+      }),
+    );
+    render(<App />);
+    expect(await screen.findByRole('button', { name: 'Guided provider setup' })).toBeEnabled();
+    expect(
+      screen.queryByText(/Provider credentials are read-only for your role/),
+    ).not.toBeInTheDocument();
+  });
+
   it('passes profiles.manage through the shell to enable supported named-profile actions', async () => {
     window.history.replaceState(null, '', '/?view=profiles&framework=hermes-herman');
     vi.stubGlobal(

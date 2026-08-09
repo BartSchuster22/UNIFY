@@ -1,5 +1,5 @@
 import { MantineProvider } from '@mantine/core';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ModelsView } from './ModelsView';
 import { FrameworkProvider } from './FrameworkContext';
@@ -122,8 +122,10 @@ describe('Models/providers Hermes management', () => {
     expect((await screen.findAllByText('OpenRouter')).length).toBeGreaterThan(0);
     expect(screen.getAllByText('openai/gpt-5').length).toBeGreaterThan(0);
     expect(screen.getByText('Auth: configured')).toBeInTheDocument();
-    expect(screen.getByLabelText('API credential')).toBeEnabled();
-    expect(screen.getByRole('button', { name: 'Remove' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Guided provider setup' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Update credential' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Remove credential' })).toBeEnabled();
+    expect(screen.queryByLabelText(/API credential for/)).not.toBeInTheDocument();
     expect(
       screen.queryByText(/Full model-catalog discovery is not advertised/),
     ).not.toBeInTheDocument();
@@ -132,23 +134,84 @@ describe('Models/providers Hermes management', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('sends a credential only in the governed mutation body and clears it after success', async () => {
+  it('guides a credential through confirmation, governed dry-run, execute, and secure clearing', async () => {
     const fetchMock = fetchFixture();
     vi.stubGlobal('fetch', fetchMock);
     renderModels();
-    const field = await screen.findByLabelText('API credential');
-    fireEvent.change(field, { target: { value: 'test-secret-value' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
-    await waitFor(() =>
-      expect(
-        fetchMock.mock.calls.some(([, init]) =>
-          String(init?.body).includes('"credential":"test-secret-value"'),
-        ),
-      ).toBe(true),
-    );
-    await waitFor(() => expect(field).toHaveValue(''));
+    fireEvent.click(await screen.findByRole('button', { name: 'Guided provider setup' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Continue' }));
+    const field = await screen.findByLabelText('API credential for OpenRouter');
+    fireEvent.change(field, { target: { value: 'test-secret-value' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Review' }));
+    fireEvent.click(screen.getByRole('checkbox'));
+
+    const execute = screen.getByRole('button', { name: 'Save in Hermes' });
+    expect(execute).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Validate and dry-run' }));
+    expect(await screen.findByText(/Governed dry-run passed/)).toBeInTheDocument();
+    expect(execute).toBeEnabled();
+    fireEvent.click(execute);
+
+    expect(await screen.findByText(/configured in Hermes and verified/)).toBeInTheDocument();
     expect(screen.queryByText('test-secret-value')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('API credential for OpenRouter')).not.toBeInTheDocument();
+
+    const mutationCalls = fetchMock.mock.calls
+      .filter(([input]) => String(input).endsWith('/api/v1/mutations'))
+      .map(([, init]) => ({
+        body: JSON.parse(String(init?.body)) as Record<string, unknown>,
+        idempotencyKey: new Headers(init?.headers).get('Idempotency-Key'),
+      }));
+    expect(mutationCalls).toHaveLength(2);
+    expect(mutationCalls.map(({ body }) => body.mode)).toEqual(['dry-run', 'execute']);
+    for (const { body } of mutationCalls) {
+      expect(body).toMatchObject({
+        operationType: 'provider.credential.set',
+        target: {
+          owner: 'hermes',
+          kind: 'provider',
+          nativeId: 'openrouter',
+          frameworkId: 'hermes-main',
+        },
+        payload: {
+          credential: 'test-secret-value',
+          expectedSourceVersion: 'catalogue:v1',
+        },
+        confirmed: true,
+      });
+    }
+    expect(mutationCalls[0]?.idempotencyKey).toBeTruthy();
+    expect(mutationCalls[1]?.idempotencyKey).toBeTruthy();
+    expect(mutationCalls[0]?.idempotencyKey).not.toBe(mutationCalls[1]?.idempotencyKey);
+  });
+
+  it('clears a credential and fails closed when the governed dry-run conflicts', async () => {
+    const base = fetchFixture();
+    const fetchMock = vi.fn(async (request: string | URL | Request, init?: RequestInit) => {
+      if (String(request).endsWith('/api/v1/mutations'))
+        return Response.json(
+          { error: { code: 'CONFLICT', message: 'Provider inventory changed in Hermes' } },
+          { status: 409 },
+        );
+      return base(request, init);
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    renderModels();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Guided provider setup' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Continue' }));
+    fireEvent.change(await screen.findByLabelText('API credential for OpenRouter'), {
+      target: { value: 'must-be-cleared' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Review' }));
+    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(screen.getByRole('button', { name: 'Validate and dry-run' }));
+
+    expect(await screen.findByText(/Provider inventory changed in Hermes/)).toBeInTheDocument();
+    expect(screen.getByLabelText('API credential for OpenRouter')).toHaveValue('');
+    expect(screen.queryByText('must-be-cleared')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Save in Hermes' })).not.toBeInTheDocument();
   });
 
   it('keeps management controls disabled when capability or RBAC denies execution', async () => {
@@ -170,8 +233,83 @@ describe('Models/providers Hermes management', () => {
     expect(
       await screen.findByText(/Provider credential changes are forbidden/),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText('API credential')).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Remove' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Guided provider setup' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Update credential' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Remove credential' })).toBeDisabled();
+  });
+
+  it('routes every guided read and write to URL-selected Herman with Alica also registered', async () => {
+    window.history.replaceState(null, '', '/?view=models&framework=hermes-herman');
+    const frameworks = [
+      { frameworkId: 'hermes-alica', displayName: 'Alica', status: 'verified', enabled: true },
+      { frameworkId: 'hermes-herman', displayName: 'Herman', status: 'verified', enabled: true },
+    ];
+    const hermanMeta = { ...meta, frameworkId: 'hermes-herman', sourceVersion: 'herman:v4' };
+    const fetchMock = vi.fn(async (request: string | URL | Request, _init?: RequestInit) => {
+      void _init;
+      const url = String(request);
+      if (url.endsWith('/api/v1/frameworks')) return Response.json({ items: frameworks });
+      if (url.includes('/frameworks/hermes-herman/capabilities'))
+        return Response.json({ ...supportedCapabilities, meta: hermanMeta });
+      if (url.includes('/frameworks/hermes-herman/providers'))
+        return Response.json({
+          meta: hermanMeta,
+          items: providers.items.map((provider) => ({
+            ...provider,
+            frameworkId: 'hermes-herman',
+            sourceVersion: 'herman:v4',
+          })),
+          page: { hasMore: false },
+        });
+      if (url.includes('/frameworks/hermes-herman/models'))
+        return Response.json({
+          meta: hermanMeta,
+          items: models.items.map((model) => ({
+            ...model,
+            frameworkId: 'hermes-herman',
+            sourceVersion: 'herman:v4',
+          })),
+          page: { hasMore: false },
+        });
+      if (url.endsWith('/api/v1/mutations'))
+        return Response.json(
+          {
+            replayed: false,
+            operation: {
+              operationId: 'herman-dry-run',
+              operationType: 'provider.credential.set',
+              state: 'verified',
+              mode: 'dry-run',
+              updatedAt: new Date().toISOString(),
+            },
+            result: {},
+          },
+          { status: 201 },
+        );
+      return Response.json({}, { status: 404 });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    renderModels();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Guided provider setup' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Continue' }));
+    fireEvent.change(await screen.findByLabelText('API credential for OpenRouter'), {
+      target: { value: 'herman-only-secret' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Review' }));
+    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(screen.getByRole('button', { name: 'Validate and dry-run' }));
+    await screen.findByText(/Governed dry-run passed/);
+
+    const requests = fetchMock.mock.calls.map(([input]) => String(input));
+    expect(requests.some((url) => url.includes('/frameworks/hermes-alica/'))).toBe(false);
+    const mutationInit = fetchMock.mock.calls.find(([input]) =>
+      String(input).endsWith('/api/v1/mutations'),
+    )?.[1];
+    expect(JSON.parse(String(mutationInit?.body))).toMatchObject({
+      target: { frameworkId: 'hermes-herman', nativeId: 'openrouter' },
+      payload: { expectedSourceVersion: 'herman:v4', credential: 'herman-only-secret' },
+    });
   });
 
   it('shows Hermes unavailability without a fallback catalogue', async () => {

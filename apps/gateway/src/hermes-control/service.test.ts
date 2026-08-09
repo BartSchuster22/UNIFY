@@ -133,6 +133,40 @@ describe('HermesGatewayService profile/provider truth', () => {
     expect(JSON.stringify(result)).not.toMatch(/token|secret|fingerprint|API_KEY/i);
   });
 
+  it('promotes a model-management source precondition into the Hermes command envelope', async () => {
+    const scoped = {
+      ...record,
+      scopes: [...record.scopes, 'control:secrets'] as FrameworkRegistrationRecord['scopes'],
+    };
+    const { gateway, fetchImpl } = service(
+      {
+        ...meta,
+        data: {
+          operationId: 'owner-operation',
+          status: 'dry-run',
+          replayed: false,
+          operation: 'provider.credential.set',
+          targetId: 'openrouter',
+          result: {},
+          emittedEvents: 0,
+        },
+      },
+      scoped,
+    );
+    await gateway.modelManagement(
+      'hermes-main',
+      'provider.credential.set',
+      'openrouter',
+      { credential: 'owner-only-secret', expectedSourceVersion: 'catalogue:v7' },
+      'dry-run',
+      { actorUserId: 'operator', operationId: 'gateway-operation', idempotencyKey: 'setup-key' },
+    );
+    const init = vi.mocked(fetchImpl).mock.calls[0]?.[1];
+    const command = JSON.parse(String(init?.body)) as Record<string, unknown>;
+    expect(command.expectedSourceVersion).toBe('catalogue:v7');
+    expect(command.payload).toEqual({ credential: 'owner-only-secret' });
+  });
+
   it('fails closed on framework provenance mismatch', async () => {
     const { gateway } = service({
       ...meta,

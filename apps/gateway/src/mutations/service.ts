@@ -301,6 +301,16 @@ function validateModelCommand(input: MutationInput, definition: MutationDefiniti
     if (typeof credential !== 'string' || !credential.trim() || credential.length > 32_768)
       throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'credential is required');
   }
+  const expectedSourceVersion = input.payload.expectedSourceVersion;
+  if (
+    expectedSourceVersion !== undefined &&
+    (typeof expectedSourceVersion !== 'string' || !expectedSourceVersion.trim())
+  )
+    throw new GovernanceError(
+      'MUTATION_PAYLOAD_INVALID',
+      422,
+      'expectedSourceVersion must be a non-empty string',
+    );
 }
 
 function validateWorkCommand(input: MutationInput, definition: MutationDefinition) {

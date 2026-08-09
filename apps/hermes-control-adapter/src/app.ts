@@ -524,6 +524,7 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
       const after = credentialOperation
         ? await options.source.providers()
         : await options.source.models();
+      verifyModelManagementResult(command, after.items);
       const result = response(options, after.sourceVersion, {
         operationId,
         status: 'completed',
@@ -734,6 +735,41 @@ function verifyProfileResult(
     'internal_error',
     502,
     'Hermes profile mutation could not be verified by authoritative readback',
+    true,
+  );
+}
+
+function verifyModelManagementResult(
+  command: HermesModelManagementCommand,
+  items: Array<{
+    id: string;
+    credentialStatus?: 'configured' | 'missing' | 'unknown';
+    providerId?: string;
+    selected?: boolean;
+  }>,
+) {
+  if (command.operation === 'model.select') {
+    const selected = items.some(
+      (item) =>
+        item.id === command.targetId &&
+        item.providerId === command.payload.providerId &&
+        item.selected === true,
+    );
+    if (selected) return;
+  } else {
+    const provider = items.find((item) => item.id === command.targetId);
+    if (
+      provider &&
+      (command.operation === 'provider.credential.set'
+        ? provider.credentialStatus === 'configured'
+        : provider.credentialStatus !== 'configured')
+    )
+      return;
+  }
+  throw new AdapterError(
+    'internal_error',
+    502,
+    'Hermes model-management mutation could not be verified by authoritative readback',
     true,
   );
 }

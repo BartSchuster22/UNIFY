@@ -394,7 +394,7 @@ describe('Hermes control adapter', () => {
     const payload = {
       ...command({ payload: { credential } }),
       operation: 'provider.credential.set',
-      targetId: 'openrouter',
+      targetId: 'openai-codex',
     };
 
     const denied = await create(managedSource).inject({
@@ -424,6 +424,41 @@ describe('Hermes control adapter', () => {
     expect(JSON.stringify(allowed.json())).not.toContain(credential);
     expect(JSON.stringify(events.audits)).not.toContain(credential);
     expect(JSON.stringify(await events.list('hermes-dev', 0, 100))).not.toContain(credential);
+  });
+
+  it('fails credential execution when authoritative provider readback does not change', async () => {
+    const unchanged: AdapterSource = {
+      ...source,
+      providers: async () => ({
+        items: [
+          {
+            id: 'openrouter',
+            displayName: 'OpenRouter',
+            credentialStatus: 'missing',
+            selected: false,
+          },
+        ],
+        sourceVersion: 'sha256:unchanged',
+      }),
+      executeModelManagement: async () => ({ changed: true }),
+    };
+    const reply = await create(unchanged, [
+      'control:read',
+      'control:execute',
+      'control:events',
+      'control:secrets',
+    ]).inject({
+      method: 'POST',
+      url: '/control/v1/commands/models',
+      headers: auth,
+      payload: {
+        ...command({ payload: { credential: 'not-recorded' } }),
+        operation: 'provider.credential.set',
+        targetId: 'openrouter',
+      },
+    });
+    expect(reply.statusCode).toBe(502);
+    expect(reply.json().error).toMatchObject({ code: 'internal_error', retryable: true });
   });
 
   it('executes native profile lifecycle with source-version concurrency and verified readback', async () => {

@@ -264,7 +264,10 @@ describe('standalone mutation policy', () => {
         nativeId: 'openrouter',
         frameworkId: 'hermes-alica',
       },
-      payload: { credential: 'raw-provider-secret' },
+      payload: {
+        credential: 'raw-provider-secret',
+        expectedSourceVersion: 'catalogue:v7',
+      },
       mode: 'execute',
       confirmed: false,
     });
@@ -276,7 +279,10 @@ describe('standalone mutation policy', () => {
       'hermes-alica',
       'provider.credential.set',
       'openrouter',
-      { credential: 'raw-provider-secret' },
+      {
+        credential: 'raw-provider-secret',
+        expectedSourceVersion: 'catalogue:v7',
+      },
       'execute',
       expect.objectContaining({ idempotencyKey: 'credential-key' }),
     );

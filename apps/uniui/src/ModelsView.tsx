@@ -3,18 +3,23 @@ import {
   Badge,
   Button,
   Card,
+  Checkbox,
+  Code,
   Grid,
   Group,
   Loader,
+  Modal,
   PasswordInput,
   Select,
   Stack,
+  Stepper,
   Text,
   Title,
 } from '@mantine/core';
 import { IconAlertTriangle, IconRefresh, IconSparkles } from '@tabler/icons-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api, gateway } from './api';
+import type { MutationResponse } from './types';
 import { useFrameworkContext } from './FrameworkContext';
 type Provider = {
   id: string;
@@ -65,6 +70,16 @@ type Capabilities = {
 };
 
 type Props = { canManageCredentials: boolean; canManageModels: boolean };
+type ProviderSetup = {
+  providerId: string;
+  credential: string;
+  acknowledged: boolean;
+  revision: number;
+  reviewedRevision: number;
+  preflight?: MutationResponse | undefined;
+  dryRunKey: string;
+  executeKey: string;
+};
 
 export function ModelsView({ canManageCredentials, canManageModels }: Props) {
   const {
@@ -78,15 +93,23 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
   const [providers, setProviders] = useState<Collection<Provider> | null>(null);
   const [models, setModels] = useState<Collection<Model> | null>(null);
   const [capabilities, setCapabilities] = useState<Capabilities | null>(null);
-  const [credentials, setCredentials] = useState<Record<string, string>>({});
+  const [setup, setSetup] = useState<ProviderSetup | null>(null);
+  const [setupStep, setSetupStep] = useState(0);
   const [busy, setBusy] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const generation = useRef(0);
+  const selectedFramework = useRef(frameworkId);
+  const currentSetup = useRef(setup);
+  selectedFramework.current = frameworkId;
+  currentSetup.current = setup;
 
   const load = useCallback(
     async (refresh = false) => {
-      if (!frameworkId) {
+      const requestGeneration = ++generation.current;
+      const requestedFramework = frameworkId;
+      if (!requestedFramework) {
         setProviders(null);
         setModels(null);
         setCapabilities(null);
@@ -99,27 +122,48 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
         const query = `limit=500${refresh ? '&refresh=true' : ''}`;
         const [providerInventory, modelInventory, manifest] = await Promise.all([
           api<Collection<Provider>>(
-            `/frameworks/${encodeURIComponent(frameworkId)}/providers?${query}`,
+            `/frameworks/${encodeURIComponent(requestedFramework)}/providers?${query}`,
           ),
-          api<Collection<Model>>(`/frameworks/${encodeURIComponent(frameworkId)}/models?${query}`),
-          api<Capabilities>(`/frameworks/${encodeURIComponent(frameworkId)}/capabilities`),
+          api<Collection<Model>>(
+            `/frameworks/${encodeURIComponent(requestedFramework)}/models?${query}`,
+          ),
+          api<Capabilities>(`/frameworks/${encodeURIComponent(requestedFramework)}/capabilities`),
         ]);
+        if (
+          requestGeneration !== generation.current ||
+          selectedFramework.current !== requestedFramework
+        )
+          return;
         setProviders(providerInventory);
         setModels(modelInventory);
         setCapabilities(manifest);
       } catch (cause) {
+        if (
+          requestGeneration !== generation.current ||
+          selectedFramework.current !== requestedFramework
+        )
+          return;
         setProviders(null);
         setModels(null);
         setCapabilities(null);
         setError(cause instanceof Error ? cause.message : 'Hermes model inventory unavailable');
       } finally {
-        setLoading(false);
+        if (
+          requestGeneration === generation.current &&
+          selectedFramework.current === requestedFramework
+        )
+          setLoading(false);
       }
     },
     [frameworkId],
   );
 
   useEffect(() => {
+    setSetup(null);
+    setSetupStep(0);
+    setBusy('');
+    setNotice('');
+    setError('');
     void load();
   }, [load]);
 
@@ -130,18 +174,24 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
     payload: Record<string, unknown>,
     confirmed = false,
   ) => {
+    const requestedFramework = frameworkId;
+    if (!requestedFramework) return;
     setBusy(`${operationType}:${nativeId}`);
     setError('');
     setNotice('');
     try {
-      await gateway.mutate({
+      const result = await gateway.mutate({
         operationType,
-        target: { owner: 'hermes', kind, nativeId, frameworkId },
+        target: { owner: 'hermes', kind, nativeId, frameworkId: requestedFramework },
         payload,
         mode: 'execute',
         confirmed,
       });
-      setCredentials((current) => ({ ...current, [nativeId]: '' }));
+      if (selectedFramework.current !== requestedFramework) return;
+      if (result.operation.state !== 'verified')
+        throw new Error(
+          `Hermes model-management operation did not verify; state is ${result.operation.state}.`,
+        );
       setNotice(
         operationType === 'model.select'
           ? 'Model selection saved in Hermes. Existing sessions keep their current model; new sessions use the new selection.'
@@ -149,9 +199,10 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
       );
       await load(true);
     } catch (cause) {
+      if (selectedFramework.current !== requestedFramework) return;
       setError(cause instanceof Error ? cause.message : 'Hermes model-management operation failed');
     } finally {
-      setBusy('');
+      if (selectedFramework.current === requestedFramework) setBusy('');
     }
   };
 
@@ -176,6 +227,121 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
     }
     return result;
   }, [models]);
+  const credentialProviders = useMemo(
+    () =>
+      (providers?.items ?? []).filter(
+        (provider) =>
+          (provider.authType === 'api_key' || provider.authType === 'unknown') &&
+          provider.credentialMutable !== false,
+      ),
+    [providers],
+  );
+  const setupProvider = setup
+    ? providers?.items.find((provider) => provider.id === setup.providerId)
+    : undefined;
+  const setupReviewed = Boolean(
+    setup?.preflight && setup.reviewedRevision === setup.revision && setup.acknowledged,
+  );
+
+  const openSetup = (providerId = credentialProviders[0]?.id ?? '') => {
+    if (!credentialEnabled || !providerId) return;
+    setError('');
+    setNotice('');
+    setSetupStep(0);
+    setSetup({
+      providerId,
+      credential: '',
+      acknowledged: false,
+      revision: 0,
+      reviewedRevision: -1,
+      dryRunKey: crypto.randomUUID(),
+      executeKey: crypto.randomUUID(),
+    });
+  };
+
+  const runProviderSetup = async (mode: 'dry-run' | 'execute') => {
+    if (!setup || !setupProvider || !frameworkId || !credentialEnabled) return;
+    if (!setup.credential.trim() || !setup.acknowledged) return;
+    if (mode === 'execute' && !setupReviewed) return;
+    const intent = setup;
+    const provider = setupProvider;
+    const requestedFramework = frameworkId;
+    setBusy(`provider.setup.${mode}`);
+    setError('');
+    setNotice('');
+    try {
+      const result = await gateway.mutate(
+        {
+          operationType: 'provider.credential.set',
+          target: {
+            owner: 'hermes',
+            kind: 'provider',
+            nativeId: provider.id,
+            frameworkId: requestedFramework,
+          },
+          payload: {
+            credential: intent.credential,
+            expectedSourceVersion: provider.sourceVersion,
+          },
+          mode,
+          confirmed: true,
+        },
+        mode === 'dry-run' ? intent.dryRunKey : intent.executeKey,
+      );
+      if (selectedFramework.current !== requestedFramework) return;
+      if (
+        mode === 'dry-run' &&
+        (currentSetup.current?.providerId !== intent.providerId ||
+          currentSetup.current.revision !== intent.revision)
+      )
+        return;
+      if (result.operation.state !== 'verified')
+        throw new Error(
+          `Governed provider setup did not verify; operation state is ${result.operation.state}.`,
+        );
+      if (mode === 'dry-run') {
+        setSetup((current) =>
+          current?.providerId === provider.id
+            ? { ...current, preflight: result, reviewedRevision: intent.revision }
+            : current,
+        );
+        setNotice('Hermes validated the credential update and completed the governed dry-run.');
+      } else {
+        setSetup(null);
+        setSetupStep(0);
+        setNotice(
+          result.replayed
+            ? `${provider.displayName} was already configured; governed evidence was replayed.`
+            : `${provider.displayName} was configured in Hermes and verified by authoritative readback.`,
+        );
+        await load(true);
+      }
+    } catch (cause) {
+      if (selectedFramework.current !== requestedFramework) return;
+      setSetup((current) =>
+        current?.providerId === provider.id
+          ? {
+              ...current,
+              credential: '',
+              acknowledged: false,
+              revision: current.revision + 1,
+              reviewedRevision: -1,
+              preflight: undefined,
+              dryRunKey: crypto.randomUUID(),
+              executeKey: crypto.randomUUID(),
+            }
+          : current,
+      );
+      setSetupStep(1);
+      setError(
+        cause instanceof Error
+          ? `${cause.message} The credential field was cleared.`
+          : 'Hermes provider setup failed. The credential field was cleared.',
+      );
+    } finally {
+      if (selectedFramework.current === requestedFramework) setBusy('');
+    }
+  };
 
   return (
     <Stack gap="md">
@@ -190,14 +356,22 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
             framework.
           </Text>
         </div>
-        <Button
-          variant="light"
-          leftSection={<IconRefresh size={16} />}
-          onClick={() => void load(true)}
-          loading={loading}
-        >
-          Refresh from Hermes
-        </Button>
+        <Group>
+          <Button
+            disabled={!credentialEnabled || !credentialProviders.length}
+            onClick={() => openSetup()}
+          >
+            Guided provider setup
+          </Button>
+          <Button
+            variant="light"
+            leftSection={<IconRefresh size={16} />}
+            onClick={() => void load(true)}
+            loading={loading}
+          >
+            Refresh from Hermes
+          </Button>
+        </Group>
       </Group>
       <Select
         label="Hermes framework"
@@ -263,7 +437,6 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
           <Grid>
             {providers.items.map((provider) => {
               const providerModels = modelsByProvider.get(provider.id) ?? [];
-              const credentialKey = `provider.credential.set:${provider.id}`;
               return (
                 <Grid.Col key={`${provider.frameworkId}:${provider.id}`} span={{ base: 12, lg: 6 }}>
                   <Card withBorder h="100%">
@@ -318,6 +491,7 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                                   void mutate('model.select', 'model', model.id, {
                                     providerId: provider.id,
                                     confirmExpensiveModel: true,
+                                    expectedSourceVersion: model.sourceVersion,
                                   });
                                 }}
                               >
@@ -335,33 +509,20 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                         <Text size="sm" c="dimmed">
                           OAuth sign-in is managed by Hermes. No token field is exposed here.
                         </Text>
+                      ) : provider.authType === 'none' ? (
+                        <Text size="sm" c="dimmed">
+                          Hermes reports that this provider requires no credential.
+                        </Text>
                       ) : (
-                        <Group align="flex-end" wrap="nowrap">
-                          <PasswordInput
-                            label="API credential"
-                            placeholder="Stored only by Hermes"
-                            value={credentials[provider.id] ?? ''}
-                            disabled={!credentialEnabled}
-                            onChange={(event) =>
-                              setCredentials((current) => ({
-                                ...current,
-                                [provider.id]: event.currentTarget.value,
-                              }))
-                            }
-                            style={{ flex: 1 }}
-                          />
+                        <Group>
                           <Button
-                            disabled={
-                              !credentialEnabled || !(credentials[provider.id] ?? '').trim()
-                            }
-                            loading={busy === credentialKey}
-                            onClick={() =>
-                              void mutate('provider.credential.set', 'provider', provider.id, {
-                                credential: credentials[provider.id],
-                              })
-                            }
+                            variant="light"
+                            disabled={!credentialEnabled || provider.credentialMutable === false}
+                            onClick={() => openSetup(provider.id)}
                           >
-                            Save
+                            {provider.credentialStatus === 'configured'
+                              ? 'Update credential'
+                              : 'Connect provider'}
                           </Button>
                           <Button
                             color="red"
@@ -381,12 +542,12 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                                 'provider.credential.remove',
                                 'provider',
                                 provider.id,
-                                {},
+                                { expectedSourceVersion: provider.sourceVersion },
                                 true,
                               );
                             }}
                           >
-                            Remove
+                            Remove credential
                           </Button>
                         </Group>
                       )}
@@ -407,6 +568,172 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
           ) : null}
         </>
       ) : null}
+      <Modal
+        opened={Boolean(setup)}
+        onClose={() => {
+          if (busy) return;
+          setSetup(null);
+          setSetupStep(0);
+        }}
+        title="Connect a Hermes provider"
+        size="lg"
+        closeOnClickOutside={!busy}
+        closeOnEscape={!busy}
+      >
+        {setup ? (
+          <Stack>
+            <Stepper active={setupStep}>
+              <Stepper.Step label="Provider" description="Choose owner" />
+              <Stepper.Step label="Credential" description="Enter once" />
+              <Stepper.Step label="Review" description="Dry-run and apply" />
+            </Stepper>
+            {setupStep === 0 ? (
+              <Stack>
+                <Select
+                  label="Provider"
+                  data={credentialProviders.map((provider) => ({
+                    value: provider.id,
+                    label: `${provider.displayName} · ${provider.credentialStatus}`,
+                  }))}
+                  value={setup.providerId}
+                  onChange={(providerId) =>
+                    setSetup((current) =>
+                      current && providerId
+                        ? {
+                            ...current,
+                            providerId,
+                            credential: '',
+                            acknowledged: false,
+                            revision: current.revision + 1,
+                            reviewedRevision: -1,
+                            preflight: undefined,
+                            dryRunKey: crypto.randomUUID(),
+                            executeKey: crypto.randomUUID(),
+                          }
+                        : current,
+                    )
+                  }
+                />
+                <Text size="sm" c="dimmed">
+                  Only credential-mutable API-key providers advertised by this Hermes framework are
+                  selectable. OAuth remains owned by Hermes.
+                </Text>
+                <Group justify="flex-end">
+                  <Button disabled={!setupProvider} onClick={() => setSetupStep(1)}>
+                    Continue
+                  </Button>
+                </Group>
+              </Stack>
+            ) : null}
+            {setupStep === 1 ? (
+              <Stack>
+                <Alert color="blue">
+                  The value remains only in this open form, is sent only in governed mutation
+                  bodies, and is cleared after success, failure, close, or framework change.
+                </Alert>
+                <PasswordInput
+                  label={`API credential for ${setupProvider?.displayName ?? setup.providerId}`}
+                  placeholder="Enter credential"
+                  value={setup.credential}
+                  disabled={Boolean(busy)}
+                  autoComplete="new-password"
+                  onChange={(event) => {
+                    const credential = event.currentTarget.value;
+                    setSetup((current) =>
+                      current
+                        ? {
+                            ...current,
+                            credential,
+                            acknowledged: false,
+                            revision: current.revision + 1,
+                            reviewedRevision: -1,
+                            preflight: undefined,
+                            dryRunKey: crypto.randomUUID(),
+                            executeKey: crypto.randomUUID(),
+                          }
+                        : current,
+                    );
+                  }}
+                />
+                <Group justify="space-between">
+                  <Button
+                    variant="default"
+                    disabled={Boolean(busy)}
+                    onClick={() => setSetupStep(0)}
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    disabled={!setup.credential.trim() || Boolean(busy)}
+                    onClick={() => setSetupStep(2)}
+                  >
+                    Review
+                  </Button>
+                </Group>
+              </Stack>
+            ) : null}
+            {setupStep === 2 ? (
+              <Stack>
+                <Text>
+                  Provider: <strong>{setupProvider?.displayName ?? setup.providerId}</strong>
+                </Text>
+                <Text size="sm">
+                  Framework <Code>{frameworkId}</Code> · native provider{' '}
+                  <Code>{setup.providerId}</Code>
+                </Text>
+                <Text size="sm">
+                  Source precondition <Code>{setupProvider?.sourceVersion ?? 'unavailable'}</Code>
+                </Text>
+                <Text size="sm" c="dimmed">
+                  Credential: entered and hidden. It will not appear in operation evidence or
+                  inventory responses.
+                </Text>
+                <Checkbox
+                  checked={setup.acknowledged}
+                  disabled={Boolean(busy)}
+                  label="I authorize Hermes to store or replace this provider credential."
+                  onChange={(event) => {
+                    const acknowledged = event.currentTarget.checked;
+                    setSetup((current) => (current ? { ...current, acknowledged } : current));
+                  }}
+                />
+                {setupReviewed ? (
+                  <Alert color="teal">
+                    Governed dry-run passed for this exact provider, framework, source version, and
+                    credential revision.
+                  </Alert>
+                ) : null}
+                <Group justify="space-between">
+                  <Button
+                    variant="default"
+                    disabled={Boolean(busy)}
+                    onClick={() => setSetupStep(1)}
+                  >
+                    Back
+                  </Button>
+                  <Group>
+                    <Button
+                      variant="light"
+                      disabled={!setup.acknowledged || !setup.credential.trim() || Boolean(busy)}
+                      loading={busy === 'provider.setup.dry-run'}
+                      onClick={() => void runProviderSetup('dry-run')}
+                    >
+                      Validate and dry-run
+                    </Button>
+                    <Button
+                      disabled={!setupReviewed || Boolean(busy)}
+                      loading={busy === 'provider.setup.execute'}
+                      onClick={() => void runProviderSetup('execute')}
+                    >
+                      Save in Hermes
+                    </Button>
+                  </Group>
+                </Group>
+              </Stack>
+            ) : null}
+          </Stack>
+        ) : null}
+      </Modal>
     </Stack>
   );
 }
