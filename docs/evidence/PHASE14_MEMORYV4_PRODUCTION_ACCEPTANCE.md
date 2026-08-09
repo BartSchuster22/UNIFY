@@ -1,7 +1,7 @@
 # MemoryV4 Phase 14 production acceptance evidence
 
 Date: 2026-08-09 UTC
-Production release: `phase-18.3-8367fd0`
+Production release: `phase-18.4-a5368aa`
 
 ## Result
 
