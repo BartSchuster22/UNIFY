@@ -72,8 +72,10 @@ const pythonVersion = (
   .replace(/^Python\s+/, '');
 
 const pool = new Pool({ connectionString: databaseUrl, max: 8 });
+const frameworkDisplayName = process.env.HERMES_DISPLAY_NAME ?? 'Hermes Agent';
 const source = new HermesNativeSource({
   runner: new HermesCliRunner(hermesBin, process.env.HERMES_HOME),
+  baseProfileDisplayName: process.env.HERMES_BASE_PROFILE_DISPLAY_NAME ?? frameworkDisplayName,
   ...(process.env.HERMES_API_BASE_URL ? { apiBaseUrl: process.env.HERMES_API_BASE_URL } : {}),
   ...(apiToken ? { apiToken } : {}),
   ...(managementBaseUrl ? { managementBaseUrl } : {}),
@@ -81,7 +83,7 @@ const source = new HermesNativeSource({
 });
 const app = buildHermesControlAdapter({
   frameworkId: process.env.HERMES_FRAMEWORK_ID ?? 'hermes-dev',
-  displayName: process.env.HERMES_DISPLAY_NAME ?? 'Hermes Agent',
+  displayName: frameworkDisplayName,
   instanceId: process.env.HERMES_INSTANCE_ID ?? 'hermes-local',
   ...(bearerToken ? { bearerToken } : {}),
   ...(rotatingTokenVerifier

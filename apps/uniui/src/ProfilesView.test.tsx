@@ -84,7 +84,7 @@ describe('Profiles Hermes cutover', () => {
       }),
     );
     renderProfiles();
-    expect(await screen.findByText('Herman')).toBeInTheDocument();
+    expect((await screen.findAllByText('Herman')).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('gpt-5.6-sol')).toBeInTheDocument();
     expect(screen.getByText('OpenAI Codex')).toBeInTheDocument();
     expect(screen.getAllByText('hermes').length).toBeGreaterThan(0);
@@ -309,6 +309,7 @@ describe('Profiles Hermes cutover', () => {
     renderProfiles(false);
     expect(await screen.findByText(/read-only for your role/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Rename Herman' })).toBeDisabled();
-    expect(screen.getByText(/UNIUI does not emulate that migration/)).toBeInTheDocument();
+    expect(screen.getByText(/displayed as/)).toBeInTheDocument();
+    expect(screen.getByText(/does not emulate an unsupported ID rename/)).toBeInTheDocument();
   });
 });

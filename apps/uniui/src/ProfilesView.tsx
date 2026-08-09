@@ -392,10 +392,14 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
               </ScrollArea>
             </Paper>
           )}
-          {collection.items.some((profile) => profile.id === 'default') ? (
-            <Alert color="yellow">
-              Hermes’ built-in <Code>default</Code> profile cannot be renamed by the current native
-              Hermes contract. UNIUI does not emulate that migration.
+          {collection.items.find((profile) => profile.id === 'default') ? (
+            <Alert color="blue">
+              The base agent is displayed as{' '}
+              <strong>
+                {collection.items.find((profile) => profile.id === 'default')?.displayName}
+              </strong>{' '}
+              from the verified framework adapter configuration. Hermes retains the immutable native{' '}
+              <Code>default</Code> ID; UNIUI does not emulate an unsupported ID rename.
             </Alert>
           ) : null}
           {collection.page.hasMore ? (

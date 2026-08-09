@@ -129,6 +129,7 @@ services:
       DATABASE_URL_FILE: /run/secrets/gateway_database_url
       HERMES_FRAMEWORK_ID: hermes-main
       HERMES_DISPLAY_NAME: Herman
+      HERMES_BASE_PROFILE_DISPLAY_NAME: ${HERMES_BASE_PROFILE_DISPLAY_NAME:-Herman}
       HERMES_INSTANCE_ID: herman-local-private
       HERMES_ADAPTER_SCOPES: control:read,control:execute,control:events,control:secrets
       HERMES_ADAPTER_TOKEN_FILE: /run/secrets/hermes_main_control_token

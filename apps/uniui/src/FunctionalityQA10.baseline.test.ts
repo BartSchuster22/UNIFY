@@ -19,7 +19,7 @@ describe('Functionality QA10 known-gap baseline', () => {
     for (const content of routedSources) expect(content).not.toContain('hermes-main');
   });
 
-  it.fails('represents the framework base agents as Alica and Herman instead of Default', () => {
+  it('represents the framework base agents as Alica and Herman instead of Default', () => {
     const adapterSource = source('../../hermes-control-adapter/src/source.ts');
     expect(adapterSource).toContain("case 'profile.rename'");
     expect(adapterSource).not.toContain("id === 'default' ? 'Default' : id");

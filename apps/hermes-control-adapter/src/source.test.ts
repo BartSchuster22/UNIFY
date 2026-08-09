@@ -3,6 +3,7 @@ import {
   HermesNativeSource,
   SecondConsumerForbiddenError,
   validateApiBaseUrl,
+  validateBaseProfileDisplayName,
   type CommandRunner,
 } from './source.js';
 
@@ -51,6 +52,24 @@ describe('HermesNativeSource', () => {
     });
     expect(JSON.stringify(providers)).not.toContain('sensitive-fragment');
     expect(JSON.stringify(providers)).not.toContain('/secret/auth.json');
+  });
+
+  it('maps the immutable default profile ID to the configured framework base-agent name', async () => {
+    const output = ' ◆default         gpt-5.6-sol    running      —\n';
+    for (const baseProfileDisplayName of ['Alica', 'Herman']) {
+      const source = new HermesNativeSource({
+        runner: new FixtureRunner({ 'profile list': output }),
+        baseProfileDisplayName,
+      });
+      expect((await source.profiles()).items[0]).toMatchObject({
+        id: 'default',
+        displayName: baseProfileDisplayName,
+      });
+    }
+    expect(validateBaseProfileDisplayName(' Herman ')).toBe('Herman');
+    expect(() => validateBaseProfileDisplayName('invalid\nname')).toThrow(
+      'Base profile display name is invalid',
+    );
   });
 
   it('executes native profile updates through the supported non-interactive CLI', async () => {

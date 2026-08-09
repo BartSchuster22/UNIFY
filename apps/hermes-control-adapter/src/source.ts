@@ -49,6 +49,7 @@ export class HermesCliRunner implements CommandRunner {
 
 export interface HermesNativeSourceOptions {
   runner: CommandRunner;
+  baseProfileDisplayName?: string;
   apiBaseUrl?: string;
   apiToken?: string;
   managementBaseUrl?: string;
@@ -60,8 +61,10 @@ export class HermesNativeSource implements AdapterSource {
   private readonly fetchImpl: typeof fetch;
   private readonly apiBaseUrl: string | undefined;
   private readonly management: HermesManagementApi | undefined;
+  private readonly baseProfileDisplayName: string;
 
   constructor(private readonly options: HermesNativeSourceOptions) {
+    this.baseProfileDisplayName = validateBaseProfileDisplayName(options.baseProfileDisplayName);
     this.fetchImpl = options.fetchImpl ?? fetch;
     this.apiBaseUrl = options.apiBaseUrl ? validateApiBaseUrl(options.apiBaseUrl) : undefined;
     this.management = options.managementBaseUrl
@@ -93,7 +96,7 @@ export class HermesNativeSource implements AdapterSource {
         const gateway = columns[2]?.trim().toLowerCase();
         const profile: HermesProfile = {
           id,
-          displayName: id === 'default' ? 'Default' : id,
+          displayName: id === 'default' ? this.baseProfileDisplayName : id,
           active,
           gatewayStatus:
             gateway === 'running' ? 'running' : gateway === 'stopped' ? 'stopped' : 'unknown',
@@ -836,6 +839,17 @@ function isInternalSession(value: unknown) {
   const row = record(value);
   const source = optionalString(row.source ?? row.platform);
   return source !== undefined && INTERNAL_SESSION_SOURCES.has(source);
+}
+
+export function validateBaseProfileDisplayName(value: string | undefined): string {
+  const displayName = value?.trim() || 'Default';
+  const hasControlCharacter = [...displayName].some((character) => {
+    const code = character.charCodeAt(0);
+    return code < 32 || code === 127;
+  });
+  if (displayName.length > 100 || hasControlCharacter)
+    throw new Error('Base profile display name is invalid');
+  return displayName;
 }
 
 export function validateApiBaseUrl(value: string) {
