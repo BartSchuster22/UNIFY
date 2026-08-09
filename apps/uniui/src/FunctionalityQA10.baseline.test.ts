@@ -14,7 +14,7 @@ function source(relativePath: string): string {
  * removed and the requirement is accepted as a normal regression test.
  */
 describe('Functionality QA10 known-gap baseline', () => {
-  it.fails('does not hard-code the retired hermes-main framework in production UI routes', () => {
+  it('does not hard-code the retired hermes-main framework in production UI routes', () => {
     const routedSources = [source('./api.ts'), source('./ChatView.tsx'), source('./WorkView.tsx')];
     for (const content of routedSources) expect(content).not.toContain('hermes-main');
   });
@@ -25,17 +25,14 @@ describe('Functionality QA10 known-gap baseline', () => {
     expect(adapterSource).not.toContain("id === 'default' ? 'Default' : id");
   });
 
-  it.fails(
-    'requires an explicit selected framework for isolated Work and Chat reads and writes',
-    () => {
-      const workSource = source('./WorkView.tsx');
-      const chatSource = source('./ChatView.tsx');
-      expect(workSource).toMatch(/WorkView\s*\(\s*\{[^}]*frameworkId/);
-      expect(chatSource).toMatch(/ChatView\s*\(\s*\{[^}]*frameworkId/);
-      expect(workSource).not.toMatch(/frameworkId:\s*['"]hermes-main['"]/);
-      expect(chatSource).not.toMatch(/FRAMEWORK_ID\s*=\s*['"]hermes-main['"]/);
-    },
-  );
+  it('requires an explicit selected framework for isolated Work and Chat reads and writes', () => {
+    const workSource = source('./WorkView.tsx');
+    const chatSource = source('./ChatView.tsx');
+    expect(workSource).toContain('useFrameworkContext');
+    expect(chatSource).toContain('useFrameworkContext');
+    expect(workSource).not.toMatch(/frameworkId:\s*['"]hermes-main['"]/);
+    expect(chatSource).not.toMatch(/FRAMEWORK_ID\s*=\s*['"]hermes-main['"]/);
+  });
 
   it.fails('renders an explicit incomplete state when no provider and model are selected', () => {
     const modelsSource = source('./ModelsView.tsx');

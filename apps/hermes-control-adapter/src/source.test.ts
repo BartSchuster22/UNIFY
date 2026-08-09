@@ -74,6 +74,86 @@ describe('HermesNativeSource', () => {
     ).resolves.toEqual({ profile: { id: 'default', updated: true } });
   });
 
+  it('renames profiles natively, rejects occupied destinations, and supports safe replay', async () => {
+    const rename = new HermesNativeSource({
+      runner: new FixtureRunner({
+        'profile list': ' ◆seed            gpt-5.6-sol    running      —\n',
+        'profile rename seed alica': '',
+      }),
+    });
+    await expect(
+      rename.executeProfile({
+        mode: 'execute',
+        idempotencyKey: 'profile-rename-idempotency',
+        requestId: 'request-rename',
+        correlationId: 'correlation-rename',
+        actor: { type: 'service', id: 'unify-core' },
+        operation: 'profile.rename',
+        targetId: 'seed',
+        payload: { newId: 'alica' },
+      }),
+    ).resolves.toEqual({
+      profile: { fromId: 'seed', id: 'alica', renamed: true, alreadyRenamed: false },
+    });
+
+    const replay = new HermesNativeSource({
+      runner: new FixtureRunner({
+        'profile list': ' ◆alica         gpt-5.6-sol    running      —\n',
+      }),
+    });
+    await expect(
+      replay.executeProfile({
+        mode: 'execute',
+        idempotencyKey: 'profile-rename-replay',
+        requestId: 'request-replay',
+        correlationId: 'correlation-replay',
+        actor: { type: 'service', id: 'unify-core' },
+        operation: 'profile.rename',
+        targetId: 'seed',
+        payload: { newId: 'alica' },
+      }),
+    ).resolves.toEqual({
+      profile: { fromId: 'seed', id: 'alica', renamed: false, alreadyRenamed: true },
+    });
+
+    const conflict = new HermesNativeSource({
+      runner: new FixtureRunner({
+        'profile list':
+          ' ◆seed            gpt-5.6-sol    running      —\n  alica           gpt-5.6-sol    stopped      —\n',
+      }),
+    });
+    await expect(
+      conflict.executeProfile({
+        mode: 'execute',
+        idempotencyKey: 'profile-rename-conflict',
+        requestId: 'request-conflict',
+        correlationId: 'correlation-conflict',
+        actor: { type: 'service', id: 'unify-core' },
+        operation: 'profile.rename',
+        targetId: 'seed',
+        payload: { newId: 'alica' },
+      }),
+    ).rejects.toThrow('destination already exists');
+
+    const builtIn = new HermesNativeSource({
+      runner: new FixtureRunner({
+        'profile list': ' ◆default         gpt-5.6-sol    running      —\n',
+      }),
+    });
+    await expect(
+      builtIn.executeProfile({
+        mode: 'execute',
+        idempotencyKey: 'profile-rename-default',
+        requestId: 'request-default',
+        correlationId: 'correlation-default',
+        actor: { type: 'service', id: 'unify-core' },
+        operation: 'profile.rename',
+        targetId: 'default',
+        payload: { newId: 'alica' },
+      }),
+    ).rejects.toThrow('built-in default profile');
+  });
+
   it('adapts boards/tasks and rejects malformed native identifiers before CLI execution', async () => {
     const source = new HermesNativeSource({
       runner: new FixtureRunner({

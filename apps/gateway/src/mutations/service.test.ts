@@ -112,8 +112,13 @@ function taskInput(): MutationInput {
   };
 }
 
-function hermes(work: ReturnType<typeof vi.fn>, conversation = vi.fn(), modelManagement = vi.fn()) {
-  return { work, conversation, modelManagement, reconcile: vi.fn() } as never;
+function hermes(
+  work: ReturnType<typeof vi.fn>,
+  conversation = vi.fn(),
+  modelManagement = vi.fn(),
+  profileManagement = vi.fn(),
+) {
+  return { work, conversation, modelManagement, profileManagement, reconcile: vi.fn() } as never;
 }
 
 describe('standalone mutation policy', () => {
@@ -195,6 +200,51 @@ describe('standalone mutation policy', () => {
       'execute',
       expect.objectContaining({ idempotencyKey: 'conversation-key' }),
     );
+  });
+
+  it('governs profile rename with framework isolation, source version, confirmation, and replay', async () => {
+    const store = new Store();
+    const profileManagement = vi.fn().mockResolvedValue({
+      data: { status: 'completed', operation: 'profile.rename', targetId: 'default' },
+    });
+    const service = new MutationService(
+      new GovernanceService(store),
+      hermes(vi.fn(), vi.fn(), vi.fn(), profileManagement),
+    );
+    const raw = {
+      operationType: 'profile.rename',
+      target: {
+        owner: 'hermes',
+        kind: 'profile',
+        nativeId: 'default',
+        frameworkId: 'hermes-herman',
+      },
+      payload: { newId: 'herman', expectedSourceVersion: 'sha256:profiles-v1' },
+      mode: 'execute',
+      confirmed: true,
+    };
+    const input = service.parse(raw);
+    const first = await service.run('u1', 'profile-rename-key', input);
+    const replay = await service.run('u1', 'profile-rename-key', input);
+    expect(first.operation.state).toBe('verified');
+    expect(replay.replayed).toBe(true);
+    expect(profileManagement).toHaveBeenCalledTimes(1);
+    expect(profileManagement).toHaveBeenCalledWith(
+      'hermes-herman',
+      'profile.rename',
+      'default',
+      raw.payload,
+      'execute',
+      expect.objectContaining({ idempotencyKey: 'profile-rename-key' }),
+    );
+
+    for (const invalid of [
+      { ...raw, confirmed: false },
+      { ...raw, payload: { ...raw.payload, newId: 'default' } },
+      { ...raw, payload: { newId: 'herman' } },
+      { ...raw, target: { ...raw.target, frameworkId: undefined } },
+    ])
+      expect(() => service.parse(invalid)).toThrow();
   });
 
   it('routes credential management with dedicated RBAC and never persists the credential', async () => {

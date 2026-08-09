@@ -9,6 +9,7 @@ import {
   Loader,
   Paper,
   ScrollArea,
+  Select,
   Stack,
   Text,
   Textarea,
@@ -16,10 +17,10 @@ import {
   Title,
 } from '@mantine/core';
 import { IconRefresh } from '@tabler/icons-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, gateway } from './api';
+import { useFrameworkContext } from './FrameworkContext';
 
-const FRAMEWORK_ID = 'hermes-main';
 const INTERNAL_SOURCES = ['api_server', 'cli', 'tui', 'terminal', 'acp', 'local'];
 
 type Profile = { id: string; displayName: string; active: boolean; model?: string };
@@ -49,6 +50,14 @@ type Capability = { status: string; reasonCode?: string; modes?: string[] };
 type Capabilities = { meta: Meta; data: { capabilities: Record<string, Capability> } };
 
 export function ChatView({ canUse }: { canUse: boolean }) {
+  const {
+    frameworks,
+    frameworkId,
+    loading: frameworksLoading,
+    error: frameworkError,
+    selectionIssue,
+    selectFramework,
+  } = useFrameworkContext();
   const [profiles, setProfiles] = useState<Collection<Profile> | null>(null);
   const [sessions, setSessions] = useState<Collection<Session> | null>(null);
   const [messages, setMessages] = useState<Collection<Message> | null>(null);
@@ -60,30 +69,49 @@ export function ChatView({ canUse }: { canUse: boolean }) {
   const [title, setTitle] = useState('');
   const [draft, setDraft] = useState('');
   const [attachment, setAttachment] = useState<File | null>(null);
+  const requestGeneration = useRef(0);
 
-  const loadMessages = useCallback(async (sessionId: string) => {
-    setFailure('');
-    try {
-      setMessages(
-        await api<Collection<Message>>(
-          `/frameworks/${FRAMEWORK_ID}/conversations/sessions/${encodeURIComponent(sessionId)}/messages?limit=500`,
-        ),
-      );
-    } catch (cause) {
-      setMessages(null);
-      setFailure(cause instanceof Error ? cause.message : 'Message history unavailable');
-    }
-  }, []);
+  const loadMessages = useCallback(
+    async (sessionId: string, generation = requestGeneration.current) => {
+      if (!frameworkId) return;
+      setFailure('');
+      try {
+        const response = await api<Collection<Message>>(
+          `/frameworks/${encodeURIComponent(frameworkId)}/conversations/sessions/${encodeURIComponent(sessionId)}/messages?limit=500`,
+        );
+        if (generation === requestGeneration.current) setMessages(response);
+      } catch (cause) {
+        if (generation !== requestGeneration.current) return;
+        setMessages(null);
+        setFailure(cause instanceof Error ? cause.message : 'Message history unavailable');
+      }
+    },
+    [frameworkId],
+  );
 
   const load = useCallback(async () => {
+    const generation = ++requestGeneration.current;
+    if (!frameworkId) {
+      setProfiles(null);
+      setSessions(null);
+      setMessages(null);
+      setCapabilities(null);
+      setSelectedSessionId('');
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setFailure('');
     try {
+      const encodedFrameworkId = encodeURIComponent(frameworkId);
       const [profileResponse, sessionResponse, capabilityResponse] = await Promise.all([
-        api<Collection<Profile>>(`/frameworks/${FRAMEWORK_ID}/profiles?limit=100`),
-        api<Collection<Session>>(`/frameworks/${FRAMEWORK_ID}/conversations/sessions?limit=500`),
-        api<Capabilities>(`/frameworks/${FRAMEWORK_ID}/capabilities`),
+        api<Collection<Profile>>(`/frameworks/${encodedFrameworkId}/profiles?limit=100`),
+        api<Collection<Session>>(
+          `/frameworks/${encodedFrameworkId}/conversations/sessions?limit=500`,
+        ),
+        api<Capabilities>(`/frameworks/${encodedFrameworkId}/capabilities`),
       ]);
+      if (generation !== requestGeneration.current) return;
       const internalSessions = {
         ...sessionResponse,
         items: sessionResponse.items.filter((item) => INTERNAL_SOURCES.includes(item.source ?? '')),
@@ -95,17 +123,21 @@ export function ChatView({ canUse }: { canUse: boolean }) {
         ? selectedSessionId
         : (internalSessions.items[0]?.id ?? '');
       setSelectedSessionId(nextId);
-      if (nextId) await loadMessages(nextId);
+      if (nextId) await loadMessages(nextId, generation);
       else setMessages(null);
     } catch (cause) {
+      if (generation !== requestGeneration.current) return;
       setFailure(cause instanceof Error ? cause.message : 'Hermes conversations unavailable');
     } finally {
-      setLoading(false);
+      if (generation === requestGeneration.current) setLoading(false);
     }
-  }, [loadMessages, selectedSessionId]);
+  }, [frameworkId, loadMessages, selectedSessionId]);
 
   useEffect(() => {
     void load();
+    return () => {
+      requestGeneration.current += 1;
+    };
   }, [load]);
 
   const readCapability = capabilities?.data.capabilities['conversations.sessions.read'];
@@ -119,12 +151,12 @@ export function ChatView({ canUse }: { canUse: boolean }) {
     setFailure('');
     try {
       await gateway.mutate({
-        operationType: 'chat.session.create',
+        operationType: 'conversation.session.create',
         target: {
           owner: 'hermes',
           kind: 'session',
           nativeId: 'new',
-          frameworkId: FRAMEWORK_ID,
+          frameworkId,
         },
         payload: { title: title.trim() },
         mode: 'execute',
@@ -156,12 +188,12 @@ export function ChatView({ canUse }: { canUse: boolean }) {
         ];
       }
       await gateway.mutate({
-        operationType: 'chat.message.send',
+        operationType: 'conversation.message.send',
         target: {
           owner: 'hermes',
           kind: 'session',
           nativeId: selectedSessionId,
-          frameworkId: FRAMEWORK_ID,
+          frameworkId,
         },
         payload: { message },
         mode: 'execute',
@@ -198,6 +230,20 @@ export function ChatView({ canUse }: { canUse: boolean }) {
           Recheck
         </Button>
       </Group>
+
+      <Select
+        label="Hermes framework"
+        value={frameworkId || null}
+        data={frameworks.map((item) => ({ value: item.frameworkId, label: item.displayName }))}
+        onChange={(value) => selectFramework(value ?? '')}
+        placeholder="No verified Hermes framework"
+        disabled={frameworksLoading}
+      />
+      {frameworkError || selectionIssue ? (
+        <Alert color="red" title="Framework selection unavailable">
+          {frameworkError || selectionIssue}
+        </Alert>
+      ) : null}
 
       <Group gap="xs">
         <Badge color={readCapability?.status === 'supported' ? 'teal' : 'orange'}>

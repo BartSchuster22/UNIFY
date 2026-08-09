@@ -108,7 +108,8 @@ export class HermesNativeSource implements AdapterSource {
   async executeProfile(command: HermesProfileCommand): Promise<Record<string, unknown>> {
     assertNativeId(command.targetId);
     const payload = record(command.payload);
-    const current = (await this.profiles()).items.find((item) => item.id === command.targetId);
+    const profiles = (await this.profiles()).items;
+    const current = profiles.find((item) => item.id === command.targetId);
     switch (command.operation) {
       case 'profile.create': {
         if (!current) {
@@ -135,6 +136,39 @@ export class HermesNativeSource implements AdapterSource {
             description,
           ]);
         return { profile: { id: command.targetId, updated: description !== undefined } };
+      }
+      case 'profile.rename': {
+        if (command.targetId === 'default')
+          throw new SourceConflictError(
+            'Hermes does not support renaming the built-in default profile',
+          );
+        const newId = payloadString(payload, 'newId', 128);
+        assertNativeId(newId);
+        if (newId === command.targetId)
+          throw new SourceConflictError('Profile source and destination must differ');
+        const destination = profiles.find((item) => item.id === newId);
+        if (!current) {
+          if (destination)
+            return {
+              profile: {
+                fromId: command.targetId,
+                id: newId,
+                renamed: false,
+                alreadyRenamed: true,
+              },
+            };
+          throw new SourceUnavailableError('Profile was not found');
+        }
+        if (destination) throw new SourceConflictError('Profile destination already exists');
+        await this.options.runner.run(['profile', 'rename', command.targetId, newId]);
+        return {
+          profile: {
+            fromId: command.targetId,
+            id: newId,
+            renamed: true,
+            alreadyRenamed: false,
+          },
+        };
       }
       case 'profile.delete':
         if (current)
@@ -757,6 +791,7 @@ export class HermesNativeSource implements AdapterSource {
 }
 
 export class SourceUnavailableError extends Error {}
+export class SourceConflictError extends Error {}
 export class SecondConsumerForbiddenError extends Error {}
 export class ModelConfirmationRequiredError extends Error {}
 

@@ -28,6 +28,16 @@ export const frameworkReconcileDefinition: MutationDefinition = {
   executionPath: 'hermes-control',
 };
 
+export const profileMutationDefinitions: Record<string, MutationDefinition> = {
+  'profile.rename': {
+    owner: 'hermes',
+    kind: 'profile',
+    permission: 'profiles.manage',
+    executionPath: 'hermes-control',
+    destructive: true,
+  },
+};
+
 export const modelMutationDefinitions: Record<string, MutationDefinition> = {
   'model.select': {
     owner: 'hermes',

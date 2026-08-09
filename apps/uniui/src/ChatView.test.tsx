@@ -2,13 +2,14 @@ import { MantineProvider } from '@mantine/core';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { api } from './api';
+import { FrameworkProvider } from './FrameworkContext';
 import { ChatView } from './ChatView';
 
 vi.mock('./api', () => ({ api: vi.fn(), gateway: { mutate: vi.fn() } }));
 const mockedApi = vi.mocked(api);
 
 const meta = {
-  frameworkId: 'hermes-main',
+  frameworkId: 'hermes-alica',
   frameworkCommit: '9e54eee44f1c',
   sourceVersion: 'sha256:native',
   observedAt: '2026-07-22T02:35:25.976Z',
@@ -17,7 +18,25 @@ const meta = {
 const page = { hasMore: false };
 
 beforeEach(() => {
-  mockedApi.mockImplementation(async (path) => {
+  window.history.replaceState(null, '', '/?view=chat');
+  mockedApi.mockImplementation(async (path: string) => {
+    if (path === '/frameworks')
+      return {
+        items: [
+          {
+            frameworkId: 'hermes-alica',
+            displayName: 'Alica',
+            enabled: true,
+            status: 'verified',
+          },
+          {
+            frameworkId: 'hermes-herman',
+            displayName: 'Herman',
+            enabled: true,
+            status: 'verified',
+          },
+        ],
+      } as never;
     if (path.includes('/profiles'))
       return {
         meta,
@@ -88,18 +107,32 @@ afterEach(() => {
 function renderView(canUse = false) {
   return render(
     <MantineProvider>
-      <ChatView canUse={canUse} />
+      <FrameworkProvider>
+        <ChatView canUse={canUse} />
+      </FrameworkProvider>
     </MantineProvider>,
   );
 }
 
 describe('ChatView', () => {
+  it('routes every Chat read to the exact URL-selected framework', async () => {
+    window.history.replaceState(null, '', '/?view=chat&framework=hermes-herman');
+    renderView();
+    await screen.findByText('Internal API conversation');
+    const scopedPaths = mockedApi.mock.calls
+      .map(([path]) => path)
+      .filter((path) => path !== '/frameworks');
+    expect(scopedPaths.length).toBeGreaterThan(0);
+    expect(scopedPaths.every((path) => path.includes('/frameworks/hermes-herman/'))).toBe(true);
+    expect(scopedPaths.some((path) => path.includes('hermes-alica'))).toBe(false);
+  });
+
   it('renders only Hermes-native internal sessions with provenance', async () => {
     renderView();
     expect(await screen.findByText('Internal API conversation')).toBeInTheDocument();
     expect(screen.queryByText('Excluded external conversation')).not.toBeInTheDocument();
     expect(await screen.findByText('Native Hermes answer')).toBeInTheDocument();
-    expect(screen.getByText('Herman')).toBeInTheDocument();
+    expect(screen.getAllByText('Herman').length).toBeGreaterThan(0);
     expect(screen.getByText(/sha256:native/)).toBeInTheDocument();
   });
 

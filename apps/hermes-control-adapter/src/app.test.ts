@@ -9,6 +9,7 @@ import {
   HermesEventsResponseSchema,
   HermesIdentityResponseSchema,
   HermesModelsResponseSchema,
+  HermesProfileResultSchema,
   HermesProfilesResponseSchema,
   HermesProvidersResponseSchema,
   HermesReconcileResultSchema,
@@ -227,6 +228,97 @@ describe('Hermes control adapter', () => {
       targetId: 'task-validation-only',
       replayed: false,
     });
+  });
+
+  it('validates, dry-runs, executes, and verifies native profile rename with optimistic concurrency', async () => {
+    let profiles = [
+      { id: 'seed', displayName: 'seed', active: true, gatewayStatus: 'running' as const },
+    ];
+    let sourceVersion = 'sha256:profiles-v1';
+    const executeProfile = vi.fn(async () => {
+      profiles = [{ id: 'alica', displayName: 'alica', active: true, gatewayStatus: 'running' }];
+      sourceVersion = 'sha256:profiles-v2';
+      return { profile: { fromId: 'default', id: 'alica', renamed: true } };
+    });
+    const mutableSource: AdapterSource = {
+      ...source,
+      profiles: async () => ({ items: profiles, sourceVersion }),
+      executeProfile,
+    };
+    const app = create(mutableSource);
+    const payload = {
+      ...command({
+        mode: 'validate',
+        expectedSourceVersion: 'sha256:profiles-v1',
+        payload: { newId: 'alica' },
+      }),
+      operation: 'profile.rename',
+      targetId: 'seed',
+    };
+    for (const mode of ['validate', 'dry-run'] as const) {
+      const reply = await app.inject({
+        method: 'POST',
+        url: '/control/v1/commands/profiles',
+        headers: auth,
+        payload: { ...payload, mode },
+      });
+      expect(reply.statusCode).toBe(200);
+      expect(Value.Check(HermesProfileResultSchema, reply.json())).toBe(true);
+      expect(reply.json().data).toMatchObject({
+        status: mode === 'validate' ? 'validated' : 'dry-run',
+        result: { exists: true, destinationExists: false },
+      });
+    }
+    expect(executeProfile).not.toHaveBeenCalled();
+
+    const stale = await app.inject({
+      method: 'POST',
+      url: '/control/v1/commands/profiles',
+      headers: auth,
+      payload: { ...payload, mode: 'execute', expectedSourceVersion: 'sha256:stale' },
+    });
+    expect(stale.statusCode).toBe(409);
+    expect(stale.json().error.code).toBe('source_version_mismatch');
+
+    const executed = await app.inject({
+      method: 'POST',
+      url: '/control/v1/commands/profiles',
+      headers: auth,
+      payload: { ...payload, mode: 'execute' },
+    });
+    expect(executed.statusCode).toBe(200);
+    expect(Value.Check(HermesProfileResultSchema, executed.json())).toBe(true);
+    expect(executed.json().data).toMatchObject({
+      status: 'completed',
+      operation: 'profile.rename',
+      targetId: 'seed',
+    });
+    expect(executeProfile).toHaveBeenCalledTimes(1);
+  });
+
+  it('fails closed when profile rename readback does not prove source removal and destination creation', async () => {
+    const app = create({
+      ...source,
+      profiles: async () => ({
+        items: [{ id: 'default', displayName: 'Default', active: true, gatewayStatus: 'running' }],
+        sourceVersion: 'sha256:profiles-v1',
+      }),
+    });
+    const reply = await app.inject({
+      method: 'POST',
+      url: '/control/v1/commands/profiles',
+      headers: auth,
+      payload: {
+        ...command({
+          expectedSourceVersion: 'sha256:profiles-v1',
+          payload: { newId: 'alica' },
+        }),
+        operation: 'profile.rename',
+        targetId: 'default',
+      },
+    });
+    expect(reply.statusCode).toBe(502);
+    expect(reply.json().error.code).toBe('internal_error');
   });
 
   it('executes governed internal conversation commands with typed evidence', async () => {

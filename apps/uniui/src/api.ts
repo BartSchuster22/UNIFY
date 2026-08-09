@@ -71,19 +71,21 @@ export const gateway = {
     }),
   logout: () => api<void>('/auth/logout', { method: 'POST' }),
 
-  hermesProjects: () =>
+  hermesProjects: (frameworkId: string) =>
     api<HermesCollection<Record<string, unknown>>>(
-      '/frameworks/hermes-main/work/projects?limit=500',
+      `/frameworks/${encodeURIComponent(frameworkId)}/work/projects?limit=500`,
     ),
-  hermesBoards: () =>
-    api<HermesCollection<Record<string, unknown>>>('/frameworks/hermes-main/work/boards?limit=500'),
-  hermesTasks: (boardId: string) =>
+  hermesBoards: (frameworkId: string) =>
     api<HermesCollection<Record<string, unknown>>>(
-      `/frameworks/hermes-main/work/boards/${encodeURIComponent(boardId)}/tasks?limit=500`,
+      `/frameworks/${encodeURIComponent(frameworkId)}/work/boards?limit=500`,
     ),
-  hermesCronjobs: () =>
+  hermesTasks: (frameworkId: string, boardId: string) =>
     api<HermesCollection<Record<string, unknown>>>(
-      '/frameworks/hermes-main/work/cronjobs?limit=500',
+      `/frameworks/${encodeURIComponent(frameworkId)}/work/boards/${encodeURIComponent(boardId)}/tasks?limit=500`,
+    ),
+  hermesCronjobs: (frameworkId: string) =>
+    api<HermesCollection<Record<string, unknown>>>(
+      `/frameworks/${encodeURIComponent(frameworkId)}/work/cronjobs?limit=500`,
     ),
   mutate: (request: MutationRequest, idempotencyKey = crypto.randomUUID()) =>
     api<MutationResponse>('/mutations', {

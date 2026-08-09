@@ -10,6 +10,7 @@ import {
   HermesEventEnvelopeSchema,
   HermesHealthResponseSchema,
   HermesIdentityResponseSchema,
+  HermesProfileCommandSchema,
   HermesVersionResponseSchema,
 } from './index.js';
 
@@ -103,6 +104,22 @@ describe('hermes-control/v1 frozen contracts', () => {
         classification: 'durable',
         occurredAt: meta.observedAt,
         payload: {},
+      }),
+    ).toBe(true);
+  });
+
+  it('accepts governed native profile rename commands with source-version preconditions', () => {
+    expect(
+      Value.Check(HermesProfileCommandSchema, {
+        mode: 'execute',
+        idempotencyKey: 'rename-default-alica',
+        expectedSourceVersion: 'sha256:profiles-v1',
+        requestId: 'req-rename',
+        correlationId: 'corr-rename',
+        actor: { type: 'user', id: 'operator-1' },
+        payload: { newId: 'alica' },
+        operation: 'profile.rename',
+        targetId: 'default',
       }),
     ).toBe(true);
   });

@@ -1629,7 +1629,7 @@ export interface components {
                 [key: string]: unknown;
             };
         };
-        HermesProfileOperation: "profile.create" | "profile.update" | "profile.delete";
+        HermesProfileOperation: "profile.create" | "profile.update" | "profile.delete" | "profile.rename";
         HermesProfileCommand: {
             mode: "validate" | "dry-run" | "execute";
             idempotencyKey: string;
@@ -1643,7 +1643,7 @@ export interface components {
             payload: {
                 [key: string]: unknown;
             };
-            operation: "profile.create" | "profile.update" | "profile.delete";
+            operation: "profile.create" | "profile.update" | "profile.delete" | "profile.rename";
             targetId: string;
         };
         HermesProfileResult: {
@@ -1659,7 +1659,7 @@ export interface components {
                 operationId: string;
                 status: "validated" | "dry-run" | "completed";
                 replayed: boolean;
-                operation: "profile.create" | "profile.update" | "profile.delete";
+                operation: "profile.create" | "profile.update" | "profile.delete" | "profile.rename";
                 targetId: string;
                 result: {
                     [key: string]: unknown;

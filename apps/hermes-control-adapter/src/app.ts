@@ -20,6 +20,7 @@ import {
   ModelConfirmationRequiredError,
   SecondConsumerForbiddenError,
   sourceVersion,
+  SourceConflictError,
   SourceUnavailableError,
 } from './source.js';
 import { IdempotencyBusyError, IdempotencyConflictError } from './event-store.js';
@@ -411,6 +412,7 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
     async (request) => {
       requireScope(scopes, 'control:execute');
       const command = request.body;
+      const renameTargetId = validateProfilePayload(command);
       const before = await options.source.profiles();
       if (command.expectedSourceVersion && command.expectedSourceVersion !== before.sourceVersion)
         throw new AdapterError(
@@ -427,7 +429,12 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
           replayed: false,
           operation: command.operation,
           targetId: command.targetId,
-          result: { exists: before.items.some((item) => item.id === command.targetId) },
+          result: {
+            exists: before.items.some((item) => item.id === command.targetId),
+            ...(renameTargetId
+              ? { destinationExists: before.items.some((item) => item.id === renameTargetId) }
+              : {}),
+          },
           emittedEvents: 0,
         });
         await auditCommand(request, 'success', operationId, status);
@@ -435,10 +442,7 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
       }
       const ownerResult = await options.source.executeProfile(command);
       const after = await options.source.profiles();
-      verifyProfileResult(
-        command,
-        after.items.some((item) => item.id === command.targetId),
-      );
+      verifyProfileResult(command, after.items, renameTargetId);
       const result = response(options, after.sourceVersion, {
         operationId,
         status: 'completed',
@@ -462,7 +466,10 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
             sourceVersion: after.sourceVersion,
             correlationId: command.correlationId,
             operationId,
-            payload: { targetId: command.targetId },
+            payload: {
+              targetId: command.targetId,
+              ...(renameTargetId ? { newId: renameTargetId } : {}),
+            },
           },
         ],
       });
@@ -694,15 +701,41 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
   return app;
 }
 
-function verifyProfileResult(command: HermesProfileCommand, exists: boolean) {
-  const shouldExist = command.operation !== 'profile.delete';
-  if (exists !== shouldExist)
+function validateProfilePayload(command: HermesProfileCommand): string | undefined {
+  if (command.operation !== 'profile.rename') return undefined;
+  const newId = command.payload.newId;
+  if (
+    typeof newId !== 'string' ||
+    !/^[a-z0-9][a-z0-9_-]{0,127}$/.test(newId) ||
+    newId === command.targetId
+  )
     throw new AdapterError(
-      'internal_error',
-      502,
-      'Hermes profile mutation could not be verified by authoritative readback',
-      true,
+      'invalid_request',
+      400,
+      'Profile rename requires a distinct valid newId',
     );
+  return newId;
+}
+
+function verifyProfileResult(
+  command: HermesProfileCommand,
+  profiles: Array<{ id: string }>,
+  renameTargetId?: string,
+) {
+  const sourceExists = profiles.some((item) => item.id === command.targetId);
+  if (command.operation === 'profile.rename') {
+    const destinationExists = profiles.some((item) => item.id === renameTargetId);
+    if (!sourceExists && destinationExists) return;
+  } else {
+    const shouldExist = command.operation !== 'profile.delete';
+    if (sourceExists === shouldExist) return;
+  }
+  throw new AdapterError(
+    'internal_error',
+    502,
+    'Hermes profile mutation could not be verified by authoritative readback',
+    true,
+  );
 }
 
 function validateModelManagementPayload(command: HermesModelManagementCommand) {
@@ -936,6 +969,7 @@ function mapError(error: unknown) {
   if (error instanceof AdapterError) return error;
   if (error instanceof SecondConsumerForbiddenError)
     return new AdapterError('SECOND_CONSUMER_FORBIDDEN', 403, error.message);
+  if (error instanceof SourceConflictError) return new AdapterError('conflict', 409, error.message);
   if (error instanceof SourceUnavailableError)
     return new AdapterError('capability_unavailable', 503, error.message, true);
   if (error instanceof ModelConfirmationRequiredError)

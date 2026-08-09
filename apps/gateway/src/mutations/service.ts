@@ -1,6 +1,7 @@
 import type {
   HermesConversationOperation,
   HermesModelManagementOperation,
+  HermesProfileOperation,
   HermesWorkOperation,
 } from '@aquiero/contracts';
 import { redactEvidence } from '../governance/canonical.js';
@@ -12,6 +13,7 @@ import {
   conversationMutationDefinitions,
   frameworkReconcileDefinition,
   modelMutationDefinitions,
+  profileMutationDefinitions,
   workMutationDefinitions,
   type MutationDefinition,
   type MutationInput,
@@ -53,6 +55,7 @@ export class MutationService {
     };
     const definition = this.definition(operationType);
     if (operationType === 'framework.reconcile') validateFrameworkCommand(input);
+    else if (operationType.startsWith('profile.')) validateProfileCommand(input, definition);
     else if (operationType.startsWith('model.') || operationType.startsWith('provider.'))
       validateModelCommand(input, definition);
     else if (operationType.startsWith('work.')) validateWorkCommand(input, definition);
@@ -158,6 +161,8 @@ export class MutationService {
     if (operationType === 'framework.reconcile') return frameworkReconcileDefinition;
     const work = workMutationDefinitions[operationType];
     if (work) return work;
+    const profile = profileMutationDefinitions[operationType];
+    if (profile) return profile;
     const model = modelMutationDefinitions[operationType];
     if (model) return model;
     const conversation = conversationMutationDefinitions[operationType];
@@ -177,6 +182,15 @@ export class MutationService {
           families: input.payload.families,
           expectedSourceVersion: input.payload.expectedSourceVersion,
         },
+        context,
+      );
+    if (input.operationType.startsWith('profile.'))
+      return this.hermes.profileManagement(
+        input.target.frameworkId!,
+        input.operationType as HermesProfileOperation,
+        input.target.nativeId,
+        input.payload,
+        input.mode,
         context,
       );
     if (input.operationType.startsWith('work.'))
@@ -221,6 +235,43 @@ export class MutationService {
       target.frameworkId = requiredString(raw.frameworkId, 'target.frameworkId');
     return target;
   }
+}
+
+function validateProfileCommand(input: MutationInput, definition: MutationDefinition) {
+  if (
+    input.target.owner !== 'hermes' ||
+    input.target.kind !== definition.kind ||
+    !input.target.frameworkId
+  )
+    throw new GovernanceError(
+      'MUTATION_TARGET_INVALID',
+      422,
+      'Profile rename must target one exact profile in one registered Hermes framework',
+    );
+  if (definition.destructive && !input.confirmed)
+    throw new GovernanceError(
+      'CONFIRMATION_REQUIRED',
+      409,
+      'Profile rename requires explicit confirmation',
+    );
+  const newId = input.payload.newId;
+  if (
+    typeof newId !== 'string' ||
+    !/^[a-z0-9][a-z0-9_-]{0,127}$/.test(newId) ||
+    newId === input.target.nativeId
+  )
+    throw new GovernanceError(
+      'MUTATION_PAYLOAD_INVALID',
+      422,
+      'newId must be a distinct valid Hermes profile id',
+    );
+  const expectedSourceVersion = input.payload.expectedSourceVersion;
+  if (typeof expectedSourceVersion !== 'string' || !expectedSourceVersion.trim())
+    throw new GovernanceError(
+      'MUTATION_PAYLOAD_INVALID',
+      422,
+      'expectedSourceVersion is required for profile rename',
+    );
 }
 
 function validateModelCommand(input: MutationInput, definition: MutationDefinition) {

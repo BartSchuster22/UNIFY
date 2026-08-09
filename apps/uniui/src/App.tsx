@@ -69,7 +69,7 @@ import { ModelsView } from './ModelsView';
 import { ChatView } from './ChatView';
 import { FrameworksView } from './FrameworksView';
 import { MemoryView } from './MemoryView';
-import { FrameworkProvider } from './FrameworkContext';
+import { FrameworkProvider, useFrameworkContext } from './FrameworkContext';
 import type {
   ApiFailure,
   Collection,
@@ -453,13 +453,19 @@ const ACTION_PRESETS: ActionPreset[] = [
 ];
 
 function MutationConsole({ principal }: { principal: Principal }) {
+  const {
+    frameworks,
+    frameworkId,
+    loading: frameworksLoading,
+    error: frameworkError,
+    selectionIssue,
+    selectFramework,
+  } = useFrameworkContext();
   const available = ACTION_PRESETS.filter((item) =>
     principal.permissions.includes(item.permission),
   );
   const [action, setAction] = useState(available[0]?.value ?? '');
   const preset = available.find((item) => item.value === action) ?? available[0];
-  const [nativeId, setNativeId] = useState('hermes-main');
-  const [frameworkId, setFrameworkId] = useState('hermes-main');
   const [mode, setMode] = useState<MutationRequest['mode']>('validate');
   const [confirmed, setConfirmed] = useState(false);
   const [payload, setPayload] = useState(() =>
@@ -481,7 +487,7 @@ function MutationConsole({ principal }: { principal: Principal }) {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!preset) return;
+    if (!preset || !frameworkId) return;
     setBusy(true);
     setFailure(null);
     setResult(null);
@@ -494,8 +500,8 @@ function MutationConsole({ principal }: { principal: Principal }) {
         target: {
           owner: preset.owner,
           kind: preset.kind,
-          nativeId: nativeId.trim(),
-          ...(preset.owner === 'hermes' ? { frameworkId: frameworkId.trim() } : {}),
+          nativeId: frameworkId,
+          ...(preset.owner === 'hermes' ? { frameworkId } : {}),
         },
         payload: parsed as Record<string, unknown>,
         mode,
@@ -538,21 +544,26 @@ function MutationConsole({ principal }: { principal: Principal }) {
                 searchable
               />
               <SimpleGrid cols={{ base: 1, sm: 2 }}>
-                <TextInput
-                  label="Authoritative native ID"
-                  required
-                  value={nativeId}
-                  onChange={(event) => setNativeId(event.currentTarget.value)}
-                />
+                <TextInput label="Authoritative native ID" required value={frameworkId} readOnly />
                 {preset.owner === 'hermes' && (
-                  <TextInput
-                    label="Framework ID"
+                  <Select
+                    label="Framework"
                     required
-                    value={frameworkId}
-                    onChange={(event) => setFrameworkId(event.currentTarget.value)}
+                    value={frameworkId || null}
+                    data={frameworks.map((item) => ({
+                      value: item.frameworkId,
+                      label: item.displayName,
+                    }))}
+                    onChange={(value) => selectFramework(value ?? '')}
+                    disabled={frameworksLoading}
                   />
                 )}
               </SimpleGrid>
+              {frameworkError || selectionIssue ? (
+                <Alert color="red" title="Framework selection unavailable">
+                  {frameworkError || selectionIssue}
+                </Alert>
+              ) : null}
               <Group gap="xs">
                 <Badge>{preset.owner}</Badge>
                 <Badge variant="outline">{preset.kind}</Badge>
@@ -593,6 +604,7 @@ function MutationConsole({ principal }: { principal: Principal }) {
               <Button
                 type="submit"
                 loading={busy}
+                disabled={!frameworkId}
                 color={preset.destructive && mode === 'execute' ? 'red' : 'ocean'}
                 leftSection={<IconBolt size={16} />}
               >

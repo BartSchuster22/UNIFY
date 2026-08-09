@@ -1,12 +1,19 @@
 import { MantineProvider } from '@mantine/core';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { gateway } from './api';
+import { api, gateway } from './api';
+import { FrameworkProvider } from './FrameworkContext';
 import { WorkView } from './WorkView';
+
+vi.mock('./api', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./api')>();
+  return { ...actual, api: vi.fn() };
+});
+const mockedApi = vi.mocked(api);
 
 const meta = {
   owner: 'hermes' as const,
-  frameworkId: 'hermes-main',
+  frameworkId: 'hermes-alica',
   sourceVersion: 'sha256:test',
   generatedAt: '2026-07-20T12:00:00.000Z',
 };
@@ -70,7 +77,9 @@ const cronjobs = {
 function renderWork(canManage = true) {
   return render(
     <MantineProvider>
-      <WorkView canManage={canManage} />
+      <FrameworkProvider>
+        <WorkView canManage={canManage} />
+      </FrameworkProvider>
     </MantineProvider>,
   );
 }
@@ -78,6 +87,22 @@ function renderWork(canManage = true) {
 describe('UNIFY Work & Kanban', () => {
   beforeEach(() => {
     window.history.replaceState(null, '', '/?view=work');
+    mockedApi.mockResolvedValue({
+      items: [
+        {
+          frameworkId: 'hermes-alica',
+          displayName: 'Alica',
+          enabled: true,
+          status: 'verified',
+        },
+        {
+          frameworkId: 'hermes-herman',
+          displayName: 'Herman',
+          enabled: true,
+          status: 'verified',
+        },
+      ],
+    } as never);
     vi.spyOn(gateway, 'hermesProjects').mockResolvedValue(projects);
     vi.spyOn(gateway, 'hermesBoards').mockResolvedValue(boards);
     vi.spyOn(gateway, 'hermesTasks').mockResolvedValue(tasks);
@@ -99,6 +124,16 @@ describe('UNIFY Work & Kanban', () => {
     cleanup();
     vi.restoreAllMocks();
     localStorage.clear();
+  });
+
+  it('routes all authoritative Work reads to the exact URL-selected framework', async () => {
+    window.history.replaceState(null, '', '/?view=work&framework=hermes-herman');
+    renderWork();
+    await screen.findByText('Blocked release');
+    expect(gateway.hermesProjects).toHaveBeenCalledWith('hermes-herman');
+    expect(gateway.hermesBoards).toHaveBeenCalledWith('hermes-herman');
+    expect(gateway.hermesCronjobs).toHaveBeenCalledWith('hermes-herman');
+    expect(gateway.hermesProjects).not.toHaveBeenCalledWith('hermes-alica');
   });
 
   it('shows Hermes operational attention, Kanban and Cronjobs overview', async () => {
@@ -141,7 +176,7 @@ describe('UNIFY Work & Kanban', () => {
         owner: 'hermes',
         kind: 'project',
         nativeId: 'beta-project',
-        frameworkId: 'hermes-main',
+        frameworkId: 'hermes-alica',
       },
       payload: { name: 'Beta Project', startPmPlanning: false },
       mode: 'execute',

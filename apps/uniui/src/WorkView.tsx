@@ -30,8 +30,9 @@ import {
   IconRefresh,
   IconSettings,
 } from '@tabler/icons-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ApiError, gateway } from './api';
+import { useFrameworkContext } from './FrameworkContext';
 import type { Collection, MutationRequest, UnifiedResource } from './types';
 
 type WorkPage = 'overview' | 'projects' | 'board' | 'details' | 'add' | 'cronjobs' | 'settings';
@@ -65,6 +66,14 @@ const pageOptions: Array<{ value: WorkPage; label: string }> = [
 ];
 
 export function WorkView({ canManage }: { canManage: boolean }) {
+  const {
+    frameworks,
+    frameworkId,
+    loading: frameworksLoading,
+    error: frameworkError,
+    selectionIssue,
+    selectFramework,
+  } = useFrameworkContext();
   const initialPage = workPageFromUrl();
   const [page, setPage] = useState<WorkPage>(initialPage);
   const [data, setData] = useState<Collection<UnifiedResource>>({ items: [] });
@@ -75,25 +84,43 @@ export function WorkView({ canManage }: { canManage: boolean }) {
     () => new URLSearchParams(window.location.search).get('project') ?? '',
   );
   const [busy, setBusy] = useState(false);
+  const loadGeneration = useRef(0);
 
-  async function load() {
+  const load = useCallback(async () => {
+    const generation = ++loadGeneration.current;
+    if (!frameworkId) {
+      setData({ items: [] });
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setFailure(undefined);
     try {
-      const response = await loadHermesWork();
+      const response = await loadHermesWork(frameworkId);
+      if (generation !== loadGeneration.current) return;
       setData(response);
       const projects = nativeProjects(response.items);
       setSelectedProject((current) => current || projects[0]?.slug || '');
     } catch (error) {
+      if (generation !== loadGeneration.current) return;
       setFailure(errorMessage(error));
     } finally {
-      setLoading(false);
+      if (generation === loadGeneration.current) setLoading(false);
     }
-  }
+  }, [frameworkId]);
 
   useEffect(() => {
+    setData({ items: [] });
+    setSelectedProject('');
+    setNotice(undefined);
+    const url = new URL(window.location.href);
+    url.searchParams.delete('project');
+    window.history.replaceState(null, '', url);
     void load();
-  }, []);
+    return () => {
+      loadGeneration.current += 1;
+    };
+  }, [load]);
 
   const projects = useMemo(() => nativeProjects(data.items), [data.items]);
   const tasks = useMemo(
@@ -122,7 +149,11 @@ export function WorkView({ canManage }: { canManage: boolean }) {
     setFailure(undefined);
     setNotice(undefined);
     try {
-      const response = await gateway.mutate(request);
+      if (!frameworkId) throw new Error('Select an enabled, verified framework');
+      const response = await gateway.mutate({
+        ...request,
+        target: { ...request.target, frameworkId },
+      });
       setNotice(success);
       await load();
       return response.result;
@@ -150,6 +181,20 @@ export function WorkView({ canManage }: { canManage: boolean }) {
           Refresh
         </Button>
       </Group>
+
+      <Select
+        label="Hermes framework"
+        value={frameworkId || null}
+        data={frameworks.map((item) => ({ value: item.frameworkId, label: item.displayName }))}
+        onChange={(value) => selectFramework(value ?? '')}
+        placeholder="No verified Hermes framework"
+        disabled={frameworksLoading}
+      />
+      {frameworkError || selectionIssue ? (
+        <Alert color="red" title="Framework selection unavailable">
+          {frameworkError || selectionIssue}
+        </Alert>
+      ) : null}
 
       <ScrollArea type="auto">
         <SegmentedControl
@@ -1277,16 +1322,16 @@ function NotificationSettings() {
 
 type Mutate = (request: MutationRequest, success: string) => Promise<unknown>;
 
-async function loadHermesWork(): Promise<Collection<UnifiedResource>> {
+async function loadHermesWork(frameworkId: string): Promise<Collection<UnifiedResource>> {
   const [projects, boards, cronjobs] = await Promise.all([
-    gateway.hermesProjects(),
-    gateway.hermesBoards(),
-    gateway.hermesCronjobs(),
+    gateway.hermesProjects(frameworkId),
+    gateway.hermesBoards(frameworkId),
+    gateway.hermesCronjobs(frameworkId),
   ]);
   const taskCollections = await Promise.all(
     boards.items.map(async (board) => ({
       boardId: text(board.id),
-      response: await gateway.hermesTasks(text(board.id)),
+      response: await gateway.hermesTasks(frameworkId, text(board.id)),
     })),
   );
   const items: UnifiedResource[] = [];
@@ -1300,7 +1345,7 @@ async function loadHermesWork(): Promise<Collection<UnifiedResource>> {
     const observedAt = new Date().toISOString();
     items.push({
       resource: {
-        canonicalId: `hermes-main:${kind}:${nativeId}`,
+        canonicalId: `${frameworkId}:${kind}:${nativeId}`,
         kind,
         owner: 'hermes',
         nativeId,
@@ -1472,7 +1517,7 @@ function mutation(
 ): MutationRequest {
   return {
     operationType,
-    target: { owner: 'hermes', kind, nativeId, frameworkId: 'hermes-main' },
+    target: { owner: 'hermes', kind, nativeId },
     payload,
     mode: 'execute',
     confirmed,

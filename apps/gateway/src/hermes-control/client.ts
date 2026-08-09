@@ -12,6 +12,7 @@ import {
   HermesMessagesResponseSchema,
   HermesModelsResponseSchema,
   HermesModelManagementResultSchema,
+  HermesProfileResultSchema,
   HermesProfilesResponseSchema,
   HermesProjectsResponseSchema,
   HermesProvidersResponseSchema,
@@ -27,6 +28,7 @@ import {
   type HermesMessage,
   type HermesModel,
   type HermesModelManagementCommand,
+  type HermesProfileCommand,
   type HermesProfile,
   type HermesProject,
   type HermesProvider,
@@ -193,6 +195,18 @@ export class HermesControlClient {
       'POST',
       '/control/v1/commands/models',
       HermesModelManagementResultSchema,
+      command,
+      185_000,
+    );
+  }
+
+  profileManagement(
+    command: HermesProfileCommand,
+  ): Promise<Static<typeof HermesProfileResultSchema>> {
+    return this.request(
+      'POST',
+      '/control/v1/commands/profiles',
+      HermesProfileResultSchema,
       command,
       185_000,
     );

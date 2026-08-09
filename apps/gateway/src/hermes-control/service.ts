@@ -9,6 +9,8 @@ import {
   type HermesControlCommand,
   type HermesModelManagementCommand,
   type HermesModelManagementOperation,
+  type HermesProfileCommand,
+  type HermesProfileOperation,
   type HermesWorkCommand,
   type HermesWorkOperation,
 } from '@aquiero/contracts';
@@ -98,6 +100,46 @@ export class HermesGatewayService {
     return projectCollection(
       await this.read(frameworkId, (client) => client.messages(sessionId, query)),
     );
+  }
+
+  async profileManagement(
+    frameworkId: string,
+    operation: HermesProfileOperation,
+    targetId: string,
+    payload: Record<string, unknown>,
+    mode: 'validate' | 'dry-run' | 'execute',
+    context: GatewayCommandContext,
+  ) {
+    const expectedSourceVersion = optionalString(
+      payload.expectedSourceVersion,
+      'expectedSourceVersion',
+    );
+    const ownerPayload = { ...payload };
+    delete ownerPayload.expectedSourceVersion;
+    const command: HermesProfileCommand = {
+      mode,
+      idempotencyKey: gatewayIdempotencyKey(context.actorUserId, context.idempotencyKey),
+      ...(expectedSourceVersion ? { expectedSourceVersion } : {}),
+      requestId: context.operationId,
+      correlationId: context.operationId,
+      actor: { type: 'user', id: context.actorUserId },
+      payload: ownerPayload,
+      operation,
+      targetId,
+    };
+    return this.call(frameworkId, 'control:execute', async (client) => {
+      const result = await client.profileManagement(command);
+      assertProvenance(frameworkId, result);
+      const expectedStatus =
+        mode === 'validate' ? 'validated' : mode === 'dry-run' ? 'dry-run' : 'completed';
+      if (result.data.status !== expectedStatus)
+        throw new GovernanceError(
+          'FRAMEWORK_VERIFICATION_FAILED',
+          502,
+          'Hermes profile command did not return the expected terminal status',
+        );
+      return projectEnvelope(result);
+    });
   }
 
   async modelManagement(

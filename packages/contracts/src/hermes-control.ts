@@ -422,7 +422,12 @@ export const HermesControlCommandSchema = Type.Object(HermesControlCommandProper
 });
 
 export const HermesProfileOperationSchema = Type.Union(
-  [Type.Literal('profile.create'), Type.Literal('profile.update'), Type.Literal('profile.delete')],
+  [
+    Type.Literal('profile.create'),
+    Type.Literal('profile.update'),
+    Type.Literal('profile.delete'),
+    Type.Literal('profile.rename'),
+  ],
   { $id: 'HermesProfileOperation' },
 );
 export const HermesProfileCommandSchema = Type.Object(
