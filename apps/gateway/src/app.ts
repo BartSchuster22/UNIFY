@@ -96,16 +96,31 @@ export function buildApp(options: AppOptions) {
       error instanceof MemoryV4AdapterError
         ? error
         : null;
-    const status = domainError?.statusCode ?? 500;
+    const errorStatus =
+      typeof error === 'object' &&
+      error !== null &&
+      'statusCode' in error &&
+      typeof error.statusCode === 'number'
+        ? error.statusCode
+        : null;
+    const frameworkStatus =
+      !domainError && errorStatus !== null && errorStatus >= 400 && errorStatus < 500
+        ? errorStatus
+        : null;
+    const status = domainError?.statusCode ?? frameworkStatus ?? 500;
     const retryable =
       domainError instanceof MemoryV4AdapterError
         ? domainError.retryable
         : status === 429 || status >= 500;
-    if (!domainError) request.log.error({ err: error }, 'request failed');
+    if (!domainError && !frameworkStatus) request.log.error({ err: error }, 'request failed');
+    const frameworkCode = status === 413 ? 'PAYLOAD_TOO_LARGE' : 'INVALID_REQUEST';
+    const frameworkMessage =
+      status === 413 ? 'Request body exceeds the permitted size' : 'Request is invalid';
     void reply.status(status).send({
       error: {
-        code: domainError?.code ?? 'INTERNAL_ERROR',
-        message: domainError?.message ?? 'Internal server error',
+        code: domainError?.code ?? (frameworkStatus ? frameworkCode : 'INTERNAL_ERROR'),
+        message:
+          domainError?.message ?? (frameworkStatus ? frameworkMessage : 'Internal server error'),
         requestId: request.id,
         retryable,
       },
@@ -333,7 +348,7 @@ export function buildApp(options: AppOptions) {
     Params: { '*': string };
     Querystring: Record<string, unknown>;
     Body: unknown;
-  }>('/api/v1/memory/*', { bodyLimit: 15 * 1024 * 1024 }, async (request, reply) => {
+  }>('/api/v1/memory/*', { bodyLimit: 6 * 1024 * 1024 }, async (request, reply) => {
     const current = await session(request);
     const path = `/${request.params['*']}`;
     const route = memoryRoute(request.method, path);

@@ -101,6 +101,11 @@ class MemoryPluginTest(unittest.TestCase):
         self.assertNotIn("promote", " ".join(names))
         self.assertIn("operation_id", memory_tools.REMEMBER_SCHEMA["parameters"]["required"])
         self.assertIn("operation_id", memory_tools.UPDATE_SCHEMA["parameters"]["required"])
+        record_fields = memory_tools.REMEMBER_SCHEMA["parameters"]["properties"]
+        self.assertEqual(record_fields["content"]["maxLength"], 1_000_000)
+        self.assertEqual(record_fields["source_refs"]["maxItems"], 100)
+        self.assertEqual(record_fields["source_refs"]["items"]["maxLength"], 2048)
+        self.assertEqual(record_fields["scope_path"]["maxLength"], 1000)
 
 
 if __name__ == "__main__":

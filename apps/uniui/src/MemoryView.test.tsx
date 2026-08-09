@@ -300,6 +300,10 @@ describe('MemoryView', () => {
     await userEvent.click(screen.getByRole('combobox', { name: 'Governed action' }));
     await userEvent.click(screen.getByText('Edit selected record', { selector: 'span' }));
     const title = screen.getByRole('textbox', { name: 'Title' });
+    expect(screen.getByRole('textbox', { name: 'Content' })).toHaveAttribute(
+      'maxlength',
+      '1000000',
+    );
     await userEvent.clear(title);
     await userEvent.type(title, 'Reviewed deployment decision');
     await userEvent.click(
@@ -319,6 +323,28 @@ describe('MemoryView', () => {
       ),
     );
     expect(await screen.findByRole('status')).toHaveTextContent('version 4');
+  });
+
+  it('rejects oversized source-reference input before a governed mutation', async () => {
+    renderView(true, { canWrite: true });
+    await screen.findByText('Connected');
+    await userEvent.click(screen.getByRole('button', { name: /Governed deployment decision/ }));
+    await userEvent.click(screen.getByText('Governed editing', { selector: 'span' }));
+    await userEvent.click(screen.getByRole('combobox', { name: 'Governed action' }));
+    await userEvent.click(screen.getByText('Edit selected record', { selector: 'span' }));
+    fireEvent.change(screen.getByRole('textbox', { name: 'Source references' }), {
+      target: { value: Array.from({ length: 101 }, (_, index) => `ref:${index}`).join('\n') },
+    });
+    await userEvent.click(
+      screen.getByRole('checkbox', {
+        name: /reviewed the target, scope and authoritative effect/i,
+      }),
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Save record edit' }));
+    expect(
+      await screen.findByRole('alert', { name: 'Governed action rejected' }),
+    ).toHaveTextContent('limited to 100 lines');
+    expect(mockedMemoryMutation).not.toHaveBeenCalled();
   });
 
   it('gates promotion independently and requires a durable reason', async () => {

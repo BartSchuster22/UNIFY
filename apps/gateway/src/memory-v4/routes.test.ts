@@ -149,6 +149,33 @@ describe('UNIFY MemoryV4 gateway routes', () => {
     await app.close();
   });
 
+  it('rejects request bodies above the bounded MemoryV4 adapter envelope', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () => upstream({ id: 'should-not-run' }, 201));
+    const app = fixture(['memory.write'], fetchImpl);
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/memory/records',
+      headers: {
+        cookie,
+        'x-csrf-token': csrfToken,
+        'idempotency-key': 'oversized-record',
+        'content-type': 'application/json',
+      },
+      payload: JSON.stringify({ content: 'x'.repeat(6 * 1024 * 1024 + 1) }),
+    });
+    expect(response.statusCode).toBe(413);
+    expect(response.json()).toEqual({
+      error: {
+        code: 'PAYLOAD_TOO_LARGE',
+        message: 'Request body exceeds the permitted size',
+        requestId: expect.any(String),
+        retryable: false,
+      },
+    });
+    expect(fetchImpl).not.toHaveBeenCalled();
+    await app.close();
+  });
+
   it('does not expose arbitrary MemoryV4 or administrative paths', async () => {
     const fetchImpl = vi.fn<typeof fetch>(async () => upstream({}));
     const app = fixture(['memory.read', 'memory.admin'], fetchImpl);

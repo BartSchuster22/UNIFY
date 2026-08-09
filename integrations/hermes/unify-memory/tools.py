@@ -132,7 +132,11 @@ def handle_update(args: dict[str, Any], **_: Any) -> str:
     return _call("update", payload, idempotency_key=_idempotency("update", args))
 
 
-SCOPE = {"type": "string", "description": "Optional descendant scope such as org:aquiero/project:alpha."}
+SCOPE = {
+    "type": "string",
+    "maxLength": 1000,
+    "description": "Optional descendant scope such as org:aquiero/project:alpha.",
+}
 LIMIT = {"type": "integer", "minimum": 1, "maximum": 100}
 ENTITY = {
     "type": "object",
@@ -142,12 +146,16 @@ ENTITY = {
 }
 RECORD_FIELDS = {
     "title": {"type": "string", "maxLength": 240},
-    "content": {"type": "string"},
+    "content": {"type": "string", "maxLength": 1_000_000},
     "entity": ENTITY,
     "topic": {"type": "string", "maxLength": 240},
     "tags": {"type": "array", "items": {"type": "string"}, "maxItems": 50},
     "confidence": {"type": "number", "minimum": 0, "maximum": 1},
-    "source_refs": {"type": "array", "items": {"type": "string"}},
+    "source_refs": {
+        "type": "array",
+        "items": {"type": "string", "maxLength": 2048},
+        "maxItems": 100,
+    },
     "provenance": {"type": "object"},
     "attrs": {"type": "object"},
 }

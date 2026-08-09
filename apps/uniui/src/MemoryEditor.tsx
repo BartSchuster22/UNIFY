@@ -285,7 +285,13 @@ function ActionFields({
     return (
       <Stack gap="sm">
         <TextInput label="Title" required maxLength={240} {...field('title')} />
-        <Textarea label="Content" required minRows={8} {...field('content')} />
+        <Textarea
+          label="Content"
+          required
+          maxLength={1_000_000}
+          minRows={8}
+          {...field('content')}
+        />
         {action === 'record-create' ? (
           <SimpleGrid cols={{ base: 1, sm: 3 }}>
             <Select
@@ -556,7 +562,7 @@ function recordBody(form: Record<string, string>) {
   const entityId = form.entityId?.trim();
   return {
     title: required(form.title, 'Title'),
-    content: required(form.content, 'Content'),
+    content: boundedText(required(form.content, 'Content'), 1_000_000, 'Content'),
     write_policy: required(form.writePolicy, 'Write policy'),
     topic: form.topic?.trim() || null,
     tags: commaList(form.tags),
@@ -591,22 +597,38 @@ function commaList(value: string | undefined) {
     .map((item) => item.trim())
     .filter(Boolean);
   if (new Set(values).size !== values.length) throw new Error('Tags must be unique.');
+  if (values.length > 50 || values.some((item) => item.length > 100))
+    throw new Error('Tags are limited to 50 unique values of at most 100 characters.');
   return values;
 }
 function lineList(value: string | undefined) {
-  return (value ?? '')
+  const values = (value ?? '')
     .split('\n')
     .map((item) => item.trim())
     .filter(Boolean);
+  if (
+    values.length > 100 ||
+    values.some((item) => item.length > 2048 || [...item].some((char) => char.charCodeAt(0) < 32))
+  )
+    throw new Error('Source references are limited to 100 lines of at most 2048 characters.');
+  return values;
 }
 function jsonObject(value: string | undefined, label: string) {
+  let parsed: unknown;
   try {
-    const parsed = JSON.parse(value?.trim() || '{}') as unknown;
-    if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object') throw new Error();
-    return parsed as Record<string, unknown>;
+    parsed = JSON.parse(value?.trim() || '{}') as unknown;
   } catch {
     throw new Error(`${label} must be a valid JSON object.`);
   }
+  if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object')
+    throw new Error(`${label} must be a valid JSON object.`);
+  if (new TextEncoder().encode(JSON.stringify(parsed)).length > 262_144)
+    throw new Error(`${label} must not exceed 262144 encoded bytes.`);
+  return parsed as Record<string, unknown>;
+}
+function boundedText(value: string, maximum: number, label: string) {
+  if (value.length > maximum) throw new Error(`${label} must not exceed ${maximum} characters.`);
+  return value;
 }
 function boundedConfidence(value: string) {
   const number = Number(value);
