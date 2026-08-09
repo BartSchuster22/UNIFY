@@ -223,8 +223,9 @@ describe('Mantine UNIUI gates', () => {
   it('renders the permission-aware responsive shell', async () => {
     vi.stubGlobal('fetch', vi.fn(authenticatedFetch));
     const { container } = render(<App />);
-    expect(await screen.findByRole('heading', { name: 'Control plane' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Readiness dashboard' })).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'Primary navigation' })).toBeInTheDocument();
+    expect(screen.getByText('Readiness')).toBeInTheDocument();
     expect(screen.queryByText('Safety actions')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Toggle navigation' })).toBeInTheDocument();
 
@@ -242,14 +243,14 @@ describe('Mantine UNIUI gates', () => {
       ),
     );
     render(<App />);
-    await screen.findByRole('heading', { name: 'Control plane' });
+    await screen.findByRole('heading', { name: 'Readiness dashboard' });
     expect(screen.getByText('Safety actions')).toBeInTheDocument();
   });
 
   it('gates the MemoryV4 read surface with memory.read', async () => {
     vi.stubGlobal('fetch', vi.fn(authenticatedFetch));
     const first = render(<App />);
-    await screen.findByRole('heading', { name: 'Control plane' });
+    await screen.findByRole('heading', { name: 'Readiness dashboard' });
     expect(screen.queryByText('Memory & knowledge')).not.toBeInTheDocument();
     first.unmount();
 
@@ -262,7 +263,7 @@ describe('Mantine UNIUI gates', () => {
       ),
     );
     render(<App />);
-    await screen.findByRole('heading', { name: 'Control plane' });
+    await screen.findByRole('heading', { name: 'Readiness dashboard' });
     await userEvent.click(screen.getByRole('button', { name: 'Toggle navigation' }));
     await userEvent.click(screen.getByText('Memory & knowledge'));
     expect(await screen.findByRole('heading', { name: 'Memory & knowledge' })).toBeInTheDocument();
@@ -278,7 +279,7 @@ describe('Mantine UNIUI gates', () => {
       ),
     );
     render(<App />);
-    await screen.findByRole('heading', { name: 'Control plane' });
+    await screen.findByRole('heading', { name: 'Readiness dashboard' });
     await userEvent.click(screen.getByRole('button', { name: 'Toggle navigation' }));
     await userEvent.click(await screen.findByText('Frameworks'));
     expect(await screen.findByText('No framework registered')).toBeInTheDocument();
@@ -287,7 +288,7 @@ describe('Mantine UNIUI gates', () => {
   it('renders Hermes-native internal conversation evidence and excludes external sessions', async () => {
     vi.stubGlobal('fetch', vi.fn(authenticatedFetch));
     render(<App />);
-    await screen.findByRole('heading', { name: 'Control plane' });
+    await screen.findByRole('heading', { name: 'Readiness dashboard' });
     await userEvent.click(screen.getByRole('button', { name: 'Toggle navigation' }));
     await userEvent.click(await screen.findByText('Chat'));
     expect(

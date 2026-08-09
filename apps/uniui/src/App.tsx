@@ -69,6 +69,7 @@ import { ModelsView } from './ModelsView';
 import { ChatView } from './ChatView';
 import { FrameworksView } from './FrameworksView';
 import { MemoryView } from './MemoryView';
+import { ReadinessDashboard } from './ReadinessDashboard';
 import { FrameworkProvider, useFrameworkContext } from './FrameworkContext';
 import type {
   ApiFailure,
@@ -105,7 +106,7 @@ interface NavItem {
   permission?: string;
 }
 const NAV: NavItem[] = [
-  { id: 'overview', label: 'Overview', icon: IconGauge },
+  { id: 'overview', label: 'Readiness', icon: IconGauge },
   { id: 'frameworks', label: 'Frameworks', icon: IconNetwork, permission: 'frameworks.read' },
   { id: 'models', label: 'Models & providers', icon: IconDatabase, permission: 'models.read' },
   { id: 'profiles', label: 'Profiles', icon: IconUsers, permission: 'profiles.read' },
@@ -392,7 +393,7 @@ function Login({ onLogin }: { onLogin: (principal: Principal) => void }) {
 function View({ view, principal }: { view: ViewId; principal: Principal }) {
   switch (view) {
     case 'overview':
-      return <Overview />;
+      return <ReadinessDashboard principal={principal} />;
     case 'frameworks':
       return <FrameworksView />;
     case 'models':
@@ -793,137 +794,6 @@ function EmptyState() {
   );
 }
 
-function Overview() {
-  const frameworks = useData<{
-    items: Array<{
-      frameworkId: string;
-      displayName: string;
-      enabled: boolean;
-      status: string;
-      frameworkVersion: string;
-      frameworkCommit: string;
-    }>;
-  }>('/frameworks');
-  const operations = useData<Collection<Operation>>('/operations?limit=8');
-  const notifications = useData<Collection<Notification>>('/notifications?limit=100');
-  const healthyFrameworks =
-    frameworks.data?.items.filter((item) => item.enabled && item.status === 'verified').length ?? 0;
-  const unresolvedAlerts =
-    notifications.data?.items.filter((item) => item.state !== 'acknowledged').length ?? 0;
-  const failedOperations =
-    operations.data?.items.filter((item) => ['failed', 'inconclusive'].includes(item.state))
-      .length ?? 0;
-  const reload = () => {
-    frameworks.reload();
-    operations.reload();
-    notifications.reload();
-  };
-  return (
-    <>
-      <PageHeading
-        title="Control plane"
-        description="Live Hermes framework registration, governed operations, alerts and immutable evidence."
-        action={
-          <Button variant="light" leftSection={<IconRefresh size={16} />} onClick={reload}>
-            Recheck all
-          </Button>
-        }
-      />
-      <SimpleGrid cols={{ base: 1, sm: 2, xl: 4 }} mb="md">
-        {[
-          ['Registered frameworks', frameworks.data?.items.length ?? 0],
-          ['Verified and enabled', healthyFrameworks],
-          ['Unresolved alerts', unresolvedAlerts],
-          ['Failed operations', failedOperations],
-        ].map(([label, value]) => (
-          <Card withBorder key={String(label)}>
-            <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
-              {label}
-            </Text>
-            <Text size="2rem" fw={800}>
-              {value}
-            </Text>
-          </Card>
-        ))}
-      </SimpleGrid>
-      {(frameworks.failure || operations.failure || notifications.failure) && (
-        <Alert color="red" title="Control-plane data incomplete" mb="md">
-          {frameworks.failure?.message ??
-            operations.failure?.message ??
-            notifications.failure?.message}
-        </Alert>
-      )}
-      <SimpleGrid cols={{ base: 1, xl: 2 }}>
-        <Card withBorder>
-          <Group justify="space-between" mb="md">
-            <Text fw={800}>Framework runtime</Text>
-            {frameworks.loading ? <Loader size="xs" /> : null}
-          </Group>
-          <Stack gap="sm">
-            {frameworks.data?.items.map((framework) => (
-              <Paper withBorder p="sm" key={framework.frameworkId}>
-                <Group justify="space-between" align="flex-start">
-                  <div>
-                    <Text fw={700}>{framework.displayName}</Text>
-                    <Text size="xs" c="dimmed">
-                      {framework.frameworkId} · {framework.frameworkVersion} ·{' '}
-                      {framework.frameworkCommit.slice(0, 12)}
-                    </Text>
-                  </div>
-                  <Badge
-                    color={framework.enabled && framework.status === 'verified' ? 'teal' : 'red'}
-                  >
-                    {framework.enabled ? framework.status : 'disabled'}
-                  </Badge>
-                </Group>
-              </Paper>
-            ))}
-            {!frameworks.loading && frameworks.data?.items.length === 0 ? (
-              <Text c="dimmed">No framework is registered.</Text>
-            ) : null}
-          </Stack>
-        </Card>
-        <Card withBorder>
-          <Group justify="space-between" mb="md">
-            <Text fw={800}>Recent governed operations</Text>
-            {operations.loading ? <Loader size="xs" /> : null}
-          </Group>
-          <Stack gap="sm">
-            {operations.data?.items.map((operation) => (
-              <Paper withBorder p="sm" key={operation.operationId}>
-                <Group justify="space-between" align="flex-start">
-                  <div>
-                    <Text fw={700}>{operation.operationType}</Text>
-                    <Text size="xs" c="dimmed">
-                      {operation.target.owner} · {operation.target.kind}:{operation.target.nativeId}
-                    </Text>
-                    <Text size="xs" c="dimmed">
-                      {formatDate(operation.updatedAt)} · evidence {operation.evidenceIds.length}
-                    </Text>
-                  </div>
-                  <Badge
-                    color={
-                      operation.state === 'verified'
-                        ? 'teal'
-                        : operation.state === 'failed'
-                          ? 'red'
-                          : 'blue'
-                    }
-                  >
-                    {operation.state}
-                  </Badge>
-                </Group>
-              </Paper>
-            ))}
-            {!operations.loading && operations.data?.items.length === 0 ? (
-              <Text c="dimmed">No governed operation has been recorded.</Text>
-            ) : null}
-          </Stack>
-        </Card>
-      </SimpleGrid>
-    </>
-  );
-}
 function StateBadge({ state }: { state: TruthState }) {
   const color =
     state === 'current'
