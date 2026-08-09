@@ -15,13 +15,7 @@ import {
 import { IconAlertTriangle, IconRefresh, IconUsers } from '@tabler/icons-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api } from './api';
-
-type Framework = {
-  frameworkId: string;
-  displayName: string;
-  status: 'verified' | 'disabled' | 'unavailable' | 'unsupported';
-  enabled: boolean;
-};
+import { useFrameworkContext } from './FrameworkContext';
 type Profile = {
   id: string;
   displayName: string;
@@ -64,33 +58,19 @@ export function ProfilesView({
   canManageModels: boolean;
   canDelete: boolean;
 }) {
-  const [frameworks, setFrameworks] = useState<Framework[]>([]);
-  const [frameworkId, setFrameworkId] = useState(
-    () => new URLSearchParams(window.location.search).get('framework') ?? '',
-  );
+  const {
+    frameworks,
+    frameworkId,
+    loading: frameworksLoading,
+    error: frameworkError,
+    selectionIssue,
+    selectFramework,
+  } = useFrameworkContext();
   const [collection, setCollection] = useState<Collection | null>(null);
   const [capabilities, setCapabilities] = useState<Capabilities | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState('');
-
-  const discover = useCallback(async () => {
-    const response = await api<{ items: Framework[] }>('/frameworks');
-    const available = response.items.filter((item) => item.enabled && item.status === 'verified');
-    setFrameworks(available);
-    setFrameworkId((current) =>
-      available.some((item) => item.frameworkId === current)
-        ? current
-        : (available[0]?.frameworkId ?? ''),
-    );
-  }, []);
-
-  useEffect(() => {
-    void discover().catch((cause) => {
-      setError(cause instanceof Error ? cause.message : 'Hermes framework discovery failed');
-      setLoading(false);
-    });
-  }, [discover]);
 
   const load = useCallback(async () => {
     if (!frameworkId) {
@@ -108,9 +88,6 @@ export function ProfilesView({
       ]);
       setCollection(profiles);
       setCapabilities(manifest);
-      const url = new URL(window.location.href);
-      url.searchParams.set('framework', frameworkId);
-      window.history.replaceState(null, '', url);
     } catch (cause) {
       setCollection(null);
       setCapabilities(null);
@@ -175,15 +152,16 @@ export function ProfilesView({
         label="Hermes framework"
         value={frameworkId || null}
         data={frameworkOptions}
-        onChange={(value) => setFrameworkId(value ?? '')}
+        onChange={(value) => selectFramework(value ?? '')}
         placeholder="No verified Hermes framework"
+        disabled={frameworksLoading}
       />
-      {error ? (
+      {frameworkError || selectionIssue || error ? (
         <Alert color="red" icon={<IconAlertTriangle size={18} />}>
-          {error}
+          {frameworkError || selectionIssue || error}
         </Alert>
       ) : null}
-      {!loading && !frameworks.length ? (
+      {!frameworksLoading && !frameworks.length ? (
         <Alert color="yellow">
           No enabled, verified Hermes framework is registered. Profile truth is unavailable.
         </Alert>

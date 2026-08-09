@@ -69,6 +69,7 @@ import { ModelsView } from './ModelsView';
 import { ChatView } from './ChatView';
 import { FrameworksView } from './FrameworksView';
 import { MemoryView } from './MemoryView';
+import { FrameworkProvider } from './FrameworkContext';
 import type {
   ApiFailure,
   Collection,
@@ -183,122 +184,124 @@ export function App() {
   const activeView = visible.some((item) => item.id === view) ? view : 'overview';
   return (
     <MantineProvider theme={theme} forceColorScheme={dark ? 'dark' : 'light'}>
-      <a className="skip-link" href="#main-content">
-        Skip to content
-      </a>
-      <AppShell
-        header={{ height: 64 }}
-        navbar={{ width: 260, breakpoint: 'md', collapsed: { mobile: !opened } }}
-        padding="md"
-      >
-        <AppShell.Header className="ui-header">
-          <Group h="100%" px="md" justify="space-between" wrap="nowrap">
-            <Group wrap="nowrap">
-              <Burger
-                opened={opened}
-                onClick={toggle}
-                hiddenFrom="md"
-                size="sm"
-                aria-label="Toggle navigation"
-              />
+      <FrameworkProvider>
+        <a className="skip-link" href="#main-content">
+          Skip to content
+        </a>
+        <AppShell
+          header={{ height: 64 }}
+          navbar={{ width: 260, breakpoint: 'md', collapsed: { mobile: !opened } }}
+          padding="md"
+        >
+          <AppShell.Header className="ui-header">
+            <Group h="100%" px="md" justify="space-between" wrap="nowrap">
+              <Group wrap="nowrap">
+                <Burger
+                  opened={opened}
+                  onClick={toggle}
+                  hiddenFrom="md"
+                  size="sm"
+                  aria-label="Toggle navigation"
+                />
+                <Group gap="xs" wrap="nowrap">
+                  <ThemeIcon
+                    size="lg"
+                    variant="gradient"
+                    gradient={{ from: 'ocean.7', to: 'cyan.5' }}
+                  >
+                    <IconNetwork size={20} />
+                  </ThemeIcon>
+                  <Box>
+                    <Text fw={800} lh={1}>
+                      UNIFY
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      Operator console
+                    </Text>
+                  </Box>
+                </Group>
+              </Group>
+
               <Group gap="xs" wrap="nowrap">
-                <ThemeIcon
-                  size="lg"
-                  variant="gradient"
-                  gradient={{ from: 'ocean.7', to: 'cyan.5' }}
-                >
-                  <IconNetwork size={20} />
-                </ThemeIcon>
+                <Tooltip label={`Use ${dark ? 'light' : 'dark'} theme`}>
+                  <ActionIcon
+                    variant="subtle"
+                    size="lg"
+                    onClick={() => {
+                      const next = !dark;
+                      setDark(next);
+                      localStorage.setItem('unify-color-scheme', next ? 'dark' : 'light');
+                    }}
+                    aria-label={`Use ${dark ? 'light' : 'dark'} theme`}
+                  >
+                    {dark ? <IconSun size={19} /> : <IconMoon size={19} />}
+                  </ActionIcon>
+                </Tooltip>
+                <Menu position="bottom-end">
+                  <Menu.Target>
+                    <ActionIcon variant="subtle" size="lg" aria-label="User menu">
+                      <Avatar size={30} color="ocean">
+                        {principal.displayName.slice(0, 2).toUpperCase()}
+                      </Avatar>
+                    </ActionIcon>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Label>{principal.displayName}</Menu.Label>
+                    <Menu.Item
+                      leftSection={<IconSettings size={16} />}
+                      onClick={() => changeView('settings')}
+                    >
+                      Settings
+                    </Menu.Item>
+                    <Menu.Item
+                      color="red"
+                      leftSection={<IconLogout size={16} />}
+                      onClick={() => void gateway.logout().finally(() => setPrincipal(null))}
+                    >
+                      Sign out
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
+              </Group>
+            </Group>
+          </AppShell.Header>
+          <AppShell.Navbar p="sm" aria-label="Primary navigation">
+            <AppShell.Section grow component={ScrollArea}>
+              <Stack gap={3}>
+                {visible.map((item) => (
+                  <NavLink
+                    key={item.id}
+                    active={activeView === item.id}
+                    label={item.label}
+                    leftSection={<item.icon size={18} />}
+                    onClick={() => changeView(item.id)}
+                    aria-current={activeView === item.id ? 'page' : undefined}
+                  />
+                ))}
+              </Stack>
+            </AppShell.Section>
+            <AppShell.Section>
+              <Divider mb="sm" />
+              <Group gap="sm" px="xs">
+                <Avatar size="sm" color="ocean">
+                  <IconUserCircle size={18} />
+                </Avatar>
                 <Box>
-                  <Text fw={800} lh={1}>
-                    UNIFY
+                  <Text size="sm" fw={600}>
+                    {principal.displayName}
                   </Text>
                   <Text size="xs" c="dimmed">
-                    Operator console
+                    {principal.roles.join(', ')}
                   </Text>
                 </Box>
               </Group>
-            </Group>
-
-            <Group gap="xs" wrap="nowrap">
-              <Tooltip label={`Use ${dark ? 'light' : 'dark'} theme`}>
-                <ActionIcon
-                  variant="subtle"
-                  size="lg"
-                  onClick={() => {
-                    const next = !dark;
-                    setDark(next);
-                    localStorage.setItem('unify-color-scheme', next ? 'dark' : 'light');
-                  }}
-                  aria-label={`Use ${dark ? 'light' : 'dark'} theme`}
-                >
-                  {dark ? <IconSun size={19} /> : <IconMoon size={19} />}
-                </ActionIcon>
-              </Tooltip>
-              <Menu position="bottom-end">
-                <Menu.Target>
-                  <ActionIcon variant="subtle" size="lg" aria-label="User menu">
-                    <Avatar size={30} color="ocean">
-                      {principal.displayName.slice(0, 2).toUpperCase()}
-                    </Avatar>
-                  </ActionIcon>
-                </Menu.Target>
-                <Menu.Dropdown>
-                  <Menu.Label>{principal.displayName}</Menu.Label>
-                  <Menu.Item
-                    leftSection={<IconSettings size={16} />}
-                    onClick={() => changeView('settings')}
-                  >
-                    Settings
-                  </Menu.Item>
-                  <Menu.Item
-                    color="red"
-                    leftSection={<IconLogout size={16} />}
-                    onClick={() => void gateway.logout().finally(() => setPrincipal(null))}
-                  >
-                    Sign out
-                  </Menu.Item>
-                </Menu.Dropdown>
-              </Menu>
-            </Group>
-          </Group>
-        </AppShell.Header>
-        <AppShell.Navbar p="sm" aria-label="Primary navigation">
-          <AppShell.Section grow component={ScrollArea}>
-            <Stack gap={3}>
-              {visible.map((item) => (
-                <NavLink
-                  key={item.id}
-                  active={activeView === item.id}
-                  label={item.label}
-                  leftSection={<item.icon size={18} />}
-                  onClick={() => changeView(item.id)}
-                  aria-current={activeView === item.id ? 'page' : undefined}
-                />
-              ))}
-            </Stack>
-          </AppShell.Section>
-          <AppShell.Section>
-            <Divider mb="sm" />
-            <Group gap="sm" px="xs">
-              <Avatar size="sm" color="ocean">
-                <IconUserCircle size={18} />
-              </Avatar>
-              <Box>
-                <Text size="sm" fw={600}>
-                  {principal.displayName}
-                </Text>
-                <Text size="xs" c="dimmed">
-                  {principal.roles.join(', ')}
-                </Text>
-              </Box>
-            </Group>
-          </AppShell.Section>
-        </AppShell.Navbar>
-        <AppShell.Main id="main-content" tabIndex={-1}>
-          <View view={activeView} principal={principal} />
-        </AppShell.Main>
-      </AppShell>
+            </AppShell.Section>
+          </AppShell.Navbar>
+          <AppShell.Main id="main-content" tabIndex={-1}>
+            <View view={activeView} principal={principal} />
+          </AppShell.Main>
+        </AppShell>
+      </FrameworkProvider>
     </MantineProvider>
   );
 }

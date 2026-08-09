@@ -2,6 +2,7 @@ import { MantineProvider } from '@mantine/core';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProfilesView } from './ProfilesView';
+import { FrameworkProvider } from './FrameworkContext';
 
 const framework = {
   frameworkId: 'hermes-main',
@@ -34,7 +35,9 @@ const capabilities = {
 function renderProfiles() {
   return render(
     <MantineProvider>
-      <ProfilesView canManage canManageModels canDelete />
+      <FrameworkProvider>
+        <ProfilesView canManage canManageModels canDelete />
+      </FrameworkProvider>
     </MantineProvider>,
   );
 }

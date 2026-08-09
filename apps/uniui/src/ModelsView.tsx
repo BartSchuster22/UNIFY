@@ -15,13 +15,7 @@ import {
 import { IconAlertTriangle, IconRefresh, IconSparkles } from '@tabler/icons-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api, gateway } from './api';
-
-type Framework = {
-  frameworkId: string;
-  displayName: string;
-  status: 'verified' | 'disabled' | 'unavailable' | 'unsupported';
-  enabled: boolean;
-};
+import { useFrameworkContext } from './FrameworkContext';
 type Provider = {
   id: string;
   displayName: string;
@@ -73,10 +67,14 @@ type Capabilities = {
 type Props = { canManageCredentials: boolean; canManageModels: boolean };
 
 export function ModelsView({ canManageCredentials, canManageModels }: Props) {
-  const [frameworks, setFrameworks] = useState<Framework[]>([]);
-  const [frameworkId, setFrameworkId] = useState(
-    () => new URLSearchParams(window.location.search).get('framework') ?? '',
-  );
+  const {
+    frameworks,
+    frameworkId,
+    loading: frameworksLoading,
+    error: frameworkError,
+    selectionIssue,
+    selectFramework,
+  } = useFrameworkContext();
   const [providers, setProviders] = useState<Collection<Provider> | null>(null);
   const [models, setModels] = useState<Collection<Model> | null>(null);
   const [capabilities, setCapabilities] = useState<Capabilities | null>(null);
@@ -85,25 +83,6 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
-
-  useEffect(() => {
-    void api<{ items: Framework[] }>('/frameworks')
-      .then((response) => {
-        const available = response.items.filter(
-          (item) => item.enabled && item.status === 'verified',
-        );
-        setFrameworks(available);
-        setFrameworkId((current) =>
-          available.some((item) => item.frameworkId === current)
-            ? current
-            : (available[0]?.frameworkId ?? ''),
-        );
-      })
-      .catch((cause) => {
-        setError(cause instanceof Error ? cause.message : 'Hermes framework discovery failed');
-        setLoading(false);
-      });
-  }, []);
 
   const load = useCallback(
     async (refresh = false) => {
@@ -128,9 +107,6 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
         setProviders(providerInventory);
         setModels(modelInventory);
         setCapabilities(manifest);
-        const url = new URL(window.location.href);
-        url.searchParams.set('framework', frameworkId);
-        window.history.replaceState(null, '', url);
       } catch (cause) {
         setProviders(null);
         setModels(null);
@@ -227,16 +203,17 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
         label="Hermes framework"
         value={frameworkId || null}
         data={frameworkOptions}
-        onChange={(value) => setFrameworkId(value ?? '')}
+        onChange={(value) => selectFramework(value ?? '')}
         placeholder="No verified Hermes framework"
+        disabled={frameworksLoading}
       />
-      {error ? (
+      {frameworkError || selectionIssue || error ? (
         <Alert color="red" icon={<IconAlertTriangle size={18} />}>
-          {error}
+          {frameworkError || selectionIssue || error}
         </Alert>
       ) : null}
       {notice ? <Alert color="teal">{notice}</Alert> : null}
-      {!loading && !frameworks.length ? (
+      {!frameworksLoading && !frameworks.length ? (
         <Alert color="yellow">No enabled, verified Hermes framework is registered.</Alert>
       ) : null}
       {credentialCapability?.status !== 'supported' ? (

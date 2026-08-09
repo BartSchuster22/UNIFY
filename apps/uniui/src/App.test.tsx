@@ -38,6 +38,20 @@ const hermesMeta = {
   observedAt: '2026-07-19T00:00:00.000Z',
   freshness: 'current',
 };
+const twoFrameworks = [
+  {
+    frameworkId: 'hermes-alica',
+    displayName: 'Alica',
+    status: 'verified',
+    enabled: true,
+  },
+  {
+    frameworkId: 'hermes-herman',
+    displayName: 'Herman',
+    status: 'verified',
+    enabled: true,
+  },
+];
 
 function response(body: unknown, status = 200) {
   return Promise.resolve(
@@ -142,6 +156,46 @@ function authenticatedFetch(input: RequestInfo | URL): Promise<Response> {
   return response({ items: [], meta });
 }
 
+function twoFrameworkFetch(input: RequestInfo | URL): Promise<Response> {
+  const url = String(input);
+  if (url.endsWith('/auth/me')) return response(principal);
+  if (url.endsWith('/frameworks')) return response({ items: twoFrameworks });
+  const selectedMeta = { ...hermesMeta, owner: 'hermes', frameworkId: 'hermes-herman' };
+  if (url.includes('/frameworks/hermes-herman/capabilities'))
+    return response({
+      meta: selectedMeta,
+      data: {
+        capabilities: {
+          'profiles.execute': { status: 'supported' },
+          'providers.credentials.execute': { status: 'supported' },
+          'models.execute': { status: 'supported' },
+        },
+      },
+    });
+  if (url.includes('/frameworks/hermes-herman/providers'))
+    return response({ meta: selectedMeta, items: [], page: { hasMore: false } });
+  if (url.includes('/frameworks/hermes-herman/models'))
+    return response({ meta: selectedMeta, items: [], page: { hasMore: false } });
+  if (url.includes('/frameworks/hermes-herman/profiles'))
+    return response({
+      meta: selectedMeta,
+      items: [
+        {
+          id: 'default',
+          displayName: 'Default',
+          active: true,
+          gatewayStatus: 'running',
+          owner: 'hermes',
+          frameworkId: 'hermes-herman',
+          sourceVersion: 'profiles:v1',
+          observedAt: selectedMeta.observedAt,
+        },
+      ],
+      page: { hasMore: false },
+    });
+  return response({ items: [], meta });
+}
+
 beforeEach(() => {
   window.history.replaceState({}, '', '/');
   localStorage.clear();
@@ -241,5 +295,25 @@ describe('Mantine UNIUI gates', () => {
     ).toBeInTheDocument();
     expect(await screen.findByText('Verified response')).toBeInTheDocument();
     expect(screen.queryByText('Excluded external conversation')).not.toBeInTheDocument();
+  });
+
+  it('preserves one verified framework selection across Models and Profiles', async () => {
+    window.history.replaceState(null, '', '/?view=models&framework=hermes-herman');
+    const fetchMock = vi.fn(twoFrameworkFetch);
+    vi.stubGlobal('fetch', fetchMock);
+    render(<App />);
+
+    expect(await screen.findByRole('heading', { name: 'Models & Providers' })).toBeInTheDocument();
+    await screen.findByText('Framework hermes-herman');
+    await userEvent.click(screen.getByText('Profiles'));
+    expect(await screen.findByRole('heading', { name: 'Profiles' })).toBeInTheDocument();
+    await screen.findByText('Framework hermes-herman');
+
+    const requests = fetchMock.mock.calls.map(([input]) => String(input));
+    expect(requests.filter((url) => url.endsWith('/frameworks'))).toHaveLength(1);
+    expect(requests.some((url) => url.includes('/frameworks/hermes-herman/providers'))).toBe(true);
+    expect(requests.some((url) => url.includes('/frameworks/hermes-herman/profiles'))).toBe(true);
+    expect(requests.some((url) => url.includes('/frameworks/hermes-alica/'))).toBe(false);
+    expect(new URL(window.location.href).searchParams.get('framework')).toBe('hermes-herman');
   });
 });

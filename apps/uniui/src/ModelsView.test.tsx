@@ -2,6 +2,7 @@ import { MantineProvider } from '@mantine/core';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ModelsView } from './ModelsView';
+import { FrameworkProvider } from './FrameworkContext';
 
 const framework = {
   frameworkId: 'hermes-main',
@@ -71,7 +72,9 @@ const models = {
 function renderModels(canManageCredentials = true, canManageModels = true) {
   return render(
     <MantineProvider>
-      <ModelsView canManageCredentials={canManageCredentials} canManageModels={canManageModels} />
+      <FrameworkProvider>
+        <ModelsView canManageCredentials={canManageCredentials} canManageModels={canManageModels} />
+      </FrameworkProvider>
     </MantineProvider>,
   );
 }
