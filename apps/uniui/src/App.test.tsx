@@ -318,6 +318,65 @@ describe('Mantine UNIUI gates', () => {
     expect(screen.getByText(/Profile changes are read-only for your role/)).toBeInTheDocument();
   });
 
+  it('passes models.manage through the shell to enable the guided model workflow', async () => {
+    window.history.replaceState(null, '', '/?view=models&framework=hermes-herman');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url.endsWith('/auth/me'))
+          return response({
+            ...principal,
+            permissions: [...principal.permissions, 'models.manage'],
+          });
+        if (url.includes('/frameworks/hermes-herman/providers'))
+          return response({
+            meta: { ...hermesMeta, owner: 'hermes', frameworkId: 'hermes-herman' },
+            items: [
+              {
+                id: 'openrouter',
+                displayName: 'OpenRouter',
+                credentialStatus: 'configured',
+                selected: true,
+                authType: 'api_key',
+                credentialMutable: true,
+                owner: 'hermes',
+                frameworkId: 'hermes-herman',
+                sourceVersion: 'models:v4',
+                observedAt: hermesMeta.observedAt,
+              },
+            ],
+            page: { hasMore: false },
+          });
+        if (url.includes('/frameworks/hermes-herman/models'))
+          return response({
+            meta: { ...hermesMeta, owner: 'hermes', frameworkId: 'hermes-herman' },
+            items: [
+              {
+                id: 'anthropic/claude-premium',
+                providerId: 'openrouter',
+                displayName: 'Claude Premium',
+                capabilities: ['text'],
+                selected: false,
+                costTier: 'premium',
+                owner: 'hermes',
+                frameworkId: 'hermes-herman',
+                sourceVersion: 'models:v4',
+                observedAt: hermesMeta.observedAt,
+              },
+            ],
+            page: { hasMore: false },
+          });
+        return twoFrameworkFetch(input);
+      }),
+    );
+    render(<App />);
+    expect(await screen.findByRole('button', { name: 'Guided model selection' })).toBeEnabled();
+    expect(
+      screen.queryByText(/Model selection is read-only for your role/),
+    ).not.toBeInTheDocument();
+  });
+
   it('passes credentials.manage through the shell to enable the guided provider workflow', async () => {
     window.history.replaceState(null, '', '/?view=models&framework=hermes-herman');
     vi.stubGlobal(

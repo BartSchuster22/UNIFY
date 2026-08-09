@@ -41,7 +41,7 @@ const providers = {
       selected: true,
       authType: 'api_key',
       credentialMutable: true,
-      modelCount: 1,
+      modelCount: 2,
       owner: 'hermes',
       frameworkId: 'hermes-main',
       sourceVersion: 'catalogue:v1',
@@ -60,6 +60,18 @@ const models = {
       capabilities: ['text', 'tool-use'],
       selected: true,
       costTier: 'standard',
+      owner: 'hermes',
+      frameworkId: 'hermes-main',
+      sourceVersion: 'catalogue:v1',
+      observedAt: meta.observedAt,
+    },
+    {
+      id: 'anthropic/claude-premium',
+      providerId: 'openrouter',
+      displayName: 'Claude Premium',
+      capabilities: ['text', 'tool-use', 'vision'],
+      selected: false,
+      costTier: 'premium',
       owner: 'hermes',
       frameworkId: 'hermes-main',
       sourceVersion: 'catalogue:v1',
@@ -186,6 +198,110 @@ describe('Models/providers Hermes management', () => {
     expect(mutationCalls[0]?.idempotencyKey).not.toBe(mutationCalls[1]?.idempotencyKey);
   });
 
+  it('guides an exact premium model through acknowledgement, dry-run, and verified selection', async () => {
+    const fetchMock = fetchFixture();
+    vi.stubGlobal('fetch', fetchMock);
+    renderModels();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Guided model selection' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Continue' }));
+    expect(await screen.findByText('Claude Premium')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Review' }));
+
+    expect(screen.getByText(/Cost tier/)).toHaveTextContent('premium');
+    expect(screen.getByText(/Existing sessions keep their current model/)).toBeInTheDocument();
+    const execute = screen.getByRole('button', { name: 'Select in Hermes' });
+    expect(execute).toBeDisabled();
+    fireEvent.click(
+      screen.getByRole('checkbox', {
+        name: /authorize this model selection and acknowledge that provider pricing may differ/i,
+      }),
+    );
+    expect(execute).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Validate and dry-run' }));
+    expect(
+      await screen.findByText(/Governed dry-run passed for this exact framework/),
+    ).toBeInTheDocument();
+    expect(execute).toBeEnabled();
+    fireEvent.click(execute);
+
+    expect(
+      await screen.findByText(/selected in Hermes and verified by authoritative readback/),
+    ).toBeInTheDocument();
+    const calls = fetchMock.mock.calls
+      .filter(([input]) => String(input).endsWith('/api/v1/mutations'))
+      .map(([, init]) => ({
+        body: JSON.parse(String(init?.body)) as Record<string, unknown>,
+        key: new Headers(init?.headers).get('Idempotency-Key'),
+      }));
+    expect(calls).toHaveLength(2);
+    expect(calls.map(({ body }) => body.mode)).toEqual(['dry-run', 'execute']);
+    for (const { body } of calls)
+      expect(body).toMatchObject({
+        operationType: 'model.select',
+        target: {
+          owner: 'hermes',
+          kind: 'model',
+          nativeId: 'anthropic/claude-premium',
+          frameworkId: 'hermes-main',
+        },
+        payload: {
+          providerId: 'openrouter',
+          confirmExpensiveModel: true,
+          expectedSourceVersion: 'catalogue:v1',
+        },
+        confirmed: true,
+      });
+    expect(calls[0]?.key).toBeTruthy();
+    expect(calls[1]?.key).toBeTruthy();
+    expect(calls[0]?.key).not.toBe(calls[1]?.key);
+  });
+
+  it('fails a stale model dry-run closed and retries with fresh governed operation keys', async () => {
+    const base = fetchFixture();
+    let mutationAttempt = 0;
+    const fetchMock = vi.fn(async (request: string | URL | Request, init?: RequestInit) => {
+      if (String(request).endsWith('/api/v1/mutations')) {
+        mutationAttempt += 1;
+        if (mutationAttempt === 1)
+          return Response.json(
+            { error: { code: 'CONFLICT', message: 'Model catalogue changed in Hermes' } },
+            { status: 409 },
+          );
+      }
+      return base(request, init);
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    renderModels();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Guided model selection' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Continue' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Review' }));
+    const acknowledgement = screen.getByRole('checkbox', {
+      name: /authorize this model selection/i,
+    });
+    fireEvent.click(acknowledgement);
+    fireEvent.click(screen.getByRole('button', { name: 'Validate and dry-run' }));
+
+    expect(await screen.findByText(/Model catalogue changed in Hermes/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Select in Hermes' })).toBeDisabled();
+    expect(acknowledgement).not.toBeChecked();
+
+    fireEvent.click(acknowledgement);
+    fireEvent.click(screen.getByRole('button', { name: 'Validate and dry-run' }));
+    expect(
+      await screen.findByText(/Governed dry-run passed for this exact framework/),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Select in Hermes' }));
+    expect(await screen.findByText(/selected in Hermes and verified/)).toBeInTheDocument();
+
+    const keys = fetchMock.mock.calls
+      .filter(([input]) => String(input).endsWith('/api/v1/mutations'))
+      .map(([, request]) => new Headers(request?.headers).get('Idempotency-Key'));
+    expect(keys).toHaveLength(3);
+    expect(new Set(keys).size).toBe(3);
+  });
+
   it('clears a credential and fails closed when the governed dry-run conflicts', async () => {
     const base = fetchFixture();
     const fetchMock = vi.fn(async (request: string | URL | Request, init?: RequestInit) => {
@@ -234,6 +350,8 @@ describe('Models/providers Hermes management', () => {
       await screen.findByText(/Provider credential changes are forbidden/),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Guided provider setup' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Guided model selection' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Select' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Update credential' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Remove credential' })).toBeDisabled();
   });
@@ -310,6 +428,35 @@ describe('Models/providers Hermes management', () => {
       target: { frameworkId: 'hermes-herman', nativeId: 'openrouter' },
       payload: { expectedSourceVersion: 'herman:v4', credential: 'herman-only-secret' },
     });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close provider setup' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Guided model selection' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Continue' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Review' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: /authorize this model selection/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Validate and dry-run' }));
+    await screen.findByText(/Governed dry-run passed for this exact framework/);
+
+    const mutationBodies = fetchMock.mock.calls
+      .filter(([input]) => String(input).endsWith('/api/v1/mutations'))
+      .map(([, request]) => JSON.parse(String(request?.body)) as Record<string, unknown>);
+    expect(mutationBodies.at(-1)).toMatchObject({
+      operationType: 'model.select',
+      target: {
+        owner: 'hermes',
+        kind: 'model',
+        frameworkId: 'hermes-herman',
+        nativeId: 'anthropic/claude-premium',
+      },
+      payload: {
+        providerId: 'openrouter',
+        expectedSourceVersion: 'herman:v4',
+        confirmExpensiveModel: true,
+      },
+    });
+    expect(
+      fetchMock.mock.calls.some(([input]) => String(input).includes('/frameworks/hermes-alica/')),
+    ).toBe(false);
   });
 
   it('shows Hermes unavailability without a fallback catalogue', async () => {

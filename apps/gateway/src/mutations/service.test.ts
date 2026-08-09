@@ -319,10 +319,20 @@ describe('standalone mutation policy', () => {
         nativeId: 'openai/gpt-5',
         frameworkId: 'hermes-main',
       },
-      payload: { providerId: 'openrouter', confirmExpensiveModel: true },
+      payload: {
+        providerId: 'openrouter',
+        confirmExpensiveModel: true,
+        expectedSourceVersion: 'catalogue:v7',
+      },
       mode: 'execute',
     });
     expect(service.permission(model)).toBe('models.manage');
+    expect(() =>
+      service.parse({
+        ...model,
+        payload: { ...model.payload, confirmExpensiveModel: 'yes' },
+      }),
+    ).toThrow(/must be a boolean/i);
   });
 
   it('records Hermes failure as an error rather than a successful result', async () => {

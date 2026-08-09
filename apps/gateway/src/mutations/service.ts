@@ -295,6 +295,13 @@ function validateModelCommand(input: MutationInput, definition: MutationDefiniti
     const providerId = input.payload.providerId;
     if (typeof providerId !== 'string' || !providerId.trim())
       throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'providerId is required');
+    const confirmation = input.payload.confirmExpensiveModel;
+    if (confirmation !== undefined && typeof confirmation !== 'boolean')
+      throw new GovernanceError(
+        'MUTATION_PAYLOAD_INVALID',
+        422,
+        'confirmExpensiveModel must be a boolean',
+      );
   }
   if (input.operationType === 'provider.credential.set') {
     const credential = input.payload.credential;

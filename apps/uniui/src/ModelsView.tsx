@@ -80,6 +80,16 @@ type ProviderSetup = {
   dryRunKey: string;
   executeKey: string;
 };
+type ModelSetup = {
+  providerId: string;
+  modelId: string;
+  acknowledged: boolean;
+  revision: number;
+  reviewedRevision: number;
+  preflight?: MutationResponse | undefined;
+  dryRunKey: string;
+  executeKey: string;
+};
 
 export function ModelsView({ canManageCredentials, canManageModels }: Props) {
   const {
@@ -95,6 +105,8 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
   const [capabilities, setCapabilities] = useState<Capabilities | null>(null);
   const [setup, setSetup] = useState<ProviderSetup | null>(null);
   const [setupStep, setSetupStep] = useState(0);
+  const [modelSetup, setModelSetup] = useState<ModelSetup | null>(null);
+  const [modelSetupStep, setModelSetupStep] = useState(0);
   const [busy, setBusy] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -102,8 +114,10 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
   const generation = useRef(0);
   const selectedFramework = useRef(frameworkId);
   const currentSetup = useRef(setup);
+  const currentModelSetup = useRef(modelSetup);
   selectedFramework.current = frameworkId;
   currentSetup.current = setup;
+  currentModelSetup.current = modelSetup;
 
   const load = useCallback(
     async (refresh = false) => {
@@ -161,6 +175,8 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
   useEffect(() => {
     setSetup(null);
     setSetupStep(0);
+    setModelSetup(null);
+    setModelSetupStep(0);
     setBusy('');
     setNotice('');
     setError('');
@@ -241,6 +257,26 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
     : undefined;
   const setupReviewed = Boolean(
     setup?.preflight && setup.reviewedRevision === setup.revision && setup.acknowledged,
+  );
+  const modelProviders = useMemo(
+    () =>
+      (providers?.items ?? []).filter(
+        (provider) =>
+          (provider.credentialStatus === 'configured' || provider.authType === 'none') &&
+          (modelsByProvider.get(provider.id)?.length ?? 0) > 0,
+      ),
+    [modelsByProvider, providers],
+  );
+  const modelSetupProvider = modelSetup
+    ? providers?.items.find((provider) => provider.id === modelSetup.providerId)
+    : undefined;
+  const modelSetupModels = modelSetup ? (modelsByProvider.get(modelSetup.providerId) ?? []) : [];
+  const modelSetupModel = modelSetupModels.find((model) => model.id === modelSetup?.modelId);
+  const modelAlreadySelected = modelSetupModel?.selected === true;
+  const modelSetupReviewed = Boolean(
+    modelSetup?.preflight &&
+    modelSetup.reviewedRevision === modelSetup.revision &&
+    modelSetup.acknowledged,
   );
 
   const openSetup = (providerId = credentialProviders[0]?.id ?? '') => {
@@ -343,6 +379,126 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
     }
   };
 
+  const openModelSetup = (
+    providerId = selectedProvider?.id ?? modelProviders[0]?.id ?? '',
+    modelId?: string,
+  ) => {
+    if (!modelEnabled || !providerId) return;
+    const providerModels = modelsByProvider.get(providerId) ?? [];
+    const targetModel =
+      providerModels.find((model) => model.id === modelId) ??
+      providerModels.find((model) => !model.selected) ??
+      providerModels[0];
+    if (!targetModel) return;
+    setError('');
+    setNotice('');
+    setModelSetupStep(modelId ? 2 : 0);
+    setModelSetup({
+      providerId,
+      modelId: targetModel.id,
+      acknowledged: false,
+      revision: 0,
+      reviewedRevision: -1,
+      dryRunKey: crypto.randomUUID(),
+      executeKey: crypto.randomUUID(),
+    });
+  };
+
+  const runModelSetup = async (mode: 'dry-run' | 'execute') => {
+    if (
+      !modelSetup ||
+      !modelSetupProvider ||
+      !modelSetupModel ||
+      !frameworkId ||
+      !modelEnabled ||
+      !modelSetup.acknowledged
+    )
+      return;
+    if (mode === 'execute' && !modelSetupReviewed) return;
+    const intent = modelSetup;
+    const model = modelSetupModel;
+    const provider = modelSetupProvider;
+    const requestedFramework = frameworkId;
+    setBusy(`model.setup.${mode}`);
+    setError('');
+    setNotice('');
+    try {
+      const result = await gateway.mutate(
+        {
+          operationType: 'model.select',
+          target: {
+            owner: 'hermes',
+            kind: 'model',
+            nativeId: model.id,
+            frameworkId: requestedFramework,
+          },
+          payload: {
+            providerId: provider.id,
+            confirmExpensiveModel: intent.acknowledged,
+            expectedSourceVersion: model.sourceVersion,
+          },
+          mode,
+          confirmed: true,
+        },
+        mode === 'dry-run' ? intent.dryRunKey : intent.executeKey,
+      );
+      if (selectedFramework.current !== requestedFramework) return;
+      if (
+        mode === 'dry-run' &&
+        (currentModelSetup.current?.providerId !== intent.providerId ||
+          currentModelSetup.current.modelId !== intent.modelId ||
+          currentModelSetup.current.revision !== intent.revision)
+      )
+        return;
+      if (result.operation.state !== 'verified')
+        throw new Error(
+          `Governed model selection did not verify; operation state is ${result.operation.state}.`,
+        );
+      if (mode === 'dry-run') {
+        setModelSetup((current) =>
+          current?.providerId === provider.id && current.modelId === model.id
+            ? { ...current, preflight: result, reviewedRevision: intent.revision }
+            : current,
+        );
+        setNotice(
+          'Hermes validated this exact model selection and completed the governed dry-run.',
+        );
+      } else {
+        setModelSetup(null);
+        setModelSetupStep(0);
+        setNotice(
+          result.replayed
+            ? `${model.displayName} was already selected; governed evidence was replayed.`
+            : `${model.displayName} was selected in Hermes and verified by authoritative readback. Existing sessions are unchanged.`,
+        );
+        await load(true);
+      }
+    } catch (cause) {
+      if (selectedFramework.current !== requestedFramework) return;
+      setModelSetup((current) =>
+        current?.providerId === provider.id && current.modelId === model.id
+          ? {
+              ...current,
+              acknowledged: false,
+              revision: current.revision + 1,
+              reviewedRevision: -1,
+              preflight: undefined,
+              dryRunKey: crypto.randomUUID(),
+              executeKey: crypto.randomUUID(),
+            }
+          : current,
+      );
+      setModelSetupStep(2);
+      const message =
+        cause instanceof Error ? cause.message : 'Hermes model selection workflow failed.';
+      await load(true);
+      if (selectedFramework.current === requestedFramework)
+        setError(`${message} Review refreshed Hermes inventory before retrying.`);
+    } finally {
+      if (selectedFramework.current === requestedFramework) setBusy('');
+    }
+  };
+
   return (
     <Stack gap="md">
       <Group justify="space-between" align="flex-start">
@@ -358,6 +514,13 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
         </div>
         <Group>
           <Button
+            disabled={!modelEnabled || !modelProviders.length}
+            onClick={() => openModelSetup()}
+          >
+            Guided model selection
+          </Button>
+          <Button
+            variant="light"
             disabled={!credentialEnabled || !credentialProviders.length}
             onClick={() => openSetup()}
           >
@@ -437,6 +600,8 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
           <Grid>
             {providers.items.map((provider) => {
               const providerModels = modelsByProvider.get(provider.id) ?? [];
+              const providerReady =
+                provider.credentialStatus === 'configured' || provider.authType === 'none';
               return (
                 <Grid.Col key={`${provider.frameworkId}:${provider.id}`} span={{ base: 12, lg: 6 }}>
                   <Card withBorder h="100%">
@@ -479,21 +644,9 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                               <Button
                                 size="xs"
                                 variant={model.selected ? 'filled' : 'light'}
-                                disabled={!modelEnabled || model.selected}
-                                loading={busy === `model.select:${model.id}`}
-                                onClick={() => {
-                                  if (
-                                    !window.confirm(
-                                      'Select this Hermes model for new sessions? Model pricing may differ. Existing sessions are unchanged.',
-                                    )
-                                  )
-                                    return;
-                                  void mutate('model.select', 'model', model.id, {
-                                    providerId: provider.id,
-                                    confirmExpensiveModel: true,
-                                    expectedSourceVersion: model.sourceVersion,
-                                  });
-                                }}
+                                disabled={!modelEnabled || model.selected || !providerReady}
+                                loading={Boolean(busy) && modelSetup?.modelId === model.id}
+                                onClick={() => openModelSetup(provider.id, model.id)}
                               >
                                 {model.selected ? 'Selected' : 'Select'}
                               </Button>
@@ -569,6 +722,185 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
         </>
       ) : null}
       <Modal
+        opened={Boolean(modelSetup)}
+        onClose={() => {
+          if (busy) return;
+          setModelSetup(null);
+          setModelSetupStep(0);
+        }}
+        title="Select a Hermes model"
+        size="lg"
+        closeOnClickOutside={!busy}
+        closeOnEscape={!busy}
+        closeButtonProps={{ 'aria-label': 'Close model setup' }}
+      >
+        {modelSetup ? (
+          <Stack>
+            <Stepper active={modelSetupStep}>
+              <Stepper.Step label="Provider" description="Choose configured owner" />
+              <Stepper.Step label="Model" description="Choose catalogue entry" />
+              <Stepper.Step label="Review" description="Dry-run and select" />
+            </Stepper>
+            {modelSetupStep === 0 ? (
+              <Stack>
+                <Select
+                  label="Model provider"
+                  data={modelProviders.map((provider) => ({
+                    value: provider.id,
+                    label: `${provider.displayName} · ${modelsByProvider.get(provider.id)?.length ?? 0} models`,
+                  }))}
+                  value={modelSetup.providerId}
+                  onChange={(providerId) => {
+                    if (!providerId) return;
+                    const firstModel = modelsByProvider.get(providerId)?.[0];
+                    setModelSetup((current) =>
+                      current && firstModel
+                        ? {
+                            ...current,
+                            providerId,
+                            modelId: firstModel.id,
+                            acknowledged: false,
+                            revision: current.revision + 1,
+                            reviewedRevision: -1,
+                            preflight: undefined,
+                            dryRunKey: crypto.randomUUID(),
+                            executeKey: crypto.randomUUID(),
+                          }
+                        : current,
+                    );
+                  }}
+                />
+                <Text size="sm" c="dimmed">
+                  Only providers that Hermes reports as credential-ready, or credential-free, are
+                  offered. Configure a missing provider credential first.
+                </Text>
+                <Group justify="flex-end">
+                  <Button disabled={!modelSetupProvider} onClick={() => setModelSetupStep(1)}>
+                    Continue
+                  </Button>
+                </Group>
+              </Stack>
+            ) : null}
+            {modelSetupStep === 1 ? (
+              <Stack>
+                <Select
+                  label="Model"
+                  data={modelSetupModels.map((model) => ({
+                    value: model.id,
+                    label: `${model.displayName}${model.costTier ? ` · ${model.costTier}` : ''}${model.selected ? ' · selected' : ''}`,
+                  }))}
+                  value={modelSetup.modelId}
+                  onChange={(modelId) =>
+                    setModelSetup((current) =>
+                      current && modelId
+                        ? {
+                            ...current,
+                            modelId,
+                            acknowledged: false,
+                            revision: current.revision + 1,
+                            reviewedRevision: -1,
+                            preflight: undefined,
+                            dryRunKey: crypto.randomUUID(),
+                            executeKey: crypto.randomUUID(),
+                          }
+                        : current,
+                    )
+                  }
+                />
+                {modelSetupModel ? (
+                  <Group>
+                    <Badge>{modelSetupModel.costTier ?? 'unknown cost'}</Badge>
+                    {modelSetupModel.capabilities.map((capability) => (
+                      <Badge key={capability} variant="light">
+                        {capability}
+                      </Badge>
+                    ))}
+                  </Group>
+                ) : null}
+                <Group justify="space-between">
+                  <Button variant="default" onClick={() => setModelSetupStep(0)}>
+                    Back
+                  </Button>
+                  <Button disabled={!modelSetupModel} onClick={() => setModelSetupStep(2)}>
+                    Review
+                  </Button>
+                </Group>
+              </Stack>
+            ) : null}
+            {modelSetupStep === 2 ? (
+              <Stack>
+                <Text>
+                  Model: <strong>{modelSetupModel?.displayName ?? modelSetup.modelId}</strong>
+                </Text>
+                <Text size="sm">
+                  Framework <Code>{frameworkId}</Code> · provider{' '}
+                  <Code>{modelSetup.providerId}</Code> · native model{' '}
+                  <Code>{modelSetup.modelId}</Code>
+                </Text>
+                <Text size="sm">
+                  Cost tier <Code>{modelSetupModel?.costTier ?? 'unknown'}</Code> · source
+                  precondition <Code>{modelSetupModel?.sourceVersion ?? 'unavailable'}</Code>
+                </Text>
+                <Alert color="blue">
+                  Existing sessions keep their current model. This selection applies to new Hermes
+                  sessions. Actual pricing and availability remain controlled by the provider.
+                </Alert>
+                {modelAlreadySelected ? (
+                  <Alert color="teal">
+                    This model is already selected in authoritative Hermes inventory.
+                  </Alert>
+                ) : null}
+                <Checkbox
+                  checked={modelSetup.acknowledged}
+                  disabled={Boolean(busy) || modelAlreadySelected}
+                  label="I authorize this model selection and acknowledge that provider pricing may differ, including premium or unknown cost tiers."
+                  onChange={(event) => {
+                    const acknowledged = event.currentTarget.checked;
+                    setModelSetup((current) =>
+                      current
+                        ? { ...current, acknowledged, preflight: undefined, reviewedRevision: -1 }
+                        : current,
+                    );
+                  }}
+                />
+                {modelSetupReviewed ? (
+                  <Alert color="teal">
+                    Governed dry-run passed for this exact framework, provider, model, source
+                    version, and acknowledgement.
+                  </Alert>
+                ) : null}
+                <Group justify="space-between">
+                  <Button
+                    variant="default"
+                    disabled={Boolean(busy)}
+                    onClick={() => setModelSetupStep(1)}
+                  >
+                    Back
+                  </Button>
+                  <Group>
+                    <Button
+                      variant="light"
+                      disabled={!modelSetup.acknowledged || modelAlreadySelected || Boolean(busy)}
+                      loading={busy === 'model.setup.dry-run'}
+                      onClick={() => void runModelSetup('dry-run')}
+                    >
+                      Validate and dry-run
+                    </Button>
+                    <Button
+                      disabled={!modelSetupReviewed || modelAlreadySelected || Boolean(busy)}
+                      loading={busy === 'model.setup.execute'}
+                      onClick={() => void runModelSetup('execute')}
+                    >
+                      Select in Hermes
+                    </Button>
+                  </Group>
+                </Group>
+              </Stack>
+            ) : null}
+          </Stack>
+        ) : null}
+      </Modal>
+      <Modal
         opened={Boolean(setup)}
         onClose={() => {
           if (busy) return;
@@ -579,6 +911,7 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
         size="lg"
         closeOnClickOutside={!busy}
         closeOnEscape={!busy}
+        closeButtonProps={{ 'aria-label': 'Close provider setup' }}
       >
         {setup ? (
           <Stack>
