@@ -315,5 +315,44 @@ describe('Mantine UNIUI gates', () => {
     expect(requests.some((url) => url.includes('/frameworks/hermes-herman/profiles'))).toBe(true);
     expect(requests.some((url) => url.includes('/frameworks/hermes-alica/'))).toBe(false);
     expect(new URL(window.location.href).searchParams.get('framework')).toBe('hermes-herman');
+    expect(screen.getByText(/Profile changes are read-only for your role/)).toBeInTheDocument();
+  });
+
+  it('passes profiles.manage through the shell to enable supported named-profile actions', async () => {
+    window.history.replaceState(null, '', '/?view=profiles&framework=hermes-herman');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url.endsWith('/auth/me'))
+          return response({
+            ...principal,
+            permissions: [...principal.permissions, 'profiles.manage'],
+          });
+        if (url.includes('/frameworks/hermes-herman/profiles'))
+          return response({
+            meta: { ...hermesMeta, owner: 'hermes', frameworkId: 'hermes-herman' },
+            items: [
+              {
+                id: 'seed',
+                displayName: 'Seed',
+                active: true,
+                gatewayStatus: 'running',
+                owner: 'hermes',
+                frameworkId: 'hermes-herman',
+                sourceVersion: 'profiles:v7',
+                observedAt: hermesMeta.observedAt,
+              },
+            ],
+            page: { hasMore: false },
+          });
+        return twoFrameworkFetch(input);
+      }),
+    );
+    render(<App />);
+    expect(await screen.findByRole('button', { name: 'Rename Seed' })).toBeEnabled();
+    expect(
+      screen.queryByText(/Profile changes are read-only for your role/),
+    ).not.toBeInTheDocument();
   });
 });

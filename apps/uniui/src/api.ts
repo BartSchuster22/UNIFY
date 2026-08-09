@@ -87,7 +87,7 @@ export const gateway = {
     api<HermesCollection<Record<string, unknown>>>(
       `/frameworks/${encodeURIComponent(frameworkId)}/work/cronjobs?limit=500`,
     ),
-  mutate: (request: MutationRequest, idempotencyKey = crypto.randomUUID()) =>
+  mutate: (request: MutationRequest, idempotencyKey: string = crypto.randomUUID()) =>
     api<MutationResponse>('/mutations', {
       method: 'POST',
       headers: { 'idempotency-key': idempotencyKey },

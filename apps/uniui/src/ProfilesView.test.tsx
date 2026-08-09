@@ -32,11 +32,11 @@ const capabilities = {
   },
 };
 
-function renderProfiles() {
+function renderProfiles(canManage = true) {
   return render(
     <MantineProvider>
       <FrameworkProvider>
-        <ProfilesView canManage canManageModels canDelete />
+        <ProfilesView canManage={canManage} />
       </FrameworkProvider>
     </MantineProvider>,
   );
@@ -133,5 +133,182 @@ describe('Profiles Hermes cutover', () => {
     renderProfiles();
     expect(await screen.findByText('Hermes framework is unavailable')).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText('Herman')).not.toBeInTheDocument());
+  });
+
+  it('runs an isolated governed dry-run and safely retries uncertain execution with a new operation', async () => {
+    const frameworks = [
+      {
+        frameworkId: 'hermes-alica',
+        displayName: 'Alica',
+        status: 'verified',
+        enabled: true,
+      },
+      {
+        frameworkId: 'hermes-herman',
+        displayName: 'Herman',
+        status: 'verified',
+        enabled: true,
+      },
+    ];
+    const hermanMeta = { ...meta, frameworkId: 'hermes-herman' };
+    const supported = {
+      meta: hermanMeta,
+      data: { capabilities: { 'profiles.execute': { status: 'supported' } } },
+    };
+    const seed = {
+      ...herman,
+      id: 'seed',
+      displayName: 'Seed',
+      frameworkId: 'hermes-herman',
+      sourceVersion: 'profiles:herman-v7',
+    };
+    const mutationCalls: Array<{ body: Record<string, unknown>; idempotencyKey: string }> = [];
+    let executeAttempts = 0;
+    let renamed = false;
+    const fetchMock = vi.fn(
+      async (request: string | URL | Request, init?: RequestInit): Promise<Response> => {
+        const url = String(request);
+        if (url.endsWith('/api/v1/frameworks')) return Response.json({ items: frameworks });
+        if (url.includes('/frameworks/hermes-herman/capabilities')) return Response.json(supported);
+        if (url.includes('/frameworks/hermes-herman/profiles'))
+          return Response.json(
+            response(
+              renamed
+                ? [
+                    {
+                      ...seed,
+                      id: 'alica',
+                      displayName: 'Alica',
+                      sourceVersion: 'profiles:herman-v8',
+                    },
+                  ]
+                : [seed],
+            ),
+          );
+        if (url.endsWith('/api/v1/mutations')) {
+          const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
+          const headers = new Headers(init?.headers);
+          mutationCalls.push({ body, idempotencyKey: headers.get('idempotency-key') ?? '' });
+          if (body.mode === 'execute') {
+            executeAttempts += 1;
+            if (executeAttempts === 1)
+              return Response.json(
+                {
+                  error: { code: 'FRAMEWORK_UNAVAILABLE', message: 'Hermes timed out after apply' },
+                },
+                { status: 503 },
+              );
+            renamed = true;
+          }
+          return Response.json({
+            replayed: executeAttempts > 1,
+            operation: {
+              operationId: body.mode === 'dry-run' ? 'operation-dry-run' : 'operation-execute',
+              operationType: 'profile.rename',
+              state: 'verified',
+              mode: body.mode,
+              updatedAt: '2026-08-09T15:30:00Z',
+            },
+            result: { status: 'completed' },
+          });
+        }
+        return Response.json({ error: { message: 'not found' } }, { status: 404 });
+      },
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    window.history.replaceState(null, '', '/?view=profiles&framework=hermes-herman');
+    renderProfiles();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Rename Seed' }));
+    fireEvent.change(await screen.findByLabelText('New profile ID'), {
+      target: { value: 'alica' },
+    });
+    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(screen.getByRole('button', { name: 'Validate and dry-run' }));
+    expect(await screen.findByText(/Dry-run passed/)).toBeInTheDocument();
+    expect(mutationCalls[0]?.body).toMatchObject({
+      operationType: 'profile.rename',
+      target: {
+        owner: 'hermes',
+        kind: 'profile',
+        nativeId: 'seed',
+        frameworkId: 'hermes-herman',
+      },
+      payload: { newId: 'alica', expectedSourceVersion: 'profiles:herman-v7' },
+      mode: 'dry-run',
+      confirmed: true,
+    });
+    expect(JSON.stringify(mutationCalls)).not.toContain('hermes-alica');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Rename profile' }));
+    expect(await screen.findByText('Hermes timed out after apply')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Rename profile' }));
+    expect(await screen.findByText(/already completed/)).toBeInTheDocument();
+    expect((await screen.findAllByText('Alica')).length).toBeGreaterThan(0);
+
+    const executeCalls = mutationCalls.filter((call) => call.body.mode === 'execute');
+    expect(executeCalls).toHaveLength(2);
+    expect(executeCalls[0]?.idempotencyKey).toBeTruthy();
+    expect(executeCalls[1]?.idempotencyKey).toBeTruthy();
+    expect(executeCalls[1]?.idempotencyKey).not.toBe(executeCalls[0]?.idempotencyKey);
+    expect(mutationCalls[0]?.idempotencyKey).not.toBe(executeCalls[0]?.idempotencyKey);
+  });
+
+  it('fails a rename conflict closed and never enables execute without a successful dry-run', async () => {
+    const named = { ...herman, id: 'seed', displayName: 'Seed' };
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (request: string | URL | Request) => {
+        const url = String(request);
+        if (url.endsWith('/api/v1/frameworks')) return Response.json({ items: [framework] });
+        if (url.includes('/capabilities'))
+          return Response.json({
+            ...capabilities,
+            data: { capabilities: { 'profiles.execute': { status: 'supported' } } },
+          });
+        if (url.includes('/profiles')) return Response.json(response([named]));
+        if (url.endsWith('/api/v1/mutations'))
+          return Response.json(
+            {
+              error: {
+                code: 'conflict',
+                message: "Profile rename destination 'alica' already exists",
+              },
+            },
+            { status: 409 },
+          );
+        return Response.json({}, { status: 404 });
+      }),
+    );
+    renderProfiles();
+    fireEvent.click(await screen.findByRole('button', { name: 'Rename Seed' }));
+    fireEvent.change(await screen.findByLabelText('New profile ID'), {
+      target: { value: 'alica' },
+    });
+    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(screen.getByRole('button', { name: 'Validate and dry-run' }));
+    expect(await screen.findByText(/destination 'alica' already exists/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Rename profile' })).toBeDisabled();
+  });
+
+  it('keeps profile writes unavailable for read-only roles and the built-in default', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (request: string | URL | Request) => {
+        const url = String(request);
+        if (url.endsWith('/api/v1/frameworks')) return Response.json({ items: [framework] });
+        if (url.includes('/capabilities'))
+          return Response.json({
+            ...capabilities,
+            data: { capabilities: { 'profiles.execute': { status: 'supported' } } },
+          });
+        if (url.includes('/profiles')) return Response.json(response([herman]));
+        return Response.json({}, { status: 404 });
+      }),
+    );
+    renderProfiles(false);
+    expect(await screen.findByText(/read-only for your role/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Rename Herman' })).toBeDisabled();
+    expect(screen.getByText(/UNIUI does not emulate that migration/)).toBeInTheDocument();
   });
 });

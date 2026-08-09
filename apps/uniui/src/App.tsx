@@ -403,7 +403,7 @@ function View({ view, principal }: { view: ViewId; principal: Principal }) {
         />
       );
     case 'profiles':
-      return <ProfilesView canManage={false} canManageModels={false} canDelete={false} />;
+      return <ProfilesView canManage={principal.permissions.includes('profiles.manage')} />;
     case 'work':
       return <WorkView canManage={principal.permissions.includes('work.manage')} />;
     case 'chat':
