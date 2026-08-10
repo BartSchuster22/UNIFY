@@ -126,6 +126,8 @@ try {
       '--build-arg',
       `HERMES_COMMIT=${cfg.commit}`,
       '--build-arg',
+      `HERMES_BASE_DIGEST=${baseId.replace(/^sha256:/, '')}`,
+      '--build-arg',
       `UNIFY_ADAPTER_RELEASE=${cfg.adapterRelease}`,
       '-t',
       imageTag,
