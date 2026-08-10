@@ -23,6 +23,7 @@ services:
     environment:
       HERMES_FRAMEWORK_ID: hermes-alica
       HERMES_DISPLAY_NAME: Alica
+      HERMES_BASE_PROFILE_DISPLAY_NAME: Alica
       HERMES_INSTANCE_ID: alica-v1-private
       HERMES_ADAPTER_SCOPES: control:read,control:execute,control:events,control:secrets,memory:read,memory:write
       UNIFY_MEMORY_GATEWAY_URL: http://unify-core:8080
@@ -79,6 +80,7 @@ services:
     environment:
       HERMES_FRAMEWORK_ID: hermes-herman
       HERMES_DISPLAY_NAME: Herman
+      HERMES_BASE_PROFILE_DISPLAY_NAME: Herman
       HERMES_INSTANCE_ID: herman-v1-private
       HERMES_ADAPTER_SCOPES: control:read,control:execute,control:events,control:secrets,memory:read,memory:write
       UNIFY_MEMORY_GATEWAY_URL: http://unify-core:8080
