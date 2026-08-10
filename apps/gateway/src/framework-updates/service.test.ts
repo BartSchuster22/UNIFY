@@ -57,6 +57,7 @@ function fixture() {
         trusted: true as const,
       },
       candidate,
+      assessment: null,
       frameworks: [
         {
           frameworkId: 'hermes-herman',

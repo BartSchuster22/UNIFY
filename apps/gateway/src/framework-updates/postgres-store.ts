@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import type { Pool } from 'pg';
 import type {
+  CandidateAssessment,
   DeploymentMetadata,
   DeploymentMetadataInput,
   FrameworkUpdateStore,
@@ -150,6 +151,15 @@ export class PostgresFrameworkUpdateStore implements FrameworkUpdateStore {
       [source.sourceId],
     );
     const candidate = candidateResult.rows[0] ? mapCandidate(candidateResult.rows[0]) : null;
+    const assessmentResult = candidate
+      ? await this.pool.query(
+          `SELECT * FROM framework_candidate_assessments
+           WHERE candidate_id=$1
+           ORDER BY assessed_at DESC, recorded_at DESC LIMIT 1`,
+          [candidate.candidateId],
+        )
+      : { rows: [] };
+    const assessment = assessmentResult.rows[0] ? mapAssessment(assessmentResult.rows[0]) : null;
     const frameworkResult = await this.pool.query(
       `SELECT r.id,r.display_name,
               d.release_id,d.image_reference,d.image_digest,d.framework_version AS deployed_version,
@@ -166,6 +176,7 @@ export class PostgresFrameworkUpdateStore implements FrameworkUpdateStore {
     return {
       source,
       candidate,
+      assessment,
       frameworks: frameworkResult.rows.map((row) => ({
         frameworkId: String(row.id),
         displayName: String(row.display_name),
@@ -210,6 +221,29 @@ function mapCandidate(row: Record<string, unknown>): StoredUpdateCandidate {
     draft: Boolean(row.draft),
     discoveredAt: iso(row.discovered_at),
   };
+}
+
+function mapAssessment(row: Record<string, unknown>): CandidateAssessment {
+  const assessment: CandidateAssessment = {
+    assessmentId: String(row.assessment_id),
+    candidateId: String(row.candidate_id),
+    state: row.state as CandidateAssessment['state'],
+    sourceCommit: String(row.source_commit),
+    sourceArchiveDigest: String(row.source_archive_digest),
+    adapterRelease: String(row.adapter_release),
+    contractVersion: String(row.contract_version),
+    contractPassed: Boolean(row.contract_passed),
+    acceptancePassed: Boolean(row.acceptance_passed),
+    evidence: row.evidence as Record<string, unknown>,
+    evidenceDigest: String(row.evidence_digest),
+    assessedAt: iso(row.assessed_at),
+    recordedAt: iso(row.recorded_at),
+  };
+  if (row.image_reference) assessment.imageReference = String(row.image_reference);
+  if (row.image_digest) assessment.imageDigest = String(row.image_digest);
+  if (row.safe_failure_code) assessment.safeFailureCode = String(row.safe_failure_code);
+  if (row.safe_failure_reason) assessment.safeFailureReason = String(row.safe_failure_reason);
+  return assessment;
 }
 
 function mapDeployment(row: Record<string, unknown>): DeploymentMetadata {

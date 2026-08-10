@@ -8,6 +8,11 @@ import { spawnSync } from 'node:child_process';
 
 const root = resolve(import.meta.dirname, '..');
 const image = process.env.HERMES_RUNTIME_IMAGE ?? 'unify/hermes-runtime:phase-14.1';
+const expectedRelease = process.env.EXPECTED_HERMES_RELEASE ?? '0.20.0';
+const expectedCommit =
+  process.env.EXPECTED_HERMES_COMMIT ?? 'b8b17b8cee50b85adb7fba6ea332dc06731b86f4';
+const expectedBaseDigest = process.env.EXPECTED_HERMES_BASE_DIGEST ?? 'fcbe95482353';
+const adapterRelease = process.env.UNIFY_ADAPTER_RELEASE ?? 'phase-14.1';
 const suffix = `${process.pid}-${Date.now()}`;
 const network = `unify-hermes-runtime-test-${suffix}`;
 const postgres = `unify-hermes-runtime-postgres-${suffix}`;
@@ -85,7 +90,7 @@ try {
       '-f',
       'Dockerfile.hermes-runtime',
       '--build-arg',
-      'UNIFY_ADAPTER_RELEASE=phase-14.1',
+      `UNIFY_ADAPTER_RELEASE=${adapterRelease}`,
       '-t',
       image,
       '.',
@@ -95,9 +100,9 @@ try {
     docker(['image', 'inspect', image, '--format', '{{json .Config.Labels}}']),
   );
   assert.equal(labels['com.aquiero.image.role'], 'hermes-runtime-control-adapter');
-  assert.equal(labels['com.aquiero.hermes.release'], '0.20.0');
-  assert.equal(labels['com.aquiero.hermes.commit'], 'b8b17b8cee50b85adb7fba6ea332dc06731b86f4');
-  assert.match(labels['org.opencontainers.image.base.name'], /@sha256:fcbe95482353/u);
+  assert.equal(labels['com.aquiero.hermes.release'], expectedRelease);
+  assert.equal(labels['com.aquiero.hermes.commit'], expectedCommit);
+  assert.match(labels['org.opencontainers.image.base.name'], new RegExp(expectedBaseDigest, 'u'));
   const imageConfig = JSON.parse(
     docker(['image', 'inspect', image, '--format', '{{json .Config}}']),
   );
@@ -120,7 +125,7 @@ try {
   writeFileSync(join(fixture, 'api-token'), `${apiToken}\n`);
   writeFileSync(
     join(fixture, 'adapter-token-bundle.json'),
-    `${JSON.stringify({ active: { version: 'phase-14.1', token: adapterToken } })}\n`,
+    `${JSON.stringify({ active: { version: adapterRelease, token: adapterToken } })}\n`,
   );
   writeFileSync(
     join(fixture, 'cert-extensions.cnf'),
@@ -297,7 +302,7 @@ try {
     '-e',
     'HERMES_ADAPTER_SCOPES=control:read,control:execute,control:events',
     '-e',
-    'RELEASE_ID=phase-14.1',
+    `RELEASE_ID=${adapterRelease}`,
     image,
   ]);
 

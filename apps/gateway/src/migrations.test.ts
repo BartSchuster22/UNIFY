@@ -35,6 +35,10 @@ const updateVisibilityMigration = readFileSync(
   resolve(import.meta.dirname, '../migrations/010_framework_update_visibility.up.sql'),
   'utf8',
 );
+const candidateAssessmentMigration = readFileSync(
+  resolve(import.meta.dirname, '../migrations/011_framework_candidate_assessments.up.sql'),
+  'utf8',
+);
 const hermesBaselineMigration = readFileSync(
   resolve(import.meta.dirname, '../migrations/006_hermes_020_baseline.up.sql'),
 );
@@ -158,6 +162,18 @@ describe('framework update visibility migration', () => {
     expect(updateVisibilityMigration).toContain('CHECK (trusted)');
     expect(updateVisibilityMigration).toContain('CREATE TABLE framework_update_candidates');
     expect(updateVisibilityMigration).toContain('CREATE TABLE framework_update_comparisons');
+  });
+});
+
+describe('framework candidate assessment migration', () => {
+  it('stores immutable ready or blocked build evidence with digest constraints', () => {
+    expect(candidateAssessmentMigration).toContain('CREATE TABLE framework_candidate_assessments');
+    expect(candidateAssessmentMigration).toContain("state IN ('ready','blocked')");
+    expect(candidateAssessmentMigration).toContain('contract_passed boolean NOT NULL');
+    expect(candidateAssessmentMigration).toContain('acceptance_passed boolean NOT NULL');
+    expect(candidateAssessmentMigration).toContain(
+      'framework candidate assessment evidence is immutable',
+    );
   });
 });
 

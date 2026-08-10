@@ -1,0 +1,3 @@
+DROP TRIGGER IF EXISTS framework_candidate_assessments_immutable_update ON framework_candidate_assessments;
+DROP FUNCTION IF EXISTS prevent_framework_assessment_mutation();
+DROP TABLE IF EXISTS framework_candidate_assessments;

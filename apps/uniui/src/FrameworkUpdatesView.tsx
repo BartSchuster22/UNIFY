@@ -35,6 +35,22 @@ export type FrameworkUpdateSnapshot = {
     publishedAt: string;
     discoveredAt: string;
   };
+  candidateAssessment: null | {
+    assessmentId: string;
+    state: 'ready' | 'blocked';
+    sourceCommit: string;
+    sourceArchiveDigest: string;
+    imageReference?: string;
+    imageDigest?: string;
+    adapterRelease: string;
+    contractVersion: string;
+    contractPassed: boolean;
+    acceptancePassed: boolean;
+    evidenceDigest: string;
+    safeFailureCode?: string;
+    safeFailureReason?: string;
+    assessedAt: string;
+  };
   frameworks: Array<{
     frameworkId: string;
     displayName: string;
@@ -53,7 +69,8 @@ export type FrameworkUpdateSnapshot = {
       checkedAt: string;
     };
     compatibility: {
-      status: 'current' | 'not_assessed' | 'installed_ahead' | 'unavailable';
+      status:
+        'current' | 'not_assessed' | 'installed_ahead' | 'unavailable' | 'compatible' | 'blocked';
       reason: string;
     };
   }>;
@@ -89,12 +106,13 @@ export function FrameworkUpdatesView() {
         </Text>
         <Title order={1}>Framework updates</Title>
         <Text c="dimmed">
-          Read-only comparison of deployed Alica and Herman runtimes with the latest trusted stable
-          Hermes release.
+          Deployed Alica and Herman runtimes, trusted Hermes releases, and immutable candidate build
+          assessment evidence.
         </Text>
       </div>
-      <Alert color="blue" title="Phase 1 is read-only">
-        This page discovers and compares releases. It cannot build, approve, deploy, or roll back an
+      <Alert color="blue" title="Assessment is isolated from deployment">
+        Phase 2 builds the exact trusted commit outside UNIUI, runs contract and runtime acceptance
+        tests, and records immutable evidence. This page cannot approve, deploy, or roll back an
         update.
       </Alert>
       {failure ? (
@@ -173,6 +191,72 @@ export function FrameworkUpdatesView() {
           <Alert color="yellow">No trusted stable Hermes release has been discovered yet.</Alert>
         )
       )}
+      {snapshot?.candidateAssessment ? (
+        <Card withBorder aria-label="Candidate assessment status">
+          <Group justify="space-between" align="flex-start">
+            <div>
+              <Text fw={800}>Candidate assessment</Text>
+              <Title order={3}>
+                {snapshot.candidateAssessment.state === 'ready' ? 'Ready' : 'Blocked'}
+              </Title>
+              <Text size="sm" c="dimmed">
+                Assessed {formatDate(snapshot.candidateAssessment.assessedAt)}
+              </Text>
+            </div>
+            <Badge color={snapshot.candidateAssessment.state === 'ready' ? 'teal' : 'red'}>
+              {snapshot.candidateAssessment.state}
+            </Badge>
+          </Group>
+          <Table mt="md" withRowBorders={false}>
+            <Table.Tbody>
+              <Row
+                label="Exact source commit"
+                value={snapshot.candidateAssessment.sourceCommit}
+                code
+              />
+              <Row
+                label="Source archive digest"
+                value={snapshot.candidateAssessment.sourceArchiveDigest}
+                code
+              />
+              <Row
+                label="Contract tests"
+                value={snapshot.candidateAssessment.contractPassed ? 'Passed' : 'Failed'}
+              />
+              <Row
+                label="Runtime acceptance"
+                value={snapshot.candidateAssessment.acceptancePassed ? 'Passed' : 'Failed'}
+              />
+              {snapshot.candidateAssessment.imageDigest ? (
+                <Row
+                  label="Immutable image digest"
+                  value={snapshot.candidateAssessment.imageDigest}
+                  code
+                />
+              ) : null}
+              <Row
+                label="Evidence digest"
+                value={snapshot.candidateAssessment.evidenceDigest}
+                code
+              />
+            </Table.Tbody>
+          </Table>
+          {snapshot.candidateAssessment.state === 'blocked' ? (
+            <Alert color="red" mt="md" title={snapshot.candidateAssessment.safeFailureCode}>
+              {snapshot.candidateAssessment.safeFailureReason}
+            </Alert>
+          ) : (
+            <Alert color="teal" mt="md" title="Candidate is ready for approval review">
+              Exact source, contract, acceptance, and immutable image checks passed. No deployment
+              approval has been granted.
+            </Alert>
+          )}
+        </Card>
+      ) : snapshot?.latestCandidate ? (
+        <Alert color="yellow" title="Candidate not assessed">
+          No immutable build and acceptance evidence is stored for this trusted release.
+        </Alert>
+      ) : null}
       <SimpleGrid cols={{ base: 1, xl: 2 }}>
         {snapshot?.frameworks.map((framework) => {
           const deployment = framework.currentDeployment;
@@ -211,7 +295,7 @@ export function FrameworkUpdatesView() {
               )}
               <Alert
                 mt="md"
-                color={framework.compatibility.status === 'current' ? 'teal' : 'yellow'}
+                color={compatibilityColor(framework.compatibility.status)}
                 title={`Compatibility: ${framework.compatibility.status.replace('_', ' ')}`}
               >
                 {framework.compatibility.reason}
@@ -239,6 +323,12 @@ function formatDate(value?: string): string {
 
 function relationLabel(relation?: string): string {
   return relation?.replaceAll('_', ' ') ?? 'comparison unavailable';
+}
+
+function compatibilityColor(status: string): string {
+  if (status === 'current' || status === 'compatible') return 'teal';
+  if (status === 'blocked') return 'red';
+  return 'yellow';
 }
 
 function relationColor(relation?: string): string {

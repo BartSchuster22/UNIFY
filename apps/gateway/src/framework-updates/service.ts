@@ -1,4 +1,5 @@
 import type {
+  CandidateAssessment,
   DeploymentMetadataInput,
   FrameworkUpdateStore,
   TrustedReleaseClient,
@@ -91,12 +92,13 @@ export class FrameworkUpdateVisibilityService {
       mode: 'read-only' as const,
       source: snapshot.source,
       latestCandidate: snapshot.candidate,
+      candidateAssessment: snapshot.assessment,
       frameworks: snapshot.frameworks.map((framework) => ({
         frameworkId: framework.frameworkId,
         displayName: framework.displayName,
         currentDeployment: framework.deployment,
         comparison: framework.comparison,
-        compatibility: compatibility(framework.comparison?.relation),
+        compatibility: compatibility(framework.comparison?.relation, snapshot.assessment),
       })),
     };
   }
@@ -111,7 +113,20 @@ function relation(
   return status;
 }
 
-function compatibility(relationValue: UpdateRelation | undefined) {
+function compatibility(
+  relationValue: UpdateRelation | undefined,
+  assessment: CandidateAssessment | null,
+) {
+  if (assessment?.state === 'blocked')
+    return {
+      status: 'blocked' as const,
+      reason: assessment.safeFailureReason ?? 'Candidate assessment failed.',
+    };
+  if (assessment?.state === 'ready')
+    return {
+      status: 'compatible' as const,
+      reason: `Candidate passed ${assessment.contractVersion} contract and isolated runtime acceptance tests.`,
+    };
   if (relationValue === 'current')
     return {
       status: 'current' as const,

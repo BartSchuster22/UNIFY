@@ -31,6 +31,20 @@ const snapshot: FrameworkUpdateSnapshot = {
     publishedAt: '2026-08-03T16:57:52.000Z',
     discoveredAt: '2026-08-10T10:00:00.000Z',
   },
+  candidateAssessment: {
+    assessmentId: `fca_${'3'.repeat(64)}`,
+    state: 'ready',
+    sourceCommit: '7de39e700d2c329e15d32eb0b96e2f7cdd9fbdb2',
+    sourceArchiveDigest: `sha256:${'4'.repeat(64)}`,
+    imageReference: `localhost:5000/unify/hermes-candidate@sha256:${'5'.repeat(64)}`,
+    imageDigest: `sha256:${'5'.repeat(64)}`,
+    adapterRelease: 'phase-20.0',
+    contractVersion: 'hermes-control/v1',
+    contractPassed: true,
+    acceptancePassed: true,
+    evidenceDigest: `sha256:${'6'.repeat(64)}`,
+    assessedAt: '2026-08-10T12:00:00.000Z',
+  },
   frameworks: [
     {
       frameworkId: 'hermes-herman',
@@ -50,8 +64,9 @@ const snapshot: FrameworkUpdateSnapshot = {
         checkedAt: '2026-08-10T10:00:00.000Z',
       },
       compatibility: {
-        status: 'not_assessed',
-        reason: 'Compatibility has not been assessed. Phase 1 is read-only.',
+        status: 'compatible',
+        reason:
+          'Candidate passed hermes-control/v1 contract and isolated runtime acceptance tests.',
       },
     },
   ],
@@ -70,7 +85,9 @@ describe('FrameworkUpdatesView', () => {
     expect(screen.getAllByText('v2026.8.3').length).toBeGreaterThan(0);
     expect(screen.getByText('phase-19.2-6a9373f')).toBeInTheDocument();
     expect(screen.getByText('update available')).toBeInTheDocument();
-    expect(screen.getByText(/Compatibility has not been assessed/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Ready' })).toBeInTheDocument();
+    expect(screen.getByText('Candidate is ready for approval review')).toBeInTheDocument();
+    expect(screen.getByText(/Candidate passed hermes-control\/v1/)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /deploy/i })).not.toBeInTheDocument();
     expect(mockedApi).toHaveBeenCalledWith('/framework-updates');
   });

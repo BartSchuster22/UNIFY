@@ -42,6 +42,26 @@ export interface StoredComparison {
   checkedAt: string;
 }
 
+export interface CandidateAssessment {
+  assessmentId: string;
+  candidateId: string;
+  state: 'ready' | 'blocked';
+  sourceCommit: string;
+  sourceArchiveDigest: string;
+  imageReference?: string;
+  imageDigest?: string;
+  adapterRelease: string;
+  contractVersion: string;
+  contractPassed: boolean;
+  acceptancePassed: boolean;
+  evidence: Record<string, unknown>;
+  evidenceDigest: string;
+  safeFailureCode?: string;
+  safeFailureReason?: string;
+  assessedAt: string;
+  recordedAt: string;
+}
+
 export interface UpdateSourceState {
   sourceId: string;
   repository: string;
@@ -64,6 +84,7 @@ export interface FrameworkUpdateStore {
   snapshot(): Promise<{
     source: UpdateSourceState;
     candidate: StoredUpdateCandidate | null;
+    assessment: CandidateAssessment | null;
     frameworks: Array<{
       frameworkId: string;
       displayName: string;
