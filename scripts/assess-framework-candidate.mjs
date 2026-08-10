@@ -33,6 +33,7 @@ let sourceArchiveDigest = `sha256:${'0'.repeat(64)}`;
 let stage = 'SOURCE_CHECKOUT';
 let imageReference;
 let imageDigest;
+let baseImageId;
 const startedAt = new Date().toISOString();
 let failure;
 
@@ -83,7 +84,7 @@ try {
     ],
     4 * 60 * 60 * 1000,
   );
-  const baseId = (
+  baseImageId = (
     await capture('docker', ['image', 'inspect', baseImage, '--format', '{{.Id}}'])
   ).trim();
 
@@ -126,8 +127,6 @@ try {
       '--build-arg',
       `HERMES_COMMIT=${cfg.commit}`,
       '--build-arg',
-      `HERMES_BASE_DIGEST=${baseId.replace(/^sha256:/, '')}`,
-      '--build-arg',
       `UNIFY_ADAPTER_RELEASE=${cfg.adapterRelease}`,
       '-t',
       imageTag,
@@ -149,7 +148,7 @@ try {
       HERMES_RUNTIME_SKIP_BUILD: '1',
       EXPECTED_HERMES_RELEASE: cfg.release,
       EXPECTED_HERMES_COMMIT: cfg.commit,
-      EXPECTED_HERMES_BASE_DIGEST: baseId.replace(/^sha256:/, '').slice(0, 12),
+      EXPECTED_HERMES_BASE_IMAGE: baseImage,
       UNIFY_ADAPTER_RELEASE: cfg.adapterRelease,
     },
   );
@@ -178,6 +177,7 @@ const evidence = {
   repository: cfg.repository,
   tag: cfg.tag,
   commit: cfg.commit,
+  ...(baseImageId ? { baseImageId } : {}),
   startedAt,
   finishedAt,
   checks,

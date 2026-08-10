@@ -11,7 +11,9 @@ const image = process.env.HERMES_RUNTIME_IMAGE ?? 'unify/hermes-runtime:phase-14
 const expectedRelease = process.env.EXPECTED_HERMES_RELEASE ?? '0.20.0';
 const expectedCommit =
   process.env.EXPECTED_HERMES_COMMIT ?? 'b8b17b8cee50b85adb7fba6ea332dc06731b86f4';
-const expectedBaseDigest = process.env.EXPECTED_HERMES_BASE_DIGEST ?? 'fcbe95482353';
+const expectedBaseImage =
+  process.env.EXPECTED_HERMES_BASE_IMAGE ??
+  'nousresearch/hermes-agent@sha256:fcbe95482353e41cd30d39ddfc0f57ba3720f6da6969a7a69cdfb0d84b045cb6';
 const adapterRelease = process.env.UNIFY_ADAPTER_RELEASE ?? 'phase-14.1';
 const suffix = `${process.pid}-${Date.now()}`;
 const network = `unify-hermes-runtime-test-${suffix}`;
@@ -102,7 +104,7 @@ try {
   assert.equal(labels['com.aquiero.image.role'], 'hermes-runtime-control-adapter');
   assert.equal(labels['com.aquiero.hermes.release'], expectedRelease);
   assert.equal(labels['com.aquiero.hermes.commit'], expectedCommit);
-  assert.match(labels['org.opencontainers.image.base.name'], new RegExp(expectedBaseDigest, 'u'));
+  assert.equal(labels['org.opencontainers.image.base.name'], expectedBaseImage);
   const imageConfig = JSON.parse(
     docker(['image', 'inspect', image, '--format', '{{json .Config}}']),
   );
