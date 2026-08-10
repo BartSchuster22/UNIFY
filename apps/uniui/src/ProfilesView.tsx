@@ -47,6 +47,13 @@ type Collection = {
   items: Profile[];
   page: { hasMore: boolean; nextCursor?: string };
 };
+type Provider = {
+  id: string;
+  displayName: string;
+  credentialStatus: 'configured' | 'missing' | 'unknown';
+  selected: boolean;
+};
+type ProviderCollection = { items: Provider[] };
 type Capabilities = {
   meta: Collection['meta'];
   data: {
@@ -77,6 +84,7 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
     selectFramework,
   } = useFrameworkContext();
   const [collection, setCollection] = useState<Collection | null>(null);
+  const [providers, setProviders] = useState<ProviderCollection | null>(null);
   const [capabilities, setCapabilities] = useState<Capabilities | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -92,6 +100,7 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
     const requestGeneration = ++generation.current;
     if (!frameworkId) {
       setCollection(null);
+      setProviders(null);
       setCapabilities(null);
       setLoading(false);
       return;
@@ -99,16 +108,21 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
     setLoading(true);
     setError('');
     try {
-      const [profiles, manifest] = await Promise.all([
+      const [profiles, manifest, providerInventory] = await Promise.all([
         api<Collection>(`/frameworks/${encodeURIComponent(frameworkId)}/profiles?limit=100`),
         api<Capabilities>(`/frameworks/${encodeURIComponent(frameworkId)}/capabilities`),
+        api<ProviderCollection>(
+          `/frameworks/${encodeURIComponent(frameworkId)}/providers?limit=100`,
+        ).catch(() => null),
       ]);
       if (generation.current !== requestGeneration) return;
       setCollection(profiles);
+      setProviders(providerInventory);
       setCapabilities(manifest);
     } catch (cause) {
       if (generation.current !== requestGeneration) return;
       setCollection(null);
+      setProviders(null);
       setCapabilities(null);
       setError(cause instanceof Error ? cause.message : 'Hermes profile inventory unavailable');
     } finally {
@@ -156,6 +170,13 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
     ? `${rename.profile.frameworkId}:${rename.profile.id}:${rename.profile.sourceVersion}:${rename.newId.trim()}`
     : '';
   const reviewed = !!rename?.preflight && rename.reviewedFingerprint === fingerprint;
+  const hasUnconfiguredModel =
+    providers !== null &&
+    collection?.items.some((profile) => {
+      if (!profile.model) return false;
+      const provider = findProfileProvider(profile, providers.items);
+      return !provider || provider.credentialStatus !== 'configured';
+    });
 
   const updateNewId = (newId: string) => {
     setRename((current) =>
@@ -306,6 +327,12 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
               {collection.items.length} profiles
             </Text>
           </Group>
+          {hasUnconfiguredModel ? (
+            <Alert color="yellow">
+              Hermes reports a built-in model placeholder, but no matching provider credential is
+              configured. A running gateway does not mean that model is ready to execute.
+            </Alert>
+          ) : null}
           {!collection.items.length ? (
             <Alert color="yellow">Hermes returned no profiles for this framework.</Alert>
           ) : (
@@ -325,6 +352,12 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
                   <Table.Tbody>
                     {collection.items.map((profile) => {
                       const builtIn = profile.id === 'default';
+                      const provider = providers
+                        ? findProfileProvider(profile, providers.items)
+                        : undefined;
+                      const modelConfigured = providers
+                        ? !!provider && provider.credentialStatus === 'configured'
+                        : undefined;
                       return (
                         <Table.Tr key={`${profile.frameworkId}:${profile.id}`}>
                           <Table.Td>
@@ -338,8 +371,32 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
                               </div>
                             </Group>
                           </Table.Td>
-                          <Table.Td>{profile.model ?? 'Not reported'}</Table.Td>
-                          <Table.Td>{profile.provider ?? 'Not reported'}</Table.Td>
+                          <Table.Td>
+                            {modelConfigured === false ? (
+                              <div>
+                                <Text>Not configured</Text>
+                                <Text size="xs" c="dimmed">
+                                  Hermes placeholder: {profile.model}
+                                </Text>
+                              </div>
+                            ) : (
+                              (profile.model ?? 'Not reported')
+                            )}
+                          </Table.Td>
+                          <Table.Td>
+                            {modelConfigured === false ? (
+                              <div>
+                                <Text>Not configured</Text>
+                                <Text size="xs" c="dimmed">
+                                  {provider?.displayName ??
+                                    profile.provider ??
+                                    modelProviderId(profile.model)}
+                                </Text>
+                              </div>
+                            ) : (
+                              (provider?.displayName ?? profile.provider ?? 'Not reported')
+                            )}
+                          </Table.Td>
                           <Table.Td>
                             <Badge
                               color={
@@ -474,6 +531,23 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
       </Modal>
     </Stack>
   );
+}
+
+function modelProviderId(model?: string) {
+  const separator = model?.indexOf('/') ?? -1;
+  return separator > 0 ? model!.slice(0, separator) : 'Unknown provider';
+}
+
+function findProfileProvider(profile: Profile, providers: Provider[]) {
+  const candidates = [profile.provider, modelProviderId(profile.model)]
+    .filter((value): value is string => !!value && value !== 'Unknown provider')
+    .map((value) => value.toLowerCase().replace(/[^a-z0-9]+/g, ''));
+  return providers.find((provider) => {
+    const identities = [provider.id, provider.displayName].map((value) =>
+      value.toLowerCase().replace(/[^a-z0-9]+/g, ''),
+    );
+    return identities.some((identity) => candidates.includes(identity));
+  });
 }
 
 function profileIdError(currentId: string, newId: string) {

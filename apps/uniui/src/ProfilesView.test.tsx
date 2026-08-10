@@ -95,6 +95,45 @@ describe('Profiles Hermes cutover', () => {
     expect(screen.queryByText(/Agency/)).not.toBeInTheDocument();
   });
 
+  it('labels a Hermes placeholder model as unconfigured when its provider credential is missing', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (request: string | URL | Request) => {
+        const url = String(request);
+        if (url.endsWith('/api/v1/frameworks')) return Response.json({ items: [framework] });
+        if (url.includes('/capabilities')) return Response.json(capabilities);
+        if (url.includes('/providers'))
+          return Response.json({
+            items: [
+              {
+                id: 'anthropic',
+                displayName: 'Anthropic',
+                credentialStatus: 'missing',
+                selected: false,
+              },
+            ],
+          });
+        if (url.includes('/profiles'))
+          return Response.json(
+            response([
+              {
+                ...herman,
+                model: 'anthropic/claude-opus-4.6',
+                provider: undefined,
+              },
+            ]),
+          );
+        return Response.json({ error: { message: 'not found' } }, { status: 404 });
+      }),
+    );
+    renderProfiles();
+    expect((await screen.findAllByText('Not configured')).length).toBe(2);
+    expect(screen.getByText('Hermes placeholder: anthropic/claude-opus-4.6')).toBeInTheDocument();
+    expect(
+      screen.getByText(/running gateway does not mean that model is ready/i),
+    ).toBeInTheDocument();
+  });
+
   it('uses opaque Hermes cursors without falling back to legacy inventory', async () => {
     const fetchMock = vi.fn(async (request: string | URL | Request) => {
       const url = String(request);
