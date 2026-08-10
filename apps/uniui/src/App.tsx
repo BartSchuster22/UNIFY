@@ -75,6 +75,7 @@ import { ProfilesView } from './ProfilesView';
 import { ModelsView } from './ModelsView';
 import { ChatView } from './ChatView';
 import { FrameworksView } from './FrameworksView';
+import { FrameworkUpdatesView } from './FrameworkUpdatesView';
 import { MemoryView } from './MemoryView';
 import { ReadinessDashboard } from './ReadinessDashboard';
 import { FrameworkProvider, useFrameworkContext } from './FrameworkContext';
@@ -109,6 +110,12 @@ interface NavItem {
 const NAV: NavItem[] = [
   { id: 'overview', label: 'Readiness', icon: IconGauge },
   { id: 'frameworks', label: 'Frameworks', icon: IconNetwork, permission: 'frameworks.read' },
+  {
+    id: 'framework-updates',
+    label: 'Framework updates',
+    icon: IconRefresh,
+    permission: 'frameworks.read',
+  },
   { id: 'models', label: 'Models & providers', icon: IconDatabase, permission: 'models.read' },
   { id: 'profiles', label: 'Profiles', icon: IconUsers, permission: 'profiles.read' },
   { id: 'work', label: 'Work & Kanban', icon: IconClipboardList, permission: 'work.read' },
@@ -407,6 +414,8 @@ function View({ view, principal }: { view: ViewId; principal: Principal }) {
       return <ReadinessDashboard principal={principal} />;
     case 'frameworks':
       return <FrameworksView />;
+    case 'framework-updates':
+      return <FrameworkUpdatesView />;
     case 'models':
       return (
         <ModelsView

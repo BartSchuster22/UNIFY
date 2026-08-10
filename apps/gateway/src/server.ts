@@ -10,11 +10,22 @@ import { HttpFrameworkProbe } from './framework-registry/probe.js';
 import { PostgresFrameworkEventJournal } from './hermes-control/event-journal.js';
 import { HermesGatewayService } from './hermes-control/service.js';
 import { MemoryV4Adapter } from './memory-v4/client.js';
+import {
+  FrameworkUpdateVisibilityService,
+  GitHubTrustedReleaseClient,
+  PostgresFrameworkUpdateStore,
+  type DeploymentMetadataInput,
+} from './framework-updates/index.js';
 async function secret(name: string): Promise<string> {
   const file = process.env[`${name}_FILE`];
   const value = file ? await readFile(file, 'utf8') : process.env[name];
-  if (!value) throw new Error(`${name} or ${name}_FILE is required`);
+  if (!value?.trim()) throw new Error(`${name} is required`);
   return value.trim();
+}
+function requiredEnvironment(name: string): string {
+  const value = process.env[name]?.trim();
+  if (!value) throw new Error(`${name} is required`);
+  return value;
 }
 const databaseUrl = await secret('DATABASE_URL');
 const authPepper = await secret('AUTH_PEPPER');
@@ -40,6 +51,31 @@ const hermesGateway = new HermesGatewayService(
   frameworkRegistry,
   new PostgresFrameworkEventJournal(pool),
 );
+const updateRepository = process.env.HERMES_UPSTREAM_REPOSITORY ?? 'NousResearch/hermes-agent';
+const deployedImage = requiredEnvironment('HERMES_RUNTIME_IMAGE');
+const deployedDigest = deployedImage.match(/@(sha256:[a-f0-9]{64})$/)?.[1];
+if (!deployedDigest) throw new Error('HERMES_RUNTIME_IMAGE must be pinned by sha256 digest');
+const deployedVersion = requiredEnvironment('HERMES_DEPLOYED_FRAMEWORK_VERSION');
+const deployedCommit = requiredEnvironment('HERMES_DEPLOYED_FRAMEWORK_COMMIT');
+if (!/^[a-f0-9]{40}$/.test(deployedCommit))
+  throw new Error('HERMES_DEPLOYED_FRAMEWORK_COMMIT must be a full Git commit');
+const deploymentInputs: DeploymentMetadataInput[] = ['hermes-alica', 'hermes-herman'].map(
+  (frameworkId) => ({
+    frameworkId,
+    releaseId: process.env.RELEASE_ID ?? 'development',
+    imageReference: deployedImage,
+    imageDigest: deployedDigest,
+    frameworkVersion: deployedVersion,
+    frameworkCommit: deployedCommit,
+  }),
+);
+const frameworkUpdates = new FrameworkUpdateVisibilityService({
+  sourceId: 'hermes-agent',
+  repository: updateRepository,
+  deployments: deploymentInputs,
+  store: new PostgresFrameworkUpdateStore(pool),
+  client: new GitHubTrustedReleaseClient(updateRepository),
+});
 const memoryV4Url = process.env.MEMORY_V4_URL?.trim();
 const memoryV4ScopePath = process.env.MEMORY_V4_SCOPE_PATH?.trim();
 const memoryV4AllowPrivateHttp = process.env.MEMORY_V4_ALLOW_PRIVATE_HTTP?.trim();
@@ -74,6 +110,7 @@ const app = buildApp({
   notificationStore: new PostgresNotificationStore(pool),
   frameworkRegistry,
   hermesGateway,
+  frameworkUpdates,
   ...(memoryV4Adapter ? { memoryV4Adapter } : {}),
 
   requestRateLimit: Number(process.env.REQUESTS_PER_MINUTE ?? 600),
@@ -83,7 +120,18 @@ if (!Number.isFinite(configuredPollInterval) || configuredPollInterval < 1_000)
   throw new Error('HERMES_EVENT_POLL_MS must be at least 1000');
 const poll = setInterval(() => void hermesGateway.ingestAll(), configuredPollInterval);
 poll.unref();
-app.addHook('onClose', async () => clearInterval(poll));
+const updateDiscoveryInterval = Number(
+  process.env.HERMES_UPDATE_DISCOVERY_INTERVAL_MS ?? 6 * 60 * 60 * 1_000,
+);
+if (!Number.isFinite(updateDiscoveryInterval) || updateDiscoveryInterval < 60_000)
+  throw new Error('HERMES_UPDATE_DISCOVERY_INTERVAL_MS must be at least 60000');
+await frameworkUpdates.refresh();
+const updatePoll = setInterval(() => void frameworkUpdates.refresh(), updateDiscoveryInterval);
+updatePoll.unref();
+app.addHook('onClose', async () => {
+  clearInterval(poll);
+  clearInterval(updatePoll);
+});
 let shutdown: Promise<void> | undefined;
 const close = (signal: NodeJS.Signals): Promise<void> => {
   if (shutdown) return shutdown;

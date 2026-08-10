@@ -31,4 +31,10 @@ describe('dedicated UNIUI navigation URLs', () => {
     window.history.replaceState(null, '', '/chat?view=models&framework=hermes-herman');
     expect(viewFromLocation()).toBe('chat');
   });
+
+  it('uses the dedicated nested framework updates path', () => {
+    window.history.replaceState(null, '', '/frameworks/updates?framework=hermes-herman');
+    expect(viewFromLocation()).toBe('framework-updates');
+    expect(viewHref('framework-updates')).toBe('/frameworks/updates?framework=hermes-herman');
+  });
 });

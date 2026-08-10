@@ -1,6 +1,7 @@
 export const VIEW_IDS = [
   'overview',
   'frameworks',
+  'framework-updates',
   'models',
   'profiles',
   'work',
@@ -16,17 +17,26 @@ export const VIEW_IDS = [
 export type ViewId = (typeof VIEW_IDS)[number];
 
 const VIEW_SET = new Set<string>(VIEW_IDS);
+const VIEW_PATHS: Record<ViewId, string> = Object.fromEntries(
+  VIEW_IDS.map((view) => [view, view === 'overview' ? '/' : `/${view}`]),
+) as Record<ViewId, string>;
+VIEW_PATHS['framework-updates'] = '/frameworks/updates';
+const PATH_VIEWS = new Map(
+  Object.entries(VIEW_PATHS).map(([view, path]) => [path, view as ViewId]),
+);
 
 export function viewFromLocation(location: Location = window.location): ViewId {
-  const pathView = location.pathname.replace(/^\/+|\/+$/g, '');
-  if (pathView && VIEW_SET.has(pathView)) return pathView as ViewId;
+  const normalizedPath = location.pathname === '/' ? '/' : location.pathname.replace(/\/+$/g, '');
+  const pathView = PATH_VIEWS.get(normalizedPath);
+  if (normalizedPath !== '/' && pathView) return pathView;
   const legacyView = new URLSearchParams(location.search).get('view');
-  return legacyView && VIEW_SET.has(legacyView) ? (legacyView as ViewId) : 'overview';
+  if (legacyView && VIEW_SET.has(legacyView)) return legacyView as ViewId;
+  return pathView ?? 'overview';
 }
 
 export function viewHref(view: ViewId, source = window.location.href): string {
   const url = new URL(source);
-  url.pathname = view === 'overview' ? '/' : `/${view}`;
+  url.pathname = VIEW_PATHS[view];
   url.searchParams.delete('view');
   if (view !== 'work') {
     url.searchParams.delete('workPage');

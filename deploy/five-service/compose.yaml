@@ -135,6 +135,11 @@ services:
       HOST: 0.0.0.0
       PORT: '8080'
       RELEASE_ID: ${RELEASE_ID:?RELEASE_ID is required}
+      HERMES_RUNTIME_IMAGE: ${HERMES_RUNTIME_IMAGE:?HERMES_RUNTIME_IMAGE is required}
+      HERMES_DEPLOYED_FRAMEWORK_VERSION: '0.20.0'
+      HERMES_DEPLOYED_FRAMEWORK_COMMIT: b8b17b8cee50b85adb7fba6ea332dc06731b86f4
+      HERMES_UPSTREAM_REPOSITORY: NousResearch/hermes-agent
+      HERMES_UPDATE_DISCOVERY_INTERVAL_MS: '21600000'
       DATABASE_URL_FILE: /run/secrets/database-url
       AUTH_PEPPER_FILE: /run/secrets/auth-pepper
       FRAMEWORK_AUTH_ENV_NAMES: ALICA_FRAMEWORK_TOKEN,HERMAN_FRAMEWORK_TOKEN
@@ -163,6 +168,7 @@ services:
         alica-control-private,
         herman-control-private,
         memory-v4-private,
+        framework-update-egress,
       ]
     depends_on:
       unify-postgres: { condition: service_healthy }
@@ -318,4 +324,5 @@ networks:
     internal: true
   alica-egress: {}
   herman-egress: {}
+  framework-update-egress: {}
   caddy-egress: {}

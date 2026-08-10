@@ -18,6 +18,7 @@ import type { HermesGatewayService } from './hermes-control/service.js';
 import { MemoryV4AdapterError, type MemoryV4Adapter } from './memory-v4/client.js';
 import { memoryRoute } from './memory-v4/types.js';
 import { registerFrameworkMemoryRoutes } from './framework-memory/routes.js';
+import type { FrameworkUpdateVisibilityService } from './framework-updates/service.js';
 export interface AppOptions {
   authStore: AuthStore;
   authPepper: string;
@@ -30,6 +31,7 @@ export interface AppOptions {
   requestRateLimit?: number;
   frameworkRegistry?: FrameworkRegistryService;
   hermesGateway?: HermesGatewayService;
+  frameworkUpdates?: FrameworkUpdateVisibilityService;
   memoryV4Adapter?: MemoryV4Adapter;
 }
 const SESSION_COOKIE = 'aquiero_session';
@@ -154,7 +156,8 @@ export function buildApp(options: AppOptions) {
       (!options.governanceStore || (await options.governanceStore.ready())) &&
       (!options.notificationStore || (await options.notificationStore.ready())) &&
       (!options.frameworkRegistry || (await options.frameworkRegistry.ready())) &&
-      (!options.hermesGateway || (await options.hermesGateway.ready()));
+      (!options.hermesGateway || (await options.hermesGateway.ready())) &&
+      (!options.frameworkUpdates || (await options.frameworkUpdates.ready()));
     return reply
       .status(ready ? 200 : 503)
       .send({ status: ready ? 'ready' : 'not_ready', release: options.release ?? 'development' });
@@ -420,6 +423,18 @@ export function buildApp(options: AppOptions) {
         });
       throw error;
     }
+  });
+
+  app.get('/api/v1/framework-updates', async (request) => {
+    const current = await session(request);
+    auth.requirePermission(current, 'frameworks.read');
+    if (!options.frameworkUpdates)
+      throw new FrameworkRegistryError(
+        'FRAMEWORK_UPDATES_UNAVAILABLE',
+        503,
+        'Framework update visibility is unavailable',
+      );
+    return options.frameworkUpdates.snapshot();
   });
 
   app.get('/api/v1/frameworks', async (request) => {

@@ -31,6 +31,10 @@ const modelEventsMigration = readFileSync(
   resolve(import.meta.dirname, '../migrations/009_hermes_model_events.up.sql'),
   'utf8',
 );
+const updateVisibilityMigration = readFileSync(
+  resolve(import.meta.dirname, '../migrations/010_framework_update_visibility.up.sql'),
+  'utf8',
+);
 const hermesBaselineMigration = readFileSync(
   resolve(import.meta.dirname, '../migrations/006_hermes_020_baseline.up.sql'),
 );
@@ -143,6 +147,17 @@ describe('Hermes model event migration', () => {
     expect(modelEventsMigration).toContain(
       "'profiles','providers','models','work','conversations'",
     );
+  });
+});
+
+describe('framework update visibility migration', () => {
+  it('stores immutable deployment evidence, trusted releases and commit comparisons', () => {
+    expect(updateVisibilityMigration).toContain('CREATE TABLE framework_deployments');
+    expect(updateVisibilityMigration).toContain("image_digest ~ '^sha256:[a-f0-9]{64}$'");
+    expect(updateVisibilityMigration).toContain('CREATE TABLE framework_update_sources');
+    expect(updateVisibilityMigration).toContain('CHECK (trusted)');
+    expect(updateVisibilityMigration).toContain('CREATE TABLE framework_update_candidates');
+    expect(updateVisibilityMigration).toContain('CREATE TABLE framework_update_comparisons');
   });
 });
 
