@@ -90,9 +90,20 @@ try {
   stage = 'CONTRACT_TESTS';
   await checked(
     'control_contract_tests',
-    'corepack',
-    ['pnpm', '--filter', '@aquiero/hermes-control-adapter', 'test'],
-    10 * 60 * 1000,
+    'docker',
+    [
+      'run',
+      '--rm',
+      '-v',
+      `${root}:/workspace`,
+      '-w',
+      '/workspace',
+      'node:22.22.2-bookworm-slim@sha256:9f6d5975c7dca860947d3915877f85607946403fc55349f39b4bc3688448bb6e',
+      'bash',
+      '-lc',
+      'corepack enable && corepack prepare pnpm@10.33.2 --activate && pnpm install --frozen-lockfile && pnpm --filter @aquiero/hermes-control-adapter test',
+    ],
+    20 * 60 * 1000,
     root,
   );
 
