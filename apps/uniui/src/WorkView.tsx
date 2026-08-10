@@ -121,12 +121,21 @@ export function WorkView({ canManage }: { canManage: boolean }) {
     setNotice(undefined);
     const url = new URL(window.location.href);
     url.searchParams.delete('project');
-    window.history.replaceState(null, '', url);
+    window.history.replaceState(window.history.state, '', url);
     void load();
     return () => {
       loadGeneration.current += 1;
     };
   }, [load]);
+
+  useEffect(() => {
+    const restoreFromHistory = () => {
+      setPage(workPageFromUrl());
+      setSelectedProject(new URLSearchParams(window.location.search).get('project') ?? '');
+    };
+    window.addEventListener('popstate', restoreFromHistory);
+    return () => window.removeEventListener('popstate', restoreFromHistory);
+  }, []);
 
   const projects = useMemo(() => nativeProjects(data.items), [data.items]);
   const tasks = useMemo(
@@ -143,11 +152,12 @@ export function WorkView({ canManage }: { canManage: boolean }) {
     setPage(next);
     if (project) setSelectedProject(project);
     const url = new URL(window.location.href);
-    url.searchParams.set('view', 'work');
+    url.pathname = '/work';
+    url.searchParams.delete('view');
     url.searchParams.set('workPage', next);
     if (project) url.searchParams.set('project', project);
     else url.searchParams.delete('project');
-    window.history.replaceState(null, '', url);
+    window.history.pushState({ workPage: next, project: project || null }, '', url);
   }
 
   const canExecuteWork = canManage && workCapability?.status === 'supported';

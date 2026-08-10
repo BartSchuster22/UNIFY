@@ -593,7 +593,12 @@ function canOpenView(view: string, principal: Principal): boolean {
 
 function viewLink(view: string, frameworkId: string): string {
   const url = new URL(window.location.href);
-  url.searchParams.set('view', view);
+  url.pathname = view === 'overview' ? '/' : `/${encodeURIComponent(view)}`;
+  url.searchParams.delete('view');
+  if (view !== 'work') {
+    url.searchParams.delete('workPage');
+    url.searchParams.delete('project');
+  }
   url.searchParams.set('framework', frameworkId);
   return `${url.pathname}${url.search}`;
 }

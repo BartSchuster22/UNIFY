@@ -89,6 +89,22 @@ describe('shared framework context', () => {
     expect(new URL(window.location.href).searchParams.get('framework')).toBe('hermes-alica');
   });
 
+  it('restores framework selection from browser history', async () => {
+    window.history.replaceState(null, '', '/profiles?framework=hermes-herman');
+    renderContext();
+    await waitFor(() =>
+      expect(screen.getByTestId('profiles-selected')).toHaveTextContent('hermes-herman'),
+    );
+    await userEvent.click(screen.getAllByRole('button', { name: 'Choose Alica' })[0]!);
+    expect(window.location.search).toContain('framework=hermes-alica');
+
+    window.history.replaceState(null, '', '/profiles?framework=hermes-herman');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    await waitFor(() =>
+      expect(screen.getByTestId('profiles-selected')).toHaveTextContent('hermes-herman'),
+    );
+  });
+
   it('fails closed on an invalid URL framework instead of silently routing to another framework', async () => {
     window.history.replaceState(null, '', '/?view=profiles&framework=hermes-missing');
     renderContext();

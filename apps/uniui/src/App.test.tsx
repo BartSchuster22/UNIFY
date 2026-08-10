@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -317,6 +317,37 @@ describe('Mantine UNIUI gates', () => {
     expect(requests.some((url) => url.includes('/frameworks/hermes-alica/'))).toBe(false);
     expect(new URL(window.location.href).searchParams.get('framework')).toBe('hermes-herman');
     expect(screen.getByText(/Profile changes are read-only for your role/)).toBeInTheDocument();
+  });
+
+  it('provides dedicated hyperlinks and restores views from browser history', async () => {
+    window.history.replaceState(
+      null,
+      '',
+      '/profiles?framework=hermes-herman&workPage=settings&project=stale',
+    );
+    vi.stubGlobal('fetch', vi.fn(twoFrameworkFetch));
+    render(<App />);
+
+    expect(await screen.findByRole('heading', { name: 'Profiles' })).toBeInTheDocument();
+    expect(`${window.location.pathname}${window.location.search}`).toBe(
+      '/profiles?framework=hermes-herman',
+    );
+    expect(screen.getByRole('link', { name: 'Models & providers' })).toHaveAttribute(
+      'href',
+      '/models?framework=hermes-herman',
+    );
+    expect(screen.getByRole('link', { name: 'Profiles' })).toHaveAttribute(
+      'href',
+      '/profiles?framework=hermes-herman',
+    );
+
+    await userEvent.click(screen.getByRole('link', { name: 'Models & providers' }));
+    expect(await screen.findByRole('heading', { name: 'Models & Providers' })).toBeInTheDocument();
+    expect(window.location.pathname).toBe('/models');
+
+    window.history.replaceState(null, '', '/profiles?framework=hermes-herman');
+    act(() => window.dispatchEvent(new PopStateEvent('popstate')));
+    expect(await screen.findByRole('heading', { name: 'Profiles' })).toBeInTheDocument();
   });
 
   it('passes models.manage through the shell to enable the guided model workflow', async () => {

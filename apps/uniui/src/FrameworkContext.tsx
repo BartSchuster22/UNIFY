@@ -33,11 +33,15 @@ function requestedFramework(): string {
   return new URLSearchParams(window.location.search).get('framework') ?? '';
 }
 
-function writeFrameworkToUrl(frameworkId: string) {
+function writeFrameworkToUrl(frameworkId: string, mode: 'push' | 'replace' = 'replace') {
   const url = new URL(window.location.href);
   if (frameworkId) url.searchParams.set('framework', frameworkId);
   else url.searchParams.delete('framework');
-  window.history.replaceState(null, '', url);
+  const href = `${url.pathname}${url.search}${url.hash}`;
+  const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  if (href === current) return;
+  if (mode === 'push') window.history.pushState({ frameworkId }, '', href);
+  else window.history.replaceState(window.history.state, '', href);
 }
 
 export function FrameworkProvider({ children }: { children: React.ReactNode }) {
@@ -85,26 +89,54 @@ export function FrameworkProvider({ children }: { children: React.ReactNode }) {
     void refreshFrameworks();
   }, [refreshFrameworks]);
 
+  useEffect(() => {
+    if (!frameworks.length) return;
+    const restoreFromHistory = () => {
+      const requested = requestedFramework();
+      if (requested && frameworks.some((item) => item.frameworkId === requested)) {
+        frameworkIdRef.current = requested;
+        setFrameworkId(requested);
+        setSelectionIssue('');
+        return;
+      }
+      if (requested) {
+        frameworkIdRef.current = '';
+        setFrameworkId('');
+        setSelectionIssue(
+          `Framework ${requested} is not enabled and verified. Select an available framework.`,
+        );
+        return;
+      }
+      const fallback = frameworks[0]?.frameworkId ?? '';
+      frameworkIdRef.current = fallback;
+      setFrameworkId(fallback);
+      setSelectionIssue('');
+      writeFrameworkToUrl(fallback);
+    };
+    window.addEventListener('popstate', restoreFromHistory);
+    return () => window.removeEventListener('popstate', restoreFromHistory);
+  }, [frameworks]);
+
   const selectFramework = useCallback(
     (next: string) => {
       if (!next) {
         frameworkIdRef.current = '';
         setFrameworkId('');
         setSelectionIssue('Select an enabled, verified framework.');
-        writeFrameworkToUrl('');
+        writeFrameworkToUrl('', 'push');
         return;
       }
       if (!frameworks.some((item) => item.frameworkId === next)) {
         frameworkIdRef.current = '';
         setFrameworkId('');
         setSelectionIssue(`Framework ${next} is not enabled and verified.`);
-        writeFrameworkToUrl('');
+        writeFrameworkToUrl('', 'push');
         return;
       }
       frameworkIdRef.current = next;
       setFrameworkId(next);
       setSelectionIssue('');
-      writeFrameworkToUrl(next);
+      writeFrameworkToUrl(next, 'push');
     },
     [frameworks],
   );

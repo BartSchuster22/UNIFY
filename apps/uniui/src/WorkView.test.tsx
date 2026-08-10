@@ -153,6 +153,23 @@ describe('UNIFY Work & Kanban', () => {
     expect(screen.getByText('Daily checks')).toBeInTheDocument();
   });
 
+  it('restores Work subsections from browser history', async () => {
+    window.history.replaceState(null, '', '/work?framework=hermes-alica&workPage=overview');
+    renderWork();
+    await screen.findByRole('heading', { name: '2 items need attention' });
+
+    fireEvent.click(screen.getByText('Kanban overview'));
+    expect(await screen.findByRole('heading', { name: 'Kanban overview' })).toBeInTheDocument();
+    expect(window.location.pathname).toBe('/work');
+    expect(new URLSearchParams(window.location.search).get('workPage')).toBe('projects');
+
+    window.history.replaceState(null, '', '/work?framework=hermes-alica&workPage=overview');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    expect(
+      await screen.findByRole('heading', { name: '2 items need attention' }),
+    ).toBeInTheDocument();
+  });
+
   it('provides project overview, a complete TTRRBDA project board, and editable setup', async () => {
     renderWork();
     await screen.findByText('Blocked release');

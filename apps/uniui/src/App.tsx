@@ -61,7 +61,14 @@ import {
   IconUsers,
 } from '@tabler/icons-react';
 
-import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  type FormEvent,
+  type MouseEvent,
+  type ReactNode,
+} from 'react';
 import { ApiError, api, gateway } from './api';
 import { WorkView } from './WorkView';
 import { ProfilesView } from './ProfilesView';
@@ -71,6 +78,14 @@ import { FrameworksView } from './FrameworksView';
 import { MemoryView } from './MemoryView';
 import { ReadinessDashboard } from './ReadinessDashboard';
 import { FrameworkProvider, useFrameworkContext } from './FrameworkContext';
+import {
+  canonicalizeCurrentView,
+  isPlainPrimaryClick,
+  pushView,
+  viewFromLocation,
+  viewHref,
+  type ViewId,
+} from './navigation';
 import type {
   ApiFailure,
   Collection,
@@ -83,20 +98,6 @@ import type {
 } from './types';
 import '@mantine/core/styles.css';
 import './styles.css';
-
-type ViewId =
-  | 'overview'
-  | 'frameworks'
-  | 'models'
-  | 'profiles'
-  | 'work'
-  | 'chat'
-  | 'memory'
-  | 'audit'
-  | 'operations'
-  | 'mutations'
-  | 'notifications'
-  | 'settings';
 
 type Icon = typeof IconGauge;
 interface NavItem {
@@ -144,10 +145,7 @@ const theme = createTheme({
 export function App() {
   const [principal, setPrincipal] = useState<Principal | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [view, setView] = useState<ViewId>(() => {
-    const requested = new URLSearchParams(window.location.search).get('view');
-    return NAV.some((item) => item.id === requested) ? (requested as ViewId) : 'overview';
-  });
+  const [view, setView] = useState<ViewId>(() => viewFromLocation());
   const [dark, setDark] = useState(() => localStorage.getItem('unify-color-scheme') === 'dark');
   const [opened, { toggle, close }] = useDisclosure(false);
   useEffect(() => {
@@ -157,12 +155,21 @@ export function App() {
       .catch(() => setPrincipal(null))
       .finally(() => setAuthLoading(false));
   }, []);
+  useEffect(() => {
+    canonicalizeCurrentView(viewFromLocation());
+    const restoreFromHistory = () => setView(viewFromLocation());
+    window.addEventListener('popstate', restoreFromHistory);
+    return () => window.removeEventListener('popstate', restoreFromHistory);
+  }, []);
   const changeView = (next: ViewId) => {
     setView(next);
-    const url = new URL(window.location.href);
-    url.searchParams.set('view', next);
-    window.history.replaceState(null, '', url);
+    pushView(next);
     close();
+  };
+  const followViewLink = (event: MouseEvent<HTMLElement>, next: ViewId) => {
+    if (!isPlainPrimaryClick(event)) return;
+    event.preventDefault();
+    changeView(next);
   };
 
   if (authLoading)
@@ -249,8 +256,10 @@ export function App() {
                   <Menu.Dropdown>
                     <Menu.Label>{principal.displayName}</Menu.Label>
                     <Menu.Item
+                      component="a"
+                      href={viewHref('settings')}
                       leftSection={<IconSettings size={16} />}
-                      onClick={() => changeView('settings')}
+                      onClick={(event) => followViewLink(event, 'settings')}
                     >
                       Settings
                     </Menu.Item>
@@ -271,11 +280,13 @@ export function App() {
               <Stack gap={3}>
                 {visible.map((item) => (
                   <NavLink
+                    component="a"
                     key={item.id}
+                    href={viewHref(item.id)}
                     active={activeView === item.id}
                     label={item.label}
                     leftSection={<item.icon size={18} />}
-                    onClick={() => changeView(item.id)}
+                    onClick={(event) => followViewLink(event, item.id)}
                     aria-current={activeView === item.id ? 'page' : undefined}
                   />
                 ))}
