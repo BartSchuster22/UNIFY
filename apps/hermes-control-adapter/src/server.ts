@@ -111,6 +111,15 @@ for (const signal of ['SIGINT', 'SIGTERM'] as const)
   });
 
 async function verifyImmutableBaseline(path: string, binary: string) {
+  const candidateAssessment = process.env.HERMES_CANDIDATE_ASSESSMENT === 'true';
+  const supportedRelease = candidateAssessment
+    ? required('EXPECTED_HERMES_RELEASE')
+    : PINNED_HERMES_RELEASE;
+  const supportedCommit = candidateAssessment
+    ? required('EXPECTED_HERMES_COMMIT')
+    : PINNED_HERMES_COMMIT;
+  if (!/^[a-f0-9]{40}$/u.test(supportedCommit))
+    throw new Error('Expected Hermes candidate commit is invalid');
   try {
     const head = (
       await execFileAsync('git', ['-C', path, 'rev-parse', 'HEAD'], {
@@ -118,8 +127,8 @@ async function verifyImmutableBaseline(path: string, binary: string) {
         timeout: 5_000,
       })
     ).stdout.trim();
-    if (head !== PINNED_HERMES_COMMIT)
-      throw new Error(`Hermes baseline ${head} is unsupported; expected ${PINNED_HERMES_COMMIT}`);
+    if (head !== supportedCommit)
+      throw new Error(`Hermes baseline ${head} is unsupported; expected ${supportedCommit}`);
     await execFileAsync('git', ['-C', path, 'diff', '--quiet'], { timeout: 5_000 });
     await execFileAsync('git', ['-C', path, 'diff', '--cached', '--quiet'], { timeout: 5_000 });
     return;
@@ -134,10 +143,11 @@ async function verifyImmutableBaseline(path: string, binary: string) {
   const release = /Hermes Agent v([^\s]+)/u.exec(version)?.[1];
   const commit = /upstream\s+([0-9a-f]{8,40})/u.exec(version)?.[1];
   const carriedCommit = /local\s+([0-9a-f]{8,40})/u.exec(version)?.[1];
-  const immutableDockerBuild = commit === '413ed6b9' && carriedCommit === '9e54eee4';
+  const immutableDockerBuild =
+    !candidateAssessment && commit === '413ed6b9' && carriedCommit === '9e54eee4';
   if (
-    release !== PINNED_HERMES_RELEASE ||
-    (!immutableDockerBuild && (!commit || !PINNED_HERMES_COMMIT.startsWith(commit)))
+    release !== supportedRelease ||
+    (!immutableDockerBuild && (!commit || !supportedCommit.startsWith(commit)))
   )
     throw new Error('Installed Hermes release does not match the immutable supported baseline');
 }

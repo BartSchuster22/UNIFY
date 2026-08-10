@@ -82,6 +82,7 @@ process.on('SIGTERM', () => {
   process.exit(143);
 });
 
+let completed = false;
 try {
   if (process.env.HERMES_RUNTIME_SKIP_BUILD !== '1')
     docker([
@@ -284,6 +285,8 @@ try {
     '-v',
     `${join(root, 'deploy/hermes-runtime/acceptance-client.mjs')}:/run/acceptance-client.mjs:ro`,
     '-e',
+    'HERMES_CANDIDATE_ASSESSMENT=true',
+    '-e',
     'DATABASE_URL_FILE=/run/secrets/database-url',
     '-e',
     'HERMES_ADAPTER_TOKEN_BUNDLE_FILE=/run/secrets/adapter-token-bundle.json',
@@ -343,6 +346,7 @@ try {
 
   const running = docker(['inspect', '--format', '{{.State.Running}}', runtime]);
   assert.equal(running, 'true');
+  completed = true;
   console.log('Hermes combined runtime container acceptance: PASS');
 } catch (error) {
   try {
@@ -353,5 +357,9 @@ try {
   }
   throw error;
 } finally {
-  cleanup();
+  if (completed || process.env.HERMES_RUNTIME_KEEP_FAILED !== '1') cleanup();
+  else
+    console.error(
+      `Preserved failed runtime: container=${runtime} network=${network} fixture=${fixture}`,
+    );
 }
