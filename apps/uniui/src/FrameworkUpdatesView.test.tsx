@@ -25,7 +25,7 @@ const snapshot: FrameworkUpdateSnapshot = {
     candidateId: `fuc_${'1'.repeat(64)}`,
     tagName: 'v2026.8.3',
     releaseName: 'v2026.8.3',
-    commitSha: '7de39e700d2c329e15d32eb0b96e2f7cdd9fbdb2',
+    commitSha: '3c27eb6234bf91b8ceee9e9071591b31e9b148cb',
     releaseUrl: 'https://github.com/NousResearch/hermes-agent/releases/tag/v2026.8.3',
     releaseNotes: 'Security and reliability improvements.',
     publishedAt: '2026-08-03T16:57:52.000Z',
@@ -34,7 +34,7 @@ const snapshot: FrameworkUpdateSnapshot = {
   candidateAssessment: {
     assessmentId: `fca_${'3'.repeat(64)}`,
     state: 'ready',
-    sourceCommit: '7de39e700d2c329e15d32eb0b96e2f7cdd9fbdb2',
+    sourceCommit: '3c27eb6234bf91b8ceee9e9071591b31e9b148cb',
     sourceArchiveDigest: `sha256:${'4'.repeat(64)}`,
     imageReference: `localhost:5000/unify/hermes-candidate@sha256:${'5'.repeat(64)}`,
     imageDigest: `sha256:${'5'.repeat(64)}`,

@@ -10,7 +10,7 @@ import type {
 const release: TrustedRelease = {
   tagName: 'v2026.8.3',
   releaseName: 'v2026.8.3',
-  commitSha: '7de39e700d2c329e15d32eb0b96e2f7cdd9fbdb2',
+  commitSha: '3c27eb6234bf91b8ceee9e9071591b31e9b148cb',
   releaseUrl: 'https://github.com/NousResearch/hermes-agent/releases/tag/v2026.8.3',
   releaseNotes: 'Release notes',
   publishedAt: '2026-08-03T16:57:52.000Z',
