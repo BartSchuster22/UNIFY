@@ -128,6 +128,8 @@ try {
       `HERMES_COMMIT=${cfg.commit}`,
       '--build-arg',
       `UNIFY_ADAPTER_RELEASE=${cfg.adapterRelease}`,
+      '--build-arg',
+      'HERMES_CANDIDATE_ASSESSMENT=true',
       '-t',
       imageTag,
       '.',
