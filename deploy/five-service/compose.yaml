@@ -18,7 +18,7 @@ services:
     # s6 needs CHOWN/DAC_OVERRIDE/FOWNER for its mounted data and supervise trees,
     # then SETGID/SETUID to drop both application children to UID/GID 10000.
     cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
-    image: ${HERMES_RUNTIME_IMAGE:?HERMES_RUNTIME_IMAGE is required}
+    image: ${ALICA_HERMES_RUNTIME_IMAGE:?ALICA_HERMES_RUNTIME_IMAGE is required}
     hostname: alica
     environment:
       HERMES_FRAMEWORK_ID: hermes-alica
@@ -75,7 +75,7 @@ services:
     # s6 needs CHOWN/DAC_OVERRIDE/FOWNER for its mounted data and supervise trees,
     # then SETGID/SETUID to drop both application children to UID/GID 10000.
     cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
-    image: ${HERMES_RUNTIME_IMAGE:?HERMES_RUNTIME_IMAGE is required}
+    image: ${HERMAN_HERMES_RUNTIME_IMAGE:?HERMAN_HERMES_RUNTIME_IMAGE is required}
     hostname: herman
     environment:
       HERMES_FRAMEWORK_ID: hermes-herman
@@ -135,7 +135,9 @@ services:
       HOST: 0.0.0.0
       PORT: '8080'
       RELEASE_ID: ${RELEASE_ID:?RELEASE_ID is required}
-      HERMES_RUNTIME_IMAGE: ${HERMES_RUNTIME_IMAGE:?HERMES_RUNTIME_IMAGE is required}
+      HERMES_RUNTIME_IMAGE: ${ALICA_HERMES_RUNTIME_IMAGE:?ALICA_HERMES_RUNTIME_IMAGE is required}
+      ALICA_HERMES_RUNTIME_IMAGE: ${ALICA_HERMES_RUNTIME_IMAGE:?ALICA_HERMES_RUNTIME_IMAGE is required}
+      HERMAN_HERMES_RUNTIME_IMAGE: ${HERMAN_HERMES_RUNTIME_IMAGE:?HERMAN_HERMES_RUNTIME_IMAGE is required}
       HERMES_DEPLOYED_FRAMEWORK_VERSION: '0.20.0'
       HERMES_DEPLOYED_FRAMEWORK_COMMIT: b8b17b8cee50b85adb7fba6ea332dc06731b86f4
       HERMES_UPSTREAM_REPOSITORY: NousResearch/hermes-agent

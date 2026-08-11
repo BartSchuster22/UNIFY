@@ -11,6 +11,8 @@ const fixtureEnvironment = {
   ...process.env,
   RELEASE_ID: 'phase-14.2-static',
   HERMES_RUNTIME_IMAGE: 'unify/hermes-runtime:phase-14.1',
+  ALICA_HERMES_RUNTIME_IMAGE: 'unify/hermes-runtime:alica-phase-14.1',
+  HERMAN_HERMES_RUNTIME_IMAGE: 'unify/hermes-runtime:herman-phase-14.1',
   UNIFY_CORE_IMAGE: 'unify-core:phase-14.2',
   CADDY_IMAGE: 'unify-caddy:phase-14.2',
   UNIFY_PUBLIC_ORIGIN: 'https://localhost',
@@ -85,7 +87,9 @@ assert.equal(config.services.caddy.image, fixtureEnvironment.CADDY_IMAGE);
 const caddyDockerfile = readFileSync(resolve(root, 'Dockerfile.caddy-proxy'), 'utf8');
 assert.match(caddyDockerfile, /caddy@sha256:[a-f0-9]{64}/u);
 assert.ok(caddyDockerfile.includes('setcap -r /usr/bin/caddy'));
-assert.equal(config.services.alica.image, config.services.herman.image);
+assert.equal(config.services.alica.image, fixtureEnvironment.ALICA_HERMES_RUNTIME_IMAGE);
+assert.equal(config.services.herman.image, fixtureEnvironment.HERMAN_HERMES_RUNTIME_IMAGE);
+assert.notEqual(config.services.alica.image, config.services.herman.image);
 assert.notEqual(
   config.services.alica.volumes[0].source,
   config.services.herman.volumes[0].source,

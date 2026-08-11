@@ -39,6 +39,8 @@ export interface HermesControlAdapterOptions {
   upstreamBaseCommit?: string;
   pythonVersion: string;
   releaseId?: string;
+  frameworkRelease?: string;
+  frameworkCommit?: string;
 }
 
 class AdapterError extends Error {
@@ -147,15 +149,17 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
     }),
   );
 
-  app.get('/control/v1/version', async () =>
-    response(options, `git:${PINNED_HERMES_COMMIT}`, {
-      release: PINNED_HERMES_RELEASE,
-      commit: PINNED_HERMES_COMMIT,
+  app.get('/control/v1/version', async () => {
+    const commit = options.frameworkCommit ?? PINNED_HERMES_COMMIT;
+    const release = options.frameworkRelease ?? PINNED_HERMES_RELEASE;
+    return response(options, `git:${commit}`, {
+      release,
+      commit,
       ...(options.upstreamBaseCommit ? { upstreamBaseCommit: options.upstreamBaseCommit } : {}),
       dirty: false,
       pythonVersion: options.pythonVersion,
-    }),
-  );
+    });
+  });
 
   app.get('/control/v1/health', async () => {
     requireScope(scopes, 'control:read');
@@ -867,8 +871,8 @@ function response(options: HermesControlAdapterOptions, version: string, data: u
   return {
     contractVersion: HERMES_CONTROL_VERSION,
     frameworkId: options.frameworkId,
-    frameworkVersion: PINNED_HERMES_RELEASE,
-    frameworkCommit: PINNED_HERMES_COMMIT,
+    frameworkVersion: options.frameworkRelease ?? PINNED_HERMES_RELEASE,
+    frameworkCommit: options.frameworkCommit ?? PINNED_HERMES_COMMIT,
     sourceVersion: version,
     observedAt: new Date().toISOString(),
     data,

@@ -52,23 +52,32 @@ const hermesGateway = new HermesGatewayService(
   new PostgresFrameworkEventJournal(pool),
 );
 const updateRepository = process.env.HERMES_UPSTREAM_REPOSITORY ?? 'NousResearch/hermes-agent';
-const deployedImage = requiredEnvironment('HERMES_RUNTIME_IMAGE');
-const deployedDigest = deployedImage.match(/@(sha256:[a-f0-9]{64})$/)?.[1];
-if (!deployedDigest) throw new Error('HERMES_RUNTIME_IMAGE must be pinned by sha256 digest');
+const deployedImages = {
+  'hermes-alica':
+    process.env.ALICA_HERMES_RUNTIME_IMAGE ?? requiredEnvironment('HERMES_RUNTIME_IMAGE'),
+  'hermes-herman':
+    process.env.HERMAN_HERMES_RUNTIME_IMAGE ?? requiredEnvironment('HERMES_RUNTIME_IMAGE'),
+} as const;
 const deployedVersion = requiredEnvironment('HERMES_DEPLOYED_FRAMEWORK_VERSION');
 const deployedCommit = requiredEnvironment('HERMES_DEPLOYED_FRAMEWORK_COMMIT');
 if (!/^[a-f0-9]{40}$/.test(deployedCommit))
   throw new Error('HERMES_DEPLOYED_FRAMEWORK_COMMIT must be a full Git commit');
-const deploymentInputs: DeploymentMetadataInput[] = ['hermes-alica', 'hermes-herman'].map(
-  (frameworkId) => ({
+const deploymentInputs: DeploymentMetadataInput[] = (
+  Object.keys(deployedImages) as Array<keyof typeof deployedImages>
+).map((frameworkId) => {
+  const deployedImage = deployedImages[frameworkId];
+  const deployedDigest = deployedImage.match(/@(sha256:[a-f0-9]{64})$/)?.[1];
+  if (!deployedDigest)
+    throw new Error(`${frameworkId} runtime image must be pinned by sha256 digest`);
+  return {
     frameworkId,
     releaseId: process.env.RELEASE_ID ?? 'development',
     imageReference: deployedImage,
     imageDigest: deployedDigest,
     frameworkVersion: deployedVersion,
     frameworkCommit: deployedCommit,
-  }),
-);
+  };
+});
 const frameworkUpdates = new FrameworkUpdateVisibilityService({
   sourceId: 'hermes-agent',
   repository: updateRepository,

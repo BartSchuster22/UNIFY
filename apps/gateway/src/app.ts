@@ -437,6 +437,258 @@ export function buildApp(options: AppOptions) {
     return options.frameworkUpdates.snapshot();
   });
 
+  app.put<{
+    Body: {
+      canaryFrameworkId: 'hermes-alica' | 'hermes-herman';
+      observationWindowSeconds: number;
+      requiredHealthySamples: number;
+    };
+  }>(
+    '/api/v1/framework-updates/policies/default',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['canaryFrameworkId', 'observationWindowSeconds', 'requiredHealthySamples'],
+          properties: {
+            canaryFrameworkId: { type: 'string', enum: ['hermes-alica', 'hermes-herman'] },
+            observationWindowSeconds: { type: 'integer', minimum: 1, maximum: 86400 },
+            requiredHealthySamples: { type: 'integer', minimum: 1, maximum: 1000 },
+          },
+        },
+      },
+    },
+    async (request) => {
+      const current = await mutationSession(request);
+      auth.requirePermission(current, 'settings.manage');
+      if (!options.frameworkUpdates)
+        throw new FrameworkRegistryError(
+          'FRAMEWORK_UPDATES_UNAVAILABLE',
+          503,
+          'Framework update governance is unavailable',
+        );
+      const policy = await options.frameworkUpdates.updateReleasePolicy(
+        current.userId,
+        request.body,
+      );
+      await governance?.audit({
+        actorUserId: current.userId,
+        sessionId: current.sessionId,
+        action: 'framework.release-policy.update',
+        target: { policyId: 'default' },
+        details: { ...policy },
+        outcome: 'success',
+        requestId: request.id,
+      });
+      return policy;
+    },
+  );
+
+  app.post<{ Body: { frameworkIds?: string[] } }>(
+    '/api/v1/framework-updates/rollouts',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['frameworkIds'],
+          properties: {
+            frameworkIds: {
+              type: 'array',
+              minItems: 1,
+              maxItems: 2,
+              uniqueItems: true,
+              items: { type: 'string', enum: ['hermes-alica', 'hermes-herman'] },
+            },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      const current = await mutationSession(request);
+      auth.requirePermission(current, 'settings.manage');
+      if (!options.frameworkUpdates)
+        throw new FrameworkRegistryError(
+          'FRAMEWORK_UPDATES_UNAVAILABLE',
+          503,
+          'Framework update governance is unavailable',
+        );
+      const plan = await options.frameworkUpdates.createRolloutPlan(
+        current.userId,
+        request.body.frameworkIds ?? [],
+      );
+      await governance?.audit({
+        actorUserId: current.userId,
+        sessionId: current.sessionId,
+        action: 'framework.rollout.plan',
+        target: { planId: plan.planId, frameworkIds: plan.targets.map((item) => item.frameworkId) },
+        outcome: 'success',
+        requestId: request.id,
+      });
+      return reply.status(201).send(plan);
+    },
+  );
+
+  app.get<{ Params: { planId: string } }>(
+    '/api/v1/framework-updates/rollouts/:planId',
+    {
+      schema: {
+        params: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['planId'],
+          properties: { planId: { type: 'string', format: 'uuid' } },
+        },
+      },
+    },
+    async (request, reply) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'frameworks.read');
+      if (!options.frameworkUpdates)
+        throw new FrameworkRegistryError(
+          'FRAMEWORK_UPDATES_UNAVAILABLE',
+          503,
+          'Framework update governance is unavailable',
+        );
+      const plan = await options.frameworkUpdates.rollout(request.params.planId);
+      return (
+        plan ??
+        reply.status(404).send({
+          error: {
+            code: 'ROLLOUT_NOT_FOUND',
+            message: 'Rollout plan not found',
+            requestId: request.id,
+            retryable: false,
+          },
+        })
+      );
+    },
+  );
+
+  for (const action of ['dry-run', 'approve', 'execute'] as const)
+    app.post<{ Params: { planId: string } }>(
+      `/api/v1/framework-updates/rollouts/:planId/${action}`,
+      {
+        schema: {
+          params: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['planId'],
+            properties: { planId: { type: 'string', format: 'uuid' } },
+          },
+        },
+      },
+      async (request) => {
+        const current = await mutationSession(request);
+        auth.requirePermission(current, 'settings.manage');
+        if (!options.frameworkUpdates)
+          throw new FrameworkRegistryError(
+            'FRAMEWORK_UPDATES_UNAVAILABLE',
+            503,
+            'Framework update governance is unavailable',
+          );
+        const plan =
+          action === 'dry-run'
+            ? await options.frameworkUpdates.dryRunRollout(request.params.planId)
+            : action === 'approve'
+              ? await options.frameworkUpdates.approveRollout(request.params.planId, current.userId)
+              : await options.frameworkUpdates.executeRollout(request.params.planId);
+        await governance?.audit({
+          actorUserId: current.userId,
+          sessionId: current.sessionId,
+          action: `framework.rollout.${action}`,
+          target: { planId: plan.planId },
+          outcome: 'success',
+          requestId: request.id,
+        });
+        return plan;
+      },
+    );
+
+  app.post<{ Params: { planId: string } }>(
+    '/api/v1/framework-updates/rollouts/:planId/promote',
+    {
+      schema: {
+        params: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['planId'],
+          properties: { planId: { type: 'string', format: 'uuid' } },
+        },
+      },
+    },
+    async (request) => {
+      const current = await mutationSession(request);
+      auth.requirePermission(current, 'settings.manage');
+      if (!options.frameworkUpdates)
+        throw new FrameworkRegistryError(
+          'FRAMEWORK_UPDATES_UNAVAILABLE',
+          503,
+          'Framework update governance is unavailable',
+        );
+      const plan = await options.frameworkUpdates.promoteRollout(
+        request.params.planId,
+        current.userId,
+      );
+      await governance?.audit({
+        actorUserId: current.userId,
+        sessionId: current.sessionId,
+        action: 'framework.rollout.promote',
+        target: { planId: plan.planId },
+        details: { policySnapshot: plan.policySnapshot },
+        outcome: 'success',
+        requestId: request.id,
+      });
+      return plan;
+    },
+  );
+
+  app.post<{ Params: { planId: string }; Body: { reason: string } }>(
+    '/api/v1/framework-updates/rollouts/:planId/rollback',
+    {
+      schema: {
+        params: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['planId'],
+          properties: { planId: { type: 'string', format: 'uuid' } },
+        },
+        body: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['reason'],
+          properties: { reason: { type: 'string', minLength: 3, maxLength: 500 } },
+        },
+      },
+    },
+    async (request, reply) => {
+      const current = await mutationSession(request);
+      auth.requirePermission(current, 'settings.manage');
+      if (!options.frameworkUpdates)
+        throw new FrameworkRegistryError(
+          'FRAMEWORK_UPDATES_UNAVAILABLE',
+          503,
+          'Framework update governance is unavailable',
+        );
+      const plan = await options.frameworkUpdates.rollbackRollout(
+        request.params.planId,
+        current.userId,
+        request.body.reason,
+      );
+      await governance?.audit({
+        actorUserId: current.userId,
+        sessionId: current.sessionId,
+        action: 'framework.rollout.rollback',
+        target: { planId: plan.planId, sourcePlanId: request.params.planId },
+        details: { reason: request.body.reason },
+        outcome: 'success',
+        requestId: request.id,
+      });
+      return reply.status(201).send(plan);
+    },
+  );
+
   app.get('/api/v1/frameworks', async (request) => {
     const current = await session(request);
     auth.requirePermission(current, 'frameworks.read');

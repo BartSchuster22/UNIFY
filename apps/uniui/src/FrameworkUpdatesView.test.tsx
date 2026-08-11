@@ -1,5 +1,5 @@
 import { MantineProvider } from '@mantine/core';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { api } from './api';
 import { FrameworkUpdatesView, type FrameworkUpdateSnapshot } from './FrameworkUpdatesView';
@@ -13,7 +13,14 @@ afterEach(() => {
 });
 
 const snapshot: FrameworkUpdateSnapshot = {
-  mode: 'read-only',
+  mode: 'governed-rollout',
+  releasePolicy: {
+    canaryFrameworkId: 'hermes-alica',
+    observationWindowSeconds: 300,
+    requiredHealthySamples: 3,
+    manualPromotionRequired: true,
+    updatedAt: '2026-08-10T12:00:00.000Z',
+  },
   source: {
     sourceId: 'hermes-agent',
     repository: 'NousResearch/hermes-agent',
@@ -45,6 +52,7 @@ const snapshot: FrameworkUpdateSnapshot = {
     evidenceDigest: `sha256:${'6'.repeat(64)}`,
     assessedAt: '2026-08-10T12:00:00.000Z',
   },
+  rollouts: [],
   frameworks: [
     {
       frameworkId: 'hermes-herman',
@@ -80,7 +88,7 @@ describe('FrameworkUpdatesView', () => {
         <FrameworkUpdatesView />
       </MantineProvider>,
     );
-    expect(await screen.findByText('Herman')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Herman' })).toBeInTheDocument();
     expect(screen.getByText('NousResearch/hermes-agent')).toBeInTheDocument();
     expect(screen.getAllByText('v2026.8.3').length).toBeGreaterThan(0);
     expect(screen.getByText('phase-19.2-6a9373f')).toBeInTheDocument();
@@ -88,7 +96,76 @@ describe('FrameworkUpdatesView', () => {
     expect(screen.getByRole('heading', { name: 'Ready' })).toBeInTheDocument();
     expect(screen.getByText('Candidate is ready for approval review')).toBeInTheDocument();
     expect(screen.getByText(/Candidate passed hermes-control\/v1/)).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /deploy/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create immutable plan' })).toBeDisabled();
+    expect(screen.getByRole('checkbox', { name: 'Alica' })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: 'Herman' })).toBeInTheDocument();
     expect(mockedApi).toHaveBeenCalledWith('/framework-updates');
+  });
+
+  it('runs the governed transition for an immutable plan and renders proof checks', async () => {
+    const plan = {
+      planId: '11111111-1111-4111-8111-111111111111',
+      state: 'planned',
+      operationKind: 'release' as const,
+      policySnapshot: {
+        canaryFrameworkId: 'hermes-alica',
+        observationWindowSeconds: 300,
+        requiredHealthySamples: 3,
+        manualPromotionRequired: true,
+      },
+      createdAt: '2026-08-10T12:30:00.000Z',
+      targets: [
+        {
+          frameworkId: 'hermes-alica' as const,
+          state: 'planned',
+          progress: 0,
+          targetFrameworkVersion: '0.20.0',
+          targetFrameworkCommit: '3c27eb6234bf91b8ceee9e9071591b31e9b148cb',
+          targetImageDigest: `sha256:${'5'.repeat(64)}`,
+          dryRunChecks: {
+            candidateReady: true,
+            assessmentImmutable: true,
+            deploymentUnchanged: true,
+            targetDigestPinned: true,
+            independentTarget: true,
+          },
+          convergenceChecks: {
+            healthy: true,
+            imageIdentity: true,
+            commitLabel: true,
+            releaseLabel: true,
+          },
+          observationChecks: {},
+        },
+      ],
+      events: [
+        {
+          eventId: '1',
+          state: 'planned',
+          progress: 0,
+          safeMessage: 'Rollout plan created',
+          details: {},
+          occurredAt: '2026-08-10T12:30:00.000Z',
+        },
+      ],
+      observations: [],
+    };
+    const withPlan: FrameworkUpdateSnapshot = { ...snapshot, rollouts: [plan] };
+    mockedApi.mockResolvedValue(withPlan as never);
+    render(
+      <MantineProvider>
+        <FrameworkUpdatesView />
+      </MantineProvider>,
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Run dry-run' }));
+    await waitFor(() =>
+      expect(mockedApi).toHaveBeenCalledWith(
+        '/framework-updates/rollouts/11111111-1111-4111-8111-111111111111/dry-run',
+        { method: 'POST' },
+      ),
+    );
+    expect(screen.getByLabelText('Dry-run checks')).toHaveTextContent('candidate Ready passed');
+    expect(screen.getByLabelText('Convergence checks')).toHaveTextContent('healthy passed');
   });
 });

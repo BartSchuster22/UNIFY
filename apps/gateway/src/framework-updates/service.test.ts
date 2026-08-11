@@ -35,6 +35,36 @@ function fixture() {
     ready: vi.fn(async () => true),
     reconcileDeployments: vi.fn(async () => undefined),
     recordDiscoveryFailure: vi.fn(async () => undefined),
+    createRolloutPlan: vi.fn(async () => {
+      throw new Error('not used');
+    }),
+    dryRunRollout: vi.fn(async () => {
+      throw new Error('not used');
+    }),
+    approveRollout: vi.fn(async () => {
+      throw new Error('not used');
+    }),
+    queueRollout: vi.fn(async () => {
+      throw new Error('not used');
+    }),
+    promoteRollout: vi.fn(async () => {
+      throw new Error('not used');
+    }),
+    createRollback: vi.fn(async () => {
+      throw new Error('not used');
+    }),
+    releasePolicy: vi.fn(async () => ({
+      canaryFrameworkId: 'hermes-alica' as const,
+      observationWindowSeconds: 300,
+      requiredHealthySamples: 3,
+      manualPromotionRequired: true as const,
+      updatedAt: '2026-08-10T10:00:00.000Z',
+    })),
+    updateReleasePolicy: vi.fn(async () => {
+      throw new Error('not used');
+    }),
+    rollout: vi.fn(async () => null),
+    listRollouts: vi.fn(async () => []),
     recordDiscoverySuccess: vi.fn(async (sourceId, _repository, found, comparisons) => {
       const stored: StoredUpdateCandidate = {
         ...found,
@@ -92,7 +122,8 @@ describe('FrameworkUpdateVisibilityService', () => {
       'v2026.8.3',
     );
     expect(store.recordDiscoverySuccess).toHaveBeenCalled();
-    expect(result.mode).toBe('read-only');
+    expect(result.mode).toBe('governed-rollout');
+    expect(result.rollouts).toEqual([]);
     expect(result.frameworks[0]?.comparison?.relation).toBe('update_available');
     expect(result.frameworks[0]?.compatibility.status).toBe('not_assessed');
     expect(result).not.toHaveProperty('actions');

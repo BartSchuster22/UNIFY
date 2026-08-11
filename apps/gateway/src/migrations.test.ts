@@ -39,6 +39,10 @@ const candidateAssessmentMigration = readFileSync(
   resolve(import.meta.dirname, '../migrations/011_framework_candidate_assessments.up.sql'),
   'utf8',
 );
+const rolloutMigration = readFileSync(
+  resolve(import.meta.dirname, '../migrations/012_framework_governed_rollouts.up.sql'),
+  'utf8',
+);
 const hermesBaselineMigration = readFileSync(
   resolve(import.meta.dirname, '../migrations/006_hermes_020_baseline.up.sql'),
 );
@@ -174,6 +178,18 @@ describe('framework candidate assessment migration', () => {
     expect(candidateAssessmentMigration).toContain(
       'framework candidate assessment evidence is immutable',
     );
+  });
+});
+
+describe('governed framework rollout migration', () => {
+  it('persists immutable plans, independent targets, live events and one active execution', () => {
+    expect(rolloutMigration).toContain('CREATE TABLE framework_rollout_plans');
+    expect(rolloutMigration).toContain('CREATE TABLE framework_rollout_targets');
+    expect(rolloutMigration).toContain('CREATE TABLE framework_rollout_events');
+    expect(rolloutMigration).toContain('framework_rollout_one_active');
+    expect(rolloutMigration).toContain('prevent_framework_rollout_target_identity_mutation');
+    expect(rolloutMigration).toContain("'dry_run_passed'");
+    expect(rolloutMigration).toContain("'converged'");
   });
 });
 

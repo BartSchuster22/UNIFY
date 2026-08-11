@@ -19,7 +19,7 @@
   "scripts": {
     "build": "pnpm -r --workspace-concurrency=1 --if-present build",
     "typecheck": "pnpm --filter @aquiero/contracts build && pnpm -r --workspace-concurrency=1 --if-present typecheck",
-    "test": "pnpm -r --workspace-concurrency=1 --if-present test && python3 -m unittest discover -s integrations/hermes/unify-memory/tests -p 'test_*.py'",
+    "test": "pnpm -r --workspace-concurrency=1 --if-present test && vitest run scripts/framework-rollout-worker.test.mjs && python3 -m unittest discover -s integrations/hermes/unify-memory/tests -p 'test_*.py'",
     "lint": "eslint . && node scripts/check-boundaries.mjs && node scripts/check-standalone-runtime.mjs && node scripts/verify-production-images.mjs --static && node scripts/verify-hermes-combined-image.mjs && node scripts/verify-five-service-compose.mjs && node scripts/verify-unify-web-compose.mjs && node scripts/validate-five-service-installation.mjs deploy/five-service/installation-inputs.example.json && node scripts/verify-five-service-installer.mjs",
     "sot:check": "node scripts/check-standalone-runtime.mjs",
     "hermes:fixture:verify": "node scripts/verify-hermes-pinned-contract.mjs",
@@ -32,6 +32,8 @@
     "unify-web:build": "docker buildx build --load --file Dockerfile.uniui --tag unify-web:local .",
     "five-service:verify": "node scripts/verify-five-service-runtime.mjs",
     "five-service:installer:verify": "node scripts/verify-five-service-installer.mjs",
+    "framework:rollout:store:verify": "node scripts/verify-framework-rollout-store.mjs",
+    "framework:rollout:worker:verify-real": "node scripts/verify-framework-rollout-worker-real.mjs",
     "phase-14-5:live": "node scripts/verify-hermes-combined-runtime.mjs && node scripts/verify-five-service-runtime.mjs && node scripts/verify-five-service-installer-runtime.mjs",
     "format:check": "prettier --check .",
     "contracts:generate": "pnpm --filter @aquiero/contracts build && node scripts/generate-contracts.mjs",

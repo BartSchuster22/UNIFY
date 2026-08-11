@@ -96,6 +96,7 @@ async function executeMode(state) {
       updatedAt: new Date().toISOString(),
     });
     configureBackupSchedule(release);
+    configureRolloutWorker();
     writeOperationManifest('rollback', state.currentRelease, target);
     recoveryRelease = undefined;
     console.log(JSON.stringify(result('rollback', target, true)));
@@ -157,6 +158,7 @@ async function executeMode(state) {
     updatedAt: new Date().toISOString(),
   });
   configureBackupSchedule(release);
+  configureRolloutWorker();
   recoveryRelease = undefined;
   console.log(JSON.stringify(result(options.mode, input.releaseId, true)));
 }
@@ -257,6 +259,10 @@ function stageRelease(input) {
     join(staging, 'scripts/backup-gateway.sh'),
   );
   copyFileSync(
+    join(sourceRoot, 'scripts/framework-rollout-worker.sh'),
+    join(staging, 'scripts/framework-rollout-worker.sh'),
+  );
+  copyFileSync(
     join(sourceRoot, 'scripts/lib/five-service-installation.mjs'),
     join(staging, 'scripts/lib/five-service-installation.mjs'),
   );
@@ -265,6 +271,7 @@ function stageRelease(input) {
     join(staging, 'deploy/five-service/install.mjs'),
   );
   chmodSync(join(staging, 'scripts/backup-gateway.sh'), 0o750);
+  chmodSync(join(staging, 'scripts/framework-rollout-worker.sh'), 0o750);
   chmodSync(join(staging, 'deploy/five-service/install.mjs'), 0o750);
   writeFileSync(join(staging, 'installation-inputs.json'), `${JSON.stringify(input, null, 2)}\n`, {
     mode: 0o640,
@@ -680,6 +687,25 @@ function writeOperationManifest(operation, fromRelease, toRelease) {
     0o640,
   );
   writeFileSync(`${path}.sha256`, `${sha256(path)}  ${basename(path)}\n`, { mode: 0o640 });
+}
+
+function configureRolloutWorker() {
+  const unitDirectory = acceptance
+    ? join(root, 'systemd')
+    : (process.env.UNIFY_SYSTEMD_UNIT_DIR ?? '/etc/systemd/system');
+  mkdirSync(unitDirectory, { recursive: true, mode: 0o755 });
+  writeFileSync(
+    join(unitDirectory, 'unify-framework-rollout.service'),
+    `[Unit]\nDescription=UNIFY governed framework rollout worker\nAfter=docker.service\nRequires=docker.service\n\n[Service]\nType=oneshot\nEnvironment=UNIFY_INSTALLATION_ROOT=${root}\nEnvironment=UNIFY_COMPOSE_PROJECT=${project}\nExecStart=/usr/bin/env bash ${join(root, 'current/scripts/framework-rollout-worker.sh')} --once\nNice=10\nIOSchedulingClass=best-effort\nIOSchedulingPriority=6\n`,
+  );
+  writeFileSync(
+    join(unitDirectory, 'unify-framework-rollout.timer'),
+    '[Unit]\nDescription=Poll for approved UNIFY framework rollouts\n\n[Timer]\nOnBootSec=30s\nOnUnitActiveSec=5s\nAccuracySec=1s\nUnit=unify-framework-rollout.service\n\n[Install]\nWantedBy=timers.target\n',
+  );
+  if (!acceptance) {
+    run('systemctl', ['daemon-reload']);
+    run('systemctl', ['enable', '--now', 'unify-framework-rollout.timer']);
+  }
 }
 
 function configureBackupSchedule(release) {

@@ -48,11 +48,26 @@ export function validateInstallationInput(input) {
     assertString(value, `volumes.${name}`, /^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$/u);
   assert.equal(new Set(Object.values(input.volumes)).size, 3, 'Volume names must be distinct');
 
-  assertExactObject(input.images, ['hermesRuntime', 'core', 'caddy'], 'images');
+  const imageKeys = Object.keys(input.images).sort();
+  const legacyImages =
+    JSON.stringify(imageKeys) === JSON.stringify(['caddy', 'core', 'hermesRuntime']);
+  const splitImages =
+    JSON.stringify(imageKeys) ===
+    JSON.stringify(['alicaHermesRuntime', 'caddy', 'core', 'hermanHermesRuntime']);
+  assert.ok(legacyImages || splitImages, 'images fields are invalid');
   for (const [name, value] of Object.entries(input.images))
     assertString(value, `images.${name}`, /^[^\s:@]+(?:[/:][^\s:@]+)*@sha256:[a-f0-9]{64}$/u);
 
-  return structuredClone(input);
+  const valid = structuredClone(input);
+  if (legacyImages) {
+    valid.images = {
+      alicaHermesRuntime: input.images.hermesRuntime,
+      hermanHermesRuntime: input.images.hermesRuntime,
+      core: input.images.core,
+      caddy: input.images.caddy,
+    };
+  }
+  return valid;
 }
 
 export function composeEnvironment(input) {
@@ -68,7 +83,9 @@ export function composeEnvironment(input) {
     UNIFY_POSTGRES_VOLUME: valid.volumes.postgres,
     CADDY_DATA_VOLUME: valid.volumes.caddyData,
     CADDY_LOGS_VOLUME: valid.volumes.caddyLogs,
-    HERMES_RUNTIME_IMAGE: valid.images.hermesRuntime,
+    HERMES_RUNTIME_IMAGE: valid.images.alicaHermesRuntime,
+    ALICA_HERMES_RUNTIME_IMAGE: valid.images.alicaHermesRuntime,
+    HERMAN_HERMES_RUNTIME_IMAGE: valid.images.hermanHermesRuntime,
     UNIFY_CORE_IMAGE: valid.images.core,
     CADDY_IMAGE: valid.images.caddy,
   };

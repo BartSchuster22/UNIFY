@@ -176,6 +176,7 @@ const evidence = {
   builder: 'unify-framework-candidate-assessor-v1',
   repository: cfg.repository,
   tag: cfg.tag,
+  release: cfg.release,
   commit: cfg.commit,
   ...(baseImageId ? { baseImageId } : {}),
   startedAt,

@@ -19,7 +19,20 @@ const { Pool } = pg;
 
 const repo = required('HERMES_REPO');
 const hermesBin = process.env.HERMES_BIN ?? 'hermes';
-await verifyImmutableBaseline(repo, hermesBin);
+const candidateAssessment = process.env.HERMES_CANDIDATE_ASSESSMENT === 'true';
+const supportedRelease = candidateAssessment
+  ? required('EXPECTED_HERMES_RELEASE')
+  : PINNED_HERMES_RELEASE;
+const supportedCommit = candidateAssessment
+  ? required('EXPECTED_HERMES_COMMIT')
+  : PINNED_HERMES_COMMIT;
+await verifyImmutableBaseline(
+  repo,
+  hermesBin,
+  supportedRelease,
+  supportedCommit,
+  candidateAssessment,
+);
 const databaseUrl = await secret('DATABASE_URL');
 const bearerToken = await optionalSecret('HERMES_ADAPTER_TOKEN');
 const bearerTokenBundleFile = process.env.HERMES_ADAPTER_TOKEN_BUNDLE_FILE;
@@ -98,6 +111,9 @@ const app = buildHermesControlAdapter({
     ? { upstreamBaseCommit: process.env.HERMES_UPSTREAM_BASE_COMMIT }
     : {}),
   ...(process.env.RELEASE_ID ? { releaseId: process.env.RELEASE_ID } : {}),
+  ...(candidateAssessment
+    ? { frameworkRelease: supportedRelease, frameworkCommit: supportedCommit }
+    : {}),
 });
 
 const host = process.env.HOST ?? '127.0.0.1';
@@ -110,14 +126,13 @@ for (const signal of ['SIGINT', 'SIGTERM'] as const)
     void app.close().finally(() => pool.end());
   });
 
-async function verifyImmutableBaseline(path: string, binary: string) {
-  const candidateAssessment = process.env.HERMES_CANDIDATE_ASSESSMENT === 'true';
-  const supportedRelease = candidateAssessment
-    ? required('EXPECTED_HERMES_RELEASE')
-    : PINNED_HERMES_RELEASE;
-  const supportedCommit = candidateAssessment
-    ? required('EXPECTED_HERMES_COMMIT')
-    : PINNED_HERMES_COMMIT;
+async function verifyImmutableBaseline(
+  path: string,
+  binary: string,
+  supportedRelease: string,
+  supportedCommit: string,
+  candidateAssessment: boolean,
+) {
   if (!/^[a-f0-9]{40}$/u.test(supportedCommit))
     throw new Error('Expected Hermes candidate commit is invalid');
   try {

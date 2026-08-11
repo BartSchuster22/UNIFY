@@ -102,6 +102,7 @@ function create(
   testSource = source,
   scopes: readonly FrameworkScope[] = ['control:read', 'control:execute', 'control:events'],
   events = new MemoryAdapterEventStore(),
+  baseline?: { frameworkRelease: string; frameworkCommit: string },
 ) {
   const app = buildHermesControlAdapter({
     frameworkId: 'hermes-dev',
@@ -114,6 +115,7 @@ function create(
     upstreamBaseCommit: 'a41d280f95c69f67380358b305b62345934ecaf3',
     pythonVersion: '3.11.15',
     releaseId: 'test',
+    ...baseline,
   });
   apps.push(app);
   return app;
@@ -166,6 +168,26 @@ describe('Hermes control adapter', () => {
     expect(capabilities.json().data.capabilities['conversations.delivery.execute']).toMatchObject({
       status: 'unsupported',
       reasonCode: 'SECOND_CONSUMER_FORBIDDEN',
+    });
+  });
+
+  it('reports an exact verified candidate baseline during isolated assessment', async () => {
+    const candidate = {
+      frameworkRelease: '0.20.0-candidate',
+      frameworkCommit: '3c27eb6234bf91b8ceee9e9071591b31e9b148cb',
+    };
+    const app = create(source, undefined, undefined, candidate);
+    const version = await app.inject({ method: 'GET', url: '/control/v1/version', headers: auth });
+    const health = await app.inject({ method: 'GET', url: '/control/v1/health', headers: auth });
+    expect(version.json()).toMatchObject({
+      frameworkVersion: candidate.frameworkRelease,
+      frameworkCommit: candidate.frameworkCommit,
+      sourceVersion: `git:${candidate.frameworkCommit}`,
+      data: { release: candidate.frameworkRelease, commit: candidate.frameworkCommit },
+    });
+    expect(health.json()).toMatchObject({
+      frameworkVersion: candidate.frameworkRelease,
+      frameworkCommit: candidate.frameworkCommit,
     });
   });
 

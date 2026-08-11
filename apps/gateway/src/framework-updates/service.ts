@@ -78,6 +78,45 @@ export class FrameworkUpdateVisibilityService {
     }
   }
 
+  async createRolloutPlan(actorUserId: string, frameworkIds: readonly string[]) {
+    return this.options.store.createRolloutPlan(actorUserId, frameworkIds);
+  }
+
+  async dryRunRollout(planId: string) {
+    return this.options.store.dryRunRollout(planId);
+  }
+
+  async approveRollout(planId: string, actorUserId: string) {
+    return this.options.store.approveRollout(planId, actorUserId);
+  }
+
+  async executeRollout(planId: string) {
+    return this.options.store.queueRollout(planId);
+  }
+
+  async promoteRollout(planId: string, actorUserId: string) {
+    return this.options.store.promoteRollout(planId, actorUserId);
+  }
+
+  async rollbackRollout(sourcePlanId: string, actorUserId: string, reason: string) {
+    return this.options.store.createRollback(sourcePlanId, actorUserId, reason);
+  }
+
+  async updateReleasePolicy(
+    actorUserId: string,
+    input: {
+      canaryFrameworkId: 'hermes-alica' | 'hermes-herman';
+      observationWindowSeconds: number;
+      requiredHealthySamples: number;
+    },
+  ) {
+    return this.options.store.updateReleasePolicy(actorUserId, input);
+  }
+
+  async rollout(planId: string) {
+    return this.options.store.rollout(planId);
+  }
+
   async snapshot() {
     await this.reconcileDeployments();
     let snapshot = await this.options.store.snapshot();
@@ -88,11 +127,15 @@ export class FrameworkUpdateVisibilityService {
       await this.refresh();
       snapshot = await this.options.store.snapshot();
     }
+    const rollouts = await this.options.store.listRollouts(20);
+    const releasePolicy = await this.options.store.releasePolicy();
     return {
-      mode: 'read-only' as const,
+      mode: 'governed-rollout' as const,
+      releasePolicy,
       source: snapshot.source,
       latestCandidate: snapshot.candidate,
       candidateAssessment: snapshot.assessment,
+      rollouts,
       frameworks: snapshot.frameworks.map((framework) => ({
         frameworkId: framework.frameworkId,
         displayName: framework.displayName,

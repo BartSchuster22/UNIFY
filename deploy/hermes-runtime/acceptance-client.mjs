@@ -11,6 +11,10 @@ const ca = readFileSync(process.env.HERMES_ADAPTER_TLS_CA_FILE);
 const host = '127.0.0.1';
 const port = Number(process.env.PORT ?? 28082);
 const servername = process.env.HERMES_ADAPTER_TLS_SERVER_NAME;
+const expectedRelease = process.env.EXPECTED_HERMES_RELEASE;
+const expectedCommit = process.env.EXPECTED_HERMES_COMMIT;
+assert.match(expectedRelease ?? '', /^[0-9A-Za-z._-]+$/u);
+assert.match(expectedCommit ?? '', /^[a-f0-9]{40}$/u);
 
 const call = (method, path, body, authorization = `Bearer ${token}`) =>
   new Promise((resolve, reject) => {
@@ -70,10 +74,10 @@ assert.equal(unauthorized.status, 401);
 
 const version = await call('GET', '/control/v1/version');
 assert.equal(version.status, 200);
-assert.equal(version.body.frameworkVersion, '0.20.0');
-assert.equal(version.body.frameworkCommit, 'b8b17b8cee50b85adb7fba6ea332dc06731b86f4');
-assert.equal(version.body.data.release, '0.20.0');
-assert.equal(version.body.data.commit, 'b8b17b8cee50b85adb7fba6ea332dc06731b86f4');
+assert.equal(version.body.frameworkVersion, expectedRelease);
+assert.equal(version.body.frameworkCommit, expectedCommit);
+assert.equal(version.body.data.release, expectedRelease);
+assert.equal(version.body.data.commit, expectedCommit);
 
 const health = await call('GET', '/control/v1/health');
 assert.equal(health.status, 200);
