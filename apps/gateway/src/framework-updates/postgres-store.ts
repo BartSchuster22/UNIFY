@@ -360,7 +360,7 @@ export class PostgresFrameworkUpdateStore implements FrameworkUpdateStore {
       await client.query(
         `INSERT INTO framework_rollout_events(plan_id,state,progress,safe_message,details)
          VALUES($1,'queued',70,'Canary evidence approved; second instance queued for promotion',
-           jsonb_build_object('promotedBy',$2))`,
+           jsonb_build_object('promotedBy',$2::uuid))`,
         [planId, actorUserId],
       );
       await client.query('COMMIT');
