@@ -1123,7 +1123,7 @@ function installationEnvironment(input) {
   const environment = composeEnvironment(input);
   environment.HERMES_RUNTIME_IMAGE = runtimeImageReference(
     'hermesRuntime',
-    input.images.hermesRuntime,
+    environment.HERMES_RUNTIME_IMAGE,
   );
   environment.UNIFY_CORE_IMAGE = runtimeImageReference('core', input.images.core);
   environment.CADDY_IMAGE = runtimeImageReference('caddy', input.images.caddy);
