@@ -1,0 +1,248 @@
+{
+  "recordedAt": "2026-08-11T15:55:04.751Z",
+  "planId": "945d4dc5-2618-42a8-92ab-a7306b69dd6e",
+  "state": "awaiting_promotion",
+  "targets": [
+    {
+      "frameworkId": "hermes-alica",
+      "ordinal": 1,
+      "state": "converged",
+      "previousReleaseId": "phase-20.0-95f9b15",
+      "previousImageReference": "localhost:5000/unify/hermes-runtime@sha256:78924999ce02475102343153611516f42e7c196d160d1abdb9df3b114429a3a2",
+      "previousImageDigest": "sha256:78924999ce02475102343153611516f42e7c196d160d1abdb9df3b114429a3a2",
+      "previousFrameworkVersion": "0.20.0",
+      "previousFrameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+      "targetReleaseId": "hermes-v2026.8.3",
+      "targetImageReference": "localhost:5000/unify/hermes-candidate@sha256:5c08edb6e2df17ef877b13fb85516b1549058a6a294c8a1c4d112812ec790bbf",
+      "targetImageDigest": "sha256:5c08edb6e2df17ef877b13fb85516b1549058a6a294c8a1c4d112812ec790bbf",
+      "targetFrameworkVersion": "0.20.0",
+      "targetFrameworkCommit": "3c27eb6234bf91b8ceee9e9071591b31e9b148cb",
+      "progress": 100,
+      "dryRunChecks": {
+        "checkedAt": "2026-08-11T15:53:46.266626+00:00",
+        "candidateReady": true,
+        "independentTarget": true,
+        "targetDigestPinned": true,
+        "assessmentImmutable": true,
+        "deploymentUnchanged": true
+      },
+      "convergenceChecks": {
+        "healthy": true,
+        "checkedAt": "2026-08-11T15:54:44.339419+00:00",
+        "commitLabel": true,
+        "releaseLabel": true,
+        "imageIdentity": true
+      },
+      "observationChecks": {
+        "healthy": true,
+        "sampleCount": 4,
+        "lastCheckedAt": "2026-08-11T15:55:02.843001+00:00"
+      },
+      "startedAt": "2026-08-11T15:53:48.210Z",
+      "finishedAt": "2026-08-11T15:54:44.339Z"
+    },
+    {
+      "frameworkId": "hermes-herman",
+      "ordinal": 2,
+      "state": "awaiting_promotion",
+      "previousReleaseId": "phase-20.0-95f9b15",
+      "previousImageReference": "localhost:5000/unify/hermes-runtime@sha256:78924999ce02475102343153611516f42e7c196d160d1abdb9df3b114429a3a2",
+      "previousImageDigest": "sha256:78924999ce02475102343153611516f42e7c196d160d1abdb9df3b114429a3a2",
+      "previousFrameworkVersion": "0.20.0",
+      "previousFrameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+      "targetReleaseId": "hermes-v2026.8.3",
+      "targetImageReference": "localhost:5000/unify/hermes-candidate@sha256:5c08edb6e2df17ef877b13fb85516b1549058a6a294c8a1c4d112812ec790bbf",
+      "targetImageDigest": "sha256:5c08edb6e2df17ef877b13fb85516b1549058a6a294c8a1c4d112812ec790bbf",
+      "targetFrameworkVersion": "0.20.0",
+      "targetFrameworkCommit": "3c27eb6234bf91b8ceee9e9071591b31e9b148cb",
+      "progress": 30,
+      "dryRunChecks": {
+        "checkedAt": "2026-08-11T15:53:46.266626+00:00",
+        "candidateReady": true,
+        "independentTarget": true,
+        "targetDigestPinned": true,
+        "assessmentImmutable": true,
+        "deploymentUnchanged": true
+      },
+      "convergenceChecks": {},
+      "observationChecks": {}
+    }
+  ],
+  "observations": [
+    {
+      "observationId": "4",
+      "frameworkId": "hermes-alica",
+      "healthy": true,
+      "imageIdentity": true,
+      "releaseIdentity": true,
+      "commitIdentity": true,
+      "details": {
+        "health": "healthy",
+        "checkedAt": "2026-08-11T15:55:02.843001+00:00"
+      },
+      "observedAt": "2026-08-11T15:55:02.843Z"
+    },
+    {
+      "observationId": "3",
+      "frameworkId": "hermes-alica",
+      "healthy": true,
+      "imageIdentity": true,
+      "releaseIdentity": true,
+      "commitIdentity": true,
+      "details": {
+        "health": "healthy",
+        "checkedAt": "2026-08-11T15:54:56.861341+00:00"
+      },
+      "observedAt": "2026-08-11T15:54:56.861Z"
+    },
+    {
+      "observationId": "2",
+      "frameworkId": "hermes-alica",
+      "healthy": true,
+      "imageIdentity": true,
+      "releaseIdentity": true,
+      "commitIdentity": true,
+      "details": {
+        "health": "healthy",
+        "checkedAt": "2026-08-11T15:54:50.854+00:00"
+      },
+      "observedAt": "2026-08-11T15:54:50.854Z"
+    },
+    {
+      "observationId": "1",
+      "frameworkId": "hermes-alica",
+      "healthy": true,
+      "imageIdentity": true,
+      "releaseIdentity": true,
+      "commitIdentity": true,
+      "details": {
+        "health": "healthy",
+        "checkedAt": "2026-08-11T15:54:45.066257+00:00"
+      },
+      "observedAt": "2026-08-11T15:54:45.066Z"
+    }
+  ],
+  "events": [
+    {
+      "eventId": "18",
+      "frameworkId": "hermes-alica",
+      "state": "awaiting_promotion",
+      "progress": 70,
+      "safeMessage": "Observation policy passed; governed promotion is now available",
+      "details": {
+        "healthySamples": 4,
+        "observationDeadlineAt": "2026-08-11T15:54:59.454255+00:00",
+        "requiredHealthySamples": 3
+      },
+      "occurredAt": "2026-08-11T15:55:02.843Z"
+    },
+    {
+      "eventId": "17",
+      "frameworkId": "hermes-alica",
+      "state": "observing",
+      "progress": 65,
+      "safeMessage": "Canary observation sample passed",
+      "details": {
+        "healthySamples": 3,
+        "observationDeadlineAt": "2026-08-11T15:54:59.454255+00:00",
+        "requiredHealthySamples": 3
+      },
+      "occurredAt": "2026-08-11T15:54:56.861Z"
+    },
+    {
+      "eventId": "16",
+      "frameworkId": "hermes-alica",
+      "state": "observing",
+      "progress": 65,
+      "safeMessage": "Canary observation sample passed",
+      "details": {
+        "healthySamples": 2,
+        "observationDeadlineAt": "2026-08-11T15:54:59.454255+00:00",
+        "requiredHealthySamples": 3
+      },
+      "occurredAt": "2026-08-11T15:54:50.854Z"
+    },
+    {
+      "eventId": "15",
+      "frameworkId": "hermes-alica",
+      "state": "observing",
+      "progress": 65,
+      "safeMessage": "Canary observation sample passed",
+      "details": {
+        "healthySamples": 1,
+        "observationDeadlineAt": "2026-08-11T15:54:59.454255+00:00",
+        "requiredHealthySamples": 3
+      },
+      "occurredAt": "2026-08-11T15:54:45.066Z"
+    },
+    {
+      "eventId": "14",
+      "state": "observing",
+      "progress": 60,
+      "safeMessage": "Canary converged; policy observation window started",
+      "details": {
+        "policy": {
+          "updatedAt": "2026-08-11T15:53:46.238Z",
+          "updatedBy": "f2e87611-1bdd-482d-b16d-97a64add0755",
+          "canaryFrameworkId": "hermes-alica",
+          "requiredHealthySamples": 3,
+          "manualPromotionRequired": true,
+          "observationWindowSeconds": 15
+        },
+        "observationStartedAt": "2026-08-11T15:54:44.454255+00:00",
+        "observationDeadlineAt": "2026-08-11T15:54:59.454255+00:00"
+      },
+      "occurredAt": "2026-08-11T15:54:44.454Z"
+    },
+    {
+      "eventId": "13",
+      "frameworkId": "hermes-alica",
+      "state": "converged",
+      "progress": 100,
+      "safeMessage": "Target passed automatic convergence checks",
+      "details": {},
+      "occurredAt": "2026-08-11T15:54:44.339Z"
+    },
+    {
+      "eventId": "12",
+      "frameworkId": "hermes-alica",
+      "state": "executing",
+      "progress": 45,
+      "safeMessage": "Target execution started",
+      "details": {},
+      "occurredAt": "2026-08-11T15:53:48.210Z"
+    },
+    {
+      "eventId": "11",
+      "state": "queued",
+      "progress": 35,
+      "safeMessage": "Rollout queued for the governed host worker",
+      "details": {},
+      "occurredAt": "2026-08-11T15:53:46.295Z"
+    },
+    {
+      "eventId": "10",
+      "state": "approved",
+      "progress": 30,
+      "safeMessage": "Rollout plan approved",
+      "details": {},
+      "occurredAt": "2026-08-11T15:53:46.281Z"
+    },
+    {
+      "eventId": "9",
+      "state": "dry_run_passed",
+      "progress": 20,
+      "safeMessage": "Dry-run checks passed for every selected target",
+      "details": {},
+      "occurredAt": "2026-08-11T15:53:46.266Z"
+    },
+    {
+      "eventId": "8",
+      "state": "planned",
+      "progress": 0,
+      "safeMessage": "Rollout plan created",
+      "details": {},
+      "occurredAt": "2026-08-11T15:53:46.249Z"
+    }
+  ]
+}

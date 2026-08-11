@@ -1,0 +1,157 @@
+{
+  "planId": "b4c824a5-c99d-42ad-b0db-b2f147bf6c5c",
+  "candidateId": "fuc_d826285639e25957b77ffb4ba120e08d1f30cebb2a0ef1fd8be23ed49ed70975",
+  "assessmentId": "fca_2a3fc30696a25d998a6169810a24dd53b1c4f9aca27207199f169a3aa49b76be",
+  "state": "succeeded",
+  "operationKind": "rollback",
+  "policySnapshot": {
+    "updatedAt": "2026-08-11T15:53:46.238Z",
+    "updatedBy": "f2e87611-1bdd-482d-b16d-97a64add0755",
+    "canaryFrameworkId": "hermes-alica",
+    "requiredHealthySamples": 3,
+    "manualPromotionRequired": true,
+    "observationWindowSeconds": 15
+  },
+  "createdBy": "f2e87611-1bdd-482d-b16d-97a64add0755",
+  "createdAt": "2026-08-11T16:05:14.299Z",
+  "targets": [
+    {
+      "frameworkId": "hermes-alica",
+      "ordinal": 1,
+      "state": "converged",
+      "previousReleaseId": "hermes-v2026.8.3",
+      "previousImageReference": "localhost:5000/unify/hermes-candidate@sha256:5c08edb6e2df17ef877b13fb85516b1549058a6a294c8a1c4d112812ec790bbf",
+      "previousImageDigest": "sha256:5c08edb6e2df17ef877b13fb85516b1549058a6a294c8a1c4d112812ec790bbf",
+      "previousFrameworkVersion": "0.20.0",
+      "previousFrameworkCommit": "3c27eb6234bf91b8ceee9e9071591b31e9b148cb",
+      "targetReleaseId": "phase-20.0-95f9b15",
+      "targetImageReference": "localhost:5000/unify/hermes-runtime@sha256:78924999ce02475102343153611516f42e7c196d160d1abdb9df3b114429a3a2",
+      "targetImageDigest": "sha256:78924999ce02475102343153611516f42e7c196d160d1abdb9df3b114429a3a2",
+      "targetFrameworkVersion": "0.20.0",
+      "targetFrameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+      "progress": 100,
+      "dryRunChecks": {
+        "checkedAt": "2026-08-11T16:05:14.299968+00:00",
+        "digestPinned": true,
+        "oneClickRollback": true,
+        "deploymentUnchanged": true
+      },
+      "convergenceChecks": {
+        "healthy": true,
+        "checkedAt": "2026-08-11T16:06:14.857883+00:00",
+        "commitLabel": true,
+        "releaseLabel": true,
+        "imageIdentity": true
+      },
+      "observationChecks": {},
+      "startedAt": "2026-08-11T16:05:18.683Z",
+      "finishedAt": "2026-08-11T16:06:14.857Z"
+    },
+    {
+      "frameworkId": "hermes-herman",
+      "ordinal": 2,
+      "state": "converged",
+      "previousReleaseId": "hermes-v2026.8.3",
+      "previousImageReference": "localhost:5000/unify/hermes-candidate@sha256:5c08edb6e2df17ef877b13fb85516b1549058a6a294c8a1c4d112812ec790bbf",
+      "previousImageDigest": "sha256:5c08edb6e2df17ef877b13fb85516b1549058a6a294c8a1c4d112812ec790bbf",
+      "previousFrameworkVersion": "0.20.0",
+      "previousFrameworkCommit": "3c27eb6234bf91b8ceee9e9071591b31e9b148cb",
+      "targetReleaseId": "phase-20.0-95f9b15",
+      "targetImageReference": "localhost:5000/unify/hermes-runtime@sha256:78924999ce02475102343153611516f42e7c196d160d1abdb9df3b114429a3a2",
+      "targetImageDigest": "sha256:78924999ce02475102343153611516f42e7c196d160d1abdb9df3b114429a3a2",
+      "targetFrameworkVersion": "0.20.0",
+      "targetFrameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+      "progress": 100,
+      "dryRunChecks": {
+        "checkedAt": "2026-08-11T16:05:14.299968+00:00",
+        "digestPinned": true,
+        "oneClickRollback": true,
+        "deploymentUnchanged": true
+      },
+      "convergenceChecks": {
+        "healthy": true,
+        "checkedAt": "2026-08-11T16:07:11.629674+00:00",
+        "commitLabel": true,
+        "releaseLabel": true,
+        "imageIdentity": true
+      },
+      "observationChecks": {},
+      "startedAt": "2026-08-11T16:06:15.394Z",
+      "finishedAt": "2026-08-11T16:07:11.629Z"
+    }
+  ],
+  "events": [
+    {
+      "eventId": "29",
+      "state": "succeeded",
+      "progress": 100,
+      "safeMessage": "Governed rollback converged on every target",
+      "details": {},
+      "occurredAt": "2026-08-11T16:07:11.748Z"
+    },
+    {
+      "eventId": "28",
+      "frameworkId": "hermes-herman",
+      "state": "converged",
+      "progress": 100,
+      "safeMessage": "Target passed automatic convergence checks",
+      "details": {},
+      "occurredAt": "2026-08-11T16:07:11.629Z"
+    },
+    {
+      "eventId": "27",
+      "frameworkId": "hermes-herman",
+      "state": "executing",
+      "progress": 45,
+      "safeMessage": "Target execution started",
+      "details": {},
+      "occurredAt": "2026-08-11T16:06:15.394Z"
+    },
+    {
+      "eventId": "26",
+      "state": "executing",
+      "progress": 80,
+      "safeMessage": "Target converged; next independent target is eligible",
+      "details": {},
+      "occurredAt": "2026-08-11T16:06:14.984Z"
+    },
+    {
+      "eventId": "25",
+      "frameworkId": "hermes-alica",
+      "state": "converged",
+      "progress": 100,
+      "safeMessage": "Target passed automatic convergence checks",
+      "details": {},
+      "occurredAt": "2026-08-11T16:06:14.857Z"
+    },
+    {
+      "eventId": "24",
+      "frameworkId": "hermes-alica",
+      "state": "executing",
+      "progress": 45,
+      "safeMessage": "Target execution started",
+      "details": {},
+      "occurredAt": "2026-08-11T16:05:18.683Z"
+    },
+    {
+      "eventId": "23",
+      "state": "queued",
+      "progress": 35,
+      "safeMessage": "Governed one-click rollback queued",
+      "details": {
+        "reason": "Phase 4 production governed rollback verification",
+        "actorUserId": "f2e87611-1bdd-482d-b16d-97a64add0755",
+        "sourcePlanId": "945d4dc5-2618-42a8-92ab-a7306b69dd6e"
+      },
+      "occurredAt": "2026-08-11T16:05:14.299Z"
+    }
+  ],
+  "observations": [],
+  "approvedBy": "f2e87611-1bdd-482d-b16d-97a64add0755",
+  "sourcePlanId": "945d4dc5-2618-42a8-92ab-a7306b69dd6e",
+  "rollbackReason": "Phase 4 production governed rollback verification",
+  "approvedAt": "2026-08-11T16:05:14.299Z",
+  "executionRequestedAt": "2026-08-11T16:05:14.299Z",
+  "startedAt": "2026-08-11T16:05:18.683Z",
+  "finishedAt": "2026-08-11T16:07:11.748Z"
+}
