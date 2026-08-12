@@ -85,6 +85,51 @@ describe('HermesManagementApi', () => {
     ]);
   });
 
+  it('normalizes cloud/external identity validation without exposing raw identity data', async () => {
+    const requests: Array<{ url: string; body?: unknown }> = [];
+    const fetchImpl: typeof fetch = async (input, init) => {
+      requests.push({
+        url: String(input),
+        ...(init?.body ? { body: JSON.parse(String(init.body)) } : {}),
+      });
+      return Response.json({
+        providerId: 'vertex',
+        accepted: true,
+        reachable: true,
+        verified: true,
+        identityKind: 'service_account',
+        prerequisites: {
+          'google-adc': 'satisfied',
+          'google-project': 'satisfied',
+          INVALID_STATUS: 'secret-value',
+        },
+        access_token: 'must-not-escape',
+      });
+    };
+    const api = new HermesManagementApi('http://127.0.0.1:29119', fetchImpl);
+    const result = await api.validateProviderIdentity('vertex', {
+      credentials: '/run/secrets/google.json',
+      project: 'project-1',
+      unknown: 'discarded',
+    });
+    expect(result).toEqual({
+      providerId: 'vertex',
+      accepted: true,
+      reachable: true,
+      verified: true,
+      identityKind: 'service_account',
+      prerequisites: {
+        'google-adc': 'satisfied',
+        'google-project': 'satisfied',
+      },
+    });
+    expect(requests[0]?.body).toEqual({
+      provider: 'vertex',
+      values: { credentials: '/run/secrets/google.json', project: 'project-1' },
+    });
+    expect(JSON.stringify(result)).not.toContain('must-not-escape');
+  });
+
   it('fails closed and never persists rejected or unreachable credentials', async () => {
     for (const validation of [
       { ok: false, reachable: true, expectedStatus: 422 },

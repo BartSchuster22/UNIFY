@@ -345,13 +345,22 @@ export class HermesNativeSource implements AdapterSource {
         case 'provider.credential.remove':
           return await this.management.removeCredential(command.targetId);
         case 'provider.validate': {
-          const result = await this.management.refreshProviderModels(command.targetId);
-          return {
-            providerId: command.targetId,
-            accepted: result.discovered > 0,
-            verified: result.discovered > 0,
-            discovered: result.discovered,
-          };
+          const setup = record(payload.setup);
+          const values: Record<string, string> = {};
+          for (const [key, value] of Object.entries(setup)) {
+            if (
+              !/^[a-z][A-Za-z0-9]{0,99}$/u.test(key) ||
+              typeof value !== 'string' ||
+              value.length > 4096
+            )
+              throw new SourceUnavailableError('Provider validation contains an invalid field');
+            values[key] = value;
+          }
+          const persisted = await this.management.readProviderSetup(command.targetId);
+          const merged: Record<string, string> = { ...persisted, ...values };
+          if (['bedrock', 'vertex', 'copilot-acp'].includes(command.targetId))
+            return await this.management.validateProviderIdentity(command.targetId, merged);
+          return await this.management.validateProviderIdentity(command.targetId, values);
         }
         case 'provider.models.refresh':
           return await this.management.refreshProviderModels(command.targetId);
@@ -893,7 +902,23 @@ function mapManagementProvider(
       ? Number(raw.total_models)
       : 0;
   const selected = id.toLowerCase() === selectedProvider.toLowerCase();
-  const contract = truthfulProviderContract({ id, authenticated, selected, modelCount });
+  const rawPrerequisites = raw.prerequisites;
+  const prerequisiteStatuses = Object.fromEntries(
+    Object.entries(
+      rawPrerequisites && typeof rawPrerequisites === 'object' && !Array.isArray(rawPrerequisites)
+        ? (rawPrerequisites as Record<string, unknown>)
+        : {},
+    )
+      .filter(([, value]) => ['satisfied', 'missing', 'unknown'].includes(String(value)))
+      .map(([key, value]) => [key, String(value) as 'satisfied' | 'missing' | 'unknown']),
+  );
+  const contract = truthfulProviderContract({
+    id,
+    authenticated,
+    selected,
+    modelCount,
+    prerequisiteStatuses,
+  });
   return {
     id,
     displayName: optionalString(raw.name ?? raw.label) ?? id,

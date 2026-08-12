@@ -308,6 +308,25 @@ function validateModelCommand(input: MutationInput, definition: MutationDefiniti
     if (typeof credential !== 'string' || !credential.trim() || credential.length > 32_768)
       throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'credential is required');
   }
+  if (input.operationType === 'provider.validate' && input.payload.setup !== undefined) {
+    const setup = input.payload.setup;
+    if (!setup || typeof setup !== 'object' || Array.isArray(setup))
+      throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'setup must be an object');
+    const allowed = new Set(['profile', 'region', 'credentials', 'project', 'command']);
+    for (const [key, value] of Object.entries(setup as Record<string, unknown>)) {
+      if (
+        !allowed.has(key) ||
+        typeof value !== 'string' ||
+        value.length > 4096 ||
+        Array.from(value).some((character) => character.charCodeAt(0) < 32)
+      )
+        throw new GovernanceError(
+          'MUTATION_PAYLOAD_INVALID',
+          422,
+          'provider identity setup contains an invalid field',
+        );
+    }
+  }
   if (input.operationType === 'provider.inference.test') {
     const modelId = input.payload.modelId;
     if (typeof modelId !== 'string' || !modelId.trim())

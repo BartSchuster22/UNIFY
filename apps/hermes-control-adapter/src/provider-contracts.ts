@@ -154,15 +154,32 @@ const DEFINITIONS: Record<string, ProviderDefinition> = {
   'tencent-tokenhub': { authMethod: 'api_key', setupFields: [secret('Tencent TokenHub key')] },
   nvidia: singleKey(),
   copilot: {
-    authMethod: 'oauth_device_code',
-    setupFields: [field('method', 'Copilot authentication method', 'choice')],
-    prerequisites: [prerequisite('copilot-entitlement', 'GitHub Copilot entitlement', 'account')],
+    authMethod: 'api_key',
+    setupSupported: true,
+    setupFields: [secret('GitHub token with Copilot access')],
+    prerequisites: [
+      prerequisite(
+        'copilot-entitlement',
+        'GitHub account with an active Copilot entitlement',
+        'account',
+      ),
+    ],
   },
   'copilot-acp': {
     authMethod: 'external_cli',
+    setupSupported: false,
+    setupFields: [],
     prerequisites: [
-      prerequisite('copilot-cli', 'Supported Copilot CLI installed', 'executable'),
-      prerequisite('copilot-login', 'Copilot CLI authenticated', 'account'),
+      prerequisite(
+        'copilot-cli',
+        'GitHub Copilot CLI available in the Hermes runtime',
+        'executable',
+      ),
+      prerequisite(
+        'copilot-login',
+        'Copilot CLI authenticated to an entitled GitHub account',
+        'account',
+      ),
     ],
   },
   huggingface: singleKey('Hugging Face token'),
@@ -198,6 +215,7 @@ const DEFINITIONS: Record<string, ProviderDefinition> = {
         'Google Application Default Credentials, workload identity, or a runtime-mounted service-account file',
         'cloud_identity',
       ),
+      prerequisite('google-project', 'Vertex-enabled Google Cloud project', 'provider'),
     ],
   },
   deepseek: singleKey(),
@@ -261,6 +279,7 @@ const DEFINITIONS: Record<string, ProviderDefinition> = {
       ),
     ],
   },
+
   'azure-foundry': {
     authMethod: 'api_key',
     setupSupported: true,
@@ -270,6 +289,7 @@ const DEFINITIONS: Record<string, ProviderDefinition> = {
     ],
     prerequisites: [prerequisite('azure-endpoint', 'Azure Foundry deployment endpoint', 'network')],
   },
+
   'ai-gateway': singleKey(),
   'qwen-oauth': oauth('oauth_device_code'),
   'alibaba-coding-plan': {
@@ -309,6 +329,7 @@ export function truthfulProviderContract(input: {
   authenticated: boolean;
   selected: boolean;
   modelCount: number;
+  prerequisiteStatuses?: Record<string, 'satisfied' | 'missing' | 'unknown'>;
 }): Pick<
   HermesProvider,
   | 'authType'
@@ -331,15 +352,27 @@ export function truthfulProviderContract(input: {
         : authMethod === 'unknown'
           ? 'unknown'
           : 'disconnected';
-  const prerequisites = (definition?.prerequisites ?? []).map((item) => ({
-    ...item,
-    status: input.authenticated ? ('satisfied' as const) : ('unknown' as const),
-  }));
+  const prerequisites = (definition?.prerequisites ?? []).map((item) => {
+    const rawStatus = input.prerequisiteStatuses?.[item.id];
+    return {
+      ...item,
+      status:
+        rawStatus === 'satisfied' || rawStatus === 'missing' || rawStatus === 'unknown'
+          ? rawStatus
+          : input.authenticated
+            ? ('satisfied' as const)
+            : ('unknown' as const),
+    };
+  });
   const reasons: string[] = [];
+  const hasMissingPrerequisite = prerequisites.some((item) => item.status === 'missing');
   let deploymentReadiness: HermesProvider['deploymentReadiness'];
   if (authMethod === 'unknown') {
     deploymentReadiness = 'unsupported';
     reasons.push('SETUP_CONTRACT_UNKNOWN');
+  } else if (hasMissingPrerequisite) {
+    deploymentReadiness = 'needs_configuration';
+    reasons.push('PROVIDER_PREREQUISITE_MISSING');
   } else if (!input.authenticated && authMethod !== 'none') {
     deploymentReadiness = 'needs_configuration';
     reasons.push('PROVIDER_NOT_CONNECTED');

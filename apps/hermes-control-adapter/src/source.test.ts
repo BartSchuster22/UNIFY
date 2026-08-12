@@ -461,9 +461,10 @@ describe('HermesNativeSource', () => {
         expect.objectContaining({ id: 'project', type: 'project', secret: false }),
         expect.objectContaining({ id: 'credentials', type: 'secret_file', secret: true }),
       ]),
-      prerequisites: [
+      prerequisites: expect.arrayContaining([
         expect.objectContaining({ id: 'google-adc', kind: 'cloud_identity', status: 'unknown' }),
-      ],
+        expect.objectContaining({ id: 'google-project', kind: 'provider', status: 'unknown' }),
+      ]),
     });
     expect(items.find((item) => item.id === 'moa')).toMatchObject({
       authMethod: 'composite',

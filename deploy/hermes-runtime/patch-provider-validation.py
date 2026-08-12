@@ -211,6 +211,81 @@ async def update_provider_setup_batch(request: Request):
     return {"ok": True, "changed": bool(normalized or config_patch), "configured": False}
 
 
+@app.post("/api/providers/identity/validate")
+async def validate_provider_identity(request: Request):
+    """Validate cloud/external identity without returning credentials or identity values."""
+    _require_token(request)
+    import shutil
+    import subprocess
+
+    body = await request.json()
+    provider_id = str(body.get("provider") or "").strip().lower() if isinstance(body, dict) else ""
+    values = body.get("values", {}) if isinstance(body, dict) else {}
+    if not isinstance(values, dict) or provider_id not in {"bedrock", "vertex", "copilot-acp"}:
+        raise HTTPException(status_code=400, detail="unsupported identity validation request")
+
+    def _safe_value(name: str, maximum: int = 300) -> str:
+        value = str(values.get(name) or "").strip()
+        if len(value) > maximum or any(ord(ch) < 32 for ch in value):
+            raise ValueError("invalid identity field")
+        return value
+
+    try:
+        if provider_id == "bedrock":
+            import boto3
+            from hermes_cli.config import get_env_value
+            profile = _safe_value("profile", 128) or str(get_env_value("AWS_PROFILE") or "").strip()
+            region = _safe_value("region", 64) or str(get_env_value("AWS_REGION") or "").strip() or "us-east-1"
+            session = boto3.Session(profile_name=profile or None, region_name=region)
+            credentials = session.get_credentials()
+            if credentials is None:
+                return {"providerId": provider_id, "accepted": False, "reachable": True, "verified": False, "prerequisites": {"aws-identity": "missing"}, "message": "AWS credential chain did not resolve an identity."}
+            session.client("sts", region_name=region).get_caller_identity()
+            discovered = len(session.client("bedrock", region_name=region).list_foundation_models().get("modelSummaries", []))
+            return {"providerId": provider_id, "accepted": discovered > 0, "reachable": True, "verified": discovered > 0, "discovered": discovered, "prerequisites": {"aws-identity": "satisfied"}, "identityKind": "aws_sdk"}
+
+        if provider_id == "vertex":
+            import google.auth
+            from hermes_cli.config import get_env_value
+            from google.auth.transport.requests import Request as GoogleAuthRequest
+            from google.oauth2 import service_account
+            path = _safe_value("credentials", 4096) or str(get_env_value("VERTEX_CREDENTIALS_PATH") or "").strip()
+            requested_project = _safe_value("project", 256)
+            if not requested_project:
+                try:
+                    raw_cfg = read_raw_config()
+                    requested_project = str((raw_cfg.get("vertex") or {}).get("project_id") or "").strip()
+                except Exception:
+                    requested_project = ""
+            scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+            if path:
+                if not path.startswith("/") or not Path(path).is_file():
+                    return {"providerId": provider_id, "accepted": False, "reachable": True, "verified": False, "prerequisites": {"google-identity": "missing", "google-project": "unknown"}, "message": "Mounted Google credential file was not found."}
+                credentials = service_account.Credentials.from_service_account_file(path, scopes=scopes)
+                detected_project = getattr(credentials, "project_id", None)
+                identity_kind = "service_account"
+            else:
+                credentials, detected_project = google.auth.default(scopes=scopes)
+                identity_kind = "application_default_credentials"
+            project = requested_project or str(detected_project or "")
+            if not project:
+                return {"providerId": provider_id, "accepted": False, "reachable": True, "verified": False, "prerequisites": {"google-identity": "satisfied", "google-project": "missing"}, "message": "Google identity resolved but no project was configured."}
+            credentials.refresh(GoogleAuthRequest())
+            return {"providerId": provider_id, "accepted": True, "reachable": True, "verified": True, "prerequisites": {"google-identity": "satisfied", "google-project": "satisfied"}, "identityKind": identity_kind}
+
+        command = _safe_value("command", 4096) or "copilot"
+        resolved = shutil.which(command)
+        if not resolved:
+            return {"providerId": provider_id, "accepted": False, "reachable": True, "verified": False, "prerequisites": {"copilot-cli": "missing", "copilot-login": "unknown"}, "message": "GitHub Copilot CLI is not installed in the Hermes runtime."}
+        probe = subprocess.run([resolved, "--version"], capture_output=True, text=True, timeout=10, check=False)
+        executable_ok = probe.returncode == 0
+        return {"providerId": provider_id, "accepted": executable_ok, "reachable": executable_ok, "verified": False, "prerequisites": {"copilot-cli": "satisfied" if executable_ok else "missing", "copilot-login": "unknown"}, "identityKind": "external_cli", "message": "Copilot CLI is available; account entitlement is verified only by a governed inference test."}
+    except ValueError:
+        raise HTTPException(status_code=400, detail="invalid identity field")
+    except Exception as exc:
+        return {"providerId": provider_id, "accepted": False, "reachable": False, "verified": False, "prerequisites": {}, "message": str(exc)[:300] or "Identity validation failed."}
+
+
 @app.delete("/api/env")
 async def remove_env_var(body: EnvVarDelete, profile: Optional[str] = None):'''
 if source.count(request_anchor) != 1:

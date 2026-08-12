@@ -80,6 +80,73 @@ describe('standard API-key provider matrix', () => {
     }
   });
 
+  it('advertises truthful cloud identity and external CLI contracts', () => {
+    const bedrock = truthfulProviderContract({
+      id: 'bedrock',
+      authenticated: false,
+      selected: false,
+      modelCount: 0,
+      prerequisiteStatuses: { 'aws-identity': 'missing' },
+    });
+    expect(bedrock).toMatchObject({
+      authMethod: 'cloud_identity',
+      setupSupported: true,
+      deploymentReadiness: 'needs_configuration',
+      readinessReasonCodes: ['PROVIDER_PREREQUISITE_MISSING'],
+    });
+    expect(bedrock.prerequisites?.[0]?.status).toBe('missing');
+
+    const vertex = truthfulProviderContract({
+      id: 'vertex',
+      authenticated: true,
+      selected: false,
+      modelCount: 2,
+      prerequisiteStatuses: { 'google-adc': 'satisfied', 'google-project': 'satisfied' },
+    });
+    expect(vertex).toMatchObject({
+      authMethod: 'cloud_identity',
+      setupSupported: true,
+      deploymentReadiness: 'needs_selection',
+    });
+    expect(vertex.setupFields?.map((field) => field.id)).toEqual([
+      'credentialType',
+      'project',
+      'region',
+      'credentials',
+    ]);
+
+    expect(
+      truthfulProviderContract({
+        id: 'azure-foundry',
+        authenticated: false,
+        selected: false,
+        modelCount: 0,
+      }),
+    ).toMatchObject({ authMethod: 'api_key', setupSupported: true });
+    expect(
+      truthfulProviderContract({
+        id: 'copilot',
+        authenticated: false,
+        selected: false,
+        modelCount: 0,
+      }),
+    ).toMatchObject({ authMethod: 'api_key', setupSupported: true });
+    expect(
+      truthfulProviderContract({
+        id: 'copilot-acp',
+        authenticated: false,
+        selected: false,
+        modelCount: 0,
+        prerequisiteStatuses: { 'copilot-cli': 'missing', 'copilot-login': 'unknown' },
+      }),
+    ).toMatchObject({
+      authMethod: 'external_cli',
+      setupSupported: false,
+      credentialMutable: false,
+      deploymentReadiness: 'needs_configuration',
+    });
+  });
+
   it('advertises governed device-code OAuth for the five supported providers', () => {
     for (const id of ['nous', 'openai-codex', 'minimax-oauth', 'xai-oauth', 'qwen-oauth']) {
       const contract = truthfulProviderContract({

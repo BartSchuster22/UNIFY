@@ -56,6 +56,11 @@ const ADVANCED_PROVIDER_ENV: Record<
     defaultCredential: 'default',
     fields: { baseUrl: 'AZURE_FOUNDRY_BASE_URL' },
   },
+  copilot: {
+    credentials: { default: 'COPILOT_GITHUB_TOKEN' },
+    defaultCredential: 'default',
+    fields: {},
+  },
   bedrock: {
     credentials: { bearer: 'AWS_BEARER_TOKEN_BEDROCK' },
     defaultCredential: 'sdk',
@@ -84,13 +89,28 @@ export class HermesManagementApi {
     const query = new URLSearchParams({ include_unconfigured: 'true' });
     if (refresh) query.set('refresh', 'true');
     const value = record(await this.request(`/api/model/options?${query.toString()}`));
+    const providers = Array.isArray(value.providers)
+      ? value.providers.filter(
+          (item): item is JsonRecord =>
+            Boolean(item) && typeof item === 'object' && !Array.isArray(item),
+        )
+      : [];
+    for (const provider of providers) {
+      const providerId = string(provider.slug ?? provider.provider);
+      if (!['bedrock', 'vertex', 'copilot-acp'].includes(providerId)) continue;
+      try {
+        const validation = await this.validateProviderIdentity(providerId);
+        provider.prerequisites = validation.prerequisites;
+        if (validation.verified === true || validation.identityKind === 'external_cli') {
+          provider.authenticated = validation.accepted === true;
+          provider.configured = validation.accepted === true;
+        }
+      } catch {
+        // Inventory remains available when an optional identity probe fails.
+      }
+    }
     return {
-      providers: Array.isArray(value.providers)
-        ? value.providers.filter(
-            (item): item is JsonRecord =>
-              Boolean(item) && typeof item === 'object' && !Array.isArray(item),
-          )
-        : [],
+      providers,
       provider: string(value.provider),
       model: string(value.model),
     };
@@ -217,6 +237,72 @@ export class HermesManagementApi {
       ? provider.models.filter((item): item is string => typeof item === 'string' && Boolean(item))
       : [];
     return { providerId, discovered: models.length, models };
+  }
+
+  async readProviderSetup(providerId: string): Promise<ProviderSetupValues> {
+    const definition = ADVANCED_PROVIDER_ENV[providerId];
+    if (!definition) return {};
+    const env = record(await this.request('/api/env', 'GET'));
+    const config = definition.configFields ? record(await this.request('/api/config', 'GET')) : {};
+    const providerConfig = record(config[providerId]);
+    const values: ProviderSetupValues = {};
+    for (const [fieldId, envKey] of Object.entries(definition.fields)) {
+      const value = record(env[envKey]).value;
+      if (typeof value === 'string' && value) values[fieldId] = value;
+    }
+    for (const [fieldId, configKey] of Object.entries(definition.configFields ?? {})) {
+      const value = providerConfig[configKey];
+      if (typeof value === 'string' && value) values[fieldId] = value;
+    }
+    return values;
+  }
+
+  async validateProviderIdentity(providerId: string, values: ProviderSetupValues = {}) {
+    if (!['bedrock', 'vertex', 'copilot-acp'].includes(providerId)) {
+      const result = await this.refreshProviderModels(providerId);
+      return {
+        providerId,
+        accepted: result.discovered > 0,
+        reachable: result.discovered > 0,
+        verified: result.discovered > 0,
+        discovered: result.discovered,
+        prerequisites: {},
+      };
+    }
+    const raw = record(
+      await this.request('/api/providers/identity/validate', 'POST', {
+        provider: providerId,
+        values: Object.fromEntries(
+          Object.entries(values).filter(
+            ([key, value]) =>
+              ['profile', 'region', 'credentials', 'project', 'command'].includes(key) &&
+              typeof value === 'string' &&
+              value.length <= 4096,
+          ),
+        ),
+      }),
+    );
+    const prerequisites = record(raw.prerequisites);
+    return {
+      providerId,
+      accepted: raw.accepted === true,
+      reachable: raw.reachable === true,
+      verified: raw.verified === true,
+      ...(Number.isInteger(raw.discovered) ? { discovered: Number(raw.discovered) } : {}),
+      ...(typeof raw.identityKind === 'string'
+        ? { identityKind: raw.identityKind.slice(0, 100) }
+        : {}),
+      prerequisites: Object.fromEntries(
+        Object.entries(prerequisites).filter(
+          ([key, value]) =>
+            /^[a-z][a-z0-9-]{0,99}$/u.test(key) &&
+            ['satisfied', 'missing', 'unknown'].includes(String(value)),
+        ),
+      ),
+      ...(typeof raw.message === 'string' && raw.message
+        ? { message: raw.message.slice(0, 500) }
+        : {}),
+    };
   }
 
   async verifyPersistence(providerId: string) {

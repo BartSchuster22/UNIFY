@@ -32,6 +32,23 @@ class ProviderValidationPatchTest(unittest.TestCase):
         self.assertEqual(len(expected), 22)
         self.assertNotIn('print(', patch)  # patch itself cannot print/log a submitted value
 
+    def test_adds_cloud_and_external_identity_validation_without_secret_output(self):
+        patch = Path(__file__).with_name('patch-provider-validation.py').read_text()
+        for required in (
+            '@app.post("/api/providers/identity/validate")',
+            'provider_id not in {"bedrock", "vertex", "copilot-acp"}',
+            'get_caller_identity()',
+            'list_foundation_models()',
+            'google.auth.default(scopes=scopes)',
+            'Credentials.from_service_account_file',
+            'shutil.which(command)',
+            '[resolved, "--version"]',
+            '"copilot-login": "unknown"',
+        ):
+            self.assertIn(required, patch)
+        for forbidden in ('access_key', 'secret_key', 'access_token":', 'refresh_token":'):
+            self.assertNotIn(forbidden, patch)
+
     def test_adds_qwen_device_code_lifecycle_without_embedded_credentials(self):
         patch = Path(__file__).with_name('patch-provider-validation.py').read_text()
         for required in (

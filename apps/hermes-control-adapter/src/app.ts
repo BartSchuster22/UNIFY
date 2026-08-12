@@ -794,7 +794,13 @@ function verifyModelManagementResult(
     )
       return;
   } else if (command.operation === 'provider.validate') {
-    if (result.accepted === true && result.verified === true && Number(result.discovered) > 0)
+    if (
+      result.accepted === true &&
+      (result.verified === true ||
+        (result.identityKind === 'external_cli' &&
+          result.prerequisites !== null &&
+          typeof result.prerequisites === 'object'))
+    )
       return;
   } else if (command.operation === 'provider.persistence.verify') {
     if (result.configured === true && result.persisted === true) return;

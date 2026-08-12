@@ -418,6 +418,7 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
       | 'provider.models.refresh'
       | 'provider.inference.test'
       | 'provider.persistence.verify',
+    setupValues?: Record<string, string>,
   ) => {
     const modelId = (modelsByProvider.get(provider.id) ?? []).find((item) => item.selected)?.id;
     await mutate(
@@ -430,6 +431,7 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
             ? models?.meta.sourceVersion
             : provider.sourceVersion,
         ...(operationType === 'provider.inference.test' && modelId ? { modelId } : {}),
+        ...(operationType === 'provider.validate' && setupValues ? { setup: setupValues } : {}),
       },
       true,
     );
@@ -921,6 +923,38 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                             ) : null}
                           </Group>
                         </Stack>
+                      ) : provider.authMethod === 'external_cli' ? (
+                        <Stack gap="xs">
+                          <Alert
+                            color={provider.credentialStatus === 'configured' ? 'teal' : 'yellow'}
+                          >
+                            UNIFY does not install or authenticate external CLIs. Validation checks
+                            the Hermes runtime executable; account entitlement is proven only by a
+                            governed inference test.
+                          </Alert>
+                          <Group>
+                            <Button
+                              variant="light"
+                              disabled={!modelEnabled || Boolean(busy)}
+                              onClick={() => void runProviderCheck(provider, 'provider.validate')}
+                            >
+                              Validate CLI prerequisite
+                            </Button>
+                            <Button
+                              variant="default"
+                              disabled={
+                                !modelEnabled ||
+                                Boolean(busy) ||
+                                !providerModels.some((item) => item.selected)
+                              }
+                              onClick={() =>
+                                void runProviderCheck(provider, 'provider.inference.test')
+                              }
+                            >
+                              Verify CLI identity
+                            </Button>
+                          </Group>
+                        </Stack>
                       ) : provider.authMethod === 'none' ? (
                         <Text size="sm" c="dimmed">
                           Hermes reports that this provider requires no credential.
@@ -933,9 +967,23 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                             onClick={() => openSetup(provider.id)}
                           >
                             {provider.credentialStatus === 'configured'
-                              ? 'Update credential'
-                              : 'Connect provider'}
+                              ? provider.authMethod === 'cloud_identity'
+                                ? 'Update cloud routing'
+                                : 'Update credential'
+                              : provider.authMethod === 'cloud_identity'
+                                ? 'Configure cloud identity'
+                                : 'Connect provider'}
                           </Button>
+                          {provider.authMethod === 'cloud_identity' ? (
+                            <Button
+                              size="xs"
+                              variant="default"
+                              disabled={!modelEnabled || Boolean(busy)}
+                              onClick={() => void runProviderCheck(provider, 'provider.validate')}
+                            >
+                              Validate runtime identity
+                            </Button>
+                          ) : null}
                           {provider.credentialStatus === 'configured' ? (
                             <>
                               <Button
