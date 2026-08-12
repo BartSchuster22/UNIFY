@@ -44,11 +44,35 @@ describe('HermesManagementApi', () => {
     );
   });
 
+  it('fails closed and never persists rejected or unreachable credentials', async () => {
+    for (const validation of [
+      { ok: false, reachable: true, expectedStatus: 422 },
+      { ok: true, reachable: false, expectedStatus: 503 },
+    ]) {
+      const writes: string[] = [];
+      const fetchImpl: typeof fetch = async (input, init) => {
+        if (String(input).endsWith('/api/providers/validate'))
+          return Response.json({ ok: validation.ok, reachable: validation.reachable });
+        if (init?.method === 'PUT') writes.push(String(input));
+        return Response.json({
+          FIREWORKS_API_KEY: { provider: 'fireworks', is_set: false, is_password: true },
+        });
+      };
+      const api = new HermesManagementApi('http://127.0.0.1:29119', fetchImpl);
+      await expect(api.setCredential('fireworks', 'candidate-secret')).rejects.toMatchObject({
+        statusCode: validation.expectedStatus,
+      });
+      expect(writes).toEqual([]);
+    }
+  });
+
   it('uses existing model and environment APIs without returning or logging credential values', async () => {
     const requests: Array<{ url: string; init?: RequestInit }> = [];
     const fetchImpl: typeof fetch = async (input, init) => {
       requests.push({ url: String(input), ...(init ? { init } : {}) });
       if (String(input).endsWith('/api/model/set')) return Response.json({ ok: true });
+      if (String(input).endsWith('/api/providers/validate'))
+        return Response.json({ ok: true, reachable: true });
       if (init?.method === 'GET')
         return Response.json({
           OPENROUTER_API_KEY: {

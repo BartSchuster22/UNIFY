@@ -42,7 +42,10 @@ COPY deploy/hermes-runtime/rootfs/etc/s6-overlay/s6-rc.d/unify-control-adapter/d
 COPY deploy/hermes-runtime/rootfs/etc/s6-overlay/s6-rc.d/user/contents.d/unify-hermes-gateway /etc/s6-overlay/s6-rc.d/user/contents.d/unify-hermes-gateway
 COPY deploy/hermes-runtime/rootfs/etc/s6-overlay/s6-rc.d/user/contents.d/unify-control-adapter /etc/s6-overlay/s6-rc.d/user/contents.d/unify-control-adapter
 COPY deploy/hermes-runtime/healthcheck.mjs /opt/unify-adapter/healthcheck.mjs
-RUN chmod 0755 \
+COPY deploy/hermes-runtime/patch-provider-validation.py /tmp/patch-provider-validation.py
+RUN python /tmp/patch-provider-validation.py \
+  && rm /tmp/patch-provider-validation.py \
+  && chmod 0755 \
       /etc/cont-init.d/10-hermes-api-secret \
       /etc/cont-init.d/15-unify-memory-plugin \
       /etc/s6-overlay/s6-rc.d/unify-hermes-gateway/run \

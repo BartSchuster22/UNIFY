@@ -49,11 +49,13 @@ export class HermesManagementApi {
     const result = record(
       await this.request('/api/providers/validate', 'POST', { key, value: credential }),
     );
+    const accepted = result.ok === true;
+    const reachable = result.reachable === true;
     return {
       providerId,
-      accepted: result.ok === true,
-      reachable: result.reachable === true,
-      verified: result.ok === true && result.reachable === true,
+      accepted,
+      reachable,
+      verified: accepted && reachable,
       ...(typeof result.message === 'string' && result.message
         ? { message: result.message.slice(0, 500) }
         : {}),
@@ -62,10 +64,13 @@ export class HermesManagementApi {
 
   async setCredential(providerId: string, credential: string) {
     const validation = await this.validateCredential(providerId, credential);
-    if (!validation.accepted)
+    if (!validation.verified)
       throw new HermesManagementError(
-        422,
-        validation.message ?? 'Hermes rejected the provider credential',
+        validation.reachable ? 422 : 503,
+        validation.message ??
+          (validation.reachable
+            ? 'Hermes rejected the provider credential'
+            : 'Hermes could not reach the provider; credential was not persisted'),
       );
     const key = await this.providerCredentialKey(providerId);
     const result = record(await this.request('/api/env', 'PUT', { key, value: credential }));
