@@ -376,8 +376,10 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
     () =>
       (providers?.items ?? []).filter(
         (provider) =>
-          (provider.authType === 'api_key' || provider.authType === 'unknown') &&
-          provider.credentialMutable !== false,
+          provider.credentialMutable !== false &&
+          ((provider.setupFields?.length ?? 0) > 0 ||
+            provider.authType === 'api_key' ||
+            provider.authType === 'unknown'),
       ),
     [providers],
   );
@@ -1369,8 +1371,9 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                   }
                 />
                 <Text size="sm" c="dimmed">
-                  Only credential-mutable API-key providers advertised by this Hermes framework are
-                  selectable. OAuth remains owned by Hermes.
+                  Dedicated setup-capable providers advertised by this Hermes framework are
+                  selectable. Endpoint reachability, loaded models, and composite dependencies are
+                  validated before persistence. OAuth remains owned by Hermes.
                 </Text>
                 <Group justify="flex-end">
                   <Button disabled={!setupProvider} onClick={() => setSetupStep(1)}>
@@ -1469,13 +1472,14 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                   Source precondition <Code>{setupProvider?.sourceVersion ?? 'unavailable'}</Code>
                 </Text>
                 <Text size="sm" c="dimmed">
-                  Credential: entered and hidden. It will not appear in operation evidence or
-                  inventory responses.
+                  Secret fields are entered and hidden. Endpoint routes, model IDs, and preset names
+                  are persisted only after governed readiness validation. Secret values never appear
+                  in operation evidence or inventory responses.
                 </Text>
                 <Checkbox
                   checked={setup.acknowledged}
                   disabled={Boolean(busy)}
-                  label="I authorize Hermes to store or replace this provider credential."
+                  label="I authorize Hermes to validate and persist this provider setup."
                   onChange={(event) => {
                     const acknowledged = event.currentTarget.checked;
                     setSetup((current) => (current ? { ...current, acknowledged } : current));

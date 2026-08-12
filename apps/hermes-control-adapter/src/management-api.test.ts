@@ -263,6 +263,76 @@ describe('HermesManagementApi', () => {
     ).rejects.toMatchObject({ statusCode: 422 });
   });
 
+  it('validates special providers before persistence and exposes no endpoint credentials', async () => {
+    const requests: Array<{ url: string; init?: RequestInit }> = [];
+    const fetchImpl: typeof fetch = async (input, init) => {
+      requests.push({ url: String(input), ...(init ? { init } : {}) });
+      const url = String(input);
+      if (url.endsWith('/api/providers/special/validate'))
+        return Response.json({
+          providerId: 'custom',
+          accepted: true,
+          reachable: true,
+          verified: true,
+          discovered: 2,
+          modelAvailable: true,
+          prerequisites: { 'reachable-endpoint': 'satisfied' },
+        });
+      if (url.endsWith('/api/providers/custom-endpoints'))
+        return Response.json({ ok: true, id: 'local-endpoint' });
+      if (url.endsWith('/api/provider-setup/batch'))
+        return Response.json({ ok: true, changed: true });
+      if (url.endsWith('/activate')) return Response.json({ ok: true });
+      return Response.json({}, { status: 404 });
+    };
+    const api = new HermesManagementApi('http://127.0.0.1:29119', fetchImpl);
+    const result = await api.setProviderSetup('custom', {
+      name: 'Local endpoint',
+      baseUrl: 'http://host.docker.internal:1234/v1',
+      apiMode: 'chat_completions',
+      credential: 'endpoint-secret',
+      model: 'local-model',
+    });
+    expect(result).toMatchObject({
+      providerId: 'custom',
+      endpointId: 'local-endpoint',
+      configured: true,
+      validation: { verified: true, modelAvailable: true },
+    });
+    expect(requests.map((request) => request.url)).toEqual([
+      'http://127.0.0.1:29119/api/providers/special/validate',
+      'http://127.0.0.1:29119/api/providers/custom-endpoints',
+      'http://127.0.0.1:29119/api/provider-setup/batch',
+      'http://127.0.0.1:29119/api/providers/custom-endpoints/local-endpoint/activate',
+    ]);
+    expect(JSON.stringify(result)).not.toContain('endpoint-secret');
+  });
+
+  it('fails closed when a composite preset dependency is missing', async () => {
+    const writes: string[] = [];
+    const fetchImpl: typeof fetch = async (input, init) => {
+      if (init?.method !== 'GET') writes.push(String(input));
+      if (String(input).endsWith('/api/providers/special/validate'))
+        return Response.json({
+          accepted: false,
+          reachable: true,
+          verified: false,
+          discovered: 1,
+          prerequisites: {
+            'moa-preset': 'satisfied',
+            'reference-models': 'missing',
+            'aggregator-model': 'satisfied',
+          },
+        });
+      return Response.json({}, { status: 404 });
+    };
+    const api = new HermesManagementApi('http://127.0.0.1:29119', fetchImpl);
+    await expect(api.setProviderSetup('moa', { preset: 'research' })).rejects.toMatchObject({
+      statusCode: 422,
+    });
+    expect(writes).toEqual(['http://127.0.0.1:29119/api/providers/special/validate']);
+  });
+
   it('uses existing model and environment APIs without returning or logging credential values', async () => {
     const requests: Array<{ url: string; init?: RequestInit }> = [];
     const fetchImpl: typeof fetch = async (input, init) => {

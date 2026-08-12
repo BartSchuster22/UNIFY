@@ -49,6 +49,17 @@ class ProviderValidationPatchTest(unittest.TestCase):
         for forbidden in ('access_key', 'secret_key', 'access_token":', 'refresh_token":'):
             self.assertNotIn(forbidden, patch)
 
+        for required in (
+            'provider_id not in {"custom", "lmstudio", "moa"}',
+            'probe_lmstudio_models',
+            'get_model_options(include_unconfigured=True, refresh=False)',
+            'reference-models',
+            'aggregator-model',
+            'endpoint URL must be credential-free HTTP(S)',
+        ):
+            self.assertIn(required, patch)
+        self.assertNotIn('endpoint-secret', patch)
+
     def test_adds_qwen_device_code_lifecycle_without_embedded_credentials(self):
         patch = Path(__file__).with_name('patch-provider-validation.py').read_text()
         for required in (

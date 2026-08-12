@@ -286,6 +286,77 @@ async def validate_provider_identity(request: Request):
         return {"providerId": provider_id, "accepted": False, "reachable": False, "verified": False, "prerequisites": {}, "message": str(exc)[:300] or "Identity validation failed."}
 
 
+@app.post("/api/providers/special/validate")
+async def validate_special_provider(request: Request):
+    """Validate endpoint and composite providers without persisting submitted values."""
+    _require_token(request)
+    import httpx
+    body = await request.json()
+    provider_id = str(body.get("provider") or "").strip().lower() if isinstance(body, dict) else ""
+    values = body.get("values", {}) if isinstance(body, dict) else {}
+    if not isinstance(values, dict) or provider_id not in {"custom", "lmstudio", "moa"}:
+        raise HTTPException(status_code=400, detail="unsupported special-provider validation request")
+
+    def _special_value(name: str, maximum: int = 4096) -> str:
+        value = values.get(name, "")
+        if not isinstance(value, str) or len(value) > maximum or any(ord(ch) < 32 for ch in value):
+            raise HTTPException(status_code=400, detail="invalid special-provider field")
+        return value.strip()
+
+    if provider_id in {"custom", "lmstudio"}:
+        base_url = _special_value("baseUrl").rstrip("/")
+        model = _special_value("model", 500)
+        credential = _special_value("credential", 32768)
+        api_mode = _special_value("apiMode", 100) or "chat_completions"
+        if api_mode not in {"chat_completions", "responses", "anthropic_messages"}:
+            raise HTTPException(status_code=400, detail="unsupported API compatibility mode")
+        parsed = urllib.parse.urlparse(base_url)
+        if parsed.scheme not in {"http", "https"} or not parsed.netloc or parsed.username or parsed.password:
+            raise HTTPException(status_code=400, detail="endpoint URL must be credential-free HTTP(S)")
+        if not model:
+            raise HTTPException(status_code=400, detail="model ID is required")
+        if provider_id == "lmstudio":
+            from hermes_cli.models import probe_lmstudio_models
+            try:
+                models = probe_lmstudio_models(api_key=credential or None, base_url=base_url)
+            except Exception:
+                models = None
+            reachable = models is not None
+            accepted = reachable and model in set(models or [])
+            return {"providerId": provider_id, "accepted": accepted, "reachable": reachable, "verified": accepted, "discovered": len(models or []), "prerequisites": {"reachable-server": "satisfied" if reachable else "missing"}, "modelAvailable": accepted}
+        url = base_url + "/models"
+        headers = {"Accept": "application/json"}
+        if credential:
+            headers["Authorization"] = f"Bearer {credential}"
+        try:
+            async with httpx.AsyncClient(timeout=httpx.Timeout(8.0)) as client:
+                response = await client.get(url, headers=headers)
+        except Exception:
+            return {"providerId": provider_id, "accepted": False, "reachable": False, "verified": False, "discovered": 0, "prerequisites": {"reachable-endpoint": "missing"}, "modelAvailable": False}
+        models = _parse_model_ids(response) if response.is_success else []
+        accepted = response.is_success and (model in set(models) or (api_mode == "anthropic_messages" and not models))
+        return {"providerId": provider_id, "accepted": accepted, "reachable": True, "verified": accepted, "discovered": len(models), "prerequisites": {"reachable-endpoint": "satisfied"}, "modelAvailable": model in set(models)}
+
+    from hermes_cli.config import load_config
+    from hermes_cli.moa_config import normalize_moa_config
+    preset_name = _special_value("preset", 200)
+    config = load_config() or {}
+    moa = normalize_moa_config(config.get("moa") or {})
+    presets = moa.get("presets") or {}
+    selected_name = preset_name or str(moa.get("default_preset") or "")
+    preset = presets.get(selected_name)
+    if not isinstance(preset, dict):
+        return {"providerId": "moa", "accepted": False, "reachable": True, "verified": False, "discovered": len(presets), "prerequisites": {"moa-preset": "missing", "reference-models": "unknown", "aggregator-model": "unknown"}}
+    options = await get_model_options(include_unconfigured=True, refresh=False)
+    provider_models = {str(item.get("slug") or ""): set(item.get("models") or []) for item in options.get("providers", []) if isinstance(item, dict)}
+    references = preset.get("reference_models") or []
+    aggregator = preset.get("aggregator") or {}
+    refs_ready = bool(references) and all(isinstance(slot, dict) and str(slot.get("model") or "") in provider_models.get(str(slot.get("provider") or ""), set()) for slot in references)
+    aggregator_ready = isinstance(aggregator, dict) and str(aggregator.get("model") or "") in provider_models.get(str(aggregator.get("provider") or ""), set())
+    accepted = refs_ready and aggregator_ready
+    return {"providerId": "moa", "accepted": accepted, "reachable": True, "verified": accepted, "discovered": len(presets), "prerequisites": {"moa-preset": "satisfied", "reference-models": "satisfied" if refs_ready else "missing", "aggregator-model": "satisfied" if aggregator_ready else "missing"}, "preset": selected_name}
+
+
 @app.delete("/api/env")
 async def remove_env_var(body: EnvVarDelete, profile: Optional[str] = None):'''
 if source.count(request_anchor) != 1:

@@ -105,9 +105,20 @@ const DEFINITIONS: Record<string, ProviderDefinition> = {
   openrouter: singleKey(),
   moa: {
     authMethod: 'composite',
-    setupFields: [field('preset', 'MOA preset', 'choice')],
+    setupSupported: true,
+    setupFields: [field('preset', 'Existing MoA preset name', 'text')],
     prerequisites: [
-      prerequisite('reference-models', 'Configured reference and aggregator models', 'provider'),
+      prerequisite('moa-preset', 'Named Mixture of Agents preset', 'provider'),
+      prerequisite(
+        'reference-models',
+        'All reference models are configured and discoverable',
+        'provider',
+      ),
+      prerequisite(
+        'aggregator-model',
+        'Aggregator model is configured and discoverable',
+        'provider',
+      ),
     ],
   },
   novita: {
@@ -117,7 +128,12 @@ const DEFINITIONS: Record<string, ProviderDefinition> = {
   },
   lmstudio: {
     authMethod: 'endpoint',
-    setupFields: [field('baseUrl', 'LM Studio server URL', 'url'), secret('Optional API key')],
+    setupSupported: true,
+    setupFields: [
+      field('baseUrl', 'LM Studio API URL (ending in /api/v1)', 'url'),
+      field('credential', 'Optional LM Studio API key', 'secret', false),
+      field('model', 'Loaded chat model ID', 'text'),
+    ],
     prerequisites: [
       prerequisite(
         'reachable-server',
@@ -302,11 +318,17 @@ const DEFINITIONS: Record<string, ProviderDefinition> = {
   },
   custom: {
     authMethod: 'endpoint',
+    setupSupported: true,
     setupFields: [
+      field('name', 'Endpoint name', 'text'),
       field('baseUrl', 'Provider base URL', 'url'),
-      field('apiMode', 'API compatibility mode', 'choice'),
+      field('apiMode', 'API compatibility mode', 'choice', true, [
+        { value: 'chat_completions', label: 'OpenAI Chat Completions' },
+        { value: 'responses', label: 'OpenAI Responses' },
+        { value: 'anthropic_messages', label: 'Anthropic Messages' },
+      ]),
       field('credential', 'API key', 'secret', false),
-      field('model', 'Model ID', 'text', false),
+      field('model', 'Model ID', 'text'),
     ],
     prerequisites: [
       prerequisite('reachable-endpoint', 'Endpoint reachable from this runtime', 'network'),

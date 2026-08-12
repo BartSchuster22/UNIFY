@@ -468,7 +468,7 @@ describe('HermesNativeSource', () => {
     });
     expect(items.find((item) => item.id === 'moa')).toMatchObject({
       authMethod: 'composite',
-      credentialMutable: false,
+      credentialMutable: true,
       deploymentReadiness: 'needs_selection',
       readinessReasonCodes: ['NO_DEFAULT_MODEL_SELECTED'],
     });

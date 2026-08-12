@@ -97,11 +97,18 @@ export class HermesManagementApi {
       : [];
     for (const provider of providers) {
       const providerId = string(provider.slug ?? provider.provider);
-      if (!['bedrock', 'vertex', 'copilot-acp'].includes(providerId)) continue;
+      if (!['bedrock', 'vertex', 'copilot-acp', 'custom', 'lmstudio', 'moa'].includes(providerId))
+        continue;
       try {
-        const validation = await this.validateProviderIdentity(providerId);
+        const validation = ['custom', 'lmstudio', 'moa'].includes(providerId)
+          ? await this.validateSpecialProvider(
+              providerId,
+              await this.readSpecialProviderSetup(providerId),
+            )
+          : await this.validateProviderIdentity(providerId);
         provider.prerequisites = validation.prerequisites;
-        if (validation.verified === true || validation.identityKind === 'external_cli') {
+        const identityKind = 'identityKind' in validation ? validation.identityKind : undefined;
+        if (validation.verified === true || identityKind === 'external_cli') {
           provider.authenticated = validation.accepted === true;
           provider.configured = validation.accepted === true;
         }
@@ -172,6 +179,8 @@ export class HermesManagementApi {
   }
 
   async setProviderSetup(providerId: string, values: ProviderSetupValues) {
+    if (['custom', 'lmstudio', 'moa'].includes(providerId))
+      return this.setSpecialProviderSetup(providerId, values);
     const definition = ADVANCED_PROVIDER_ENV[providerId];
     if (!definition)
       return this.setCredential(providerId, requiredSetupValue(values, 'credential'));
@@ -303,6 +312,102 @@ export class HermesManagementApi {
         ? { message: raw.message.slice(0, 500) }
         : {}),
     };
+  }
+
+  private async readSpecialProviderSetup(providerId: string): Promise<ProviderSetupValues> {
+    if (providerId === 'custom') {
+      const raw = record(await this.request('/api/providers/custom-endpoints'));
+      const current = record(raw.current);
+      return {
+        baseUrl: string(current.base_url),
+        model: string(current.model),
+        apiMode: 'chat_completions',
+      };
+    }
+    if (providerId === 'moa') {
+      const raw = record(await this.request('/api/model/moa'));
+      return { preset: string(raw.active_preset ?? raw.default_preset) };
+    }
+    const [env, config] = await Promise.all([
+      this.request('/api/env').then(record),
+      this.request('/api/config').then(record),
+    ]);
+    const model = record(config.model);
+    return {
+      baseUrl: string(record(env.LM_BASE_URL).redacted_value),
+      model: string(model.default ?? model.name),
+    };
+  }
+
+  async validateSpecialProvider(providerId: string, values: ProviderSetupValues = {}) {
+    if (!['custom', 'lmstudio', 'moa'].includes(providerId))
+      throw new HermesManagementError(404, 'Special-provider validation is not supported');
+    const allowed =
+      providerId === 'moa' ? ['preset'] : ['name', 'baseUrl', 'apiMode', 'credential', 'model'];
+    const raw = record(
+      await this.request('/api/providers/special/validate', 'POST', {
+        provider: providerId,
+        values: Object.fromEntries(
+          Object.entries(values).filter(
+            ([key, value]) =>
+              allowed.includes(key) && typeof value === 'string' && value.length <= 32_768,
+          ),
+        ),
+      }),
+    );
+    return normalizeSpecialValidation(providerId, raw);
+  }
+
+  private async setSpecialProviderSetup(providerId: string, values: ProviderSetupValues) {
+    const validation = await this.validateSpecialProvider(providerId, values);
+    if (!validation.verified)
+      throw new HermesManagementError(
+        validation.reachable ? 422 : 503,
+        validation.message ?? 'Special provider is not ready',
+      );
+    if (providerId === 'moa') {
+      const preset = requiredSetupValue(values, 'preset');
+      await this.selectModel('moa', preset);
+      return { providerId, configured: true, changed: true, validation };
+    }
+    if (providerId === 'custom') {
+      const name = requiredSetupValue(values, 'name');
+      const baseUrl = requiredSetupValue(values, 'baseUrl');
+      validateSpecialProviderUrl(baseUrl);
+      const model = requiredSetupValue(values, 'model');
+      const apiMode = requiredSetupValue(values, 'apiMode');
+      const saved = record(
+        await this.request('/api/providers/custom-endpoints', 'POST', {
+          name,
+          base_url: baseUrl,
+          model,
+          models: [model],
+          discover_models: true,
+          api_key: values.credential ?? '',
+        }),
+      );
+      const endpointId = string(saved.id);
+      if (!endpointId)
+        throw new HermesManagementError(502, 'Hermes did not return the saved endpoint');
+      await this.request('/api/provider-setup/batch', 'PUT', {
+        env: [],
+        config: { providers: { [endpointId]: { api_mode: apiMode } } },
+      });
+      await this.request(
+        `/api/providers/custom-endpoints/${encodeURIComponent(endpointId)}/activate`,
+        'POST',
+      );
+      return { providerId, endpointId, configured: true, changed: true, validation };
+    }
+    const baseUrl = requiredSetupValue(values, 'baseUrl');
+    validateSpecialProviderUrl(baseUrl);
+    const model = requiredSetupValue(values, 'model');
+    const entries = [{ key: 'LM_BASE_URL', value: baseUrl }];
+    if (values.credential?.trim())
+      entries.push({ key: 'LM_API_KEY', value: values.credential.trim() });
+    await this.request('/api/env/batch', 'PUT', { entries });
+    await this.selectModel('lmstudio', model);
+    return { providerId, configured: true, changed: true, validation };
   }
 
   async verifyPersistence(providerId: string) {
@@ -570,6 +675,46 @@ function validateProviderUrl(value: string) {
   }
   if (url.protocol !== 'https:' || url.username || url.password || url.hash)
     throw new HermesManagementError(422, 'Provider endpoint must be credential-free HTTPS');
+}
+
+function validateSpecialProviderUrl(value: string) {
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    throw new HermesManagementError(422, 'Special-provider endpoint must be a valid URL');
+  }
+  if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.hash)
+    throw new HermesManagementError(
+      422,
+      'Special-provider endpoint must be credential-free HTTP(S)',
+    );
+}
+
+function normalizeSpecialValidation(providerId: string, raw: JsonRecord) {
+  const prerequisites = Object.fromEntries(
+    Object.entries(record(raw.prerequisites))
+      .filter(([, value]) => ['satisfied', 'missing', 'unknown'].includes(string(value)))
+      .map(([key, value]) => [key, string(value)]),
+  );
+  return {
+    providerId,
+    accepted: raw.accepted === true,
+    reachable: raw.reachable === true,
+    verified: raw.verified === true,
+    discovered:
+      typeof raw.discovered === 'number' && Number.isSafeInteger(raw.discovered)
+        ? Math.max(0, raw.discovered)
+        : 0,
+    prerequisites,
+    ...(raw.modelAvailable === true || raw.modelAvailable === false
+      ? { modelAvailable: raw.modelAvailable }
+      : {}),
+    ...(typeof raw.preset === 'string' && raw.preset.length <= 200 ? { preset: raw.preset } : {}),
+    ...(typeof raw.message === 'string' && raw.message.length <= 500
+      ? { message: raw.message }
+      : {}),
+  };
 }
 
 function record(value: unknown): JsonRecord {

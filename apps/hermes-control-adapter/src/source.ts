@@ -360,6 +360,8 @@ export class HermesNativeSource implements AdapterSource {
           const merged: Record<string, string> = { ...persisted, ...values };
           if (['bedrock', 'vertex', 'copilot-acp'].includes(command.targetId))
             return await this.management.validateProviderIdentity(command.targetId, merged);
+          if (['custom', 'lmstudio', 'moa'].includes(command.targetId))
+            return await this.management.validateSpecialProvider(command.targetId, merged);
           return await this.management.validateProviderIdentity(command.targetId, values);
         }
         case 'provider.models.refresh':
