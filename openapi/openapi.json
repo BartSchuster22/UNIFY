@@ -7700,6 +7700,172 @@
           }
         }
       },
+      "HermesProviderAuthMethod": {
+        "$id": "HermesProviderAuthMethod",
+        "anyOf": [
+          {
+            "const": "api_key",
+            "type": "string"
+          },
+          {
+            "const": "oauth_device_code",
+            "type": "string"
+          },
+          {
+            "const": "oauth_browser",
+            "type": "string"
+          },
+          {
+            "const": "external_cli",
+            "type": "string"
+          },
+          {
+            "const": "cloud_identity",
+            "type": "string"
+          },
+          {
+            "const": "endpoint",
+            "type": "string"
+          },
+          {
+            "const": "composite",
+            "type": "string"
+          },
+          {
+            "const": "none",
+            "type": "string"
+          },
+          {
+            "const": "unknown",
+            "type": "string"
+          }
+        ]
+      },
+      "HermesProviderSetupField": {
+        "$id": "HermesProviderSetupField",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "type",
+          "required",
+          "secret"
+        ],
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "maxLength": 100,
+            "type": "string"
+          },
+          "label": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "const": "secret",
+                "type": "string"
+              },
+              {
+                "const": "secret_file",
+                "type": "string"
+              },
+              {
+                "const": "text",
+                "type": "string"
+              },
+              {
+                "const": "url",
+                "type": "string"
+              },
+              {
+                "const": "choice",
+                "type": "string"
+              },
+              {
+                "const": "region",
+                "type": "string"
+              },
+              {
+                "const": "project",
+                "type": "string"
+              }
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "secret": {
+            "type": "boolean"
+          }
+        }
+      },
+      "HermesProviderPrerequisite": {
+        "$id": "HermesProviderPrerequisite",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "kind",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "maxLength": 100,
+            "type": "string"
+          },
+          "label": {
+            "minLength": 1,
+            "maxLength": 300,
+            "type": "string"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "const": "account",
+                "type": "string"
+              },
+              {
+                "const": "executable",
+                "type": "string"
+              },
+              {
+                "const": "cloud_identity",
+                "type": "string"
+              },
+              {
+                "const": "network",
+                "type": "string"
+              },
+              {
+                "const": "provider",
+                "type": "string"
+              }
+            ]
+          },
+          "status": {
+            "anyOf": [
+              {
+                "const": "satisfied",
+                "type": "string"
+              },
+              {
+                "const": "missing",
+                "type": "string"
+              },
+              {
+                "const": "unknown",
+                "type": "string"
+              }
+            ]
+          }
+        }
+      },
       "HermesProvider": {
         "$id": "HermesProvider",
         "additionalProperties": false,
@@ -7760,8 +7926,251 @@
               }
             ]
           },
+          "authMethod": {
+            "$id": "HermesProviderAuthMethod",
+            "anyOf": [
+              {
+                "const": "api_key",
+                "type": "string"
+              },
+              {
+                "const": "oauth_device_code",
+                "type": "string"
+              },
+              {
+                "const": "oauth_browser",
+                "type": "string"
+              },
+              {
+                "const": "external_cli",
+                "type": "string"
+              },
+              {
+                "const": "cloud_identity",
+                "type": "string"
+              },
+              {
+                "const": "endpoint",
+                "type": "string"
+              },
+              {
+                "const": "composite",
+                "type": "string"
+              },
+              {
+                "const": "none",
+                "type": "string"
+              },
+              {
+                "const": "unknown",
+                "type": "string"
+              }
+            ]
+          },
           "credentialMutable": {
             "type": "boolean"
+          },
+          "setupSupported": {
+            "type": "boolean"
+          },
+          "setupFields": {
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "$id": "HermesProviderSetupField",
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "id",
+                "label",
+                "type",
+                "required",
+                "secret"
+              ],
+              "properties": {
+                "id": {
+                  "minLength": 1,
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                "label": {
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                "type": {
+                  "anyOf": [
+                    {
+                      "const": "secret",
+                      "type": "string"
+                    },
+                    {
+                      "const": "secret_file",
+                      "type": "string"
+                    },
+                    {
+                      "const": "text",
+                      "type": "string"
+                    },
+                    {
+                      "const": "url",
+                      "type": "string"
+                    },
+                    {
+                      "const": "choice",
+                      "type": "string"
+                    },
+                    {
+                      "const": "region",
+                      "type": "string"
+                    },
+                    {
+                      "const": "project",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "secret": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "prerequisites": {
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "$id": "HermesProviderPrerequisite",
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "id",
+                "label",
+                "kind",
+                "status"
+              ],
+              "properties": {
+                "id": {
+                  "minLength": 1,
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                "label": {
+                  "minLength": 1,
+                  "maxLength": 300,
+                  "type": "string"
+                },
+                "kind": {
+                  "anyOf": [
+                    {
+                      "const": "account",
+                      "type": "string"
+                    },
+                    {
+                      "const": "executable",
+                      "type": "string"
+                    },
+                    {
+                      "const": "cloud_identity",
+                      "type": "string"
+                    },
+                    {
+                      "const": "network",
+                      "type": "string"
+                    },
+                    {
+                      "const": "provider",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "status": {
+                  "anyOf": [
+                    {
+                      "const": "satisfied",
+                      "type": "string"
+                    },
+                    {
+                      "const": "missing",
+                      "type": "string"
+                    },
+                    {
+                      "const": "unknown",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "connectionState": {
+            "anyOf": [
+              {
+                "const": "connected",
+                "type": "string"
+              },
+              {
+                "const": "disconnected",
+                "type": "string"
+              },
+              {
+                "const": "authorization_pending",
+                "type": "string"
+              },
+              {
+                "const": "expired",
+                "type": "string"
+              },
+              {
+                "const": "not_required",
+                "type": "string"
+              },
+              {
+                "const": "unknown",
+                "type": "string"
+              }
+            ]
+          },
+          "deploymentReadiness": {
+            "anyOf": [
+              {
+                "const": "ready",
+                "type": "string"
+              },
+              {
+                "const": "needs_configuration",
+                "type": "string"
+              },
+              {
+                "const": "needs_model",
+                "type": "string"
+              },
+              {
+                "const": "needs_selection",
+                "type": "string"
+              },
+              {
+                "const": "blocked",
+                "type": "string"
+              },
+              {
+                "const": "unsupported",
+                "type": "string"
+              }
+            ]
+          },
+          "readinessReasonCodes": {
+            "uniqueItems": true,
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "minLength": 1,
+              "maxLength": 100,
+              "type": "string"
+            }
           },
           "modelCount": {
             "minimum": 0,
@@ -7881,8 +8290,251 @@
                         }
                       ]
                     },
+                    "authMethod": {
+                      "$id": "HermesProviderAuthMethod",
+                      "anyOf": [
+                        {
+                          "const": "api_key",
+                          "type": "string"
+                        },
+                        {
+                          "const": "oauth_device_code",
+                          "type": "string"
+                        },
+                        {
+                          "const": "oauth_browser",
+                          "type": "string"
+                        },
+                        {
+                          "const": "external_cli",
+                          "type": "string"
+                        },
+                        {
+                          "const": "cloud_identity",
+                          "type": "string"
+                        },
+                        {
+                          "const": "endpoint",
+                          "type": "string"
+                        },
+                        {
+                          "const": "composite",
+                          "type": "string"
+                        },
+                        {
+                          "const": "none",
+                          "type": "string"
+                        },
+                        {
+                          "const": "unknown",
+                          "type": "string"
+                        }
+                      ]
+                    },
                     "credentialMutable": {
                       "type": "boolean"
+                    },
+                    "setupSupported": {
+                      "type": "boolean"
+                    },
+                    "setupFields": {
+                      "maxItems": 20,
+                      "type": "array",
+                      "items": {
+                        "$id": "HermesProviderSetupField",
+                        "additionalProperties": false,
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "label",
+                          "type",
+                          "required",
+                          "secret"
+                        ],
+                        "properties": {
+                          "id": {
+                            "minLength": 1,
+                            "maxLength": 100,
+                            "type": "string"
+                          },
+                          "label": {
+                            "minLength": 1,
+                            "maxLength": 200,
+                            "type": "string"
+                          },
+                          "type": {
+                            "anyOf": [
+                              {
+                                "const": "secret",
+                                "type": "string"
+                              },
+                              {
+                                "const": "secret_file",
+                                "type": "string"
+                              },
+                              {
+                                "const": "text",
+                                "type": "string"
+                              },
+                              {
+                                "const": "url",
+                                "type": "string"
+                              },
+                              {
+                                "const": "choice",
+                                "type": "string"
+                              },
+                              {
+                                "const": "region",
+                                "type": "string"
+                              },
+                              {
+                                "const": "project",
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "required": {
+                            "type": "boolean"
+                          },
+                          "secret": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    },
+                    "prerequisites": {
+                      "maxItems": 20,
+                      "type": "array",
+                      "items": {
+                        "$id": "HermesProviderPrerequisite",
+                        "additionalProperties": false,
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "label",
+                          "kind",
+                          "status"
+                        ],
+                        "properties": {
+                          "id": {
+                            "minLength": 1,
+                            "maxLength": 100,
+                            "type": "string"
+                          },
+                          "label": {
+                            "minLength": 1,
+                            "maxLength": 300,
+                            "type": "string"
+                          },
+                          "kind": {
+                            "anyOf": [
+                              {
+                                "const": "account",
+                                "type": "string"
+                              },
+                              {
+                                "const": "executable",
+                                "type": "string"
+                              },
+                              {
+                                "const": "cloud_identity",
+                                "type": "string"
+                              },
+                              {
+                                "const": "network",
+                                "type": "string"
+                              },
+                              {
+                                "const": "provider",
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "status": {
+                            "anyOf": [
+                              {
+                                "const": "satisfied",
+                                "type": "string"
+                              },
+                              {
+                                "const": "missing",
+                                "type": "string"
+                              },
+                              {
+                                "const": "unknown",
+                                "type": "string"
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "connectionState": {
+                      "anyOf": [
+                        {
+                          "const": "connected",
+                          "type": "string"
+                        },
+                        {
+                          "const": "disconnected",
+                          "type": "string"
+                        },
+                        {
+                          "const": "authorization_pending",
+                          "type": "string"
+                        },
+                        {
+                          "const": "expired",
+                          "type": "string"
+                        },
+                        {
+                          "const": "not_required",
+                          "type": "string"
+                        },
+                        {
+                          "const": "unknown",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "deploymentReadiness": {
+                      "anyOf": [
+                        {
+                          "const": "ready",
+                          "type": "string"
+                        },
+                        {
+                          "const": "needs_configuration",
+                          "type": "string"
+                        },
+                        {
+                          "const": "needs_model",
+                          "type": "string"
+                        },
+                        {
+                          "const": "needs_selection",
+                          "type": "string"
+                        },
+                        {
+                          "const": "blocked",
+                          "type": "string"
+                        },
+                        {
+                          "const": "unsupported",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "readinessReasonCodes": {
+                      "uniqueItems": true,
+                      "maxItems": 20,
+                      "type": "array",
+                      "items": {
+                        "minLength": 1,
+                        "maxLength": 100,
+                        "type": "string"
+                      }
                     },
                     "modelCount": {
                       "minimum": 0,
@@ -11743,8 +12395,251 @@
               }
             ]
           },
+          "authMethod": {
+            "$id": "HermesProviderAuthMethod",
+            "anyOf": [
+              {
+                "const": "api_key",
+                "type": "string"
+              },
+              {
+                "const": "oauth_device_code",
+                "type": "string"
+              },
+              {
+                "const": "oauth_browser",
+                "type": "string"
+              },
+              {
+                "const": "external_cli",
+                "type": "string"
+              },
+              {
+                "const": "cloud_identity",
+                "type": "string"
+              },
+              {
+                "const": "endpoint",
+                "type": "string"
+              },
+              {
+                "const": "composite",
+                "type": "string"
+              },
+              {
+                "const": "none",
+                "type": "string"
+              },
+              {
+                "const": "unknown",
+                "type": "string"
+              }
+            ]
+          },
           "credentialMutable": {
             "type": "boolean"
+          },
+          "setupSupported": {
+            "type": "boolean"
+          },
+          "setupFields": {
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "$id": "HermesProviderSetupField",
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "id",
+                "label",
+                "type",
+                "required",
+                "secret"
+              ],
+              "properties": {
+                "id": {
+                  "minLength": 1,
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                "label": {
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                "type": {
+                  "anyOf": [
+                    {
+                      "const": "secret",
+                      "type": "string"
+                    },
+                    {
+                      "const": "secret_file",
+                      "type": "string"
+                    },
+                    {
+                      "const": "text",
+                      "type": "string"
+                    },
+                    {
+                      "const": "url",
+                      "type": "string"
+                    },
+                    {
+                      "const": "choice",
+                      "type": "string"
+                    },
+                    {
+                      "const": "region",
+                      "type": "string"
+                    },
+                    {
+                      "const": "project",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "secret": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "prerequisites": {
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "$id": "HermesProviderPrerequisite",
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "id",
+                "label",
+                "kind",
+                "status"
+              ],
+              "properties": {
+                "id": {
+                  "minLength": 1,
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                "label": {
+                  "minLength": 1,
+                  "maxLength": 300,
+                  "type": "string"
+                },
+                "kind": {
+                  "anyOf": [
+                    {
+                      "const": "account",
+                      "type": "string"
+                    },
+                    {
+                      "const": "executable",
+                      "type": "string"
+                    },
+                    {
+                      "const": "cloud_identity",
+                      "type": "string"
+                    },
+                    {
+                      "const": "network",
+                      "type": "string"
+                    },
+                    {
+                      "const": "provider",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "status": {
+                  "anyOf": [
+                    {
+                      "const": "satisfied",
+                      "type": "string"
+                    },
+                    {
+                      "const": "missing",
+                      "type": "string"
+                    },
+                    {
+                      "const": "unknown",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "connectionState": {
+            "anyOf": [
+              {
+                "const": "connected",
+                "type": "string"
+              },
+              {
+                "const": "disconnected",
+                "type": "string"
+              },
+              {
+                "const": "authorization_pending",
+                "type": "string"
+              },
+              {
+                "const": "expired",
+                "type": "string"
+              },
+              {
+                "const": "not_required",
+                "type": "string"
+              },
+              {
+                "const": "unknown",
+                "type": "string"
+              }
+            ]
+          },
+          "deploymentReadiness": {
+            "anyOf": [
+              {
+                "const": "ready",
+                "type": "string"
+              },
+              {
+                "const": "needs_configuration",
+                "type": "string"
+              },
+              {
+                "const": "needs_model",
+                "type": "string"
+              },
+              {
+                "const": "needs_selection",
+                "type": "string"
+              },
+              {
+                "const": "blocked",
+                "type": "string"
+              },
+              {
+                "const": "unsupported",
+                "type": "string"
+              }
+            ]
+          },
+          "readinessReasonCodes": {
+            "uniqueItems": true,
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "minLength": 1,
+              "maxLength": 100,
+              "type": "string"
+            }
           },
           "modelCount": {
             "minimum": 0,
@@ -11893,8 +12788,251 @@
                     }
                   ]
                 },
+                "authMethod": {
+                  "$id": "HermesProviderAuthMethod",
+                  "anyOf": [
+                    {
+                      "const": "api_key",
+                      "type": "string"
+                    },
+                    {
+                      "const": "oauth_device_code",
+                      "type": "string"
+                    },
+                    {
+                      "const": "oauth_browser",
+                      "type": "string"
+                    },
+                    {
+                      "const": "external_cli",
+                      "type": "string"
+                    },
+                    {
+                      "const": "cloud_identity",
+                      "type": "string"
+                    },
+                    {
+                      "const": "endpoint",
+                      "type": "string"
+                    },
+                    {
+                      "const": "composite",
+                      "type": "string"
+                    },
+                    {
+                      "const": "none",
+                      "type": "string"
+                    },
+                    {
+                      "const": "unknown",
+                      "type": "string"
+                    }
+                  ]
+                },
                 "credentialMutable": {
                   "type": "boolean"
+                },
+                "setupSupported": {
+                  "type": "boolean"
+                },
+                "setupFields": {
+                  "maxItems": 20,
+                  "type": "array",
+                  "items": {
+                    "$id": "HermesProviderSetupField",
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "label",
+                      "type",
+                      "required",
+                      "secret"
+                    ],
+                    "properties": {
+                      "id": {
+                        "minLength": 1,
+                        "maxLength": 100,
+                        "type": "string"
+                      },
+                      "label": {
+                        "minLength": 1,
+                        "maxLength": 200,
+                        "type": "string"
+                      },
+                      "type": {
+                        "anyOf": [
+                          {
+                            "const": "secret",
+                            "type": "string"
+                          },
+                          {
+                            "const": "secret_file",
+                            "type": "string"
+                          },
+                          {
+                            "const": "text",
+                            "type": "string"
+                          },
+                          {
+                            "const": "url",
+                            "type": "string"
+                          },
+                          {
+                            "const": "choice",
+                            "type": "string"
+                          },
+                          {
+                            "const": "region",
+                            "type": "string"
+                          },
+                          {
+                            "const": "project",
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "required": {
+                        "type": "boolean"
+                      },
+                      "secret": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "prerequisites": {
+                  "maxItems": 20,
+                  "type": "array",
+                  "items": {
+                    "$id": "HermesProviderPrerequisite",
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "label",
+                      "kind",
+                      "status"
+                    ],
+                    "properties": {
+                      "id": {
+                        "minLength": 1,
+                        "maxLength": 100,
+                        "type": "string"
+                      },
+                      "label": {
+                        "minLength": 1,
+                        "maxLength": 300,
+                        "type": "string"
+                      },
+                      "kind": {
+                        "anyOf": [
+                          {
+                            "const": "account",
+                            "type": "string"
+                          },
+                          {
+                            "const": "executable",
+                            "type": "string"
+                          },
+                          {
+                            "const": "cloud_identity",
+                            "type": "string"
+                          },
+                          {
+                            "const": "network",
+                            "type": "string"
+                          },
+                          {
+                            "const": "provider",
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      "status": {
+                        "anyOf": [
+                          {
+                            "const": "satisfied",
+                            "type": "string"
+                          },
+                          {
+                            "const": "missing",
+                            "type": "string"
+                          },
+                          {
+                            "const": "unknown",
+                            "type": "string"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                },
+                "connectionState": {
+                  "anyOf": [
+                    {
+                      "const": "connected",
+                      "type": "string"
+                    },
+                    {
+                      "const": "disconnected",
+                      "type": "string"
+                    },
+                    {
+                      "const": "authorization_pending",
+                      "type": "string"
+                    },
+                    {
+                      "const": "expired",
+                      "type": "string"
+                    },
+                    {
+                      "const": "not_required",
+                      "type": "string"
+                    },
+                    {
+                      "const": "unknown",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "deploymentReadiness": {
+                  "anyOf": [
+                    {
+                      "const": "ready",
+                      "type": "string"
+                    },
+                    {
+                      "const": "needs_configuration",
+                      "type": "string"
+                    },
+                    {
+                      "const": "needs_model",
+                      "type": "string"
+                    },
+                    {
+                      "const": "needs_selection",
+                      "type": "string"
+                    },
+                    {
+                      "const": "blocked",
+                      "type": "string"
+                    },
+                    {
+                      "const": "unsupported",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "readinessReasonCodes": {
+                  "uniqueItems": true,
+                  "maxItems": 20,
+                  "type": "array",
+                  "items": {
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "type": "string"
+                  }
                 },
                 "modelCount": {
                   "minimum": 0,

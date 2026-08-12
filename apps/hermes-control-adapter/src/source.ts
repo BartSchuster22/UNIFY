@@ -18,6 +18,7 @@ import type {
 } from '@aquiero/contracts';
 import type { AdapterSource, Snapshot } from './types.js';
 import { HermesManagementApi, HermesManagementError } from './management-api.js';
+import { truthfulProviderContract } from './provider-contracts.js';
 
 const execFileAsync = promisify(execFile);
 const ansi = new RegExp(String.raw`\u001B\[[0-9;]*m`, 'g');
@@ -809,27 +810,20 @@ function mapManagementProvider(
 ): HermesProvider {
   const id = optionalString(raw.slug ?? raw.provider) ?? 'unknown';
   const authenticated = raw.authenticated === true || raw.configured === true;
-  const authTypeRaw = optionalString(raw.auth_type ?? raw.authType)?.toLowerCase();
-  const authType: HermesProvider['authType'] =
-    authTypeRaw === 'oauth'
-      ? 'oauth'
-      : authTypeRaw === 'none' || authTypeRaw === 'local'
-        ? 'none'
-        : authTypeRaw === 'api_key' || authTypeRaw === 'apikey' || authTypeRaw === 'key'
-          ? 'api_key'
-          : 'unknown';
+  const modelCount = Array.isArray(raw.models)
+    ? raw.models.length
+    : Number.isInteger(raw.total_models)
+      ? Number(raw.total_models)
+      : 0;
+  const selected = id.toLowerCase() === selectedProvider.toLowerCase();
+  const contract = truthfulProviderContract({ id, authenticated, selected, modelCount });
   return {
     id,
     displayName: optionalString(raw.name ?? raw.label) ?? id,
-    credentialStatus: authenticated ? 'configured' : authType === 'none' ? 'configured' : 'missing',
-    selected: id.toLowerCase() === selectedProvider.toLowerCase(),
-    authType,
-    credentialMutable: authType === 'api_key' || authType === 'unknown',
-    modelCount: Array.isArray(raw.models)
-      ? raw.models.length
-      : Number.isInteger(raw.total_models)
-        ? Number(raw.total_models)
-        : 0,
+    credentialStatus: authenticated || contract.authMethod === 'none' ? 'configured' : 'missing',
+    selected,
+    ...contract,
+    modelCount,
   };
 }
 

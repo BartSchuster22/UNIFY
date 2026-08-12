@@ -27,7 +27,36 @@ type Provider = {
   credentialStatus: 'configured' | 'missing' | 'unknown';
   selected: boolean;
   authType?: 'api_key' | 'oauth' | 'none' | 'unknown';
+  authMethod?:
+    | 'api_key'
+    | 'oauth_device_code'
+    | 'oauth_browser'
+    | 'external_cli'
+    | 'cloud_identity'
+    | 'endpoint'
+    | 'composite'
+    | 'none'
+    | 'unknown';
   credentialMutable?: boolean;
+  setupSupported?: boolean;
+  setupFields?: Array<{
+    id: string;
+    label: string;
+    type: 'secret' | 'secret_file' | 'text' | 'url' | 'choice' | 'region' | 'project';
+    required: boolean;
+    secret: boolean;
+  }>;
+  prerequisites?: Array<{
+    id: string;
+    label: string;
+    kind: 'account' | 'executable' | 'cloud_identity' | 'network' | 'provider';
+    status: 'satisfied' | 'missing' | 'unknown';
+  }>;
+  connectionState?:
+    'connected' | 'disconnected' | 'authorization_pending' | 'expired' | 'not_required' | 'unknown';
+  deploymentReadiness?:
+    'ready' | 'needs_configuration' | 'needs_model' | 'needs_selection' | 'blocked' | 'unsupported';
+  readinessReasonCodes?: string[];
   modelCount?: number;
   owner: 'hermes';
   frameworkId: string;
@@ -619,11 +648,40 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                       </Group>
                       <Group>
                         <Badge color={credentialColor(provider.credentialStatus)}>
-                          Auth: {provider.credentialStatus}
+                          Connection: {provider.connectionState ?? provider.credentialStatus}
                         </Badge>
-                        <Badge variant="light">{provider.authType ?? 'unknown auth'}</Badge>
+                        <Badge variant="light">
+                          {formatContractValue(
+                            provider.authMethod ?? provider.authType ?? 'unknown',
+                          )}
+                        </Badge>
+                        <Badge color={readinessColor(provider.deploymentReadiness)}>
+                          {formatContractValue(provider.deploymentReadiness ?? 'unsupported')}
+                        </Badge>
                         <Badge variant="light">{providerModels.length} models</Badge>
                       </Group>
+                      {provider.setupFields?.length ? (
+                        <Text size="sm" c="dimmed">
+                          Required setup:{' '}
+                          {provider.setupFields
+                            .map((field) => `${field.label}${field.required ? '' : ' (optional)'}`)
+                            .join(', ')}
+                        </Text>
+                      ) : null}
+                      {provider.prerequisites?.length ? (
+                        <Text size="sm" c="dimmed">
+                          Prerequisites:{' '}
+                          {provider.prerequisites
+                            .map((item) => `${item.label} · ${formatContractValue(item.status)}`)
+                            .join(', ')}
+                        </Text>
+                      ) : null}
+                      {provider.readinessReasonCodes?.length ? (
+                        <Text size="xs" c="dimmed">
+                          Readiness:{' '}
+                          {provider.readinessReasonCodes.map(formatContractValue).join(', ')}
+                        </Text>
+                      ) : null}
                       {providerModels.length ? (
                         <Stack gap="xs">
                           {providerModels.map((model) => (
@@ -658,19 +716,21 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                           Hermes reports no models for this provider.
                         </Text>
                       )}
-                      {provider.authType === 'oauth' ? (
+                      {provider.authMethod === 'oauth_browser' ||
+                      provider.authMethod === 'oauth_device_code' ? (
                         <Text size="sm" c="dimmed">
-                          OAuth sign-in is managed by Hermes. No token field is exposed here.
+                          OAuth sign-in is required. This release exposes the truthful requirement;
+                          the governed OAuth connection flow is not implemented yet.
                         </Text>
-                      ) : provider.authType === 'none' ? (
+                      ) : provider.authMethod === 'none' ? (
                         <Text size="sm" c="dimmed">
                           Hermes reports that this provider requires no credential.
                         </Text>
-                      ) : (
+                      ) : provider.setupSupported && provider.credentialMutable ? (
                         <Group>
                           <Button
                             variant="light"
-                            disabled={!credentialEnabled || provider.credentialMutable === false}
+                            disabled={!credentialEnabled}
                             onClick={() => openSetup(provider.id)}
                           >
                             {provider.credentialStatus === 'configured'
@@ -703,6 +763,11 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                             Remove credential
                           </Button>
                         </Group>
+                      ) : (
+                        <Alert color="blue">
+                          This provider requires a dedicated governed setup flow. Generic credential
+                          entry is disabled to prevent an incomplete or incorrect configuration.
+                        </Alert>
                       )}
                       <Text size="xs" c="dimmed">
                         Credential values, fingerprints, variable names, and secret locations are
@@ -1099,6 +1164,18 @@ function Summary({ label, value }: { label: string; value: string | number }) {
 }
 function credentialColor(status: Provider['credentialStatus']) {
   return status === 'configured' ? 'teal' : status === 'missing' ? 'yellow' : 'gray';
+}
+function readinessColor(status: Provider['deploymentReadiness']) {
+  return status === 'ready'
+    ? 'teal'
+    : status === 'needs_selection' || status === 'needs_model'
+      ? 'yellow'
+      : status === 'needs_configuration'
+        ? 'orange'
+        : 'gray';
+}
+function formatContractValue(value: string) {
+  return value.replaceAll('_', ' ');
 }
 function formatDate(value?: string) {
   if (!value) return 'unknown';

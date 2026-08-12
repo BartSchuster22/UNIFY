@@ -1315,13 +1315,45 @@ export interface components {
                 };
             };
         };
+        HermesProviderAuthMethod: "api_key" | "oauth_device_code" | "oauth_browser" | "external_cli" | "cloud_identity" | "endpoint" | "composite" | "none" | "unknown";
+        HermesProviderSetupField: {
+            id: string;
+            label: string;
+            type: "secret" | "secret_file" | "text" | "url" | "choice" | "region" | "project";
+            required: boolean;
+            secret: boolean;
+        };
+        HermesProviderPrerequisite: {
+            id: string;
+            label: string;
+            kind: "account" | "executable" | "cloud_identity" | "network" | "provider";
+            status: "satisfied" | "missing" | "unknown";
+        };
         HermesProvider: {
             id: string;
             displayName: string;
             credentialStatus: "configured" | "missing" | "unknown";
             selected: boolean;
             authType?: "api_key" | "oauth" | "none" | "unknown";
+            authMethod?: "api_key" | "oauth_device_code" | "oauth_browser" | "external_cli" | "cloud_identity" | "endpoint" | "composite" | "none" | "unknown";
             credentialMutable?: boolean;
+            setupSupported?: boolean;
+            setupFields?: {
+                id: string;
+                label: string;
+                type: "secret" | "secret_file" | "text" | "url" | "choice" | "region" | "project";
+                required: boolean;
+                secret: boolean;
+            }[];
+            prerequisites?: {
+                id: string;
+                label: string;
+                kind: "account" | "executable" | "cloud_identity" | "network" | "provider";
+                status: "satisfied" | "missing" | "unknown";
+            }[];
+            connectionState?: "connected" | "disconnected" | "authorization_pending" | "expired" | "not_required" | "unknown";
+            deploymentReadiness?: "ready" | "needs_configuration" | "needs_model" | "needs_selection" | "blocked" | "unsupported";
+            readinessReasonCodes?: string[];
             modelCount?: number;
         };
         HermesProvidersResponse: {
@@ -1340,7 +1372,25 @@ export interface components {
                     credentialStatus: "configured" | "missing" | "unknown";
                     selected: boolean;
                     authType?: "api_key" | "oauth" | "none" | "unknown";
+                    authMethod?: "api_key" | "oauth_device_code" | "oauth_browser" | "external_cli" | "cloud_identity" | "endpoint" | "composite" | "none" | "unknown";
                     credentialMutable?: boolean;
+                    setupSupported?: boolean;
+                    setupFields?: {
+                        id: string;
+                        label: string;
+                        type: "secret" | "secret_file" | "text" | "url" | "choice" | "region" | "project";
+                        required: boolean;
+                        secret: boolean;
+                    }[];
+                    prerequisites?: {
+                        id: string;
+                        label: string;
+                        kind: "account" | "executable" | "cloud_identity" | "network" | "provider";
+                        status: "satisfied" | "missing" | "unknown";
+                    }[];
+                    connectionState?: "connected" | "disconnected" | "authorization_pending" | "expired" | "not_required" | "unknown";
+                    deploymentReadiness?: "ready" | "needs_configuration" | "needs_model" | "needs_selection" | "blocked" | "unsupported";
+                    readinessReasonCodes?: string[];
                     modelCount?: number;
                 }[];
                 page: {
@@ -2004,7 +2054,25 @@ export interface components {
             credentialStatus: "configured" | "missing" | "unknown";
             selected: boolean;
             authType?: "api_key" | "oauth" | "none" | "unknown";
+            authMethod?: "api_key" | "oauth_device_code" | "oauth_browser" | "external_cli" | "cloud_identity" | "endpoint" | "composite" | "none" | "unknown";
             credentialMutable?: boolean;
+            setupSupported?: boolean;
+            setupFields?: {
+                id: string;
+                label: string;
+                type: "secret" | "secret_file" | "text" | "url" | "choice" | "region" | "project";
+                required: boolean;
+                secret: boolean;
+            }[];
+            prerequisites?: {
+                id: string;
+                label: string;
+                kind: "account" | "executable" | "cloud_identity" | "network" | "provider";
+                status: "satisfied" | "missing" | "unknown";
+            }[];
+            connectionState?: "connected" | "disconnected" | "authorization_pending" | "expired" | "not_required" | "unknown";
+            deploymentReadiness?: "ready" | "needs_configuration" | "needs_model" | "needs_selection" | "blocked" | "unsupported";
+            readinessReasonCodes?: string[];
             modelCount?: number;
             /** @constant */
             owner: "hermes";
@@ -2032,7 +2100,25 @@ export interface components {
                 credentialStatus: "configured" | "missing" | "unknown";
                 selected: boolean;
                 authType?: "api_key" | "oauth" | "none" | "unknown";
+                authMethod?: "api_key" | "oauth_device_code" | "oauth_browser" | "external_cli" | "cloud_identity" | "endpoint" | "composite" | "none" | "unknown";
                 credentialMutable?: boolean;
+                setupSupported?: boolean;
+                setupFields?: {
+                    id: string;
+                    label: string;
+                    type: "secret" | "secret_file" | "text" | "url" | "choice" | "region" | "project";
+                    required: boolean;
+                    secret: boolean;
+                }[];
+                prerequisites?: {
+                    id: string;
+                    label: string;
+                    kind: "account" | "executable" | "cloud_identity" | "network" | "provider";
+                    status: "satisfied" | "missing" | "unknown";
+                }[];
+                connectionState?: "connected" | "disconnected" | "authorization_pending" | "expired" | "not_required" | "unknown";
+                deploymentReadiness?: "ready" | "needs_configuration" | "needs_model" | "needs_selection" | "blocked" | "unsupported";
+                readinessReasonCodes?: string[];
                 modelCount?: number;
                 /** @constant */
                 owner: "hermes";

@@ -11,6 +11,7 @@ import {
   HermesHealthResponseSchema,
   HermesIdentityResponseSchema,
   HermesProfileCommandSchema,
+  HermesProviderSchema,
   HermesVersionResponseSchema,
 } from './index.js';
 
@@ -120,6 +121,44 @@ describe('hermes-control/v1 frozen contracts', () => {
         payload: { newId: 'alica' },
         operation: 'profile.rename',
         targetId: 'default',
+      }),
+    ).toBe(true);
+  });
+
+  it('accepts truthful provider setup and readiness contracts without secret values', () => {
+    expect(
+      Value.Check(HermesProviderSchema, {
+        id: 'vertex',
+        displayName: 'Google Vertex AI',
+        credentialStatus: 'missing',
+        selected: false,
+        authType: 'unknown',
+        authMethod: 'cloud_identity',
+        credentialMutable: false,
+        setupSupported: false,
+        setupFields: [
+          {
+            id: 'project',
+            label: 'Google Cloud project',
+            type: 'project',
+            required: true,
+            secret: false,
+          },
+          {
+            id: 'credentials',
+            label: 'Service-account credentials',
+            type: 'secret_file',
+            required: false,
+            secret: true,
+          },
+        ],
+        prerequisites: [
+          { id: 'google-adc', label: 'Google identity', kind: 'cloud_identity', status: 'unknown' },
+        ],
+        connectionState: 'disconnected',
+        deploymentReadiness: 'needs_configuration',
+        readinessReasonCodes: ['PROVIDER_NOT_CONNECTED'],
+        modelCount: 0,
       }),
     ).toBe(true);
   });

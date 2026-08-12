@@ -40,7 +40,16 @@ const providers = {
       credentialStatus: 'configured',
       selected: true,
       authType: 'api_key',
+      authMethod: 'api_key',
       credentialMutable: true,
+      setupSupported: true,
+      setupFields: [
+        { id: 'credential', label: 'API key', type: 'secret', required: true, secret: true },
+      ],
+      prerequisites: [],
+      connectionState: 'connected',
+      deploymentReadiness: 'ready',
+      readinessReasonCodes: [],
       modelCount: 2,
       owner: 'hermes',
       frameworkId: 'hermes-main',
@@ -133,7 +142,8 @@ describe('Models/providers Hermes management', () => {
 
     expect((await screen.findAllByText('OpenRouter')).length).toBeGreaterThan(0);
     expect(screen.getAllByText('openai/gpt-5').length).toBeGreaterThan(0);
-    expect(screen.getByText('Auth: configured')).toBeInTheDocument();
+    expect(screen.getByText('Connection: connected')).toBeInTheDocument();
+    expect(screen.getByText('ready')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Guided provider setup' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Update credential' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Remove credential' })).toBeEnabled();

@@ -408,7 +408,13 @@ describe('HermesNativeSource', () => {
     expect((await source.providers()).items[0]).toMatchObject({
       id: 'openrouter',
       authType: 'api_key',
+      authMethod: 'api_key',
       credentialStatus: 'configured',
+      connectionState: 'connected',
+      setupSupported: true,
+      credentialMutable: true,
+      deploymentReadiness: 'ready',
+      readinessReasonCodes: [],
       selected: true,
       modelCount: 1,
     });
@@ -418,6 +424,60 @@ describe('HermesNativeSource', () => {
       selected: true,
     });
     expect(JSON.stringify(await source.providers())).not.toContain('OPENROUTER_API_KEY');
+  });
+
+  it('exposes truthful setup contracts and fails closed for non-generic providers', async () => {
+    const source = new HermesNativeSource({
+      runner: new FixtureRunner({}),
+      managementBaseUrl: 'http://127.0.0.1:29119',
+      managementToken: 'private-token',
+      fetchImpl: async () =>
+        Response.json({
+          provider: '',
+          model: '',
+          providers: [
+            { slug: 'openai-codex', name: 'OpenAI Codex', authenticated: false, models: [] },
+            { slug: 'vertex', name: 'Google Vertex AI', authenticated: false, models: [] },
+            { slug: 'moa', name: 'Mixture of Agents', authenticated: true, models: ['default'] },
+            { slug: 'future-provider', name: 'Future Provider', authenticated: false, models: [] },
+          ],
+        }),
+    });
+
+    const items = (await source.providers()).items;
+    expect(items.find((item) => item.id === 'openai-codex')).toMatchObject({
+      authType: 'oauth',
+      authMethod: 'oauth_browser',
+      credentialMutable: false,
+      setupSupported: false,
+      connectionState: 'disconnected',
+      deploymentReadiness: 'needs_configuration',
+    });
+    expect(items.find((item) => item.id === 'vertex')).toMatchObject({
+      authMethod: 'cloud_identity',
+      credentialMutable: false,
+      setupFields: expect.arrayContaining([
+        expect.objectContaining({ id: 'project', type: 'project', secret: false }),
+        expect.objectContaining({ id: 'credentials', type: 'secret_file', secret: true }),
+      ]),
+      prerequisites: [
+        expect.objectContaining({ id: 'google-adc', kind: 'cloud_identity', status: 'unknown' }),
+      ],
+    });
+    expect(items.find((item) => item.id === 'moa')).toMatchObject({
+      authMethod: 'composite',
+      credentialMutable: false,
+      deploymentReadiness: 'needs_selection',
+      readinessReasonCodes: ['NO_DEFAULT_MODEL_SELECTED'],
+    });
+    expect(items.find((item) => item.id === 'future-provider')).toMatchObject({
+      authMethod: 'unknown',
+      credentialMutable: false,
+      setupSupported: false,
+      deploymentReadiness: 'unsupported',
+      readinessReasonCodes: ['SETUP_CONTRACT_UNKNOWN'],
+    });
+    expect(JSON.stringify(items)).not.toMatch(/API_KEY|TOKEN|secret-file-path/i);
   });
 
   it('rejects unsafe Hermes API endpoints before issuing a request', () => {

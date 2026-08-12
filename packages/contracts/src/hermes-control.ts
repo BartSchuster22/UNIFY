@@ -202,6 +202,57 @@ export const HermesProfilesResponseSchema = controlCollectionResponse(
   HermesProfileSchema,
 );
 
+export const HermesProviderAuthMethodSchema = Type.Union(
+  [
+    Type.Literal('api_key'),
+    Type.Literal('oauth_device_code'),
+    Type.Literal('oauth_browser'),
+    Type.Literal('external_cli'),
+    Type.Literal('cloud_identity'),
+    Type.Literal('endpoint'),
+    Type.Literal('composite'),
+    Type.Literal('none'),
+    Type.Literal('unknown'),
+  ],
+  { $id: 'HermesProviderAuthMethod' },
+);
+export const HermesProviderSetupFieldSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1, maxLength: 100 }),
+    label: Type.String({ minLength: 1, maxLength: 200 }),
+    type: Type.Union([
+      Type.Literal('secret'),
+      Type.Literal('secret_file'),
+      Type.Literal('text'),
+      Type.Literal('url'),
+      Type.Literal('choice'),
+      Type.Literal('region'),
+      Type.Literal('project'),
+    ]),
+    required: Type.Boolean(),
+    secret: Type.Boolean(),
+  },
+  { $id: 'HermesProviderSetupField', additionalProperties: false },
+);
+export const HermesProviderPrerequisiteSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1, maxLength: 100 }),
+    label: Type.String({ minLength: 1, maxLength: 300 }),
+    kind: Type.Union([
+      Type.Literal('account'),
+      Type.Literal('executable'),
+      Type.Literal('cloud_identity'),
+      Type.Literal('network'),
+      Type.Literal('provider'),
+    ]),
+    status: Type.Union([
+      Type.Literal('satisfied'),
+      Type.Literal('missing'),
+      Type.Literal('unknown'),
+    ]),
+  },
+  { $id: 'HermesProviderPrerequisite', additionalProperties: false },
+);
 export const HermesProviderSchema = Type.Object(
   {
     id: Type.String({ minLength: 1, maxLength: 200 }),
@@ -220,7 +271,37 @@ export const HermesProviderSchema = Type.Object(
         Type.Literal('unknown'),
       ]),
     ),
+    authMethod: Type.Optional(HermesProviderAuthMethodSchema),
     credentialMutable: Type.Optional(Type.Boolean()),
+    setupSupported: Type.Optional(Type.Boolean()),
+    setupFields: Type.Optional(Type.Array(HermesProviderSetupFieldSchema, { maxItems: 20 })),
+    prerequisites: Type.Optional(Type.Array(HermesProviderPrerequisiteSchema, { maxItems: 20 })),
+    connectionState: Type.Optional(
+      Type.Union([
+        Type.Literal('connected'),
+        Type.Literal('disconnected'),
+        Type.Literal('authorization_pending'),
+        Type.Literal('expired'),
+        Type.Literal('not_required'),
+        Type.Literal('unknown'),
+      ]),
+    ),
+    deploymentReadiness: Type.Optional(
+      Type.Union([
+        Type.Literal('ready'),
+        Type.Literal('needs_configuration'),
+        Type.Literal('needs_model'),
+        Type.Literal('needs_selection'),
+        Type.Literal('blocked'),
+        Type.Literal('unsupported'),
+      ]),
+    ),
+    readinessReasonCodes: Type.Optional(
+      Type.Array(Type.String({ minLength: 1, maxLength: 100 }), {
+        uniqueItems: true,
+        maxItems: 20,
+      }),
+    ),
     modelCount: Type.Optional(Type.Integer({ minimum: 0 })),
   },
   { $id: 'HermesProvider', additionalProperties: false },
@@ -860,6 +941,9 @@ export const HermesControlSchemas = [
   HermesCollectionResponseSchema,
   HermesProfileSchema,
   HermesProfilesResponseSchema,
+  HermesProviderAuthMethodSchema,
+  HermesProviderSetupFieldSchema,
+  HermesProviderPrerequisiteSchema,
   HermesProviderSchema,
   HermesProvidersResponseSchema,
   HermesModelSchema,
