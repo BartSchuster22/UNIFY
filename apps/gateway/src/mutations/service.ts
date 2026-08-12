@@ -308,6 +308,11 @@ function validateModelCommand(input: MutationInput, definition: MutationDefiniti
     if (typeof credential !== 'string' || !credential.trim() || credential.length > 32_768)
       throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'credential is required');
   }
+  if (input.operationType === 'provider.inference.test') {
+    const modelId = input.payload.modelId;
+    if (typeof modelId !== 'string' || !modelId.trim())
+      throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'modelId is required');
+  }
   const expectedSourceVersion = input.payload.expectedSourceVersion;
   if (
     expectedSourceVersion !== undefined &&

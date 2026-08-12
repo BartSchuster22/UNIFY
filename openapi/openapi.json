@@ -10317,6 +10317,22 @@
           {
             "const": "provider.credential.remove",
             "type": "string"
+          },
+          {
+            "const": "provider.validate",
+            "type": "string"
+          },
+          {
+            "const": "provider.models.refresh",
+            "type": "string"
+          },
+          {
+            "const": "provider.inference.test",
+            "type": "string"
+          },
+          {
+            "const": "provider.persistence.verify",
+            "type": "string"
           }
         ]
       },
@@ -10417,6 +10433,22 @@
               },
               {
                 "const": "provider.credential.remove",
+                "type": "string"
+              },
+              {
+                "const": "provider.validate",
+                "type": "string"
+              },
+              {
+                "const": "provider.models.refresh",
+                "type": "string"
+              },
+              {
+                "const": "provider.inference.test",
+                "type": "string"
+              },
+              {
+                "const": "provider.persistence.verify",
                 "type": "string"
               }
             ]
@@ -10520,6 +10552,22 @@
                   },
                   {
                     "const": "provider.credential.remove",
+                    "type": "string"
+                  },
+                  {
+                    "const": "provider.validate",
+                    "type": "string"
+                  },
+                  {
+                    "const": "provider.models.refresh",
+                    "type": "string"
+                  },
+                  {
+                    "const": "provider.inference.test",
+                    "type": "string"
+                  },
+                  {
+                    "const": "provider.persistence.verify",
                     "type": "string"
                   }
                 ]

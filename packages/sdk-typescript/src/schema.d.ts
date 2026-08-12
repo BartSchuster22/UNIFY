@@ -1717,7 +1717,7 @@ export interface components {
                 emittedEvents: number;
             };
         };
-        HermesModelManagementOperation: "model.select" | "provider.credential.set" | "provider.credential.remove";
+        HermesModelManagementOperation: "model.select" | "provider.credential.set" | "provider.credential.remove" | "provider.validate" | "provider.models.refresh" | "provider.inference.test" | "provider.persistence.verify";
         HermesModelManagementCommand: {
             mode: "validate" | "dry-run" | "execute";
             idempotencyKey: string;
@@ -1731,7 +1731,7 @@ export interface components {
             payload: {
                 [key: string]: unknown;
             };
-            operation: "model.select" | "provider.credential.set" | "provider.credential.remove";
+            operation: "model.select" | "provider.credential.set" | "provider.credential.remove" | "provider.validate" | "provider.models.refresh" | "provider.inference.test" | "provider.persistence.verify";
             targetId: string;
         };
         HermesModelManagementResult: {
@@ -1747,7 +1747,7 @@ export interface components {
                 operationId: string;
                 status: "validated" | "dry-run" | "completed";
                 replayed: boolean;
-                operation: "model.select" | "provider.credential.set" | "provider.credential.remove";
+                operation: "model.select" | "provider.credential.set" | "provider.credential.remove" | "provider.validate" | "provider.models.refresh" | "provider.inference.test" | "provider.persistence.verify";
                 targetId: string;
                 result: {
                     [key: string]: unknown;

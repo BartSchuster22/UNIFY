@@ -44,14 +44,58 @@ export class HermesManagementApi {
     );
   }
 
+  async validateCredential(providerId: string, credential: string) {
+    const key = await this.providerCredentialKey(providerId);
+    const result = record(
+      await this.request('/api/providers/validate', 'POST', { key, value: credential }),
+    );
+    return {
+      providerId,
+      accepted: result.ok === true,
+      reachable: result.reachable === true,
+      verified: result.ok === true && result.reachable === true,
+      ...(typeof result.message === 'string' && result.message
+        ? { message: result.message.slice(0, 500) }
+        : {}),
+    };
+  }
+
   async setCredential(providerId: string, credential: string) {
+    const validation = await this.validateCredential(providerId, credential);
+    if (!validation.accepted)
+      throw new HermesManagementError(
+        422,
+        validation.message ?? 'Hermes rejected the provider credential',
+      );
     const key = await this.providerCredentialKey(providerId);
     const result = record(await this.request('/api/env', 'PUT', { key, value: credential }));
     return {
       configured: true,
       changed: result.changed !== false,
       providerId,
+      validation: {
+        accepted: validation.accepted,
+        reachable: validation.reachable,
+        verified: validation.verified,
+      },
     };
+  }
+
+  async refreshProviderModels(providerId: string) {
+    const inventory = await this.inventory(true);
+    const provider = inventory.providers.find((item) => string(item.slug) === providerId);
+    if (!provider) throw new HermesManagementError(404, 'Provider is not in Hermes inventory');
+    const models = Array.isArray(provider.models)
+      ? provider.models.filter((item): item is string => typeof item === 'string' && Boolean(item))
+      : [];
+    return { providerId, discovered: models.length, models };
+  }
+
+  async verifyPersistence(providerId: string) {
+    const key = await this.providerCredentialKey(providerId);
+    const env = record(await this.request('/api/env', 'GET'));
+    const status = record(env[key]);
+    return { providerId, configured: status.is_set === true, persisted: status.is_set === true };
   }
 
   async removeCredential(providerId: string) {

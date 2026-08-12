@@ -58,6 +58,30 @@ export const modelMutationDefinitions: Record<string, MutationDefinition> = {
     executionPath: 'hermes-control',
     destructive: true,
   },
+  'provider.validate': {
+    owner: 'hermes',
+    kind: 'provider',
+    permission: 'models.manage',
+    executionPath: 'hermes-control',
+  },
+  'provider.models.refresh': {
+    owner: 'hermes',
+    kind: 'provider',
+    permission: 'models.manage',
+    executionPath: 'hermes-control',
+  },
+  'provider.inference.test': {
+    owner: 'hermes',
+    kind: 'provider',
+    permission: 'models.manage',
+    executionPath: 'hermes-control',
+  },
+  'provider.persistence.verify': {
+    owner: 'hermes',
+    kind: 'provider',
+    permission: 'models.manage',
+    executionPath: 'hermes-control',
+  },
 };
 
 export const workMutationDefinitions: Record<string, MutationDefinition> = {

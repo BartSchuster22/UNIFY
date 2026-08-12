@@ -333,6 +333,59 @@ export class HermesNativeSource implements AdapterSource {
           );
         case 'provider.credential.remove':
           return await this.management.removeCredential(command.targetId);
+        case 'provider.validate': {
+          const result = await this.management.refreshProviderModels(command.targetId);
+          return {
+            providerId: command.targetId,
+            accepted: result.discovered > 0,
+            verified: result.discovered > 0,
+            discovered: result.discovered,
+          };
+        }
+        case 'provider.models.refresh':
+          return await this.management.refreshProviderModels(command.targetId);
+        case 'provider.persistence.verify':
+          return await this.management.verifyPersistence(command.targetId);
+        case 'provider.inference.test': {
+          const provider = (await this.providers(true)).items.find(
+            (item) => item.id === command.targetId,
+          );
+          if (!provider || provider.credentialStatus !== 'configured')
+            throw new SourceUnavailableError('Provider is not configured');
+          const models = (await this.models(true)).items.filter(
+            (item) => item.providerId === command.targetId,
+          );
+          const modelId =
+            optionalString(payload.modelId) ?? models.find((item) => item.selected)?.id;
+          if (!modelId)
+            throw new SourceUnavailableError(
+              'No selected model is available for inference testing',
+            );
+          const created = await this.executeConversation({
+            ...command,
+            operation: 'session.create',
+            targetId: 'provider-inference-smoke',
+            payload: {
+              title: `Provider smoke test: ${command.targetId}`,
+              model: `${command.targetId}/${modelId}`,
+            },
+          });
+          const session = record(created.session);
+          const sessionId = requiredString(session.id ?? session.session_id, 'session id');
+          const sent = await this.executeConversation({
+            ...command,
+            operation: 'message.send',
+            targetId: sessionId,
+            payload: { message: 'Reply with exactly OK.' },
+          });
+          const message = record(sent.message);
+          return {
+            providerId: command.targetId,
+            modelId,
+            succeeded: Boolean(message.id ?? message.content),
+            sessionId,
+          };
+        }
       }
       throw new SourceUnavailableError('Hermes model-management operation is unsupported');
     } catch (error) {

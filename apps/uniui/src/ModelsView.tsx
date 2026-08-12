@@ -240,7 +240,15 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
       setNotice(
         operationType === 'model.select'
           ? 'Model selection saved in Hermes. Existing sessions keep their current model; new sessions use the new selection.'
-          : 'Provider credential state updated in Hermes.',
+          : operationType === 'provider.validate'
+            ? 'Hermes validated the connected provider through live model discovery.'
+            : operationType === 'provider.models.refresh'
+              ? 'Hermes refreshed and authoritatively read back the provider model catalogue.'
+              : operationType === 'provider.inference.test'
+                ? 'Real Hermes inference smoke test succeeded.'
+                : operationType === 'provider.persistence.verify'
+                  ? 'Hermes authoritative environment readback confirms credential persistence.'
+                  : 'Provider credential state updated in Hermes.',
       );
       await load(true);
     } catch (cause) {
@@ -307,6 +315,30 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
     modelSetup.reviewedRevision === modelSetup.revision &&
     modelSetup.acknowledged,
   );
+
+  const runProviderCheck = async (
+    provider: Provider,
+    operationType:
+      | 'provider.validate'
+      | 'provider.models.refresh'
+      | 'provider.inference.test'
+      | 'provider.persistence.verify',
+  ) => {
+    const modelId = (modelsByProvider.get(provider.id) ?? []).find((item) => item.selected)?.id;
+    await mutate(
+      operationType,
+      'provider',
+      provider.id,
+      {
+        expectedSourceVersion:
+          operationType === 'provider.models.refresh' || operationType === 'provider.inference.test'
+            ? models?.meta.sourceVersion
+            : provider.sourceVersion,
+        ...(operationType === 'provider.inference.test' && modelId ? { modelId } : {}),
+      },
+      true,
+    );
+  };
 
   const openSetup = (providerId = credentialProviders[0]?.id ?? '') => {
     if (!credentialEnabled || !providerId) return;
@@ -737,6 +769,52 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                               ? 'Update credential'
                               : 'Connect provider'}
                           </Button>
+                          {provider.credentialStatus === 'configured' ? (
+                            <>
+                              <Button
+                                size="xs"
+                                variant="default"
+                                disabled={!modelEnabled || Boolean(busy)}
+                                onClick={() => void runProviderCheck(provider, 'provider.validate')}
+                              >
+                                Validate
+                              </Button>
+                              <Button
+                                size="xs"
+                                variant="default"
+                                disabled={!modelEnabled || Boolean(busy)}
+                                onClick={() =>
+                                  void runProviderCheck(provider, 'provider.models.refresh')
+                                }
+                              >
+                                Discover models
+                              </Button>
+                              <Button
+                                size="xs"
+                                variant="default"
+                                disabled={
+                                  !modelEnabled ||
+                                  Boolean(busy) ||
+                                  !providerModels.some((item) => item.selected)
+                                }
+                                onClick={() =>
+                                  void runProviderCheck(provider, 'provider.inference.test')
+                                }
+                              >
+                                Test inference
+                              </Button>
+                              <Button
+                                size="xs"
+                                variant="default"
+                                disabled={!modelEnabled || Boolean(busy)}
+                                onClick={() =>
+                                  void runProviderCheck(provider, 'provider.persistence.verify')
+                                }
+                              >
+                                Verify persistence
+                              </Button>
+                            </>
+                          ) : null}
                           <Button
                             color="red"
                             variant="light"

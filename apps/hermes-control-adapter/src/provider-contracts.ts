@@ -52,6 +52,31 @@ const oauth = (authMethod: 'oauth_device_code' | 'oauth_browser'): ProviderDefin
   ],
 });
 
+export const STANDARD_API_KEY_PROVIDER_IDS = [
+  'fireworks',
+  'openrouter',
+  'novita',
+  'alibaba',
+  'xiaomi',
+  'nvidia',
+  'huggingface',
+  'deepseek',
+  'xai',
+  'kimi-coding-cn',
+  'stepfun',
+  'minimax',
+  'minimax-cn',
+  'ollama-cloud',
+  'arcee',
+  'gmi',
+  'kilocode',
+  'opencode-zen',
+  'opencode-go',
+  'ai-gateway',
+  'deepinfra',
+  'upstage',
+] as const;
+
 // Pinned Hermes 0.20.0 provider catalogue. This contains only non-secret setup metadata.
 // It intentionally fails closed: a provider is mutable only when its complete current
 // setup is the supported one-secret operation.
@@ -69,7 +94,7 @@ const DEFINITIONS: Record<string, ProviderDefinition> = {
   novita: {
     ...singleKey(),
     setupFields: [secret(), field('baseUrl', 'Base URL override', 'url', false)],
-    setupSupported: false,
+    setupSupported: true,
   },
   lmstudio: {
     authMethod: 'endpoint',
@@ -133,7 +158,7 @@ const DEFINITIONS: Record<string, ProviderDefinition> = {
   gmi: {
     ...singleKey(),
     setupFields: [secret(), field('baseUrl', 'Base URL override', 'url', false)],
-    setupSupported: false,
+    setupSupported: true,
   },
   kilocode: singleKey(),
   'opencode-zen': singleKey(),
@@ -190,12 +215,12 @@ const DEFINITIONS: Record<string, ProviderDefinition> = {
   deepinfra: {
     ...singleKey(),
     setupFields: [secret(), field('baseUrl', 'Base URL override', 'url', false)],
-    setupSupported: false,
+    setupSupported: true,
   },
   upstage: {
     ...singleKey(),
     setupFields: [secret(), field('baseUrl', 'Base URL override', 'url', false)],
-    setupSupported: false,
+    setupSupported: true,
   },
 };
 

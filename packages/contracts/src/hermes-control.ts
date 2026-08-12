@@ -544,6 +544,10 @@ export const HermesModelManagementOperationSchema = Type.Union(
     Type.Literal('model.select'),
     Type.Literal('provider.credential.set'),
     Type.Literal('provider.credential.remove'),
+    Type.Literal('provider.validate'),
+    Type.Literal('provider.models.refresh'),
+    Type.Literal('provider.inference.test'),
+    Type.Literal('provider.persistence.verify'),
   ],
   { $id: 'HermesModelManagementOperation' },
 );

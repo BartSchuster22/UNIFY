@@ -497,10 +497,18 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
     { schema: { body: HermesModelManagementCommandSchema } },
     async (request) => {
       const command = request.body;
-      const credentialOperation = command.operation.startsWith('provider.credential.');
-      requireScope(scopes, credentialOperation ? 'control:secrets' : 'control:execute');
+      const providerStateOperation =
+        command.operation.startsWith('provider.credential.') ||
+        command.operation === 'provider.validate' ||
+        command.operation === 'provider.persistence.verify';
+      requireScope(
+        scopes,
+        command.operation.startsWith('provider.credential.')
+          ? 'control:secrets'
+          : 'control:execute',
+      );
       validateModelManagementPayload(command);
-      const before = credentialOperation
+      const before = providerStateOperation
         ? await options.source.providers()
         : await options.source.models();
       if (command.expectedSourceVersion && command.expectedSourceVersion !== before.sourceVersion)
@@ -525,10 +533,10 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
         return result;
       }
       const ownerResult = await options.source.executeModelManagement(command);
-      const after = credentialOperation
+      const after = providerStateOperation
         ? await options.source.providers()
         : await options.source.models();
-      verifyModelManagementResult(command, after.items);
+      verifyModelManagementResult(command, after.items, ownerResult);
       const result = response(options, after.sourceVersion, {
         operationId,
         status: 'completed',
@@ -540,14 +548,16 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
       });
       const committed = await options.events.commit({
         frameworkId: options.frameworkId,
-        capability: credentialOperation ? 'providers.credentials.execute' : 'models.execute',
+        capability: command.operation.startsWith('provider.credential.')
+          ? 'providers.credentials.execute'
+          : 'models.execute',
         idempotencyKey: command.idempotencyKey,
         requestHash: sourceVersion(safeModelManagementCommand(command)),
         command: safeModelManagementCommand(command),
         response: result,
         events: [
           {
-            family: credentialOperation ? 'providers' : 'models',
+            family: command.operation.startsWith('provider.') ? 'providers' : 'models',
             type: command.operation,
             sourceVersion: after.sourceVersion,
             correlationId: command.correlationId,
@@ -768,8 +778,23 @@ function verifyModelManagementResult(
     providerId?: string;
     selected?: boolean;
   }>,
+  result: Record<string, unknown>,
 ) {
-  if (command.operation === 'model.select') {
+  if (
+    command.operation === 'provider.models.refresh' ||
+    command.operation === 'provider.inference.test'
+  ) {
+    if (
+      (command.operation === 'provider.models.refresh' && Number(result.discovered) > 0) ||
+      (command.operation === 'provider.inference.test' && result.succeeded === true)
+    )
+      return;
+  } else if (command.operation === 'provider.validate') {
+    if (result.accepted === true && result.verified === true && Number(result.discovered) > 0)
+      return;
+  } else if (command.operation === 'provider.persistence.verify') {
+    if (result.configured === true && result.persisted === true) return;
+  } else if (command.operation === 'model.select') {
     const selected = items.some(
       (item) =>
         item.id === command.targetId &&

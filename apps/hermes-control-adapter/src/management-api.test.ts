@@ -66,7 +66,12 @@ describe('HermesManagementApi', () => {
     });
     const setResult = await api.setCredential('openrouter', 'secret-value');
     const removeResult = await api.removeCredential('openrouter');
-    expect(setResult).toMatchObject({ changed: true, configured: true, providerId: 'openrouter' });
+    expect(setResult).toMatchObject({
+      changed: true,
+      configured: true,
+      providerId: 'openrouter',
+      validation: { accepted: true },
+    });
     expect(removeResult).toMatchObject({
       changed: true,
       configured: false,
