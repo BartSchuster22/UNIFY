@@ -121,6 +121,19 @@ type ModelSetup = {
   dryRunKey: string;
   executeKey: string;
 };
+type DeploymentWizard = {
+  step: number;
+  providerId: string;
+  setupValues: Record<string, string>;
+  modelId: string;
+  acknowledged: boolean;
+  connectionVerified: boolean;
+  discoveryVerified: boolean;
+  selectionVerified: boolean;
+  smokeVerified: boolean;
+  readbackSourceVersion?: string;
+  smokeSessionId?: string;
+};
 type OAuthSession = {
   provider: Provider;
   sessionId: string;
@@ -147,6 +160,7 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
   const [setupStep, setSetupStep] = useState(0);
   const [modelSetup, setModelSetup] = useState<ModelSetup | null>(null);
   const [modelSetupStep, setModelSetupStep] = useState(0);
+  const [deployment, setDeployment] = useState<DeploymentWizard | null>(null);
   const [oauth, setOauth] = useState<OAuthSession | null>(null);
   const [busy, setBusy] = useState('');
   const [loading, setLoading] = useState(true);
@@ -412,6 +426,216 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
     modelSetup.reviewedRevision === modelSetup.revision &&
     modelSetup.acknowledged,
   );
+  const deploymentProvider = deployment
+    ? providers?.items.find((provider) => provider.id === deployment.providerId)
+    : undefined;
+  const deploymentModels = deployment ? (modelsByProvider.get(deployment.providerId) ?? []) : [];
+  const deploymentModel = deploymentModels.find((model) => model.id === deployment?.modelId);
+  const deploymentSetupRequired = (deploymentProvider?.setupFields ?? []).every(
+    (field) => !field.required || Boolean(deployment?.setupValues[field.id]?.trim()),
+  );
+
+  const openDeployment = () => {
+    const provider =
+      selectedProvider ??
+      providers?.items.find((item) => item.credentialStatus === 'configured') ??
+      providers?.items[0];
+    if (!provider || !frameworkId || !credentialEnabled || !modelEnabled) return;
+    const providerModels = modelsByProvider.get(provider.id) ?? [];
+    setDeployment({
+      step: 0,
+      providerId: provider.id,
+      setupValues: Object.fromEntries(
+        (provider.setupFields ?? []).map((field) => [
+          field.id,
+          field.type === 'choice' ? (field.choices?.[0]?.value ?? '') : '',
+        ]),
+      ),
+      modelId: providerModels.find((model) => model.selected)?.id ?? providerModels[0]?.id ?? '',
+      acknowledged: false,
+      connectionVerified:
+        provider.credentialStatus === 'configured' || provider.authType === 'none',
+      discoveryVerified: false,
+      selectionVerified: false,
+      smokeVerified: false,
+    });
+    setError('');
+    setNotice('');
+  };
+
+  const wizardMutation = async (
+    operationType: string,
+    kind: 'provider' | 'model',
+    nativeId: string,
+    payload: Record<string, unknown>,
+    mode: 'dry-run' | 'execute' = 'execute',
+  ) => {
+    if (!frameworkId) throw new Error('Choose a verified Hermes framework first.');
+    const result = await gateway.mutate(
+      {
+        operationType,
+        target: { owner: 'hermes', kind, nativeId, frameworkId },
+        payload,
+        mode,
+        confirmed: true,
+      },
+      crypto.randomUUID(),
+    );
+    if (result.operation.state !== 'verified')
+      throw new Error(`${operationType} did not verify; state is ${result.operation.state}.`);
+    return result;
+  };
+
+  const connectDeploymentProvider = async () => {
+    if (!deployment || !deploymentProvider) return;
+    setBusy('deployment.connect');
+    setError('');
+    try {
+      if (
+        deploymentProvider.credentialStatus !== 'configured' &&
+        deploymentProvider.authType !== 'none'
+      ) {
+        if (!deploymentSetupRequired)
+          throw new Error('Complete every required provider setup field before connecting.');
+        const payload = {
+          setup: deployment.setupValues,
+          expectedSourceVersion: deploymentProvider.sourceVersion,
+        };
+        await wizardMutation(
+          'provider.credential.set',
+          'provider',
+          deploymentProvider.id,
+          payload,
+          'dry-run',
+        );
+        await wizardMutation('provider.credential.set', 'provider', deploymentProvider.id, payload);
+      } else {
+        await wizardMutation('provider.validate', 'provider', deploymentProvider.id, {
+          expectedSourceVersion: deploymentProvider.sourceVersion,
+        });
+      }
+      await load(true);
+      setDeployment((current) =>
+        current ? { ...current, connectionVerified: true, setupValues: {}, step: 3 } : current,
+      );
+    } catch (cause) {
+      setDeployment((current) =>
+        current ? { ...current, setupValues: {}, connectionVerified: false } : current,
+      );
+      setError(cause instanceof Error ? cause.message : 'Provider connection failed.');
+    } finally {
+      setBusy('');
+    }
+  };
+
+  const discoverDeploymentModels = async () => {
+    if (!deployment || !deploymentProvider || !frameworkId) return;
+    setBusy('deployment.discover');
+    setError('');
+    try {
+      await wizardMutation('provider.models.refresh', 'provider', deployment.providerId, {
+        expectedSourceVersion: models?.meta.sourceVersion,
+      });
+      const inventory = await api<Collection<Model>>(
+        `/frameworks/${encodeURIComponent(frameworkId)}/models?limit=500&refresh=true`,
+      );
+      const discovered = inventory.items.filter(
+        (model) => model.providerId === deployment.providerId,
+      );
+      if (!discovered.length) throw new Error('Hermes discovered no deployable models.');
+      setModels(inventory);
+      setDeployment((current) =>
+        current
+          ? {
+              ...current,
+              discoveryVerified: true,
+              modelId:
+                discovered.find((model) => model.id === current.modelId)?.id ?? discovered[0]!.id,
+              step: 4,
+            }
+          : current,
+      );
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Model discovery failed.');
+    } finally {
+      setBusy('');
+    }
+  };
+
+  const deploySelectedModel = async () => {
+    if (!deployment || !deploymentModel || !deployment.acknowledged || !frameworkId) return;
+    setBusy('deployment.select');
+    setError('');
+    try {
+      const payload = {
+        providerId: deployment.providerId,
+        confirmExpensiveModel: true,
+        expectedSourceVersion: deploymentModel.sourceVersion,
+      };
+      await wizardMutation('model.select', 'model', deployment.modelId, payload, 'dry-run');
+      await wizardMutation('model.select', 'model', deployment.modelId, payload);
+      const inventory = await api<Collection<Model>>(
+        `/frameworks/${encodeURIComponent(frameworkId)}/models?limit=500&refresh=true`,
+      );
+      const selected = inventory.items.find((model) => model.selected);
+      if (
+        !selected ||
+        selected.providerId !== deployment.providerId ||
+        selected.id !== deployment.modelId
+      )
+        throw new Error('Authoritative Hermes readback did not confirm the exact selected model.');
+      setModels(inventory);
+      setDeployment((current) =>
+        current
+          ? {
+              ...current,
+              selectionVerified: true,
+              readbackSourceVersion: inventory.meta.sourceVersion,
+              step: 5,
+            }
+          : current,
+      );
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Model deployment failed.');
+    } finally {
+      setBusy('');
+    }
+  };
+
+  const smokeTestDeployment = async () => {
+    if (!deployment || !deployment.selectionVerified) return;
+    setBusy('deployment.smoke');
+    setError('');
+    try {
+      const result = await wizardMutation(
+        'provider.inference.test',
+        'provider',
+        deployment.providerId,
+        {
+          modelId: deployment.modelId,
+          expectedSourceVersion: models?.meta.sourceVersion,
+        },
+      );
+      const evidence = (result.result ?? {}) as Record<string, unknown>;
+      if (evidence.succeeded !== true)
+        throw new Error('Hermes inference smoke test did not return success evidence.');
+      setDeployment((current) =>
+        current
+          ? {
+              ...current,
+              smokeVerified: true,
+              smokeSessionId: String(evidence.sessionId ?? ''),
+              step: 6,
+            }
+          : current,
+      );
+      setNotice('Model deployment and real Hermes inference smoke test verified.');
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Inference smoke test failed.');
+    } finally {
+      setBusy('');
+    }
+  };
 
   const runProviderCheck = async (
     provider: Provider,
@@ -687,6 +911,16 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
         </div>
         <Group>
           <Button
+            leftSection={<IconSparkles size={16} />}
+            disabled={
+              !credentialEnabled || !modelEnabled || !(providers?.items.length ?? 0) || !frameworkId
+            }
+            onClick={openDeployment}
+          >
+            Deploy a model
+          </Button>
+          <Button
+            variant="light"
             disabled={!modelEnabled || !modelProviders.length}
             onClick={() => openModelSetup()}
           >
@@ -1081,6 +1315,286 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
           ) : null}
         </>
       ) : null}
+      <Modal
+        opened={Boolean(deployment)}
+        onClose={() => {
+          if (!busy) setDeployment(null);
+        }}
+        title="Unified model deployment"
+        size="xl"
+        closeOnClickOutside={!busy}
+        closeOnEscape={!busy}
+      >
+        {deployment ? (
+          <Stack>
+            <Stepper active={deployment.step} size="sm">
+              <Stepper.Step label="Persona" description="Herman or Alica" />
+              <Stepper.Step label="Provider" description="Choose connection" />
+              <Stepper.Step label="Connect" description="Validate setup" />
+              <Stepper.Step label="Discover" description="Read live catalogue" />
+              <Stepper.Step label="Default" description="Select and read back" />
+              <Stepper.Step label="Smoke test" description="Run real inference" />
+              <Stepper.Completed>Verified</Stepper.Completed>
+            </Stepper>
+            {deployment.step === 0 ? (
+              <Stack>
+                <Select
+                  label="Hermes persona"
+                  description="Every operation remains pinned to this exact framework."
+                  data={frameworkOptions}
+                  value={frameworkId || null}
+                  onChange={(value) => {
+                    if (value) selectFramework(value);
+                  }}
+                />
+                <Group justify="flex-end">
+                  <Button
+                    disabled={!frameworkId}
+                    onClick={() => setDeployment({ ...deployment, step: 1 })}
+                  >
+                    Choose provider
+                  </Button>
+                </Group>
+              </Stack>
+            ) : null}
+            {deployment.step === 1 ? (
+              <Stack>
+                <Select
+                  label="Provider"
+                  data={(providers?.items ?? [])
+                    .filter(
+                      (provider) =>
+                        provider.credentialStatus === 'configured' ||
+                        provider.authType === 'none' ||
+                        (provider.setupFields?.length ?? 0) > 0,
+                    )
+                    .map((provider) => ({
+                      value: provider.id,
+                      label: `${provider.displayName} · ${provider.credentialStatus}`,
+                    }))}
+                  value={deployment.providerId}
+                  onChange={(providerId) => {
+                    const provider = providers?.items.find((item) => item.id === providerId);
+                    if (!provider) return;
+                    const available = modelsByProvider.get(provider.id) ?? [];
+                    setDeployment({
+                      ...deployment,
+                      providerId: provider.id,
+                      setupValues: Object.fromEntries(
+                        (provider.setupFields ?? []).map((field) => [
+                          field.id,
+                          field.type === 'choice' ? (field.choices?.[0]?.value ?? '') : '',
+                        ]),
+                      ),
+                      modelId:
+                        available.find((model) => model.selected)?.id ?? available[0]?.id ?? '',
+                      acknowledged: false,
+                      connectionVerified:
+                        provider.credentialStatus === 'configured' || provider.authType === 'none',
+                      discoveryVerified: false,
+                      selectionVerified: false,
+                      smokeVerified: false,
+                    });
+                  }}
+                />
+                <Group justify="space-between">
+                  <Button
+                    variant="default"
+                    onClick={() => setDeployment({ ...deployment, step: 0 })}
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    disabled={!deploymentProvider}
+                    onClick={() => setDeployment({ ...deployment, step: 2 })}
+                  >
+                    Connect provider
+                  </Button>
+                </Group>
+              </Stack>
+            ) : null}
+            {deployment.step === 2 ? (
+              <Stack>
+                {deploymentProvider?.credentialStatus === 'configured' ||
+                deploymentProvider?.authType === 'none' ? (
+                  <Alert color="blue">
+                    Hermes already reports this provider connected. The wizard will revalidate it
+                    without replacing credentials.
+                  </Alert>
+                ) : (
+                  (deploymentProvider?.setupFields ?? []).map((field) => {
+                    const update = (value: string) =>
+                      setDeployment({
+                        ...deployment,
+                        setupValues: { ...deployment.setupValues, [field.id]: value },
+                        connectionVerified: false,
+                      });
+                    return field.type === 'choice' ? (
+                      <Select
+                        key={field.id}
+                        label={field.label}
+                        data={field.choices ?? []}
+                        value={deployment.setupValues[field.id] ?? null}
+                        onChange={(value) => update(value ?? '')}
+                      />
+                    ) : field.secret ? (
+                      <PasswordInput
+                        key={field.id}
+                        label={field.label}
+                        value={deployment.setupValues[field.id] ?? ''}
+                        autoComplete="new-password"
+                        onChange={(event) => update(event.currentTarget.value)}
+                      />
+                    ) : (
+                      <TextInput
+                        key={field.id}
+                        label={field.label}
+                        value={deployment.setupValues[field.id] ?? ''}
+                        onChange={(event) => update(event.currentTarget.value)}
+                      />
+                    );
+                  })
+                )}
+                <Text size="sm" c="dimmed">
+                  Submitted secrets are cleared immediately after validation and never appear in
+                  readback evidence.
+                </Text>
+                <Group justify="space-between">
+                  <Button
+                    variant="default"
+                    disabled={Boolean(busy)}
+                    onClick={() => setDeployment({ ...deployment, step: 1 })}
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    loading={busy === 'deployment.connect'}
+                    disabled={
+                      (!deploymentSetupRequired &&
+                        deploymentProvider?.credentialStatus !== 'configured' &&
+                        deploymentProvider?.authType !== 'none') ||
+                      Boolean(busy)
+                    }
+                    onClick={() => void connectDeploymentProvider()}
+                  >
+                    Validate and connect
+                  </Button>
+                </Group>
+              </Stack>
+            ) : null}
+            {deployment.step === 3 ? (
+              <Stack>
+                <Alert color={deployment.connectionVerified ? 'teal' : 'red'}>
+                  Provider connection {deployment.connectionVerified ? 'verified' : 'not verified'}
+                  by Hermes. Discovery is an authoritative provider refresh, not cached UI data.
+                </Alert>
+                <Group justify="space-between">
+                  <Button
+                    variant="default"
+                    onClick={() => setDeployment({ ...deployment, step: 2 })}
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    loading={busy === 'deployment.discover'}
+                    disabled={!deployment.connectionVerified || Boolean(busy)}
+                    onClick={() => void discoverDeploymentModels()}
+                  >
+                    Discover models
+                  </Button>
+                </Group>
+              </Stack>
+            ) : null}
+            {deployment.step === 4 ? (
+              <Stack>
+                <Alert color="teal">
+                  Hermes discovered {deploymentModels.length} model(s) for this exact provider.
+                </Alert>
+                <Select
+                  label="Default model for new sessions"
+                  searchable
+                  data={deploymentModels.map((model) => ({
+                    value: model.id,
+                    label: `${model.displayName}${model.costTier ? ` · ${model.costTier}` : ''}`,
+                  }))}
+                  value={deployment.modelId || null}
+                  onChange={(modelId) =>
+                    setDeployment({
+                      ...deployment,
+                      modelId: modelId ?? '',
+                      acknowledged: false,
+                      selectionVerified: false,
+                    })
+                  }
+                />
+                <Checkbox
+                  checked={deployment.acknowledged}
+                  label="I authorize this exact default-model change and acknowledge provider pricing."
+                  onChange={(event) =>
+                    setDeployment({ ...deployment, acknowledged: event.currentTarget.checked })
+                  }
+                />
+                <Group justify="space-between">
+                  <Button
+                    variant="default"
+                    disabled={Boolean(busy)}
+                    onClick={() => setDeployment({ ...deployment, step: 3 })}
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    loading={busy === 'deployment.select'}
+                    disabled={!deploymentModel || !deployment.acknowledged || Boolean(busy)}
+                    onClick={() => void deploySelectedModel()}
+                  >
+                    Select default and verify readback
+                  </Button>
+                </Group>
+              </Stack>
+            ) : null}
+            {deployment.step === 5 ? (
+              <Stack>
+                <Alert color="teal">
+                  Authoritative readback confirmed{' '}
+                  <Code>
+                    {deployment.providerId}/{deployment.modelId}
+                  </Code>{' '}
+                  at source version <Code>{deployment.readbackSourceVersion}</Code>.
+                </Alert>
+                <Text size="sm">
+                  The final check creates an isolated Hermes smoke-test session and requests a real
+                  response from this exact provider/model. It does not reuse a browser-side success.
+                </Text>
+                <Button
+                  loading={busy === 'deployment.smoke'}
+                  disabled={!deployment.selectionVerified || Boolean(busy)}
+                  onClick={() => void smokeTestDeployment()}
+                >
+                  Run inference smoke test
+                </Button>
+              </Stack>
+            ) : null}
+            {deployment.step === 6 ? (
+              <Stack>
+                <Alert color="teal" title="Deployment verified">
+                  Provider connection, live discovery, default selection, authoritative readback,
+                  and real inference all passed.
+                </Alert>
+                <Text size="sm">
+                  Persona <Code>{frameworkId}</Code> · model{' '}
+                  <Code>
+                    {deployment.providerId}/{deployment.modelId}
+                  </Code>{' '}
+                  · smoke session <Code>{deployment.smokeSessionId || 'recorded by Hermes'}</Code>
+                </Text>
+                <Group justify="flex-end">
+                  <Button onClick={() => setDeployment(null)}>Done</Button>
+                </Group>
+              </Stack>
+            ) : null}
+          </Stack>
+        ) : null}
+      </Modal>
       <Modal
         opened={Boolean(oauth)}
         onClose={() => setOauth(null)}

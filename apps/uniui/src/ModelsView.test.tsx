@@ -267,6 +267,86 @@ describe('Models/providers Hermes management', () => {
     expect(calls[0]?.key).not.toBe(calls[1]?.key);
   });
 
+  it('runs the unified persona-to-inference deployment wizard with exact governed evidence', async () => {
+    const base = fetchFixture();
+    const fetchMock = vi.fn(async (request: string | URL | Request, init?: RequestInit) => {
+      if (String(request).endsWith('/api/v1/mutations')) {
+        const body = JSON.parse(String(init?.body)) as { operationType: string; mode: string };
+        return Response.json(
+          {
+            replayed: false,
+            operation: {
+              operationId: crypto.randomUUID(),
+              operationType: body.operationType,
+              state: 'verified',
+              mode: body.mode,
+              updatedAt: new Date().toISOString(),
+            },
+            result:
+              body.operationType === 'provider.inference.test'
+                ? { succeeded: true, sessionId: 'smoke-session-1' }
+                : {},
+          },
+          { status: 201 },
+        );
+      }
+      return base(request, init);
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    renderModels();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Deploy a model' }));
+    expect(await screen.findByText('Unified model deployment')).toBeInTheDocument();
+    expect(screen.getByRole('dialog').querySelector('input')).toHaveValue('Main Hermes');
+    fireEvent.click(screen.getByRole('button', { name: 'Choose provider' }));
+    expect(screen.getByRole('dialog').querySelector('input')).toHaveValue(
+      'OpenRouter · configured',
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Connect provider' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Validate and connect' }));
+    expect(await screen.findByText(/Provider connection verified/)).toBeInTheDocument();
+    fireEvent.click(
+      screen
+        .getAllByRole('button', { name: 'Discover models' })
+        .find((button) => button.closest('[role="dialog"]'))!,
+    );
+    expect(await screen.findByText(/Hermes discovered 2 model/)).toBeInTheDocument();
+    expect(screen.getByRole('dialog').querySelector('input[role="combobox"]')).toHaveValue(
+      'openai/gpt-5 · standard',
+    );
+    fireEvent.click(
+      screen.getByRole('checkbox', { name: /authorize this exact default-model change/i }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Select default and verify readback' }));
+    expect(await screen.findByText(/Authoritative readback confirmed/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Run inference smoke test' }));
+    expect(await screen.findByText('Deployment verified')).toBeInTheDocument();
+    expect(screen.getByText(/smoke-session-1/)).toBeInTheDocument();
+
+    const calls = fetchMock.mock.calls
+      .filter(([input]) => String(input).endsWith('/api/v1/mutations'))
+      .map(([, init]) => JSON.parse(String(init?.body)) as Record<string, unknown>);
+    expect(calls.map((call) => call.operationType)).toEqual([
+      'provider.validate',
+      'provider.models.refresh',
+      'model.select',
+      'model.select',
+      'provider.inference.test',
+    ]);
+    expect(calls.map((call) => call.mode)).toEqual([
+      'execute',
+      'execute',
+      'dry-run',
+      'execute',
+      'execute',
+    ]);
+    for (const call of calls)
+      expect(call).toMatchObject({
+        target: { owner: 'hermes', frameworkId: 'hermes-main' },
+        confirmed: true,
+      });
+  });
+
   it('fails a stale model dry-run closed and retries with fresh governed operation keys', async () => {
     const base = fetchFixture();
     let mutationAttempt = 0;
