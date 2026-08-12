@@ -499,11 +499,13 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
       const command = request.body;
       const providerStateOperation =
         command.operation.startsWith('provider.credential.') ||
+        command.operation.startsWith('provider.oauth.') ||
         command.operation === 'provider.validate' ||
         command.operation === 'provider.persistence.verify';
       requireScope(
         scopes,
-        command.operation.startsWith('provider.credential.')
+        command.operation.startsWith('provider.credential.') ||
+          command.operation.startsWith('provider.oauth.')
           ? 'control:secrets'
           : 'control:execute',
       );
@@ -548,9 +550,11 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
       });
       const committed = await options.events.commit({
         frameworkId: options.frameworkId,
-        capability: command.operation.startsWith('provider.credential.')
-          ? 'providers.credentials.execute'
-          : 'models.execute',
+        capability:
+          command.operation.startsWith('provider.credential.') ||
+          command.operation.startsWith('provider.oauth.')
+            ? 'providers.credentials.execute'
+            : 'models.execute',
         idempotencyKey: command.idempotencyKey,
         requestHash: sourceVersion(safeModelManagementCommand(command)),
         command: safeModelManagementCommand(command),
@@ -794,6 +798,31 @@ function verifyModelManagementResult(
       return;
   } else if (command.operation === 'provider.persistence.verify') {
     if (result.configured === true && result.persisted === true) return;
+  } else if (
+    command.operation === 'provider.oauth.start' ||
+    command.operation === 'provider.oauth.reconnect'
+  ) {
+    if (
+      typeof result.session_id === 'string' &&
+      result.session_id.length > 0 &&
+      typeof result.user_code === 'string' &&
+      result.user_code.length > 0 &&
+      typeof result.verification_url === 'string' &&
+      result.verification_url.length > 0 &&
+      result.status === 'pending'
+    )
+      return;
+  } else if (command.operation === 'provider.oauth.status') {
+    if (
+      ['pending', 'approved', 'denied', 'expired', 'error', 'connected', 'disconnected'].includes(
+        String(result.status),
+      ) ||
+      typeof result.authenticated === 'boolean'
+    )
+      return;
+  } else if (command.operation === 'provider.oauth.disconnect') {
+    const provider = items.find((item) => item.id === command.targetId);
+    if (provider?.credentialStatus !== 'configured' && result.disconnected === true) return;
   } else if (command.operation === 'model.select') {
     const selected = items.some(
       (item) =>
@@ -831,6 +860,11 @@ function validateModelManagementPayload(command: HermesModelManagementCommand) {
     const credential = command.payload.credential;
     if (typeof credential !== 'string' || !credential.trim() || credential.length > 32_768)
       throw new AdapterError('invalid_request', 400, 'Credential is required');
+  }
+  if (command.operation === 'provider.oauth.status' && command.payload.sessionId !== undefined) {
+    const sessionId = command.payload.sessionId;
+    if (typeof sessionId !== 'string' || !sessionId.trim() || sessionId.length > 256)
+      throw new AdapterError('invalid_request', 400, 'OAuth session id is invalid');
   }
 }
 

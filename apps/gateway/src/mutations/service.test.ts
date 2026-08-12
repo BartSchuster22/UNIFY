@@ -369,6 +369,47 @@ describe('standalone mutation policy', () => {
     ).toThrow(/must be a boolean/i);
   });
 
+  it('governs OAuth lifecycle permissions, confirmation, and session identifiers', () => {
+    const service = new MutationService(new GovernanceService(new Store()), hermes(vi.fn()));
+    const base = {
+      target: {
+        owner: 'hermes' as const,
+        kind: 'provider',
+        nativeId: 'nous',
+        frameworkId: 'hermes-main',
+      },
+      payload: { expectedSourceVersion: 'catalogue:v8' },
+      mode: 'execute' as const,
+    };
+    const start = service.parse({
+      ...base,
+      operationType: 'provider.oauth.start',
+      confirmed: false,
+    });
+    expect(service.permission(start)).toBe('credentials.manage');
+    const status = service.parse({
+      ...base,
+      operationType: 'provider.oauth.status',
+      payload: { sessionId: 'session-1' },
+      confirmed: false,
+    });
+    expect(service.permission(status)).toBe('credentials.manage');
+    expect(() =>
+      service.parse({ ...base, operationType: 'provider.oauth.disconnect', confirmed: false }),
+    ).toThrow(/confirmation/i);
+    expect(() =>
+      service.parse({ ...base, operationType: 'provider.oauth.reconnect', confirmed: false }),
+    ).toThrow(/confirmation/i);
+    expect(() =>
+      service.parse({
+        ...base,
+        operationType: 'provider.oauth.status',
+        payload: { sessionId: 'x'.repeat(257) },
+        confirmed: false,
+      }),
+    ).toThrow(/sessionId/i);
+  });
+
   it('records Hermes failure as an error rather than a successful result', async () => {
     const store = new Store();
     const work = vi.fn().mockRejectedValue(new Error('Hermes unavailable'));

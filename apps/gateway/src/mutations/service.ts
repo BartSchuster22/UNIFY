@@ -313,6 +313,18 @@ function validateModelCommand(input: MutationInput, definition: MutationDefiniti
     if (typeof modelId !== 'string' || !modelId.trim())
       throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'modelId is required');
   }
+  if (input.operationType === 'provider.oauth.status') {
+    const sessionId = input.payload.sessionId;
+    if (
+      sessionId !== undefined &&
+      (typeof sessionId !== 'string' || !sessionId.trim() || sessionId.length > 256)
+    )
+      throw new GovernanceError(
+        'MUTATION_PAYLOAD_INVALID',
+        422,
+        'sessionId must be a non-empty string',
+      );
+  }
   const expectedSourceVersion = input.payload.expectedSourceVersion;
   if (
     expectedSourceVersion !== undefined &&

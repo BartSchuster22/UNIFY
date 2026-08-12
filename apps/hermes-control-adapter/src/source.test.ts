@@ -447,9 +447,9 @@ describe('HermesNativeSource', () => {
     const items = (await source.providers()).items;
     expect(items.find((item) => item.id === 'openai-codex')).toMatchObject({
       authType: 'oauth',
-      authMethod: 'oauth_browser',
-      credentialMutable: false,
-      setupSupported: false,
+      authMethod: 'oauth_device_code',
+      credentialMutable: true,
+      setupSupported: true,
       connectionState: 'disconnected',
       deploymentReadiness: 'needs_configuration',
     });

@@ -44,6 +44,47 @@ describe('HermesManagementApi', () => {
     );
   });
 
+  it('maps the complete OAuth lifecycle to pinned Hermes routes without exposing tokens', async () => {
+    const requests: Array<{ url: string; method: string }> = [];
+    const fetchImpl: typeof fetch = async (input, init) => {
+      const url = String(input);
+      const method = init?.method ?? 'GET';
+      requests.push({ url, method });
+      if (url.endsWith('/start'))
+        return Response.json({
+          session_id: 'session-1',
+          user_code: 'ABCD-EFGH',
+          verification_url: 'https://provider.example/device',
+          expires_in: 900,
+        });
+      if (url.includes('/poll/'))
+        return Response.json({ status: 'expired', error_message: 'expired' });
+      if (method === 'DELETE') return Response.json({ ok: true });
+      return Response.json({
+        providers: [{ id: 'nous', status: { authenticated: true, expires_at: 12345 } }],
+      });
+    };
+    const api = new HermesManagementApi('http://127.0.0.1:29119', fetchImpl, 'private-token');
+    expect(await api.oauthStart('nous')).toMatchObject({
+      providerId: 'nous',
+      status: 'pending',
+      session_id: 'session-1',
+      user_code: 'ABCD-EFGH',
+    });
+    expect(await api.oauthStatus('nous', 'session-1')).toMatchObject({ status: 'expired' });
+    expect(await api.oauthStatus('nous')).toMatchObject({ authenticated: true, expires_at: 12345 });
+    expect(await api.oauthDisconnect('nous')).toMatchObject({
+      providerId: 'nous',
+      disconnected: true,
+    });
+    expect(requests).toEqual([
+      { url: 'http://127.0.0.1:29119/api/providers/oauth/nous/start', method: 'POST' },
+      { url: 'http://127.0.0.1:29119/api/providers/oauth/nous/poll/session-1', method: 'GET' },
+      { url: 'http://127.0.0.1:29119/api/providers/oauth', method: 'GET' },
+      { url: 'http://127.0.0.1:29119/api/providers/oauth/nous', method: 'DELETE' },
+    ]);
+  });
+
   it('fails closed and never persists rejected or unreachable credentials', async () => {
     for (const validation of [
       { ok: false, reachable: true, expectedStatus: 422 },

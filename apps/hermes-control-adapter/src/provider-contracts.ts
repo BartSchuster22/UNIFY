@@ -53,6 +53,7 @@ const credentialChoice = (...choices: Array<[string, string]>): SetupField =>
   );
 const oauth = (authMethod: 'oauth_device_code' | 'oauth_browser'): ProviderDefinition => ({
   authMethod,
+  setupSupported: true,
   prerequisites: [
     prerequisite('interactive-authorization', 'Interactive account authorization', 'account'),
   ],
@@ -138,7 +139,7 @@ const DEFINITIONS: Record<string, ProviderDefinition> = {
       field('baseUrl', 'Anthropic base URL override', 'url', false),
     ],
   },
-  'openai-codex': oauth('oauth_browser'),
+  'openai-codex': oauth('oauth_device_code'),
   'openai-api': { authMethod: 'api_key', setupFields: [secret('OpenAI API key')] },
   alibaba: {
     ...singleKey('DashScope API key'),
@@ -147,7 +148,8 @@ const DEFINITIONS: Record<string, ProviderDefinition> = {
       field('baseUrl', 'DashScope base URL override', 'url', false),
     ],
   },
-  'xai-oauth': oauth('oauth_browser'),
+  'xai-oauth': oauth('oauth_device_code'),
+
   xiaomi: singleKey(),
   'tencent-tokenhub': { authMethod: 'api_key', setupFields: [secret('Tencent TokenHub key')] },
   nvidia: singleKey(),
@@ -224,7 +226,7 @@ const DEFINITIONS: Record<string, ProviderDefinition> = {
   'kimi-coding-cn': singleKey(),
   stepfun: singleKey(),
   minimax: singleKey(),
-  'minimax-oauth': oauth('oauth_browser'),
+  'minimax-oauth': oauth('oauth_device_code'),
   'minimax-cn': singleKey(),
   'ollama-cloud': singleKey(),
   arcee: singleKey(),
@@ -269,7 +271,7 @@ const DEFINITIONS: Record<string, ProviderDefinition> = {
     prerequisites: [prerequisite('azure-endpoint', 'Azure Foundry deployment endpoint', 'network')],
   },
   'ai-gateway': singleKey(),
-  'qwen-oauth': oauth('oauth_browser'),
+  'qwen-oauth': oauth('oauth_device_code'),
   'alibaba-coding-plan': {
     authMethod: 'api_key',
     setupSupported: true,

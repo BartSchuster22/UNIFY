@@ -469,6 +469,71 @@ describe('Models/providers Hermes management', () => {
     ).toBe(false);
   });
 
+  it('runs a device-code OAuth authorization without receiving provider tokens', async () => {
+    const oauthProvider = {
+      ...providers.items[0],
+      id: 'nous',
+      displayName: 'Nous Portal',
+      credentialStatus: 'missing',
+      selected: false,
+      authType: 'oauth',
+      authMethod: 'oauth_device_code',
+      setupFields: [],
+      connectionState: 'disconnected',
+      deploymentReadiness: 'needs_configuration',
+      modelCount: 0,
+    };
+    const fetchMock = vi.fn(async (request: string | URL | Request, init?: RequestInit) => {
+      const url = String(request);
+      if (url.endsWith('/api/v1/frameworks')) return Response.json({ items: [framework] });
+      if (url.includes('/capabilities')) return Response.json(supportedCapabilities);
+      if (url.includes('/providers'))
+        return Response.json({ ...providers, items: [oauthProvider] });
+      if (url.includes('/models')) return Response.json({ ...models, items: [] });
+      if (url.endsWith('/api/v1/mutations')) {
+        const body = JSON.parse(String(init?.body)) as { operationType: string };
+        const result =
+          body.operationType === 'provider.oauth.start'
+            ? {
+                session_id: 'session-1',
+                user_code: 'ABCD-EFGH',
+                verification_url: 'https://provider.example/device',
+                expires_in: 900,
+              }
+            : { status: 'pending' };
+        return Response.json({
+          replayed: false,
+          operation: {
+            operationId: 'oauth-operation',
+            operationType: body.operationType,
+            state: 'verified',
+            mode: 'execute',
+            updatedAt: new Date().toISOString(),
+          },
+          result,
+        });
+      }
+      return Response.json({}, { status: 404 });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    renderModels();
+    fireEvent.click(await screen.findByRole('button', { name: 'Connect OAuth' }));
+    expect(await screen.findByText('ABCD-EFGH')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Open authorization page' })).toHaveAttribute(
+      'href',
+      'https://provider.example/device',
+    );
+    const start = fetchMock.mock.calls
+      .filter(([input]) => String(input).endsWith('/api/v1/mutations'))
+      .map(([, request]) => JSON.parse(String(request?.body)) as Record<string, unknown>)
+      .find((body) => body.operationType === 'provider.oauth.start');
+    expect(start).toMatchObject({
+      target: { nativeId: 'nous', frameworkId: 'hermes-main' },
+      payload: { expectedSourceVersion: 'catalogue:v1' },
+    });
+    expect(JSON.stringify(fetchMock.mock.calls)).not.toMatch(/access_token|refresh_token/);
+  });
+
   it('shows Hermes unavailability without a fallback catalogue', async () => {
     vi.stubGlobal(
       'fetch',

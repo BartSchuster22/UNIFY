@@ -7800,6 +7800,31 @@
           },
           "secret": {
             "type": "boolean"
+          },
+          "choices": {
+            "minItems": 1,
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "value",
+                "label"
+              ],
+              "properties": {
+                "value": {
+                  "minLength": 1,
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                "label": {
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       },
@@ -8035,6 +8060,31 @@
                 },
                 "secret": {
                   "type": "boolean"
+                },
+                "choices": {
+                  "minItems": 1,
+                  "maxItems": 20,
+                  "type": "array",
+                  "items": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": [
+                      "value",
+                      "label"
+                    ],
+                    "properties": {
+                      "value": {
+                        "minLength": 1,
+                        "maxLength": 100,
+                        "type": "string"
+                      },
+                      "label": {
+                        "minLength": 1,
+                        "maxLength": 200,
+                        "type": "string"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -8399,6 +8449,31 @@
                           },
                           "secret": {
                             "type": "boolean"
+                          },
+                          "choices": {
+                            "minItems": 1,
+                            "maxItems": 20,
+                            "type": "array",
+                            "items": {
+                              "additionalProperties": false,
+                              "type": "object",
+                              "required": [
+                                "value",
+                                "label"
+                              ],
+                              "properties": {
+                                "value": {
+                                  "minLength": 1,
+                                  "maxLength": 100,
+                                  "type": "string"
+                                },
+                                "label": {
+                                  "minLength": 1,
+                                  "maxLength": 200,
+                                  "type": "string"
+                                }
+                              }
+                            }
                           }
                         }
                       }
@@ -10333,6 +10408,22 @@
           {
             "const": "provider.persistence.verify",
             "type": "string"
+          },
+          {
+            "const": "provider.oauth.start",
+            "type": "string"
+          },
+          {
+            "const": "provider.oauth.status",
+            "type": "string"
+          },
+          {
+            "const": "provider.oauth.reconnect",
+            "type": "string"
+          },
+          {
+            "const": "provider.oauth.disconnect",
+            "type": "string"
           }
         ]
       },
@@ -10449,6 +10540,22 @@
               },
               {
                 "const": "provider.persistence.verify",
+                "type": "string"
+              },
+              {
+                "const": "provider.oauth.start",
+                "type": "string"
+              },
+              {
+                "const": "provider.oauth.status",
+                "type": "string"
+              },
+              {
+                "const": "provider.oauth.reconnect",
+                "type": "string"
+              },
+              {
+                "const": "provider.oauth.disconnect",
                 "type": "string"
               }
             ]
@@ -10568,6 +10675,22 @@
                   },
                   {
                     "const": "provider.persistence.verify",
+                    "type": "string"
+                  },
+                  {
+                    "const": "provider.oauth.start",
+                    "type": "string"
+                  },
+                  {
+                    "const": "provider.oauth.status",
+                    "type": "string"
+                  },
+                  {
+                    "const": "provider.oauth.reconnect",
+                    "type": "string"
+                  },
+                  {
+                    "const": "provider.oauth.disconnect",
                     "type": "string"
                   }
                 ]
@@ -12552,6 +12675,31 @@
                 },
                 "secret": {
                   "type": "boolean"
+                },
+                "choices": {
+                  "minItems": 1,
+                  "maxItems": 20,
+                  "type": "array",
+                  "items": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": [
+                      "value",
+                      "label"
+                    ],
+                    "properties": {
+                      "value": {
+                        "minLength": 1,
+                        "maxLength": 100,
+                        "type": "string"
+                      },
+                      "label": {
+                        "minLength": 1,
+                        "maxLength": 200,
+                        "type": "string"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -12945,6 +13093,31 @@
                       },
                       "secret": {
                         "type": "boolean"
+                      },
+                      "choices": {
+                        "minItems": 1,
+                        "maxItems": 20,
+                        "type": "array",
+                        "items": {
+                          "additionalProperties": false,
+                          "type": "object",
+                          "required": [
+                            "value",
+                            "label"
+                          ],
+                          "properties": {
+                            "value": {
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "type": "string"
+                            },
+                            "label": {
+                              "minLength": 1,
+                              "maxLength": 200,
+                              "type": "string"
+                            }
+                          }
+                        }
                       }
                     }
                   }

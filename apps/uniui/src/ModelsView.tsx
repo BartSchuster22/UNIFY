@@ -121,6 +121,15 @@ type ModelSetup = {
   dryRunKey: string;
   executeKey: string;
 };
+type OAuthSession = {
+  provider: Provider;
+  sessionId: string;
+  userCode: string;
+  verificationUrl: string;
+  status: 'pending' | 'approved' | 'denied' | 'expired' | 'error';
+  expiresAt?: number;
+  error?: string;
+};
 
 export function ModelsView({ canManageCredentials, canManageModels }: Props) {
   const {
@@ -138,6 +147,7 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
   const [setupStep, setSetupStep] = useState(0);
   const [modelSetup, setModelSetup] = useState<ModelSetup | null>(null);
   const [modelSetupStep, setModelSetupStep] = useState(0);
+  const [oauth, setOauth] = useState<OAuthSession | null>(null);
   const [busy, setBusy] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -260,6 +270,86 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
       if (selectedFramework.current === requestedFramework) setBusy('');
     }
   };
+
+  const runOauth = async (provider: Provider, reconnect = false) => {
+    const requestedFramework = frameworkId;
+    if (!requestedFramework) return;
+    const operationType = reconnect ? 'provider.oauth.reconnect' : 'provider.oauth.start';
+    setBusy(`${operationType}:${provider.id}`);
+    setError('');
+    try {
+      const result = await gateway.mutate({
+        operationType,
+        target: {
+          owner: 'hermes',
+          kind: 'provider',
+          nativeId: provider.id,
+          frameworkId: requestedFramework,
+        },
+        payload: { expectedSourceVersion: provider.sourceVersion },
+        mode: 'execute',
+        confirmed: reconnect,
+      });
+      const data = (result.result ?? {}) as Record<string, unknown>;
+      const expiresIn = Number(data.expires_in ?? 900);
+      setOauth({
+        provider,
+        sessionId: String(data.session_id ?? ''),
+        userCode: String(data.user_code ?? ''),
+        verificationUrl: String(data.verification_url ?? ''),
+        status: 'pending',
+        expiresAt: Date.now() + expiresIn * 1000,
+      });
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'OAuth authorization could not start');
+    } finally {
+      setBusy('');
+    }
+  };
+
+  useEffect(() => {
+    if (!oauth || oauth.status !== 'pending' || !oauth.sessionId || !frameworkId) return;
+    const timer = window.setInterval(() => {
+      void (async () => {
+        try {
+          const result = await gateway.mutate({
+            operationType: 'provider.oauth.status',
+            target: { owner: 'hermes', kind: 'provider', nativeId: oauth.provider.id, frameworkId },
+            payload: { sessionId: oauth.sessionId },
+            mode: 'execute',
+            confirmed: false,
+          });
+          const data = (result.result ?? {}) as Record<string, unknown>;
+          const status = String(data.status ?? 'pending') as OAuthSession['status'];
+          const errorMessage = String(data.error_message ?? '');
+          setOauth((current) =>
+            current
+              ? {
+                  ...current,
+                  status,
+                  ...(errorMessage ? { error: errorMessage } : {}),
+                }
+              : current,
+          );
+          if (status === 'approved') {
+            setNotice(`${oauth.provider.displayName} OAuth authorization completed in Hermes.`);
+            await load(true);
+          }
+        } catch (cause) {
+          setOauth((current) =>
+            current
+              ? {
+                  ...current,
+                  status: 'error',
+                  error: cause instanceof Error ? cause.message : 'OAuth status failed',
+                }
+              : current,
+          );
+        }
+      })();
+    }, 2000);
+    return () => window.clearInterval(timer);
+  }, [frameworkId, load, oauth?.provider.id, oauth?.sessionId, oauth?.status]);
 
   const credentialCapability = capabilities?.data.capabilities['providers.credentials.execute'];
   const modelCapability = capabilities?.data.capabilities['models.execute'];
@@ -768,10 +858,69 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                       )}
                       {provider.authMethod === 'oauth_browser' ||
                       provider.authMethod === 'oauth_device_code' ? (
-                        <Text size="sm" c="dimmed">
-                          OAuth sign-in is required. This release exposes the truthful requirement;
-                          the governed OAuth connection flow is not implemented yet.
-                        </Text>
+                        <Stack gap="xs">
+                          <Text size="sm" c="dimmed">
+                            Hermes uses a device-code authorization. UNIUI never receives or stores
+                            the resulting access or refresh token.
+                          </Text>
+                          <Group>
+                            <Button
+                              variant="light"
+                              disabled={!credentialEnabled || Boolean(busy)}
+                              loading={busy === `provider.oauth.start:${provider.id}`}
+                              onClick={() => void runOauth(provider)}
+                            >
+                              {provider.credentialStatus === 'configured'
+                                ? 'Authorize again'
+                                : 'Connect OAuth'}
+                            </Button>
+                            <Button
+                              variant="default"
+                              disabled={!credentialEnabled || Boolean(busy)}
+                              onClick={() =>
+                                void mutate('provider.oauth.status', 'provider', provider.id, {
+                                  expectedSourceVersion: provider.sourceVersion,
+                                })
+                              }
+                            >
+                              Refresh status
+                            </Button>
+                            {provider.credentialStatus === 'configured' ? (
+                              <>
+                                <Button
+                                  variant="default"
+                                  disabled={!credentialEnabled || Boolean(busy)}
+                                  loading={busy === `provider.oauth.reconnect:${provider.id}`}
+                                  onClick={() => void runOauth(provider, true)}
+                                >
+                                  Reconnect
+                                </Button>
+                                <Button
+                                  color="red"
+                                  variant="light"
+                                  disabled={!credentialEnabled || Boolean(busy)}
+                                  onClick={() => {
+                                    if (
+                                      !window.confirm(
+                                        `Disconnect ${provider.displayName} OAuth from Hermes?`,
+                                      )
+                                    )
+                                      return;
+                                    void mutate(
+                                      'provider.oauth.disconnect',
+                                      'provider',
+                                      provider.id,
+                                      { expectedSourceVersion: provider.sourceVersion },
+                                      true,
+                                    );
+                                  }}
+                                >
+                                  Disconnect
+                                </Button>
+                              </>
+                            ) : null}
+                          </Group>
+                        </Stack>
                       ) : provider.authMethod === 'none' ? (
                         <Text size="sm" c="dimmed">
                           Hermes reports that this provider requires no credential.
@@ -882,6 +1031,61 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
           ) : null}
         </>
       ) : null}
+      <Modal
+        opened={Boolean(oauth)}
+        onClose={() => setOauth(null)}
+        title={`${oauth?.provider.displayName ?? 'Provider'} OAuth authorization`}
+        closeOnClickOutside={oauth?.status !== 'pending'}
+        closeOnEscape={oauth?.status !== 'pending'}
+      >
+        {oauth ? (
+          <Stack>
+            <Badge
+              color={
+                oauth.status === 'approved' ? 'teal' : oauth.status === 'pending' ? 'blue' : 'red'
+              }
+            >
+              {oauth.status}
+            </Badge>
+            {oauth.status === 'pending' ? (
+              <>
+                <Text>Open the provider authorization page and enter this device code:</Text>
+                <Code block>{oauth.userCode}</Code>
+                <Button
+                  component="a"
+                  href={oauth.verificationUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  disabled={!oauth.verificationUrl}
+                >
+                  Open authorization page
+                </Button>
+                <Text size="sm" c="dimmed">
+                  Hermes is polling for approval. This authorization expires at{' '}
+                  {oauth.expiresAt
+                    ? new Date(oauth.expiresAt).toLocaleTimeString()
+                    : 'the provider deadline'}
+                  .
+                </Text>
+              </>
+            ) : null}
+            {oauth.status === 'approved' ? (
+              <Alert color="teal">Authorization completed and stored by Hermes.</Alert>
+            ) : null}
+            {oauth.status === 'expired' ? (
+              <Alert color="yellow">
+                The device code expired. Close this dialog and reconnect to get a new code.
+              </Alert>
+            ) : null}
+            {oauth.error ? <Alert color="red">{oauth.error}</Alert> : null}
+            <Group justify="flex-end">
+              <Button variant="default" onClick={() => setOauth(null)}>
+                {oauth.status === 'pending' ? 'Hide' : 'Close'}
+              </Button>
+            </Group>
+          </Stack>
+        ) : null}
+      </Modal>
       <Modal
         opened={Boolean(modelSetup)}
         onClose={() => {

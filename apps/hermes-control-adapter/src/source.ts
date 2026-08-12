@@ -357,6 +357,19 @@ export class HermesNativeSource implements AdapterSource {
           return await this.management.refreshProviderModels(command.targetId);
         case 'provider.persistence.verify':
           return await this.management.verifyPersistence(command.targetId);
+        case 'provider.oauth.start':
+          return await this.management.oauthStart(command.targetId);
+        case 'provider.oauth.reconnect': {
+          await this.management.oauthDisconnect(command.targetId);
+          return await this.management.oauthStart(command.targetId);
+        }
+        case 'provider.oauth.status':
+          return await this.management.oauthStatus(
+            command.targetId,
+            optionalString(payload.sessionId),
+          );
+        case 'provider.oauth.disconnect':
+          return await this.management.oauthDisconnect(command.targetId);
         case 'provider.inference.test': {
           const provider = (await this.providers(true)).items.find(
             (item) => item.id === command.targetId,

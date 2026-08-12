@@ -244,6 +244,36 @@ export class HermesManagementApi {
     return { providerId, configured: status.is_set === true, persisted: status.is_set === true };
   }
 
+  async oauthStart(providerId: string) {
+    const result = record(
+      await this.request(`/api/providers/oauth/${encodeURIComponent(providerId)}/start`, 'POST'),
+    );
+    return { ...result, providerId, status: 'pending' };
+  }
+
+  async oauthStatus(providerId: string, sessionId?: string) {
+    if (!sessionId) {
+      const catalogue = record(await this.request('/api/providers/oauth'));
+      const providers = Array.isArray(catalogue.providers) ? catalogue.providers : [];
+      const provider = providers.find((item) => string(record(item).id) === providerId);
+      if (!provider)
+        throw new HermesManagementError(404, 'OAuth provider is not in Hermes inventory');
+      return { providerId, ...record(record(provider).status) };
+    }
+    return record(
+      await this.request(
+        `/api/providers/oauth/${encodeURIComponent(providerId)}/poll/${encodeURIComponent(sessionId)}`,
+      ),
+    );
+  }
+
+  async oauthDisconnect(providerId: string) {
+    const result = record(
+      await this.request(`/api/providers/oauth/${encodeURIComponent(providerId)}`, 'DELETE'),
+    );
+    return { ...result, providerId, disconnected: true };
+  }
+
   async removeCredential(providerId: string) {
     const definition = ADVANCED_PROVIDER_ENV[providerId];
     if (definition) {

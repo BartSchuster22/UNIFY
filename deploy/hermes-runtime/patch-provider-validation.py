@@ -216,4 +216,145 @@ async def remove_env_var(body: EnvVarDelete, profile: Optional[str] = None):'''
 if source.count(request_anchor) != 1:
     raise SystemExit('Pinned Hermes environment route anchor changed; refusing an unsafe patch')
 source = source.replace(request_anchor, batch_routes)
+
+# Promote pinned Hermes's read-only Qwen card to its native device-code flow.
+qwen_catalog_old = '''    {
+        "id": "qwen-oauth",
+        "name": "Qwen (via Qwen CLI)",
+        "flow": "external",
+        "cli_command": "hermes auth add qwen-oauth",
+        "docs_url": "https://github.com/QwenLM/qwen-code",
+        "status_fn": None,  # dispatched via auth.get_qwen_auth_status
+    },'''
+qwen_catalog_new = qwen_catalog_old.replace('"flow": "external"', '"flow": "device_code"')
+if source.count(qwen_catalog_old) != 1:
+    raise SystemExit('Pinned Hermes Qwen OAuth catalog changed; refusing an unsafe patch')
+source = source.replace(qwen_catalog_old, qwen_catalog_new)
+
+qwen_disconnect_old = '''        try:
+            from hermes_cli.auth import clear_provider_auth, invalidate_nous_auth_status_cache
+            cleared = clear_provider_auth(provider_id)'''
+qwen_disconnect_new = '''        try:
+            from hermes_cli.auth import clear_provider_auth, invalidate_nous_auth_status_cache
+            cleared = clear_provider_auth(provider_id)
+            if provider_id == "qwen-oauth":
+                from hermes_cli.auth import _qwen_cli_auth_path
+                qwen_path = _qwen_cli_auth_path()
+                if qwen_path.exists():
+                    qwen_path.unlink()
+                    cleared = True'''
+if source.count(qwen_disconnect_old) != 1:
+    raise SystemExit('Pinned Hermes OAuth disconnect block changed; refusing an unsafe patch')
+source = source.replace(qwen_disconnect_old, qwen_disconnect_new)
+
+qwen_flow_anchor = '''async def _start_device_code_flow(
+    provider_id: str,
+    profile: Optional[str] = None,
+) -> Dict[str, Any]:'''
+qwen_flow_replacement = '''def _qwen_device_poller(session_id: str) -> None:
+    import httpx
+    from hermes_cli.auth import QWEN_OAUTH_CLIENT_ID, QWEN_OAUTH_TOKEN_URL, _save_qwen_cli_tokens
+    with _oauth_sessions_lock:
+        sess = _oauth_sessions.get(session_id)
+    if not sess:
+        return
+    interval = max(1, int(sess.get("interval") or 2))
+    while time.time() < float(sess.get("expires_at") or 0):
+        with _oauth_sessions_lock:
+            if sess.get("cancelled"):
+                return
+        time.sleep(interval)
+        try:
+            response = httpx.post(
+                QWEN_OAUTH_TOKEN_URL,
+                headers={"Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"},
+                data={
+                    "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
+                    "client_id": QWEN_OAUTH_CLIENT_ID,
+                    "device_code": sess["device_code"],
+                    "code_verifier": sess["code_verifier"],
+                },
+                timeout=15.0,
+            )
+            data = response.json() if response.content else {}
+            if response.status_code < 400 and data.get("access_token"):
+                tokens = dict(data)
+                tokens["expiry_date"] = int(time.time() * 1000) + int(data.get("expires_in") or 3600) * 1000
+                with _oauth_sessions_lock:
+                    if sess.get("cancelled"):
+                        return
+                    with _profile_scope(_oauth_session_profile(session_id, None)):
+                        _save_qwen_cli_tokens(tokens)
+                    sess["status"] = "approved"
+                return
+            error = str(data.get("error") or data.get("status") or "")
+            if error in {"authorization_pending", "pending", "slow_down"}:
+                if error == "slow_down":
+                    interval += 2
+                continue
+            if error in {"access_denied", "denied"}:
+                sess["status"] = "denied"
+                return
+            if error in {"expired_token", "expired"}:
+                sess["status"] = "expired"
+                return
+        except Exception as exc:
+            sess["error_message"] = str(exc)
+    sess["status"] = "expired"
+
+
+async def _start_device_code_flow(
+    provider_id: str,
+    profile: Optional[str] = None,
+) -> Dict[str, Any]:'''
+if source.count(qwen_flow_anchor) != 1:
+    raise SystemExit('Pinned Hermes device OAuth anchor changed; refusing an unsafe patch')
+source = source.replace(qwen_flow_anchor, qwen_flow_replacement)
+
+qwen_start_anchor = '''    if provider_id == "nous":
+        from hermes_cli.auth import ('''
+qwen_start_branch = '''    if provider_id == "qwen-oauth":
+        import base64
+        import hashlib
+        import httpx
+        from hermes_cli.auth import QWEN_OAUTH_CLIENT_ID
+        qwen_device_url = "https://chat.qwen.ai/api/v1/oauth2/device/code"
+        verifier = secrets.token_urlsafe(48)
+        challenge = base64.urlsafe_b64encode(hashlib.sha256(verifier.encode()).digest()).rstrip(b"=").decode()
+        response = await asyncio.get_running_loop().run_in_executor(
+            None,
+            lambda: httpx.post(
+                qwen_device_url,
+                headers={"Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"},
+                data={
+                    "client_id": QWEN_OAUTH_CLIENT_ID,
+                    "scope": "openid profile email model.completion",
+                    "code_challenge": challenge,
+                    "code_challenge_method": "S256",
+                },
+                timeout=15.0,
+            ),
+        )
+        response.raise_for_status()
+        device_data = response.json()
+        sid, sess = _new_oauth_session("qwen-oauth", "device_code", profile=profile)
+        sess["device_code"] = str(device_data["device_code"])
+        sess["code_verifier"] = verifier
+        sess["interval"] = int(device_data.get("interval") or 2)
+        sess["expires_at"] = time.time() + int(device_data.get("expires_in") or 900)
+        threading.Thread(target=_qwen_device_poller, args=(sid,), daemon=True, name=f"oauth-qwen-{sid[:6]}").start()
+        return {
+            "session_id": sid,
+            "flow": "device_code",
+            "user_code": str(device_data.get("user_code") or ""),
+            "verification_url": str(device_data.get("verification_uri_complete") or device_data.get("verification_uri") or "https://chat.qwen.ai"),
+            "expires_in": int(device_data.get("expires_in") or 900),
+            "poll_interval": int(device_data.get("interval") or 2),
+        }
+
+    if provider_id == "nous":
+        from hermes_cli.auth import ('''
+if source.count(qwen_start_anchor) != 1:
+    raise SystemExit('Pinned Hermes Nous OAuth branch changed; refusing an unsafe patch')
+source = source.replace(qwen_start_anchor, qwen_start_branch)
 path.write_text(source)

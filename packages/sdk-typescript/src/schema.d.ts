@@ -1322,6 +1322,10 @@ export interface components {
             type: "secret" | "secret_file" | "text" | "url" | "choice" | "region" | "project";
             required: boolean;
             secret: boolean;
+            choices?: {
+                value: string;
+                label: string;
+            }[];
         };
         HermesProviderPrerequisite: {
             id: string;
@@ -1344,6 +1348,10 @@ export interface components {
                 type: "secret" | "secret_file" | "text" | "url" | "choice" | "region" | "project";
                 required: boolean;
                 secret: boolean;
+                choices?: {
+                    value: string;
+                    label: string;
+                }[];
             }[];
             prerequisites?: {
                 id: string;
@@ -1381,6 +1389,10 @@ export interface components {
                         type: "secret" | "secret_file" | "text" | "url" | "choice" | "region" | "project";
                         required: boolean;
                         secret: boolean;
+                        choices?: {
+                            value: string;
+                            label: string;
+                        }[];
                     }[];
                     prerequisites?: {
                         id: string;
@@ -1717,7 +1729,7 @@ export interface components {
                 emittedEvents: number;
             };
         };
-        HermesModelManagementOperation: "model.select" | "provider.credential.set" | "provider.credential.remove" | "provider.validate" | "provider.models.refresh" | "provider.inference.test" | "provider.persistence.verify";
+        HermesModelManagementOperation: "model.select" | "provider.credential.set" | "provider.credential.remove" | "provider.validate" | "provider.models.refresh" | "provider.inference.test" | "provider.persistence.verify" | "provider.oauth.start" | "provider.oauth.status" | "provider.oauth.reconnect" | "provider.oauth.disconnect";
         HermesModelManagementCommand: {
             mode: "validate" | "dry-run" | "execute";
             idempotencyKey: string;
@@ -1731,7 +1743,7 @@ export interface components {
             payload: {
                 [key: string]: unknown;
             };
-            operation: "model.select" | "provider.credential.set" | "provider.credential.remove" | "provider.validate" | "provider.models.refresh" | "provider.inference.test" | "provider.persistence.verify";
+            operation: "model.select" | "provider.credential.set" | "provider.credential.remove" | "provider.validate" | "provider.models.refresh" | "provider.inference.test" | "provider.persistence.verify" | "provider.oauth.start" | "provider.oauth.status" | "provider.oauth.reconnect" | "provider.oauth.disconnect";
             targetId: string;
         };
         HermesModelManagementResult: {
@@ -1747,7 +1759,7 @@ export interface components {
                 operationId: string;
                 status: "validated" | "dry-run" | "completed";
                 replayed: boolean;
-                operation: "model.select" | "provider.credential.set" | "provider.credential.remove" | "provider.validate" | "provider.models.refresh" | "provider.inference.test" | "provider.persistence.verify";
+                operation: "model.select" | "provider.credential.set" | "provider.credential.remove" | "provider.validate" | "provider.models.refresh" | "provider.inference.test" | "provider.persistence.verify" | "provider.oauth.start" | "provider.oauth.status" | "provider.oauth.reconnect" | "provider.oauth.disconnect";
                 targetId: string;
                 result: {
                     [key: string]: unknown;
@@ -2063,6 +2075,10 @@ export interface components {
                 type: "secret" | "secret_file" | "text" | "url" | "choice" | "region" | "project";
                 required: boolean;
                 secret: boolean;
+                choices?: {
+                    value: string;
+                    label: string;
+                }[];
             }[];
             prerequisites?: {
                 id: string;
@@ -2109,6 +2125,10 @@ export interface components {
                     type: "secret" | "secret_file" | "text" | "url" | "choice" | "region" | "project";
                     required: boolean;
                     secret: boolean;
+                    choices?: {
+                        value: string;
+                        label: string;
+                    }[];
                 }[];
                 prerequisites?: {
                     id: string;

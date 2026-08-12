@@ -32,6 +32,22 @@ class ProviderValidationPatchTest(unittest.TestCase):
         self.assertEqual(len(expected), 22)
         self.assertNotIn('print(', patch)  # patch itself cannot print/log a submitted value
 
+    def test_adds_qwen_device_code_lifecycle_without_embedded_credentials(self):
+        patch = Path(__file__).with_name('patch-provider-validation.py').read_text()
+        for required in (
+            '"id": "qwen-oauth"',
+            '"flow": "device_code"',
+            'def _qwen_device_poller',
+            'https://chat.qwen.ai/api/v1/oauth2/device/code',
+            'QWEN_OAUTH_TOKEN_URL',
+            '_save_qwen_cli_tokens',
+            'status"] = "expired"',
+            'status"] = "denied"',
+        ):
+            self.assertIn(required, patch)
+        self.assertNotIn('access_token": "', patch)
+        self.assertNotIn('refresh_token": "', patch)
+
 
 if __name__ == '__main__':
     unittest.main()

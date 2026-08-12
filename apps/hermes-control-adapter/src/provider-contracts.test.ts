@@ -79,4 +79,24 @@ describe('standard API-key provider matrix', () => {
       ).toBe('ready');
     }
   });
+
+  it('advertises governed device-code OAuth for the five supported providers', () => {
+    for (const id of ['nous', 'openai-codex', 'minimax-oauth', 'xai-oauth', 'qwen-oauth']) {
+      const contract = truthfulProviderContract({
+        id,
+        authenticated: false,
+        selected: false,
+        modelCount: 0,
+      });
+      expect(contract).toMatchObject({
+        authType: 'oauth',
+        authMethod: 'oauth_device_code',
+        credentialMutable: true,
+        setupSupported: true,
+        connectionState: 'disconnected',
+        deploymentReadiness: 'needs_configuration',
+      });
+      expect(contract.setupFields).toEqual([]);
+    }
+  });
 });

@@ -560,6 +560,10 @@ export const HermesModelManagementOperationSchema = Type.Union(
     Type.Literal('provider.models.refresh'),
     Type.Literal('provider.inference.test'),
     Type.Literal('provider.persistence.verify'),
+    Type.Literal('provider.oauth.start'),
+    Type.Literal('provider.oauth.status'),
+    Type.Literal('provider.oauth.reconnect'),
+    Type.Literal('provider.oauth.disconnect'),
   ],
   { $id: 'HermesModelManagementOperation' },
 );

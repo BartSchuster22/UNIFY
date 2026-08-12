@@ -82,6 +82,32 @@ export const modelMutationDefinitions: Record<string, MutationDefinition> = {
     permission: 'models.manage',
     executionPath: 'hermes-control',
   },
+  'provider.oauth.start': {
+    owner: 'hermes',
+    kind: 'provider',
+    permission: 'credentials.manage',
+    executionPath: 'hermes-control',
+  },
+  'provider.oauth.status': {
+    owner: 'hermes',
+    kind: 'provider',
+    permission: 'credentials.manage',
+    executionPath: 'hermes-control',
+  },
+  'provider.oauth.reconnect': {
+    owner: 'hermes',
+    kind: 'provider',
+    permission: 'credentials.manage',
+    executionPath: 'hermes-control',
+    destructive: true,
+  },
+  'provider.oauth.disconnect': {
+    owner: 'hermes',
+    kind: 'provider',
+    permission: 'credentials.manage',
+    executionPath: 'hermes-control',
+    destructive: true,
+  },
 };
 
 export const workMutationDefinitions: Record<string, MutationDefinition> = {
