@@ -231,6 +231,18 @@ export const HermesProviderSetupFieldSchema = Type.Object(
     ]),
     required: Type.Boolean(),
     secret: Type.Boolean(),
+    choices: Type.Optional(
+      Type.Array(
+        Type.Object(
+          {
+            value: Type.String({ minLength: 1, maxLength: 100 }),
+            label: Type.String({ minLength: 1, maxLength: 200 }),
+          },
+          { additionalProperties: false },
+        ),
+        { minItems: 1, maxItems: 20 },
+      ),
+    ),
   },
   { $id: 'HermesProviderSetupField', additionalProperties: false },
 );

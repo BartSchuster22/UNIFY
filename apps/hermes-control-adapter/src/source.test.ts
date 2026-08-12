@@ -455,7 +455,8 @@ describe('HermesNativeSource', () => {
     });
     expect(items.find((item) => item.id === 'vertex')).toMatchObject({
       authMethod: 'cloud_identity',
-      credentialMutable: false,
+      credentialMutable: true,
+      setupSupported: true,
       setupFields: expect.arrayContaining([
         expect.objectContaining({ id: 'project', type: 'project', secret: false }),
         expect.objectContaining({ id: 'credentials', type: 'secret_file', secret: true }),

@@ -17,6 +17,18 @@ class ProviderValidationPatchTest(unittest.TestCase):
         }
         for key in expected:
             self.assertIn(f'"{key}":', patch)
+        advanced = {
+            'ANTHROPIC_API_KEY', 'ANTHROPIC_TOKEN', 'CLAUDE_CODE_OAUTH_TOKEN',
+            'GOOGLE_API_KEY', 'GEMINI_API_KEY', 'GLM_API_KEY', 'ZAI_API_KEY',
+            'Z_AI_API_KEY', 'KIMI_API_KEY', 'KIMI_CODING_API_KEY',
+            'ALIBABA_CODING_PLAN_API_KEY', 'AZURE_FOUNDRY_API_KEY',
+            'AWS_BEARER_TOKEN_BEDROCK',
+        }
+        for key in advanced:
+            self.assertIn(f'"{key}":', patch)
+        self.assertIn('@app.put("/api/env/batch")', patch)
+        self.assertIn('@app.put("/api/provider-setup/batch")', patch)
+        self.assertIn('Provider endpoint must be credential-free HTTPS.', patch)
         self.assertEqual(len(expected), 22)
         self.assertNotIn('print(', patch)  # patch itself cannot print/log a submitted value
 

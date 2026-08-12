@@ -326,11 +326,22 @@ export class HermesNativeSource implements AdapterSource {
             );
           return { selected: result.ok !== false, providerId, modelId: command.targetId };
         }
-        case 'provider.credential.set':
-          return await this.management.setCredential(
-            command.targetId,
-            payloadString(payload, 'credential', 32_768),
-          );
+        case 'provider.credential.set': {
+          const setup = record(payload.setup);
+          const values: Record<string, string> = {};
+          for (const [key, value] of Object.entries(setup)) {
+            if (
+              !/^[a-z][A-Za-z0-9]{0,99}$/u.test(key) ||
+              typeof value !== 'string' ||
+              value.length > 32_768
+            )
+              throw new SourceUnavailableError('Provider setup contains an invalid field');
+            values[key] = value;
+          }
+          if (!Object.keys(values).length)
+            values.credential = payloadString(payload, 'credential', 32_768);
+          return await this.management.setProviderSetup(command.targetId, values);
+        }
         case 'provider.credential.remove':
           return await this.management.removeCredential(command.targetId);
         case 'provider.validate': {

@@ -28,6 +28,41 @@ describe('standard API-key provider matrix', () => {
     }
   });
 
+  it('supports advanced key and endpoint provider contracts without exposing environment names', () => {
+    const expected = {
+      anthropic: ['credentialType', 'credential', 'baseUrl'],
+      gemini: ['credentialType', 'credential', 'baseUrl'],
+      zai: ['credentialType', 'credential', 'baseUrl'],
+      'kimi-coding': ['credentialType', 'credential', 'baseUrl'],
+      alibaba: ['credential', 'baseUrl'],
+      'alibaba-coding-plan': ['credential', 'baseUrl'],
+      'azure-foundry': ['baseUrl', 'credential'],
+    };
+    for (const [id, fields] of Object.entries(expected)) {
+      const contract = truthfulProviderContract({
+        id,
+        authenticated: false,
+        selected: false,
+        modelCount: 0,
+      });
+      expect(contract).toMatchObject({
+        authMethod: 'api_key',
+        setupSupported: true,
+        credentialMutable: true,
+      });
+      expect(contract.setupFields?.map((field) => field.id)).toEqual(fields);
+      expect(JSON.stringify(contract)).not.toMatch(/API_KEY|_BASE_URL|TOKEN/);
+    }
+    expect(
+      truthfulProviderContract({
+        id: 'anthropic',
+        authenticated: false,
+        selected: false,
+        modelCount: 0,
+      }).setupFields?.[0]?.choices,
+    ).toHaveLength(3);
+  });
+
   it('advances truthful readiness through discovery and selection', () => {
     for (const id of STANDARD_API_KEY_PROVIDER_IDS) {
       expect(

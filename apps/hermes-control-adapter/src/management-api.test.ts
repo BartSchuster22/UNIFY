@@ -66,6 +66,117 @@ describe('HermesManagementApi', () => {
     }
   });
 
+  it('writes an exact advanced credential choice and endpoint only after validation', async () => {
+    const requests: Array<{ url: string; init?: RequestInit }> = [];
+    const env = {
+      ANTHROPIC_API_KEY: { provider: 'anthropic', is_password: true, is_set: false },
+      ANTHROPIC_TOKEN: { provider: 'anthropic', is_password: true, is_set: false },
+      CLAUDE_CODE_OAUTH_TOKEN: { provider: 'anthropic', is_password: true, is_set: false },
+      ANTHROPIC_BASE_URL: { provider: 'anthropic', is_password: false, is_set: false },
+    };
+    const fetchImpl: typeof fetch = async (input, init) => {
+      requests.push({ url: String(input), ...(init ? { init } : {}) });
+      if (String(input).endsWith('/api/providers/validate'))
+        return Response.json({ ok: true, reachable: true });
+      if (init?.method === 'PUT') return Response.json({ changed: true });
+      return Response.json(env);
+    };
+    const api = new HermesManagementApi('http://127.0.0.1:29119', fetchImpl);
+    const result = await api.setProviderSetup('anthropic', {
+      credentialType: 'token',
+      credential: 'candidate-secret',
+      baseUrl: 'https://proxy.example/v1',
+    });
+    expect(result).toMatchObject({
+      providerId: 'anthropic',
+      credentialType: 'token',
+      configuredFields: ['baseUrl'],
+    });
+    const bodies = requests
+      .filter((request) => request.init?.body)
+      .map((request) => JSON.parse(String(request.init?.body)));
+    expect(bodies).toContainEqual({
+      key: 'ANTHROPIC_TOKEN',
+      value: 'candidate-secret',
+      base_url: 'https://proxy.example/v1',
+    });
+    expect(bodies).toContainEqual({
+      entries: [
+        { key: 'ANTHROPIC_BASE_URL', value: 'https://proxy.example/v1' },
+        { key: 'ANTHROPIC_TOKEN', value: 'candidate-secret' },
+      ],
+    });
+    expect(JSON.stringify(result)).not.toContain('candidate-secret');
+  });
+
+  it('rejects unadvertised choices and unsafe endpoints before persistence', async () => {
+    const writes: string[] = [];
+    const fetchImpl: typeof fetch = async (input, init) => {
+      if (init?.method === 'PUT') writes.push(String(input));
+      if (String(input).endsWith('/api/providers/validate'))
+        return Response.json({ ok: true, reachable: true });
+      return Response.json({
+        GOOGLE_API_KEY: { provider: 'gemini', is_password: true },
+        GEMINI_API_KEY: { provider: 'gemini', is_password: true },
+        GEMINI_BASE_URL: { provider: 'gemini', is_password: false },
+      });
+    };
+    const api = new HermesManagementApi('http://127.0.0.1:29119', fetchImpl);
+    await expect(
+      api.setProviderSetup('gemini', { credentialType: 'unknown', credential: 'secret' }),
+    ).rejects.toMatchObject({ statusCode: 422 });
+    await expect(
+      api.setProviderSetup('gemini', {
+        credentialType: 'google',
+        credential: 'secret',
+        baseUrl: 'http://user:pass@example.test',
+      }),
+    ).rejects.toMatchObject({ statusCode: 422 });
+    expect(writes).toEqual([]);
+  });
+
+  it('persists Vertex routing atomically without accepting cloud credential contents', async () => {
+    const requests: Array<{ url: string; init?: RequestInit }> = [];
+    const fetchImpl: typeof fetch = async (input, init) => {
+      requests.push({ url: String(input), ...(init ? { init } : {}) });
+      if (String(input).endsWith('/api/config'))
+        return Response.json({ vertex: { region: 'global' } });
+      if (String(input).endsWith('/api/provider-setup/batch'))
+        return Response.json({ ok: true, changed: true, configured: false });
+      if (String(input).endsWith('/api/env'))
+        return Response.json({
+          VERTEX_CREDENTIALS_PATH: { provider: 'vertex', is_password: false, is_set: false },
+        });
+      return Response.json({}, { status: 404 });
+    };
+    const api = new HermesManagementApi('http://127.0.0.1:29119', fetchImpl);
+    const result = await api.setProviderSetup('vertex', {
+      credentialType: 'service_account',
+      credentials: '/run/secrets/vertex-service-account.json',
+      project: 'project-1',
+      region: 'europe-west1',
+    });
+    expect(result).toMatchObject({
+      providerId: 'vertex',
+      configured: false,
+      changed: true,
+      credentialType: 'service_account',
+      validation: { verified: false, reachable: false },
+    });
+    const batch = requests.find((request) => request.url.endsWith('/api/provider-setup/batch'));
+    expect(JSON.parse(String(batch?.init?.body))).toEqual({
+      env: [{ key: 'VERTEX_CREDENTIALS_PATH', value: '/run/secrets/vertex-service-account.json' }],
+      config: { vertex: { region: 'europe-west1', project_id: 'project-1' } },
+    });
+    await expect(
+      api.setProviderSetup('vertex', {
+        credentialType: 'service_account',
+        credentials: '../secret.json',
+        region: 'global',
+      }),
+    ).rejects.toMatchObject({ statusCode: 422 });
+  });
+
   it('uses existing model and environment APIs without returning or logging credential values', async () => {
     const requests: Array<{ url: string; init?: RequestInit }> = [];
     const fetchImpl: typeof fetch = async (input, init) => {

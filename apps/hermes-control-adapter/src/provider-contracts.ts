@@ -23,12 +23,14 @@ const field = (
   label: string,
   type: SetupField['type'],
   required = true,
+  choices?: Array<{ value: string; label: string }>,
 ): SetupField => ({
   id,
   label,
   type,
   required,
   secret: type === 'secret' || type === 'secret_file',
+  ...(choices ? { choices } : {}),
 });
 const prerequisite = (
   id: string,
@@ -41,10 +43,14 @@ const singleKey = (label = 'API key'): ProviderDefinition => ({
   setupFields: [secret(label)],
   setupSupported: true,
 });
-const alternativeKeys = (...labels: string[]): ProviderDefinition => ({
-  authMethod: 'api_key',
-  setupFields: [field('credentialType', 'Credential type', 'choice'), secret(labels.join(' / '))],
-});
+const credentialChoice = (...choices: Array<[string, string]>): SetupField =>
+  field(
+    'credentialType',
+    'Credential type',
+    'choice',
+    true,
+    choices.map(([value, label]) => ({ value, label })),
+  );
 const oauth = (authMethod: 'oauth_device_code' | 'oauth_browser'): ProviderDefinition => ({
   authMethod,
   prerequisites: [
@@ -77,6 +83,18 @@ export const STANDARD_API_KEY_PROVIDER_IDS = [
   'upstage',
 ] as const;
 
+export const ADVANCED_KEY_ENDPOINT_PROVIDER_IDS = [
+  'anthropic',
+  'gemini',
+  'vertex',
+  'zai',
+  'kimi-coding',
+  'alibaba',
+  'bedrock',
+  'alibaba-coding-plan',
+  'azure-foundry',
+] as const;
+
 // Pinned Hermes 0.20.0 provider catalogue. This contains only non-secret setup metadata.
 // It intentionally fails closed: a provider is mutable only when its complete current
 // setup is the supported one-secret operation.
@@ -107,10 +125,28 @@ const DEFINITIONS: Record<string, ProviderDefinition> = {
       ),
     ],
   },
-  anthropic: alternativeKeys('Anthropic API key', 'Anthropic token', 'Claude Code OAuth token'),
+  anthropic: {
+    authMethod: 'api_key',
+    setupSupported: true,
+    setupFields: [
+      credentialChoice(
+        ['api_key', 'Anthropic API key'],
+        ['token', 'Anthropic token'],
+        ['claude_oauth', 'Claude Code OAuth token'],
+      ),
+      secret('Credential'),
+      field('baseUrl', 'Anthropic base URL override', 'url', false),
+    ],
+  },
   'openai-codex': oauth('oauth_browser'),
   'openai-api': { authMethod: 'api_key', setupFields: [secret('OpenAI API key')] },
-  alibaba: singleKey('DashScope API key'),
+  alibaba: {
+    ...singleKey('DashScope API key'),
+    setupFields: [
+      secret('DashScope API key'),
+      field('baseUrl', 'DashScope base URL override', 'url', false),
+    ],
+  },
   'xai-oauth': oauth('oauth_browser'),
   xiaomi: singleKey(),
   'tencent-tokenhub': { authMethod: 'api_key', setupFields: [secret('Tencent TokenHub key')] },
@@ -128,26 +164,63 @@ const DEFINITIONS: Record<string, ProviderDefinition> = {
     ],
   },
   huggingface: singleKey('Hugging Face token'),
-  gemini: alternativeKeys('Google API key', 'Gemini API key'),
+  gemini: {
+    authMethod: 'api_key',
+    setupSupported: true,
+    setupFields: [
+      credentialChoice(['google', 'Google API key'], ['gemini', 'Gemini API key']),
+      secret('Credential'),
+      field('baseUrl', 'Gemini base URL override', 'url', false),
+    ],
+  },
   vertex: {
     authMethod: 'cloud_identity',
+    setupSupported: true,
     setupFields: [
-      field('project', 'Google Cloud project', 'project'),
-      field('location', 'Google Cloud location', 'region'),
-      field('credentials', 'Service-account credentials', 'secret_file', false),
+      credentialChoice(
+        ['adc', 'Application Default Credentials'],
+        ['service_account', 'Service-account JSON path'],
+      ),
+      field('project', 'Google Cloud project', 'project', false),
+      field('region', 'Google Cloud location', 'region', true, [
+        { value: 'global', label: 'Global' },
+        { value: 'us-central1', label: 'US Central 1' },
+        { value: 'europe-west1', label: 'Europe West 1' },
+        { value: 'asia-northeast1', label: 'Asia Northeast 1' },
+      ]),
+      field('credentials', 'Service-account JSON path', 'secret_file', false),
     ],
     prerequisites: [
       prerequisite(
         'google-adc',
-        'Google Application Default Credentials or workload identity',
+        'Google Application Default Credentials, workload identity, or a runtime-mounted service-account file',
         'cloud_identity',
       ),
     ],
   },
   deepseek: singleKey(),
   xai: singleKey(),
-  zai: alternativeKeys('GLM API key', 'Z.AI API key'),
-  'kimi-coding': alternativeKeys('Kimi API key', 'Kimi Coding Plan API key'),
+  zai: {
+    authMethod: 'api_key',
+    setupSupported: true,
+    setupFields: [
+      credentialChoice(['glm', 'GLM API key'], ['zai', 'Z.AI API key'], ['z_ai', 'Z_AI API key']),
+      secret('Credential'),
+      field('baseUrl', 'Z.AI base URL override', 'url', false),
+    ],
+  },
+  'kimi-coding': {
+    authMethod: 'api_key',
+    setupSupported: true,
+    setupFields: [
+      credentialChoice(
+        ['moonshot', 'Kimi / Moonshot API key'],
+        ['coding', 'Kimi Coding Plan API key'],
+      ),
+      secret('Credential'),
+      field('baseUrl', 'Kimi base URL override', 'url', false),
+    ],
+  },
   'kimi-coding-cn': singleKey(),
   stepfun: singleKey(),
   minimax: singleKey(),
@@ -165,9 +238,16 @@ const DEFINITIONS: Record<string, ProviderDefinition> = {
   'opencode-go': singleKey(),
   bedrock: {
     authMethod: 'cloud_identity',
+    setupSupported: true,
     setupFields: [
-      field('authMethod', 'AWS authentication method', 'choice'),
-      field('region', 'AWS region', 'region'),
+      credentialChoice(['sdk', 'AWS SDK identity / profile'], ['bearer', 'Bedrock API key']),
+      field('region', 'AWS region', 'region', true, [
+        { value: 'us-east-1', label: 'US East (N. Virginia)' },
+        { value: 'us-west-2', label: 'US West (Oregon)' },
+        { value: 'eu-central-1', label: 'Europe (Frankfurt)' },
+        { value: 'eu-west-1', label: 'Europe (Ireland)' },
+        { value: 'ap-southeast-1', label: 'Asia Pacific (Singapore)' },
+      ]),
       field('profile', 'AWS profile', 'text', false),
       field('credential', 'Bedrock API key', 'secret', false),
     ],
@@ -180,23 +260,21 @@ const DEFINITIONS: Record<string, ProviderDefinition> = {
     ],
   },
   'azure-foundry': {
-    authMethod: 'cloud_identity',
+    authMethod: 'api_key',
+    setupSupported: true,
     setupFields: [
       field('baseUrl', 'Azure Foundry endpoint', 'url'),
-      field('authMethod', 'Azure authentication method', 'choice'),
-      field('credential', 'Azure Foundry API key', 'secret', false),
+      secret('Azure Foundry API key'),
     ],
-    prerequisites: [
-      prerequisite('azure-identity', 'API key or Microsoft Entra identity', 'cloud_identity'),
-    ],
+    prerequisites: [prerequisite('azure-endpoint', 'Azure Foundry deployment endpoint', 'network')],
   },
   'ai-gateway': singleKey(),
   'qwen-oauth': oauth('oauth_browser'),
   'alibaba-coding-plan': {
     authMethod: 'api_key',
+    setupSupported: true,
     setupFields: [
-      field('credentialType', 'Credential type', 'choice'),
-      secret('Coding Plan or DashScope API key'),
+      secret('Alibaba Coding Plan API key'),
       field('baseUrl', 'Coding Plan base URL', 'url', false),
     ],
   },

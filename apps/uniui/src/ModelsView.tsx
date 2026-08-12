@@ -14,6 +14,7 @@ import {
   Stack,
   Stepper,
   Text,
+  TextInput,
   Title,
 } from '@mantine/core';
 import { IconAlertTriangle, IconRefresh, IconSparkles } from '@tabler/icons-react';
@@ -45,6 +46,7 @@ type Provider = {
     type: 'secret' | 'secret_file' | 'text' | 'url' | 'choice' | 'region' | 'project';
     required: boolean;
     secret: boolean;
+    choices?: Array<{ value: string; label: string }>;
   }>;
   prerequisites?: Array<{
     id: string;
@@ -101,7 +103,7 @@ type Capabilities = {
 type Props = { canManageCredentials: boolean; canManageModels: boolean };
 type ProviderSetup = {
   providerId: string;
-  credential: string;
+  values: Record<string, string>;
   acknowledged: boolean;
   revision: number;
   reviewedRevision: number;
@@ -292,6 +294,9 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
   const setupProvider = setup
     ? providers?.items.find((provider) => provider.id === setup.providerId)
     : undefined;
+  const setupRequired = (setupProvider?.setupFields ?? []).every(
+    (field) => !field.required || Boolean(setup?.values[field.id]?.trim()),
+  );
   const setupReviewed = Boolean(
     setup?.preflight && setup.reviewedRevision === setup.revision && setup.acknowledged,
   );
@@ -345,9 +350,16 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
     setError('');
     setNotice('');
     setSetupStep(0);
+    const provider = providers?.items.find((item) => item.id === providerId);
+    const values = Object.fromEntries(
+      (provider?.setupFields ?? []).map((field) => [
+        field.id,
+        field.type === 'choice' ? (field.choices?.[0]?.value ?? '') : '',
+      ]),
+    );
     setSetup({
       providerId,
-      credential: '',
+      values,
       acknowledged: false,
       revision: 0,
       reviewedRevision: -1,
@@ -358,7 +370,7 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
 
   const runProviderSetup = async (mode: 'dry-run' | 'execute') => {
     if (!setup || !setupProvider || !frameworkId || !credentialEnabled) return;
-    if (!setup.credential.trim() || !setup.acknowledged) return;
+    if (!setupRequired || !setup.acknowledged) return;
     if (mode === 'execute' && !setupReviewed) return;
     const intent = setup;
     const provider = setupProvider;
@@ -376,10 +388,16 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
             nativeId: provider.id,
             frameworkId: requestedFramework,
           },
-          payload: {
-            credential: intent.credential,
-            expectedSourceVersion: provider.sourceVersion,
-          },
+          payload:
+            provider.setupFields?.length === 1 && provider.setupFields[0]?.id === 'credential'
+              ? {
+                  credential: intent.values.credential,
+                  expectedSourceVersion: provider.sourceVersion,
+                }
+              : {
+                  setup: intent.values,
+                  expectedSourceVersion: provider.sourceVersion,
+                },
           mode,
           confirmed: true,
         },
@@ -419,7 +437,7 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
         current?.providerId === provider.id
           ? {
               ...current,
-              credential: '',
+              values: Object.fromEntries(Object.keys(current.values).map((key) => [key, ''])),
               acknowledged: false,
               revision: current.revision + 1,
               reviewedRevision: -1,
@@ -1078,7 +1096,15 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                         ? {
                             ...current,
                             providerId,
-                            credential: '',
+                            values: Object.fromEntries(
+                              (
+                                providers?.items.find((item) => item.id === providerId)
+                                  ?.setupFields ?? []
+                              ).map((field) => [
+                                field.id,
+                                field.type === 'choice' ? (field.choices?.[0]?.value ?? '') : '',
+                              ]),
+                            ),
                             acknowledged: false,
                             revision: current.revision + 1,
                             reviewedRevision: -1,
@@ -1107,30 +1133,60 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                   The value remains only in this open form, is sent only in governed mutation
                   bodies, and is cleared after success, failure, close, or framework change.
                 </Alert>
-                <PasswordInput
-                  label={`API credential for ${setupProvider?.displayName ?? setup.providerId}`}
-                  placeholder="Enter credential"
-                  value={setup.credential}
-                  disabled={Boolean(busy)}
-                  autoComplete="new-password"
-                  onChange={(event) => {
-                    const credential = event.currentTarget.value;
-                    setSetup((current) =>
-                      current
-                        ? {
-                            ...current,
-                            credential,
-                            acknowledged: false,
-                            revision: current.revision + 1,
-                            reviewedRevision: -1,
-                            preflight: undefined,
-                            dryRunKey: crypto.randomUUID(),
-                            executeKey: crypto.randomUUID(),
-                          }
-                        : current,
-                    );
-                  }}
-                />
+                {(setupProvider?.setupFields ?? []).map((field) => {
+                  const common = {
+                    label:
+                      field.id === 'credential' && (setupProvider?.setupFields?.length ?? 0) === 1
+                        ? `API credential for ${setupProvider?.displayName ?? setup.providerId}`
+                        : `${field.label}${field.required ? '' : ' (optional)'}`,
+                    value: setup.values[field.id] ?? '',
+                    disabled: Boolean(busy),
+                    onChange: (value: string) =>
+                      setSetup((current) =>
+                        current
+                          ? {
+                              ...current,
+                              values: { ...current.values, [field.id]: value },
+                              acknowledged: false,
+                              revision: current.revision + 1,
+                              reviewedRevision: -1,
+                              preflight: undefined,
+                              dryRunKey: crypto.randomUUID(),
+                              executeKey: crypto.randomUUID(),
+                            }
+                          : current,
+                      ),
+                  };
+                  return field.type === 'choice' ? (
+                    <Select
+                      key={field.id}
+                      label={common.label}
+                      data={field.choices ?? []}
+                      value={common.value || null}
+                      disabled={common.disabled}
+                      onChange={(value) => common.onChange(value ?? '')}
+                    />
+                  ) : field.secret ? (
+                    <PasswordInput
+                      key={field.id}
+                      label={common.label}
+                      placeholder={`Enter ${field.label.toLowerCase()}`}
+                      value={common.value}
+                      disabled={common.disabled}
+                      autoComplete="new-password"
+                      onChange={(event) => common.onChange(event.currentTarget.value)}
+                    />
+                  ) : (
+                    <TextInput
+                      key={field.id}
+                      label={common.label}
+                      placeholder={field.type === 'url' ? 'https://provider.example/v1' : ''}
+                      value={common.value}
+                      disabled={common.disabled}
+                      onChange={(event) => common.onChange(event.currentTarget.value)}
+                    />
+                  );
+                })}
                 <Group justify="space-between">
                   <Button
                     variant="default"
@@ -1140,7 +1196,7 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                     Back
                   </Button>
                   <Button
-                    disabled={!setup.credential.trim() || Boolean(busy)}
+                    disabled={!setupRequired || Boolean(busy)}
                     onClick={() => setSetupStep(2)}
                   >
                     Review
@@ -1190,7 +1246,7 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
                   <Group>
                     <Button
                       variant="light"
-                      disabled={!setup.acknowledged || !setup.credential.trim() || Boolean(busy)}
+                      disabled={!setup.acknowledged || !setupRequired || Boolean(busy)}
                       loading={busy === 'provider.setup.dry-run'}
                       onClick={() => void runProviderSetup('dry-run')}
                     >
