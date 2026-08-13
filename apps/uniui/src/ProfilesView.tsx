@@ -191,13 +191,6 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
     ? `${frameworkId}:${editor.operation}:${editor.profileId}:${editor.profile?.sourceVersion ?? collection?.meta.sourceVersion}:${editor.description.trim()}`
     : '';
   const editorReviewed = !!editor?.preflight && editor.reviewedFingerprint === editorFingerprint;
-  const hasUnconfiguredModel =
-    providers !== null &&
-    collection?.items.some((profile) => {
-      if (!profile.model) return false;
-      const provider = findProfileProvider(profile, providers.items);
-      return !provider || provider.credentialStatus !== 'configured';
-    });
 
   const updateNewId = (newId: string) => {
     setRename((current) =>
@@ -427,12 +420,6 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
               {collection.items.length} profiles
             </Text>
           </Group>
-          {hasUnconfiguredModel ? (
-            <Alert color="yellow">
-              Hermes reports a built-in model placeholder, but no matching provider credential is
-              configured. A running gateway does not mean that model is ready to execute.
-            </Alert>
-          ) : null}
           {!collection.items.length ? (
             <Alert color="yellow">Hermes returned no profiles for this framework.</Alert>
           ) : (
@@ -472,16 +459,9 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
                             </Group>
                           </Table.Td>
                           <Table.Td>
-                            {modelConfigured === false ? (
-                              <div>
-                                <Text>Not configured</Text>
-                                <Text size="xs" c="dimmed">
-                                  Stale Hermes default: {profile.model}
-                                </Text>
-                              </div>
-                            ) : (
-                              (profile.model ?? 'Not reported')
-                            )}
+                            {modelConfigured === false
+                              ? 'Not configured'
+                              : (profile.model ?? 'Not reported')}
                           </Table.Td>
                           <Table.Td>
                             {modelConfigured === false

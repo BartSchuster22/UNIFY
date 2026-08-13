@@ -128,11 +128,8 @@ describe('Profiles Hermes cutover', () => {
     );
     renderProfiles();
     expect((await screen.findAllByText('Not configured')).length).toBeGreaterThanOrEqual(2);
-    expect(screen.getByText('Stale Hermes default: anthropic/claude-opus-4.6')).toBeInTheDocument();
+    expect(screen.queryByText('anthropic/claude-opus-4.6')).not.toBeInTheDocument();
     expect(screen.queryByText('Anthropic')).not.toBeInTheDocument();
-    expect(
-      screen.getByText(/running gateway does not mean that model is ready/i),
-    ).toBeInTheDocument();
   });
 
   it('uses opaque Hermes cursors without falling back to legacy inventory', async () => {
