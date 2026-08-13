@@ -407,18 +407,29 @@ export class HermesNativeSource implements AdapterSource {
           });
           const session = record(created.session);
           const sessionId = requiredString(session.id ?? session.session_id, 'session id');
+          const startedAt = Date.now();
           const sent = await this.executeConversation({
             ...command,
             operation: 'message.send',
             targetId: sessionId,
             payload: { message: 'Reply with exactly OK.' },
           });
-          const message = record(sent.message);
+          const immediate = record(sent.message);
+          const assistant = isVerifiedAssistantInferenceMessage(immediate)
+            ? immediate
+            : await this.awaitAssistantInferenceMessage(sessionId);
+          const content = assistantMessageContent(assistant);
+          if (!content)
+            throw new SourceUnavailableError(
+              'Hermes did not return a verified assistant inference response',
+            );
           return {
             providerId: command.targetId,
             modelId,
-            succeeded: Boolean(message.id ?? message.content),
+            succeeded: true,
             sessionId,
+            latencyMs: Date.now() - startedAt,
+            responseDigest: createHash('sha256').update(content).digest('hex'),
           };
         }
       }
@@ -831,6 +842,21 @@ export class HermesNativeSource implements AdapterSource {
     };
   }
 
+  private async awaitAssistantInferenceMessage(sessionId: string) {
+    const deadline = Date.now() + 180_000;
+    while (Date.now() < deadline) {
+      const raw = record(await this.api(`/api/sessions/${encodeURIComponent(sessionId)}/messages`));
+      const messages = Array.isArray(raw.data) ? raw.data : [];
+      const assistant = [...messages]
+        .reverse()
+        .map((item) => record(item))
+        .find(isVerifiedAssistantInferenceMessage);
+      if (assistant) return assistant;
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+    throw new SourceUnavailableError('Hermes inference timed out without an assistant response');
+  }
+
   async health() {
     const checks: Record<string, 'healthy' | 'degraded' | 'unavailable'> = {};
     try {
@@ -991,6 +1017,24 @@ function stableJson(value: unknown): string {
       .map(([key, item]) => `${JSON.stringify(key)}:${stableJson(item)}`)
       .join(',')}}`;
   return JSON.stringify(value) ?? 'null';
+}
+
+function assistantMessageContent(message: Record<string, unknown>) {
+  const content = message.content;
+  if (typeof content === 'string') return content.trim();
+  if (!Array.isArray(content)) return '';
+  return content
+    .map((block) => {
+      const row = recordOrEmpty(block);
+      return typeof row.text === 'string' ? row.text.trim() : '';
+    })
+    .filter(Boolean)
+    .join('\n');
+}
+
+export function isVerifiedAssistantInferenceMessage(message: Record<string, unknown>) {
+  const role = optionalString(message.role ?? message.author ?? message.sender)?.toLowerCase();
+  return (role === 'assistant' || role === 'agent') && assistantMessageContent(message).length > 0;
 }
 
 function record(value: unknown): Record<string, unknown> {

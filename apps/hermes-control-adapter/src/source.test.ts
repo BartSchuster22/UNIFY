@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   HermesNativeSource,
+  isVerifiedAssistantInferenceMessage,
   SecondConsumerForbiddenError,
   validateApiBaseUrl,
   validateBaseProfileDisplayName,
@@ -18,6 +19,20 @@ class FixtureRunner implements CommandRunner {
 }
 
 describe('HermesNativeSource', () => {
+  it('requires a non-empty assistant response before inference can be verified', () => {
+    expect(isVerifiedAssistantInferenceMessage({ role: 'user', id: 'accepted-user-message' })).toBe(
+      false,
+    );
+    expect(isVerifiedAssistantInferenceMessage({ role: 'assistant', content: '' })).toBe(false);
+    expect(
+      isVerifiedAssistantInferenceMessage({
+        role: 'assistant',
+        content: [{ type: 'text', text: 'OK' }],
+      }),
+    ).toBe(true);
+    expect(isVerifiedAssistantInferenceMessage({ sender: 'agent', content: 'OK' })).toBe(true);
+  });
+
   it('adapts profiles and provider credential status without exposing credential fragments', async () => {
     const source = new HermesNativeSource({
       runner: new FixtureRunner({
