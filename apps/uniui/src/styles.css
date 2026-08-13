@@ -30,6 +30,30 @@ body {
   backdrop-filter: blur(12px);
   background: color-mix(in srgb, var(--mantine-color-body) 90%, transparent);
 }
+.desktop-navbar-link {
+  flex: 0 0 auto;
+}
+.mobile-mega-menu {
+  position: fixed;
+  z-index: 99;
+  top: 64px;
+  left: 0;
+  right: 0;
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  border-color: var(--mantine-color-default-border);
+  background: color-mix(in srgb, var(--mantine-color-body) 97%, transparent);
+  backdrop-filter: blur(14px);
+}
+.mobile-mega-menu-link {
+  min-height: 3.25rem;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+}
+.mobile-mega-menu-link:hover,
+.mobile-mega-menu-link[data-active] {
+  border-color: var(--mantine-color-ocean-5);
+}
 .global-search {
   width: min(36rem, 42vw);
 }

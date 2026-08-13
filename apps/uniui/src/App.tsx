@@ -57,7 +57,6 @@ import {
   IconSettings,
   IconShieldCheck,
   IconSun,
-  IconUserCircle,
   IconUsers,
 } from '@tabler/icons-react';
 
@@ -205,7 +204,7 @@ export function App() {
         </a>
         <AppShell
           header={{ height: 64 }}
-          navbar={{ width: 260, breakpoint: 'md', collapsed: { mobile: !opened } }}
+          navbar={{ width: 76, breakpoint: 'md', collapsed: { mobile: true } }}
           padding="md"
         >
           <AppShell.Header className="ui-header">
@@ -216,7 +215,9 @@ export function App() {
                   onClick={toggle}
                   hiddenFrom="md"
                   size="sm"
-                  aria-label="Toggle navigation"
+                  aria-label="Open navigation menu"
+                  aria-expanded={opened}
+                  aria-controls="mobile-primary-navigation"
                 />
                 <Group gap="xs" wrap="nowrap">
                   <ThemeIcon
@@ -282,9 +283,21 @@ export function App() {
               </Group>
             </Group>
           </AppShell.Header>
-          <AppShell.Navbar p="sm" aria-label="Primary navigation">
-            <AppShell.Section grow component={ScrollArea}>
-              <Stack gap={3}>
+          {opened ? (
+            <Paper
+              hiddenFrom="md"
+              component="nav"
+              id="mobile-primary-navigation"
+              aria-label="Mobile primary navigation"
+              className="mobile-mega-menu"
+              shadow="md"
+              p="md"
+              radius={0}
+            >
+              <Text fw={700} mb="sm">
+                Navigate UNIFY
+              </Text>
+              <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="xs">
                 {visible.map((item) => (
                   <NavLink
                     component="a"
@@ -292,28 +305,54 @@ export function App() {
                     href={viewHref(item.id)}
                     active={activeView === item.id}
                     label={item.label}
-                    leftSection={<item.icon size={18} />}
+                    leftSection={<item.icon size={21} />}
                     onClick={(event) => followViewLink(event, item.id)}
                     aria-current={activeView === item.id ? 'page' : undefined}
+                    className="mobile-mega-menu-link"
                   />
+                ))}
+              </SimpleGrid>
+            </Paper>
+          ) : null}
+          <AppShell.Navbar p="xs" aria-label="Primary navigation">
+            <AppShell.Section grow component={ScrollArea}>
+              <Stack gap={5} align="center">
+                {visible.map((item) => (
+                  <Tooltip
+                    key={item.id}
+                    label={item.label}
+                    position="right"
+                    withArrow
+                    openDelay={250}
+                  >
+                    <ActionIcon
+                      component="a"
+                      href={viewHref(item.id)}
+                      size={48}
+                      radius="md"
+                      variant={activeView === item.id ? 'light' : 'subtle'}
+                      color={activeView === item.id ? 'ocean' : 'gray'}
+                      onClick={(event) => followViewLink(event, item.id)}
+                      aria-label={item.label}
+                      aria-current={activeView === item.id ? 'page' : undefined}
+                      className="desktop-navbar-link"
+                    >
+                      <item.icon size={22} stroke={1.7} />
+                    </ActionIcon>
+                  </Tooltip>
                 ))}
               </Stack>
             </AppShell.Section>
             <AppShell.Section>
-              <Divider mb="sm" />
-              <Group gap="sm" px="xs">
-                <Avatar size="sm" color="ocean">
-                  <IconUserCircle size={18} />
+              <Divider mb="xs" />
+              <Tooltip
+                label={`${principal.displayName} · ${principal.roles.join(', ')}`}
+                position="right"
+              >
+                <Avatar mx="auto" size={42} color="ocean" aria-label="Signed-in operator">
+                  {principal.displayName.slice(0, 2).toUpperCase()}
                 </Avatar>
-                <Box>
-                  <Text size="sm" fw={600}>
-                    {principal.displayName}
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    {principal.roles.join(', ')}
-                  </Text>
-                </Box>
-              </Group>
+              </Tooltip>
             </AppShell.Section>
           </AppShell.Navbar>
           <AppShell.Main id="main-content" tabIndex={-1}>
