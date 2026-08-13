@@ -91,7 +91,7 @@ describe('Profiles Hermes cutover', () => {
     expect(screen.getByText(/Profile changes are disabled/)).toHaveTextContent(
       'NO_IDEMPOTENT_NONINTERACTIVE_INTERFACE',
     );
-    expect(screen.queryByRole('button', { name: /create agent/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /create agent/i })).toBeDisabled();
     expect(screen.queryByText(/Agency/)).not.toBeInTheDocument();
   });
 
@@ -127,8 +127,9 @@ describe('Profiles Hermes cutover', () => {
       }),
     );
     renderProfiles();
-    expect((await screen.findAllByText('Not configured')).length).toBe(2);
-    expect(screen.getByText('Hermes placeholder: anthropic/claude-opus-4.6')).toBeInTheDocument();
+    expect((await screen.findAllByText('Not configured')).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText('Stale Hermes default: anthropic/claude-opus-4.6')).toBeInTheDocument();
+    expect(screen.queryByText('Anthropic')).not.toBeInTheDocument();
     expect(
       screen.getByText(/running gateway does not mean that model is ready/i),
     ).toBeInTheDocument();
@@ -330,6 +331,72 @@ describe('Profiles Hermes cutover', () => {
     expect(screen.getByRole('button', { name: 'Rename profile' })).toBeDisabled();
   });
 
+  it('creates and edits Agents through governed Hermes profile mutations', async () => {
+    const supported = {
+      ...capabilities,
+      data: { capabilities: { 'profiles.execute': { status: 'supported' } } },
+    };
+    const mutationCalls: Array<Record<string, unknown>> = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (request: string | URL | Request, init?: RequestInit) => {
+        const url = String(request);
+        if (url.endsWith('/api/v1/frameworks')) return Response.json({ items: [framework] });
+        if (url.includes('/capabilities')) return Response.json(supported);
+        if (url.includes('/providers')) return Response.json({ items: [] });
+        if (url.includes('/profiles')) return Response.json(response([herman]));
+        if (url.endsWith('/api/v1/mutations')) {
+          const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
+          mutationCalls.push(body);
+          return Response.json({
+            replayed: false,
+            operation: {
+              operationId: `operation-${mutationCalls.length}`,
+              operationType: body.operationType,
+              state: 'verified',
+              mode: body.mode,
+              updatedAt: '2026-08-13T10:00:00Z',
+            },
+            result: { status: 'completed' },
+          });
+        }
+        return Response.json({}, { status: 404 });
+      }),
+    );
+    renderProfiles();
+
+    const createButton = await screen.findByRole('button', { name: 'Create Agent' });
+    await waitFor(() => expect(createButton).toBeEnabled());
+    fireEvent.click(createButton);
+    expect(await screen.findByLabelText('Agent ID')).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Agent ID'), { target: { value: 'researcher' } });
+    fireEvent.change(screen.getByLabelText('Agent description'), {
+      target: { value: 'Researches production incidents.' },
+    });
+    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(screen.getByRole('button', { name: 'Validate and dry-run' }));
+    expect(await screen.findByText(/Exact payload dry-run passed/)).toBeInTheDocument();
+    const createActions = screen.getAllByRole('button', { name: 'Create Agent' });
+    fireEvent.click(createActions[0]!);
+    await waitFor(() => expect(mutationCalls).toHaveLength(2));
+    expect(mutationCalls).toEqual([
+      expect.objectContaining({ operationType: 'profile.create', mode: 'dry-run' }),
+      expect.objectContaining({ operationType: 'profile.create', mode: 'execute' }),
+    ]);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit Herman' }));
+    fireEvent.change(screen.getByLabelText('Agent description'), {
+      target: { value: 'Herman base Agent for operations.' },
+    });
+    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(screen.getByRole('button', { name: 'Validate and dry-run' }));
+    expect(await screen.findByText(/Exact payload dry-run passed/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Save Agent' }));
+    await waitFor(() => expect(mutationCalls).toHaveLength(4));
+    expect(mutationCalls[2]).toMatchObject({ operationType: 'profile.update', mode: 'dry-run' });
+    expect(mutationCalls[3]).toMatchObject({ operationType: 'profile.update', mode: 'execute' });
+  });
+
   it('keeps profile writes unavailable for read-only roles and the built-in default', async () => {
     vi.stubGlobal(
       'fetch',
@@ -347,6 +414,8 @@ describe('Profiles Hermes cutover', () => {
     );
     renderProfiles(false);
     expect(await screen.findByText(/read-only for your role/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create Agent' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Edit Herman' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Rename Herman' })).toBeDisabled();
     expect(screen.getByText(/displayed as/)).toBeInTheDocument();
     expect(screen.getByText(/does not emulate an unsupported ID rename/)).toBeInTheDocument();

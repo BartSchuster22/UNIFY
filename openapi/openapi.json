@@ -7572,6 +7572,10 @@
           "provider": {
             "maxLength": 200,
             "type": "string"
+          },
+          "description": {
+            "maxLength": 5000,
+            "type": "string"
           }
         }
       },
@@ -7673,6 +7677,10 @@
                     },
                     "provider": {
                       "maxLength": 200,
+                      "type": "string"
+                    },
+                    "description": {
+                      "maxLength": 5000,
                       "type": "string"
                     }
                   }
@@ -12330,6 +12338,10 @@
             "maxLength": 200,
             "type": "string"
           },
+          "description": {
+            "maxLength": 5000,
+            "type": "string"
+          },
           "owner": {
             "const": "hermes",
             "type": "string"
@@ -12459,6 +12471,10 @@
                 },
                 "provider": {
                   "maxLength": 200,
+                  "type": "string"
+                },
+                "description": {
+                  "maxLength": 5000,
                   "type": "string"
                 },
                 "owner": {

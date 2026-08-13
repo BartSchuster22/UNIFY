@@ -29,7 +29,26 @@ export const frameworkReconcileDefinition: MutationDefinition = {
 };
 
 export const profileMutationDefinitions: Record<string, MutationDefinition> = {
+  'profile.create': {
+    owner: 'hermes',
+    kind: 'profile',
+    permission: 'profiles.manage',
+    executionPath: 'hermes-control',
+  },
+  'profile.update': {
+    owner: 'hermes',
+    kind: 'profile',
+    permission: 'profiles.manage',
+    executionPath: 'hermes-control',
+  },
   'profile.rename': {
+    owner: 'hermes',
+    kind: 'profile',
+    permission: 'profiles.manage',
+    executionPath: 'hermes-control',
+    destructive: true,
+  },
+  'profile.delete': {
     owner: 'hermes',
     kind: 'profile',
     permission: 'profiles.manage',

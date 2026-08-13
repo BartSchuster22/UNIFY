@@ -83,30 +83,44 @@ export class HermesNativeSource implements AdapterSource {
 
   async profiles(): Promise<Snapshot<HermesProfile>> {
     const output = stripAnsi(await this.options.runner.run(['profile', 'list']));
-    const items = output
-      .split('\n')
-      .map((line) => line.trim())
-      .filter((line) => /^[◆ ]?[a-z0-9][a-z0-9_-]*\s{2,}/i.test(line))
-      .map((line) => {
-        const columns = line
-          .replace(/^◆/, '◆ ')
-          .trim()
-          .split(/\s{2,}/);
-        const active = columns[0]?.startsWith('◆') ?? false;
-        const id = (columns[0] ?? '').replace(/^◆\s*/, '').trim();
-        const gateway = columns[2]?.trim().toLowerCase();
-        const profile: HermesProfile = {
-          id,
-          displayName: id === 'default' ? this.baseProfileDisplayName : id,
-          active,
-          gatewayStatus:
-            gateway === 'running' ? 'running' : gateway === 'stopped' ? 'stopped' : 'unknown',
-        };
-        if (columns[1] && columns[1] !== '—') profile.model = columns[1];
-        return profile;
-      })
-      .filter((item) => item.id.length > 0 && item.id.toLowerCase() !== 'profile');
-    return snapshot(items);
+    const items = await Promise.all(
+      output
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => /^[◆ ]?[a-z0-9][a-z0-9_-]*\s{2,}/i.test(line))
+        .map(async (line) => {
+          const columns = line
+            .replace(/^◆/, '◆ ')
+            .trim()
+            .split(/\s{2,}/);
+          const active = columns[0]?.startsWith('◆') ?? false;
+          const id = (columns[0] ?? '').replace(/^◆\s*/, '').trim();
+          const gateway = columns[2]?.trim().toLowerCase();
+          const profile: HermesProfile = {
+            id,
+            displayName: id === 'default' ? this.baseProfileDisplayName : id,
+            active,
+            gatewayStatus:
+              gateway === 'running' ? 'running' : gateway === 'stopped' ? 'stopped' : 'unknown',
+          };
+          if (columns[1] && columns[1] !== '—') profile.model = columns[1];
+          if (id.toLowerCase() !== 'profile') {
+            try {
+              const description = stripAnsi(
+                await this.options.runner.run(['profile', 'describe', id]),
+              ).trim();
+              if (description && !description.startsWith('(no description set'))
+                profile.description = description;
+            } catch {
+              // Description enrichment is optional and must never hide profile inventory truth.
+            }
+          }
+          return profile;
+        }),
+    );
+    return snapshot(
+      items.filter((item) => item.id.length > 0 && item.id.toLowerCase() !== 'profile'),
+    );
   }
 
   async executeProfile(command: HermesProfileCommand): Promise<Record<string, unknown>> {

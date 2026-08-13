@@ -194,6 +194,7 @@ export const HermesProfileSchema = Type.Object(
     ]),
     model: Type.Optional(Type.String({ maxLength: 300 })),
     provider: Type.Optional(Type.String({ maxLength: 200 })),
+    description: Type.Optional(Type.String({ maxLength: 5000 })),
   },
   { $id: 'HermesProfile', additionalProperties: false },
 );

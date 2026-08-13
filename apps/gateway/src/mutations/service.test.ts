@@ -236,6 +236,68 @@ describe('standalone mutation policy', () => {
       expect(() => service.parse({ ...base, payload: { message } })).toThrow();
   });
 
+  it('governs profile create and update as exact framework-scoped Hermes operations', async () => {
+    const store = new Store();
+    const profileManagement = vi.fn().mockResolvedValue({
+      data: { status: 'completed', operation: 'profile.create', targetId: 'researcher' },
+    });
+    const service = new MutationService(
+      new GovernanceService(store),
+      hermes(vi.fn(), vi.fn(), vi.fn(), profileManagement),
+    );
+    const create = service.parse({
+      operationType: 'profile.create',
+      target: {
+        owner: 'hermes',
+        kind: 'profile',
+        nativeId: 'researcher',
+        frameworkId: 'hermes-herman',
+      },
+      payload: {
+        description: 'Researches production incidents.',
+        expectedSourceVersion: 'sha256:profiles-v1',
+      },
+      mode: 'execute',
+      confirmed: true,
+    });
+    expect(service.permission(create)).toBe('profiles.manage');
+    await service.run('u1', 'profile-create-key', create);
+    expect(profileManagement).toHaveBeenCalledWith(
+      'hermes-herman',
+      'profile.create',
+      'researcher',
+      create.payload,
+      'execute',
+      expect.objectContaining({ idempotencyKey: 'profile-create-key' }),
+    );
+
+    const update = service.parse({
+      ...create,
+      operationType: 'profile.update',
+      target: { ...create.target, nativeId: 'default' },
+      payload: {
+        description: 'Herman base Agent for operations.',
+        expectedSourceVersion: 'sha256:profiles-v2',
+      },
+    });
+    await service.run('u1', 'profile-update-key', update);
+    expect(profileManagement).toHaveBeenLastCalledWith(
+      'hermes-herman',
+      'profile.update',
+      'default',
+      update.payload,
+      'execute',
+      expect.objectContaining({ idempotencyKey: 'profile-update-key' }),
+    );
+
+    for (const invalid of [
+      { ...create, payload: { description: 1, expectedSourceVersion: 'v1' } },
+      { ...create, payload: { description: 'x' } },
+      { ...create, target: { ...create.target, frameworkId: undefined } },
+    ])
+      expect(() => service.parse(invalid)).toThrow();
+  });
+
   it('governs profile rename with framework isolation, source version, confirmation, and replay', async () => {
     const store = new Store();
     const profileManagement = vi.fn().mockResolvedValue({

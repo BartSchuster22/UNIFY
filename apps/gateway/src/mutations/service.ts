@@ -246,14 +246,35 @@ function validateProfileCommand(input: MutationInput, definition: MutationDefini
     throw new GovernanceError(
       'MUTATION_TARGET_INVALID',
       422,
-      'Profile rename must target one exact profile in one registered Hermes framework',
+      'Profile management must target one exact profile in one registered Hermes framework',
     );
   if (definition.destructive && !input.confirmed)
     throw new GovernanceError(
       'CONFIRMATION_REQUIRED',
       409,
-      'Profile rename requires explicit confirmation',
+      'This profile operation requires explicit confirmation',
     );
+  const expectedSourceVersion = input.payload.expectedSourceVersion;
+  if (typeof expectedSourceVersion !== 'string' || !expectedSourceVersion.trim())
+    throw new GovernanceError(
+      'MUTATION_PAYLOAD_INVALID',
+      422,
+      'expectedSourceVersion is required for profile management',
+    );
+  if (input.operationType === 'profile.create' || input.operationType === 'profile.update') {
+    const description = input.payload.description;
+    if (
+      description !== undefined &&
+      (typeof description !== 'string' || description.trim().length > 5_000)
+    )
+      throw new GovernanceError(
+        'MUTATION_PAYLOAD_INVALID',
+        422,
+        'description must be a string of at most 5000 characters',
+      );
+    return;
+  }
+  if (input.operationType === 'profile.delete') return;
   const newId = input.payload.newId;
   if (
     typeof newId !== 'string' ||
@@ -264,13 +285,6 @@ function validateProfileCommand(input: MutationInput, definition: MutationDefini
       'MUTATION_PAYLOAD_INVALID',
       422,
       'newId must be a distinct valid Hermes profile id',
-    );
-  const expectedSourceVersion = input.payload.expectedSourceVersion;
-  if (typeof expectedSourceVersion !== 'string' || !expectedSourceVersion.trim())
-    throw new GovernanceError(
-      'MUTATION_PAYLOAD_INVALID',
-      422,
-      'expectedSourceVersion is required for profile rename',
     );
 }
 

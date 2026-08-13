@@ -1290,6 +1290,7 @@ export interface components {
             gatewayStatus: "running" | "stopped" | "unknown";
             model?: string;
             provider?: string;
+            description?: string;
         };
         HermesProfilesResponse: {
             /** @constant */
@@ -1308,6 +1309,7 @@ export interface components {
                     gatewayStatus: "running" | "stopped" | "unknown";
                     model?: string;
                     provider?: string;
+                    description?: string;
                 }[];
                 page: {
                     nextCursor?: string;
@@ -2021,6 +2023,7 @@ export interface components {
             gatewayStatus: "running" | "stopped" | "unknown";
             model?: string;
             provider?: string;
+            description?: string;
             /** @constant */
             owner: "hermes";
             frameworkId: string;
@@ -2048,6 +2051,7 @@ export interface components {
                 gatewayStatus: "running" | "stopped" | "unknown";
                 model?: string;
                 provider?: string;
+                description?: string;
                 /** @constant */
                 owner: "hermes";
                 frameworkId: string;

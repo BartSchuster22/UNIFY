@@ -37,6 +37,8 @@ describe('HermesNativeSource', () => {
     const source = new HermesNativeSource({
       runner: new FixtureRunner({
         'profile list': `Profile          Model          Gateway      Alias\n ───────────────  ─────────────  ───────────  ─────\n ◆default         gpt-5.6-sol    running      —\n  test-agent      gpt-5.5        stopped      test-agent\n`,
+        'profile describe default': 'Base operations Agent',
+        'profile describe test-agent': "(no description set for 'test-agent')",
         'status --all': `◆ Environment\n  Model:        gpt-5.6-sol\n  Provider:     OpenAI Codex\n◆ API Keys\n  OpenRouter    ✓ sk-sensitive-fragment\n  DeepSeek      ✗ (not set)\n◆ Auth Providers\n  OpenAI Codex  ✓ logged in\n    Auth file: /secret/auth.json\n`,
       }),
     });
@@ -49,6 +51,7 @@ describe('HermesNativeSource', () => {
         active: true,
         gatewayStatus: 'running',
         model: 'gpt-5.6-sol',
+        description: 'Base operations Agent',
       },
       {
         id: 'test-agent',
