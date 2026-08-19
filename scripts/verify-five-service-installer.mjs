@@ -66,6 +66,7 @@ try {
     project,
     status: 'PASS',
   });
+  assertConformance(installRoot, 'phase-14.4-v1');
   const lockPath = join(installRoot, '.installer.lock');
   writeFileSync(lockPath, `${process.pid}\n`);
   const locked = installer('verify', installRoot, undefined, [], false);
@@ -120,6 +121,7 @@ try {
   assert.equal(readState(installRoot).previousRelease, 'phase-14.4-v1');
   assert.equal(basenameOfLink(join(installRoot, 'rollback')), 'phase-14.4-v1');
   assert.deepEqual(hashDirectory(join(installRoot, 'secrets')), secretHashes);
+  assertConformance(installRoot, 'phase-14.4-v2');
 
   const rolledBack = installer(
     'rollback',
@@ -134,6 +136,7 @@ try {
   assert.equal(readState(installRoot).previousRelease, 'phase-14.4-v2');
   assert.equal(basenameOfLink(join(installRoot, 'rollback')), 'phase-14.4-v2');
   assert.deepEqual(hashDirectory(join(installRoot, 'secrets')), secretHashes);
+  assertConformance(installRoot, 'phase-14.4-v1');
 
   const log = readFileSync(fakeLog, 'utf8');
   assert.doesNotMatch(log, /\b(?:rmi|image rm|volume rm|down -v)\b/u);
@@ -193,6 +196,27 @@ function result(execution) {
     .findLast((entry) => entry.startsWith('{'));
   assert.ok(line, `Installer result missing: ${execution.stdout}`);
   return JSON.parse(line);
+}
+
+function assertConformance(managedRoot, expectedRelease) {
+  const execution = spawnSync(
+    process.execPath,
+    [
+      resolve(root, 'deploy/five-service/release-conformance.mjs'),
+      '--root',
+      managedRoot,
+      '--project',
+      project,
+    ],
+    { cwd: root, encoding: 'utf8' },
+  );
+  assert.equal(execution.status, 0, execution.stderr || execution.stdout);
+  const report = JSON.parse(execution.stdout);
+  assert.equal(report.status, 'PASS');
+  assert.equal(report.mutationPerformed, false);
+  assert.equal(report.integrity.status, 'PASS');
+  assert.equal(report.targetConformance.status, 'PARTIAL');
+  assert.equal(report.projection.release.releaseId, expectedRelease);
 }
 
 function writeInput(releaseId, digestCharacter, managedRoot) {

@@ -32,6 +32,7 @@
     "unify-web:build": "docker buildx build --load --file Dockerfile.uniui --tag unify-web:local .",
     "five-service:verify": "node scripts/verify-five-service-runtime.mjs",
     "five-service:installer:verify": "node scripts/verify-five-service-installer.mjs",
+    "five-service:conformance:verify": "node scripts/verify-alica-release-conformance.mjs",
     "framework:rollout:store:verify": "node scripts/verify-framework-rollout-store.mjs",
     "framework:rollout:worker:verify-real": "node scripts/verify-framework-rollout-worker-real.mjs",
     "phase-14-5:live": "node scripts/verify-hermes-combined-runtime.mjs && node scripts/verify-five-service-runtime.mjs && node scripts/verify-five-service-installer-runtime.mjs",
