@@ -38,11 +38,15 @@ for (const [key, value] of Object.entries(report.counts)) {
 }
 const rowCountBindings = {
   users: 'users',
+  roles: 'roles',
+  permissions: 'permissions',
   sessions: 'sessions',
   userRoleBindings: 'userRoleBindings',
   rolePermissionBindings: 'rolePermissionBindings',
   refreshTokens: 'refreshTokens',
+  credentialRevocations: 'credentialRevocations',
   applicationRegistrations: 'applicationRegistrations',
+  frameworkRegistrations: 'frameworkRegistrations',
 };
 let rowsChecked = 0;
 for (const [family, validation] of Object.entries(report.rowValidation)) {

@@ -42,6 +42,14 @@ SELECT json_build_object(
       'rowsChecked', (SELECT count(*) FROM public.users),
       'invalidStatusRows', (SELECT count(*) FROM public.users WHERE status NOT IN ('active','disabled','locked'))
     ),
+    'roles', json_build_object(
+      'rowsChecked', (SELECT count(*) FROM public.roles),
+      'missingRequiredRows', (SELECT count(*) FROM public.roles WHERE id IS NULL OR name IS NULL)
+    ),
+    'permissions', json_build_object(
+      'rowsChecked', (SELECT count(*) FROM public.permissions),
+      'missingRequiredRows', (SELECT count(*) FROM public.permissions WHERE id IS NULL OR name IS NULL)
+    ),
     'sessions', json_build_object(
       'rowsChecked', (SELECT count(*) FROM public.sessions),
       'orphanUserRows', (SELECT count(*) FROM public.sessions s LEFT JOIN public.users u ON u.id=s.user_id WHERE u.id IS NULL),
@@ -69,9 +77,19 @@ SELECT json_build_object(
       'rowsChecked', (SELECT count(*) FROM public.refresh_tokens),
       'orphanUserRows', (SELECT count(*) FROM public.refresh_tokens t LEFT JOIN public.users u ON u.id=t.user_id WHERE u.id IS NULL)
     ),
+    'credentialRevocations', json_build_object(
+      'rowsChecked', (SELECT count(*) FROM public.credential_revocations),
+      'orphanUserRows', (SELECT count(*) FROM public.credential_revocations c LEFT JOIN public.users u ON u.id=c.user_id WHERE c.user_id IS NOT NULL AND u.id IS NULL),
+      'invalidTemporalRows', (SELECT count(*) FROM public.credential_revocations WHERE expires_at IS NOT NULL AND expires_at < revoked_at)
+    ),
     'applicationRegistrations', json_build_object(
       'rowsChecked', (SELECT count(*) FROM public.application_registrations),
       'missingRequiredRows', (SELECT count(*) FROM public.application_registrations WHERE id IS NULL OR name IS NULL OR client_type IS NULL)
+    ),
+    'frameworkRegistrations', json_build_object(
+      'rowsChecked', (SELECT count(*) FROM public.framework_registrations),
+      'missingRequiredRows', (SELECT count(*) FROM public.framework_registrations WHERE id IS NULL OR adapter_id IS NULL OR contract_version IS NULL),
+      'invalidStatusRows', (SELECT count(*) FROM public.framework_registrations WHERE status NOT IN ('verified','disabled','unavailable','unsupported'))
     )
   ),
   'legacyScopeCoverage', json_build_object(
