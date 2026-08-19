@@ -1,0 +1,235 @@
+{
+  "schemaVersion": "alica-current-authorization-golden/v1",
+  "contractVersion": "alica-identity-shadow/v0.1",
+  "source": "UNIFY five-service Gateway legacy authorization semantics",
+  "fixtures": [
+    {
+      "name": "viewer-framework-read-target-context-absent",
+      "input": {
+        "principalKind": "user",
+        "legacy": {
+          "authenticated": true,
+          "principalActive": true,
+          "passwordChangeRequired": false,
+          "permissionGranted": true,
+          "credentialScopeAllowed": true
+        },
+        "target": {
+          "canonicalPrincipalId": null
+        }
+      },
+      "expected": {
+        "legacy": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "shadowTarget": { "effect": "deny", "reasonCode": "PRINCIPAL_BINDING_MISSING" },
+        "comparison": "tightened"
+      }
+    },
+    {
+      "name": "viewer-settings-management-denied",
+      "input": {
+        "principalKind": "user",
+        "legacy": {
+          "authenticated": true,
+          "principalActive": true,
+          "passwordChangeRequired": false,
+          "permissionGranted": false,
+          "credentialScopeAllowed": true
+        },
+        "target": {}
+      },
+      "expected": {
+        "legacy": { "effect": "deny", "reasonCode": "PERMISSION_DENIED" },
+        "shadowTarget": { "effect": "deny", "reasonCode": "PERMISSION_DENIED" },
+        "comparison": "matched"
+      }
+    },
+    {
+      "name": "inactive-principal-denied",
+      "input": {
+        "principalKind": "user",
+        "legacy": {
+          "authenticated": true,
+          "principalActive": false,
+          "passwordChangeRequired": false,
+          "permissionGranted": true,
+          "credentialScopeAllowed": true
+        },
+        "target": {}
+      },
+      "expected": {
+        "legacy": { "effect": "deny", "reasonCode": "PRINCIPAL_INACTIVE" },
+        "shadowTarget": { "effect": "deny", "reasonCode": "PRINCIPAL_INACTIVE" },
+        "comparison": "matched"
+      }
+    },
+    {
+      "name": "service-credential-scope-denied",
+      "input": {
+        "principalKind": "service",
+        "legacy": {
+          "authenticated": true,
+          "principalActive": true,
+          "passwordChangeRequired": false,
+          "permissionGranted": true,
+          "credentialScopeAllowed": false
+        },
+        "target": {}
+      },
+      "expected": {
+        "legacy": { "effect": "deny", "reasonCode": "CREDENTIAL_SCOPE_DENIED" },
+        "shadowTarget": { "effect": "deny", "reasonCode": "CREDENTIAL_SCOPE_DENIED" },
+        "comparison": "matched"
+      }
+    },
+    {
+      "name": "fully-projected-user-read-matches-allow",
+      "input": {
+        "principalKind": "user",
+        "legacy": {
+          "authenticated": true,
+          "principalActive": true,
+          "passwordChangeRequired": false,
+          "permissionGranted": true,
+          "credentialScopeAllowed": true
+        },
+        "target": {
+          "canonicalPrincipalId": "prn_018f47e2-9097-7a31-8dd8-21df0f736c3a",
+          "tenant": {
+            "id": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "status": "active",
+            "membershipStatus": "active",
+            "projectionFresh": true
+          },
+          "application": {
+            "clientId": "cli_018f47e2-9097-7a31-8dd8-21df0f736c3c",
+            "status": "active",
+            "grantAllows": true
+          },
+          "resource": {
+            "tenantId": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "scopeAllows": true
+          },
+          "explicitDeny": false,
+          "freshnessRequired": false,
+          "authenticationFresh": true,
+          "authenticationStrongEnough": true,
+          "entitlement": "not-required"
+        }
+      },
+      "expected": {
+        "legacy": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "shadowTarget": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "comparison": "matched"
+      }
+    },
+    {
+      "name": "cross-tenant-resource-shadow-denied",
+      "input": {
+        "principalKind": "user",
+        "legacy": {
+          "authenticated": true,
+          "principalActive": true,
+          "passwordChangeRequired": false,
+          "permissionGranted": true,
+          "credentialScopeAllowed": true
+        },
+        "target": {
+          "canonicalPrincipalId": "prn_018f47e2-9097-7a31-8dd8-21df0f736c3a",
+          "tenant": {
+            "id": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "status": "active",
+            "membershipStatus": "active",
+            "projectionFresh": true
+          },
+          "application": {
+            "clientId": "cli_018f47e2-9097-7a31-8dd8-21df0f736c3c",
+            "status": "active",
+            "grantAllows": true
+          },
+          "resource": {
+            "tenantId": "ten_018f47e2-9097-7a31-8dd8-21df0f736c99",
+            "scopeAllows": true
+          },
+          "explicitDeny": false,
+          "freshnessRequired": false,
+          "authenticationFresh": true,
+          "authenticationStrongEnough": true,
+          "entitlement": "not-required"
+        }
+      },
+      "expected": {
+        "legacy": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "shadowTarget": { "effect": "deny", "reasonCode": "TENANT_SCOPE_MISMATCH" },
+        "comparison": "tightened"
+      }
+    },
+    {
+      "name": "application-context-missing-shadow-denied",
+      "input": {
+        "principalKind": "user",
+        "legacy": {
+          "authenticated": true,
+          "principalActive": true,
+          "passwordChangeRequired": false,
+          "permissionGranted": true,
+          "credentialScopeAllowed": true
+        },
+        "target": {
+          "canonicalPrincipalId": "prn_018f47e2-9097-7a31-8dd8-21df0f736c3a",
+          "tenant": {
+            "id": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "status": "active",
+            "membershipStatus": "active",
+            "projectionFresh": true
+          }
+        }
+      },
+      "expected": {
+        "legacy": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "shadowTarget": { "effect": "deny", "reasonCode": "APPLICATION_UNKNOWN" },
+        "comparison": "tightened"
+      }
+    },
+    {
+      "name": "high-risk-stale-projection-shadow-denied",
+      "input": {
+        "principalKind": "user",
+        "legacy": {
+          "authenticated": true,
+          "principalActive": true,
+          "passwordChangeRequired": false,
+          "permissionGranted": true,
+          "credentialScopeAllowed": true
+        },
+        "target": {
+          "canonicalPrincipalId": "prn_018f47e2-9097-7a31-8dd8-21df0f736c3a",
+          "tenant": {
+            "id": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "status": "active",
+            "membershipStatus": "active",
+            "projectionFresh": false
+          },
+          "application": {
+            "clientId": "cli_018f47e2-9097-7a31-8dd8-21df0f736c3c",
+            "status": "active",
+            "grantAllows": true
+          },
+          "resource": {
+            "tenantId": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "scopeAllows": true
+          },
+          "explicitDeny": false,
+          "freshnessRequired": true,
+          "authenticationFresh": true,
+          "authenticationStrongEnough": true,
+          "entitlement": "not-required"
+        }
+      },
+      "expected": {
+        "legacy": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "shadowTarget": { "effect": "deny", "reasonCode": "PROJECTION_STALE" },
+        "comparison": "tightened"
+      }
+    }
+  ]
+}
