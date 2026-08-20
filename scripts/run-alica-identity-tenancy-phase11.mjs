@@ -166,7 +166,7 @@ const canaryOutputs = psql(`BEGIN;
 SELECT core.evaluate_alica_instance_authorization('${principalId}','${clientId}','${tenantId}','${instanceId}','frameworks.read',true,true);
 SELECT core.evaluate_alica_instance_authorization('${principalId}','${clientId}','ten_01M0FC3KKXD92Z74HGF1A87ZYR','${instanceId}','frameworks.read',true,true);
 SELECT core.evaluate_alica_instance_authorization('${principalId}','${clientId}','${tenantId}','ins_01M0FC3KKXD92Z74HGF1A87ZYR','frameworks.read',true,true);
-SELECT core.evaluate_alica_instance_authorization('${principalId}','${clientId}','${tenantId}','${instanceId}','settings.manage',true,true);
+SELECT core.evaluate_alica_instance_authorization('${principalId}','${clientId}','${tenantId}','${instanceId}','identity.superuser',true,true);
 SELECT core.evaluate_alica_instance_authorization('${principalId}','${clientId}','${tenantId}','${instanceId}','frameworks.read',false,true);
 SELECT core.evaluate_alica_instance_authorization('${principalId}','${clientId}','${tenantId}','${instanceId}','frameworks.read',true,false);
 UPDATE core.alica_principal_instance_grants SET status='revoked',revision=revision+1 WHERE instance_id='${instanceId}';
