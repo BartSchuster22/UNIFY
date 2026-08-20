@@ -1,0 +1,1254 @@
+{
+  "schemaVersion": "alica-hermes-contract-fixtures/v1",
+  "contractVersion": "hermes-control/v1",
+  "projectionSchemaVersion": "alica-hermes-projection-schema/v0.1",
+  "target": {
+    "frameworkId": "hermes-main",
+    "frameworkVersion": "0.20.0",
+    "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4"
+  },
+  "mode": "static-fixture-only",
+  "mutationPerformed": false,
+  "liveAccessPerformed": false,
+  "ownerDispatchPerformed": false,
+  "schemaRefs": [
+    "HermesCollectionResponseSchema",
+    "HermesEventsResponseSchema",
+    "HermesModelManagementCommandSchema",
+    "HermesProfileCommandSchema",
+    "HermesProfilesResponseSchema"
+  ],
+  "reads": [
+    {
+      "name": "read-terminal-page",
+      "schema": "HermesProfilesResponseSchema",
+      "limit": 2,
+      "requestCursor": null,
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [
+            {
+              "id": "fixture-profile-1",
+              "displayName": "Fixture Profile 1",
+              "active": true,
+              "gatewayStatus": "stopped"
+            }
+          ],
+          "page": { "hasMore": false }
+        }
+      },
+      "expected": {
+        "accepted": true,
+        "reasonCode": "READ_PAGE_ACCEPTED",
+        "count": 1,
+        "hasMore": false
+      }
+    },
+    {
+      "name": "read-bounded-next-page",
+      "schema": "HermesProfilesResponseSchema",
+      "limit": 2,
+      "requestCursor": "cursor-0",
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [
+            {
+              "id": "fixture-profile-1",
+              "displayName": "Fixture Profile 1",
+              "active": true,
+              "gatewayStatus": "stopped"
+            },
+            {
+              "id": "fixture-profile-2",
+              "displayName": "Fixture Profile 2",
+              "active": true,
+              "gatewayStatus": "stopped"
+            }
+          ],
+          "page": { "hasMore": true, "nextCursor": "cursor-1" }
+        }
+      },
+      "expected": {
+        "accepted": true,
+        "reasonCode": "READ_PAGE_ACCEPTED",
+        "count": 2,
+        "hasMore": true,
+        "nextCursor": "cursor-1"
+      }
+    },
+    {
+      "name": "read-over-bound",
+      "schema": "HermesProfilesResponseSchema",
+      "limit": 1,
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [
+            {
+              "id": "fixture-profile-1",
+              "displayName": "Fixture Profile 1",
+              "active": true,
+              "gatewayStatus": "stopped"
+            },
+            {
+              "id": "fixture-profile-2",
+              "displayName": "Fixture Profile 2",
+              "active": true,
+              "gatewayStatus": "stopped"
+            }
+          ],
+          "page": { "hasMore": false }
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "reasonCode": "PAGE_BOUND_EXCEEDED",
+        "ownerDispatch": false
+      }
+    },
+    {
+      "name": "read-missing-next-cursor",
+      "schema": "HermesProfilesResponseSchema",
+      "limit": 2,
+      "requestCursor": "cursor-0",
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [
+            {
+              "id": "fixture-profile-1",
+              "displayName": "Fixture Profile 1",
+              "active": true,
+              "gatewayStatus": "stopped"
+            }
+          ],
+          "page": { "hasMore": true }
+        }
+      },
+      "expected": { "accepted": false, "reasonCode": "NEXT_CURSOR_REQUIRED" }
+    },
+    {
+      "name": "read-cursor-stall",
+      "schema": "HermesProfilesResponseSchema",
+      "limit": 2,
+      "requestCursor": "cursor-0",
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [
+            {
+              "id": "fixture-profile-1",
+              "displayName": "Fixture Profile 1",
+              "active": true,
+              "gatewayStatus": "stopped"
+            }
+          ],
+          "page": { "hasMore": true, "nextCursor": "cursor-0" }
+        }
+      },
+      "expected": { "accepted": false, "reasonCode": "CURSOR_STALL" }
+    },
+    {
+      "name": "read-provenance-mismatch",
+      "schema": "HermesProfilesResponseSchema",
+      "limit": 2,
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "0000000000000000000000000000000000000000",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [
+            {
+              "id": "fixture-profile-1",
+              "displayName": "Fixture Profile 1",
+              "active": true,
+              "gatewayStatus": "stopped"
+            }
+          ],
+          "page": { "hasMore": false }
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "reasonCode": "FRAMEWORK_COMMIT_MISMATCH"
+      }
+    },
+    {
+      "name": "read-secret-field-denied",
+      "schema": "HermesCollectionResponseSchema",
+      "limit": 2,
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [{ "password": "fixture-redacted" }],
+          "page": { "hasMore": false }
+        }
+      },
+      "expected": { "accepted": false, "reasonCode": "SECRET_FIELD_DENIED" }
+    },
+    {
+      "name": "read-terminal-cursor-forbidden",
+      "schema": "HermesProfilesResponseSchema",
+      "limit": 2,
+      "requestCursor": "cursor-0",
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [
+            {
+              "id": "fixture-profile-1",
+              "displayName": "Fixture Profile 1",
+              "active": true,
+              "gatewayStatus": "stopped"
+            }
+          ],
+          "page": { "hasMore": false, "nextCursor": "cursor-1" }
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "reasonCode": "TERMINAL_CURSOR_FORBIDDEN"
+      }
+    }
+  ],
+  "commands": [
+    {
+      "name": "command-validate-no-dispatch",
+      "schema": "HermesProfileCommandSchema",
+      "ledgerGroup": "validate",
+      "command": {
+        "mode": "validate",
+        "idempotencyKey": "validate-key",
+        "expectedSourceVersion": "source-v1",
+        "requestId": "request-1",
+        "correlationId": "correlation-1",
+        "actor": { "type": "service", "id": "fixture-verifier" },
+        "payload": {},
+        "operation": "profile.rename",
+        "targetId": "default"
+      },
+      "context": {
+        "capability": {
+          "status": "supported",
+          "modes": ["validate", "dry-run", "execute"]
+        },
+        "currentSourceVersion": "source-v1",
+        "requiresSourceVersion": true,
+        "idempotencyScope": "service:client:tenant:hermes-main:profile.rename"
+      },
+      "expected": {
+        "accepted": true,
+        "reasonCode": "NON_EXECUTING_MODE",
+        "status": "validated",
+        "ownerDispatch": false
+      }
+    },
+    {
+      "name": "command-dry-run-no-dispatch",
+      "schema": "HermesProfileCommandSchema",
+      "ledgerGroup": "dry-run",
+      "command": {
+        "mode": "dry-run",
+        "idempotencyKey": "dry-run-key",
+        "expectedSourceVersion": "source-v1",
+        "requestId": "request-1",
+        "correlationId": "correlation-1",
+        "actor": { "type": "service", "id": "fixture-verifier" },
+        "payload": {},
+        "operation": "profile.rename",
+        "targetId": "default"
+      },
+      "context": {
+        "capability": {
+          "status": "supported",
+          "modes": ["validate", "dry-run", "execute"]
+        },
+        "currentSourceVersion": "source-v1",
+        "requiresSourceVersion": true,
+        "idempotencyScope": "service:client:tenant:hermes-main:profile.rename"
+      },
+      "expected": {
+        "accepted": true,
+        "reasonCode": "NON_EXECUTING_MODE",
+        "status": "dry-run",
+        "ownerDispatch": false
+      }
+    },
+    {
+      "name": "command-execute-would-dispatch-once",
+      "schema": "HermesProfileCommandSchema",
+      "ledgerGroup": "replay",
+      "command": {
+        "mode": "execute",
+        "idempotencyKey": "replay-key",
+        "expectedSourceVersion": "source-v1",
+        "requestId": "request-1",
+        "correlationId": "correlation-1",
+        "actor": { "type": "service", "id": "fixture-verifier" },
+        "payload": { "newId": "alica" },
+        "operation": "profile.rename",
+        "targetId": "default"
+      },
+      "context": {
+        "capability": {
+          "status": "supported",
+          "modes": ["validate", "dry-run", "execute"]
+        },
+        "currentSourceVersion": "source-v1",
+        "requiresSourceVersion": true,
+        "idempotencyScope": "service:client:tenant:hermes-main:profile.rename"
+      },
+      "expected": {
+        "accepted": true,
+        "reasonCode": "EXECUTION_WOULD_DISPATCH",
+        "status": "completed",
+        "ownerDispatch": true,
+        "replayed": false
+      }
+    },
+    {
+      "name": "command-idempotent-replay-no-dispatch",
+      "schema": "HermesProfileCommandSchema",
+      "ledgerGroup": "replay",
+      "command": {
+        "mode": "execute",
+        "idempotencyKey": "replay-key",
+        "expectedSourceVersion": "source-v1",
+        "requestId": "request-2",
+        "correlationId": "correlation-2",
+        "actor": { "type": "service", "id": "fixture-verifier" },
+        "payload": { "newId": "alica" },
+        "operation": "profile.rename",
+        "targetId": "default"
+      },
+      "context": {
+        "capability": {
+          "status": "supported",
+          "modes": ["validate", "dry-run", "execute"]
+        },
+        "currentSourceVersion": "source-v1",
+        "requiresSourceVersion": true,
+        "idempotencyScope": "service:client:tenant:hermes-main:profile.rename"
+      },
+      "expected": {
+        "accepted": true,
+        "reasonCode": "IDEMPOTENT_REPLAY",
+        "ownerDispatch": false,
+        "replayed": true
+      }
+    },
+    {
+      "name": "command-idempotency-conflict",
+      "schema": "HermesProfileCommandSchema",
+      "ledgerGroup": "replay",
+      "command": {
+        "mode": "execute",
+        "idempotencyKey": "replay-key",
+        "expectedSourceVersion": "source-v1",
+        "requestId": "request-3",
+        "correlationId": "correlation-3",
+        "actor": { "type": "service", "id": "fixture-verifier" },
+        "payload": { "newId": "different" },
+        "operation": "profile.rename",
+        "targetId": "default"
+      },
+      "context": {
+        "capability": {
+          "status": "supported",
+          "modes": ["validate", "dry-run", "execute"]
+        },
+        "currentSourceVersion": "source-v1",
+        "requiresSourceVersion": true,
+        "idempotencyScope": "service:client:tenant:hermes-main:profile.rename"
+      },
+      "expected": {
+        "accepted": false,
+        "reasonCode": "IDEMPOTENCY_CONFLICT",
+        "ownerDispatch": false
+      }
+    },
+    {
+      "name": "command-stale-source-rejected",
+      "schema": "HermesProfileCommandSchema",
+      "ledgerGroup": "stale",
+      "command": {
+        "mode": "execute",
+        "idempotencyKey": "stale-key",
+        "expectedSourceVersion": "source-old",
+        "requestId": "request-1",
+        "correlationId": "correlation-1",
+        "actor": { "type": "service", "id": "fixture-verifier" },
+        "payload": {},
+        "operation": "profile.rename",
+        "targetId": "default"
+      },
+      "context": {
+        "capability": {
+          "status": "supported",
+          "modes": ["validate", "dry-run", "execute"]
+        },
+        "currentSourceVersion": "source-v1",
+        "requiresSourceVersion": true,
+        "idempotencyScope": "service:client:tenant:hermes-main:profile.rename"
+      },
+      "expected": { "accepted": false, "reasonCode": "SOURCE_VERSION_MISMATCH" }
+    },
+    {
+      "name": "command-missing-source-rejected",
+      "schema": "HermesProfileCommandSchema",
+      "ledgerGroup": "missing",
+      "command": {
+        "mode": "execute",
+        "idempotencyKey": "missing-key",
+        "requestId": "request-1",
+        "correlationId": "correlation-1",
+        "actor": { "type": "service", "id": "fixture-verifier" },
+        "payload": {},
+        "operation": "profile.rename",
+        "targetId": "default"
+      },
+      "context": {
+        "capability": {
+          "status": "supported",
+          "modes": ["validate", "dry-run", "execute"]
+        },
+        "currentSourceVersion": "source-v1",
+        "requiresSourceVersion": true,
+        "idempotencyScope": "service:client:tenant:hermes-main:profile.rename"
+      },
+      "expected": { "accepted": false, "reasonCode": "SOURCE_VERSION_REQUIRED" }
+    },
+    {
+      "name": "command-capability-unsupported",
+      "schema": "HermesProfileCommandSchema",
+      "ledgerGroup": "unsupported",
+      "command": {
+        "mode": "execute",
+        "idempotencyKey": "unsupported-key",
+        "expectedSourceVersion": "source-v1",
+        "requestId": "request-1",
+        "correlationId": "correlation-1",
+        "actor": { "type": "service", "id": "fixture-verifier" },
+        "payload": {},
+        "operation": "profile.rename",
+        "targetId": "default"
+      },
+      "context": {
+        "capability": { "status": "unsupported", "modes": [] },
+        "currentSourceVersion": "source-v1",
+        "requiresSourceVersion": true,
+        "idempotencyScope": "service:client:tenant:hermes-main:profile.rename"
+      },
+      "expected": { "accepted": false, "reasonCode": "CAPABILITY_UNSUPPORTED" }
+    },
+    {
+      "name": "command-capability-unavailable",
+      "schema": "HermesProfileCommandSchema",
+      "ledgerGroup": "unavailable",
+      "command": {
+        "mode": "execute",
+        "idempotencyKey": "unavailable-key",
+        "expectedSourceVersion": "source-v1",
+        "requestId": "request-1",
+        "correlationId": "correlation-1",
+        "actor": { "type": "service", "id": "fixture-verifier" },
+        "payload": {},
+        "operation": "profile.rename",
+        "targetId": "default"
+      },
+      "context": {
+        "capability": { "status": "unavailable", "modes": [] },
+        "currentSourceVersion": "source-v1",
+        "requiresSourceVersion": true,
+        "idempotencyScope": "service:client:tenant:hermes-main:profile.rename"
+      },
+      "expected": { "accepted": false, "reasonCode": "CAPABILITY_UNAVAILABLE" }
+    },
+    {
+      "name": "command-capability-forbidden",
+      "schema": "HermesProfileCommandSchema",
+      "ledgerGroup": "forbidden",
+      "command": {
+        "mode": "execute",
+        "idempotencyKey": "forbidden-key",
+        "expectedSourceVersion": "source-v1",
+        "requestId": "request-1",
+        "correlationId": "correlation-1",
+        "actor": { "type": "service", "id": "fixture-verifier" },
+        "payload": {},
+        "operation": "profile.rename",
+        "targetId": "default"
+      },
+      "context": {
+        "capability": { "status": "forbidden", "modes": [] },
+        "currentSourceVersion": "source-v1",
+        "requiresSourceVersion": true,
+        "idempotencyScope": "service:client:tenant:hermes-main:profile.rename"
+      },
+      "expected": { "accepted": false, "reasonCode": "CAPABILITY_FORBIDDEN" }
+    },
+    {
+      "name": "command-mode-forbidden",
+      "schema": "HermesProfileCommandSchema",
+      "ledgerGroup": "mode",
+      "command": {
+        "mode": "execute",
+        "idempotencyKey": "mode-key",
+        "expectedSourceVersion": "source-v1",
+        "requestId": "request-1",
+        "correlationId": "correlation-1",
+        "actor": { "type": "service", "id": "fixture-verifier" },
+        "payload": {},
+        "operation": "profile.rename",
+        "targetId": "default"
+      },
+      "context": {
+        "capability": {
+          "status": "supported",
+          "modes": ["validate", "dry-run"]
+        },
+        "currentSourceVersion": "source-v1",
+        "requiresSourceVersion": true,
+        "idempotencyScope": "service:client:tenant:hermes-main:profile.rename"
+      },
+      "expected": {
+        "accepted": false,
+        "reasonCode": "CAPABILITY_MODE_FORBIDDEN"
+      }
+    },
+    {
+      "name": "command-secret-field-denied",
+      "schema": "HermesProfileCommandSchema",
+      "ledgerGroup": "secret",
+      "command": {
+        "mode": "execute",
+        "idempotencyKey": "secret-key",
+        "expectedSourceVersion": "source-v1",
+        "requestId": "request-1",
+        "correlationId": "correlation-1",
+        "actor": { "type": "service", "id": "fixture-verifier" },
+        "payload": { "password": "fixture-redacted" },
+        "operation": "profile.rename",
+        "targetId": "default"
+      },
+      "context": {
+        "capability": {
+          "status": "supported",
+          "modes": ["validate", "dry-run", "execute"]
+        },
+        "currentSourceVersion": "source-v1",
+        "requiresSourceVersion": true,
+        "idempotencyScope": "service:client:tenant:hermes-main:profile.rename"
+      },
+      "expected": { "accepted": false, "reasonCode": "SECRET_FIELD_DENIED" }
+    },
+    {
+      "name": "command-secret-reference-allowed-in-dry-run",
+      "schema": "HermesModelManagementCommandSchema",
+      "ledgerGroup": "secret-reference",
+      "command": {
+        "mode": "dry-run",
+        "idempotencyKey": "secret-reference-key",
+        "expectedSourceVersion": "source-v1",
+        "requestId": "request-1",
+        "correlationId": "correlation-1",
+        "actor": { "type": "service", "id": "fixture-verifier" },
+        "payload": { "secretReference": "secret://fixture/reference" },
+        "operation": "provider.credential.set",
+        "targetId": "fixture-provider"
+      },
+      "context": {
+        "capability": {
+          "status": "supported",
+          "modes": ["validate", "dry-run", "execute"]
+        },
+        "currentSourceVersion": "source-v1",
+        "requiresSourceVersion": true,
+        "idempotencyScope": "service:client:tenant:hermes-main:profile.rename"
+      },
+      "expected": {
+        "accepted": true,
+        "reasonCode": "NON_EXECUTING_MODE",
+        "ownerDispatch": false
+      }
+    },
+    {
+      "name": "command-schema-invalid",
+      "schema": "HermesProfileCommandSchema",
+      "ledgerGroup": "invalid",
+      "command": {
+        "mode": "execute",
+        "expectedSourceVersion": "source-v1",
+        "requestId": "request-1",
+        "correlationId": "correlation-1",
+        "actor": { "type": "service", "id": "fixture-verifier" },
+        "payload": {},
+        "operation": "profile.rename",
+        "targetId": "default"
+      },
+      "context": {
+        "capability": {
+          "status": "supported",
+          "modes": ["validate", "dry-run", "execute"]
+        },
+        "currentSourceVersion": "source-v1",
+        "requiresSourceVersion": true,
+        "idempotencyScope": "service:client:tenant:hermes-main:profile.rename"
+      },
+      "expected": { "accepted": false, "reasonCode": "COMMAND_SCHEMA_INVALID" }
+    }
+  ],
+  "events": [
+    {
+      "name": "events-contiguous-page",
+      "schema": "HermesEventsResponseSchema",
+      "context": {
+        "stateGroup": "flow",
+        "consumerId": "unify-projection",
+        "acceptedConsumerId": "unify-projection",
+        "requestCursor": null,
+        "limit": 10
+      },
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [
+            {
+              "contractVersion": "hermes-control/v1",
+              "frameworkId": "hermes-main",
+              "frameworkVersion": "0.20.0",
+              "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+              "eventId": "event-0",
+              "sequence": 0,
+              "sourceVersion": "source-v1",
+              "type": "profile.updated",
+              "classification": "durable",
+              "occurredAt": "2026-08-20T04:00:00.000Z",
+              "payload": { "state": "fixture" }
+            },
+            {
+              "contractVersion": "hermes-control/v1",
+              "frameworkId": "hermes-main",
+              "frameworkVersion": "0.20.0",
+              "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+              "eventId": "event-1",
+              "sequence": 1,
+              "sourceVersion": "source-v1",
+              "type": "profile.updated",
+              "classification": "durable",
+              "occurredAt": "2026-08-20T04:00:00.000Z",
+              "payload": { "state": "fixture" }
+            }
+          ],
+          "page": { "hasMore": true, "nextCursor": "cursor-1" }
+        }
+      },
+      "expected": {
+        "accepted": true,
+        "reasonCode": "EVENT_PAGE_ACCEPTED",
+        "cursorAdvanced": true,
+        "held": false
+      }
+    },
+    {
+      "name": "events-duplicate-idempotent",
+      "schema": "HermesEventsResponseSchema",
+      "context": {
+        "stateGroup": "flow",
+        "consumerId": "unify-projection",
+        "acceptedConsumerId": "unify-projection",
+        "requestCursor": "cursor-1",
+        "limit": 10
+      },
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [
+            {
+              "contractVersion": "hermes-control/v1",
+              "frameworkId": "hermes-main",
+              "frameworkVersion": "0.20.0",
+              "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+              "eventId": "event-1",
+              "sequence": 1,
+              "sourceVersion": "source-v1",
+              "type": "profile.updated",
+              "classification": "durable",
+              "occurredAt": "2026-08-20T04:00:00.000Z",
+              "payload": { "state": "fixture" }
+            }
+          ],
+          "page": { "hasMore": true, "nextCursor": "cursor-2" }
+        }
+      },
+      "expected": {
+        "accepted": true,
+        "reasonCode": "EVENT_DUPLICATE_IDEMPOTENT",
+        "duplicates": 1,
+        "cursorAdvanced": true
+      }
+    },
+    {
+      "name": "events-duplicate-conflict",
+      "schema": "HermesEventsResponseSchema",
+      "context": {
+        "stateGroup": "flow",
+        "consumerId": "unify-projection",
+        "acceptedConsumerId": "unify-projection",
+        "requestCursor": "cursor-2",
+        "limit": 10
+      },
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [
+            {
+              "contractVersion": "hermes-control/v1",
+              "frameworkId": "hermes-main",
+              "frameworkVersion": "0.20.0",
+              "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+              "eventId": "event-1",
+              "sequence": 1,
+              "sourceVersion": "source-v1",
+              "type": "profile.updated",
+              "classification": "durable",
+              "occurredAt": "2026-08-20T04:00:00.000Z",
+              "payload": { "state": "changed" }
+            }
+          ],
+          "page": { "hasMore": false }
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "reasonCode": "EVENT_DUPLICATE_CONFLICT",
+        "held": true,
+        "cursorAdvanced": false
+      }
+    },
+    {
+      "name": "events-reorder-base",
+      "schema": "HermesEventsResponseSchema",
+      "context": {
+        "stateGroup": "reorder",
+        "consumerId": "unify-projection",
+        "acceptedConsumerId": "unify-projection",
+        "requestCursor": null,
+        "limit": 10
+      },
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [
+            {
+              "contractVersion": "hermes-control/v1",
+              "frameworkId": "hermes-main",
+              "frameworkVersion": "0.20.0",
+              "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+              "eventId": "reorder-0",
+              "sequence": 0,
+              "sourceVersion": "source-v1",
+              "type": "profile.updated",
+              "classification": "durable",
+              "occurredAt": "2026-08-20T04:00:00.000Z",
+              "payload": { "state": "fixture" }
+            },
+            {
+              "contractVersion": "hermes-control/v1",
+              "frameworkId": "hermes-main",
+              "frameworkVersion": "0.20.0",
+              "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+              "eventId": "reorder-1",
+              "sequence": 1,
+              "sourceVersion": "source-v1",
+              "type": "profile.updated",
+              "classification": "durable",
+              "occurredAt": "2026-08-20T04:00:00.000Z",
+              "payload": { "state": "fixture" }
+            }
+          ],
+          "page": { "hasMore": false }
+        }
+      },
+      "expected": { "accepted": true, "reasonCode": "EVENT_PAGE_ACCEPTED" }
+    },
+    {
+      "name": "events-reorder-held",
+      "schema": "HermesEventsResponseSchema",
+      "context": {
+        "stateGroup": "reorder",
+        "consumerId": "unify-projection",
+        "acceptedConsumerId": "unify-projection",
+        "requestCursor": null,
+        "limit": 10
+      },
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [
+            {
+              "contractVersion": "hermes-control/v1",
+              "frameworkId": "hermes-main",
+              "frameworkVersion": "0.20.0",
+              "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+              "eventId": "reorder-new",
+              "sequence": 0,
+              "sourceVersion": "source-v1",
+              "type": "profile.updated",
+              "classification": "durable",
+              "occurredAt": "2026-08-20T04:00:00.000Z",
+              "payload": { "state": "fixture" }
+            }
+          ],
+          "page": { "hasMore": false }
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "reasonCode": "EVENT_REORDER",
+        "held": true
+      }
+    },
+    {
+      "name": "events-gap-base",
+      "schema": "HermesEventsResponseSchema",
+      "context": {
+        "stateGroup": "gap",
+        "consumerId": "unify-projection",
+        "acceptedConsumerId": "unify-projection",
+        "requestCursor": null,
+        "limit": 10
+      },
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [
+            {
+              "contractVersion": "hermes-control/v1",
+              "frameworkId": "hermes-main",
+              "frameworkVersion": "0.20.0",
+              "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+              "eventId": "gap-0",
+              "sequence": 0,
+              "sourceVersion": "source-v1",
+              "type": "profile.updated",
+              "classification": "durable",
+              "occurredAt": "2026-08-20T04:00:00.000Z",
+              "payload": { "state": "fixture" }
+            }
+          ],
+          "page": { "hasMore": false }
+        }
+      },
+      "expected": { "accepted": true, "reasonCode": "EVENT_PAGE_ACCEPTED" }
+    },
+    {
+      "name": "events-gap-held",
+      "schema": "HermesEventsResponseSchema",
+      "context": {
+        "stateGroup": "gap",
+        "consumerId": "unify-projection",
+        "acceptedConsumerId": "unify-projection",
+        "requestCursor": null,
+        "limit": 10
+      },
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [
+            {
+              "contractVersion": "hermes-control/v1",
+              "frameworkId": "hermes-main",
+              "frameworkVersion": "0.20.0",
+              "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+              "eventId": "gap-2",
+              "sequence": 2,
+              "sourceVersion": "source-v1",
+              "type": "profile.updated",
+              "classification": "durable",
+              "occurredAt": "2026-08-20T04:00:00.000Z",
+              "payload": { "state": "fixture" }
+            }
+          ],
+          "page": { "hasMore": false }
+        }
+      },
+      "expected": { "accepted": false, "reasonCode": "EVENT_GAP", "held": true }
+    },
+    {
+      "name": "events-cursor-stall",
+      "schema": "HermesEventsResponseSchema",
+      "context": {
+        "stateGroup": "stall",
+        "consumerId": "unify-projection",
+        "acceptedConsumerId": "unify-projection",
+        "requestCursor": "cursor-stall",
+        "limit": 10
+      },
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [],
+          "page": { "hasMore": true, "nextCursor": "cursor-stall" }
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "reasonCode": "CURSOR_STALL",
+        "held": true
+      }
+    },
+    {
+      "name": "events-reset-base",
+      "schema": "HermesEventsResponseSchema",
+      "context": {
+        "stateGroup": "reset",
+        "consumerId": "unify-projection",
+        "acceptedConsumerId": "unify-projection",
+        "requestCursor": null,
+        "limit": 10
+      },
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [
+            {
+              "contractVersion": "hermes-control/v1",
+              "frameworkId": "hermes-main",
+              "frameworkVersion": "0.20.0",
+              "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+              "eventId": "reset-0",
+              "sequence": 0,
+              "sourceVersion": "source-v1",
+              "type": "profile.updated",
+              "classification": "durable",
+              "occurredAt": "2026-08-20T04:00:00.000Z",
+              "payload": { "state": "fixture" }
+            }
+          ],
+          "page": { "hasMore": false }
+        }
+      },
+      "expected": { "accepted": true, "reasonCode": "EVENT_PAGE_ACCEPTED" }
+    },
+    {
+      "name": "events-source-reset-held",
+      "schema": "HermesEventsResponseSchema",
+      "context": {
+        "stateGroup": "reset",
+        "consumerId": "unify-projection",
+        "acceptedConsumerId": "unify-projection",
+        "requestCursor": null,
+        "limit": 10
+      },
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v2",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [
+            {
+              "contractVersion": "hermes-control/v1",
+              "frameworkId": "hermes-main",
+              "frameworkVersion": "0.20.0",
+              "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+              "eventId": "reset-new",
+              "sequence": 0,
+              "sourceVersion": "source-v2",
+              "type": "profile.updated",
+              "classification": "durable",
+              "occurredAt": "2026-08-20T04:00:00.000Z",
+              "payload": { "state": "fixture" }
+            }
+          ],
+          "page": { "hasMore": false }
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "reasonCode": "EVENT_SOURCE_RESET",
+        "held": true
+      }
+    },
+    {
+      "name": "events-page-bound-held",
+      "schema": "HermesEventsResponseSchema",
+      "context": {
+        "stateGroup": "bound",
+        "consumerId": "unify-projection",
+        "acceptedConsumerId": "unify-projection",
+        "requestCursor": null,
+        "limit": 1
+      },
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [
+            {
+              "contractVersion": "hermes-control/v1",
+              "frameworkId": "hermes-main",
+              "frameworkVersion": "0.20.0",
+              "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+              "eventId": "bound-0",
+              "sequence": 0,
+              "sourceVersion": "source-v1",
+              "type": "profile.updated",
+              "classification": "durable",
+              "occurredAt": "2026-08-20T04:00:00.000Z",
+              "payload": { "state": "fixture" }
+            },
+            {
+              "contractVersion": "hermes-control/v1",
+              "frameworkId": "hermes-main",
+              "frameworkVersion": "0.20.0",
+              "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+              "eventId": "bound-1",
+              "sequence": 1,
+              "sourceVersion": "source-v1",
+              "type": "profile.updated",
+              "classification": "durable",
+              "occurredAt": "2026-08-20T04:00:00.000Z",
+              "payload": { "state": "fixture" }
+            }
+          ],
+          "page": { "hasMore": false }
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "reasonCode": "EVENT_PAGE_BOUND_EXCEEDED",
+        "held": true
+      }
+    },
+    {
+      "name": "events-secret-field-denied",
+      "schema": "HermesEventsResponseSchema",
+      "context": {
+        "stateGroup": "secret",
+        "consumerId": "unify-projection",
+        "acceptedConsumerId": "unify-projection",
+        "requestCursor": null,
+        "limit": 10
+      },
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [
+            {
+              "contractVersion": "hermes-control/v1",
+              "frameworkId": "hermes-main",
+              "frameworkVersion": "0.20.0",
+              "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+              "eventId": "secret-0",
+              "sequence": 0,
+              "sourceVersion": "source-v1",
+              "type": "profile.updated",
+              "classification": "durable",
+              "occurredAt": "2026-08-20T04:00:00.000Z",
+              "payload": { "token": "fixture-redacted" }
+            }
+          ],
+          "page": { "hasMore": false }
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "reasonCode": "SECRET_FIELD_DENIED",
+        "held": true
+      }
+    },
+    {
+      "name": "events-second-consumer-forbidden",
+      "schema": "HermesEventsResponseSchema",
+      "context": {
+        "stateGroup": "consumer",
+        "consumerId": "second-consumer",
+        "acceptedConsumerId": "unify-projection",
+        "requestCursor": null,
+        "limit": 10
+      },
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": { "items": [], "page": { "hasMore": false } }
+      },
+      "expected": {
+        "accepted": false,
+        "reasonCode": "SECOND_CONSUMER_FORBIDDEN",
+        "held": true
+      }
+    },
+    {
+      "name": "events-terminal-cursor-held",
+      "schema": "HermesEventsResponseSchema",
+      "context": {
+        "stateGroup": "terminal",
+        "consumerId": "unify-projection",
+        "acceptedConsumerId": "unify-projection",
+        "requestCursor": "cursor-0",
+        "limit": 10
+      },
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [],
+          "page": { "hasMore": false, "nextCursor": "cursor-1" }
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "reasonCode": "TERMINAL_CURSOR_FORBIDDEN",
+        "held": true
+      }
+    },
+    {
+      "name": "events-page-source-mismatch",
+      "schema": "HermesEventsResponseSchema",
+      "context": {
+        "stateGroup": "source-mismatch",
+        "consumerId": "unify-projection",
+        "acceptedConsumerId": "unify-projection",
+        "requestCursor": null,
+        "limit": 10
+      },
+      "response": {
+        "contractVersion": "hermes-control/v1",
+        "frameworkId": "hermes-main",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "source-v1",
+        "observedAt": "2026-08-20T04:00:00.000Z",
+        "data": {
+          "items": [
+            {
+              "contractVersion": "hermes-control/v1",
+              "frameworkId": "hermes-main",
+              "frameworkVersion": "0.20.0",
+              "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+              "eventId": "source-mismatch-0",
+              "sequence": 0,
+              "sourceVersion": "source-v2",
+              "type": "profile.updated",
+              "classification": "durable",
+              "occurredAt": "2026-08-20T04:00:00.000Z",
+              "payload": { "state": "fixture" }
+            }
+          ],
+          "page": { "hasMore": false }
+        }
+      },
+      "expected": {
+        "accepted": false,
+        "reasonCode": "EVENT_PAGE_SOURCE_MISMATCH",
+        "held": true
+      }
+    }
+  ]
+}
