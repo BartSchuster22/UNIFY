@@ -38,6 +38,8 @@
     "five-service:hermes-phase1:verify": "pnpm --filter @aquiero/contracts build && node scripts/verify-alica-hermes-phase1-inventory.mjs",
     "five-service:hermes-phase3:generate": "pnpm --filter @aquiero/contracts build && node scripts/generate-alica-hermes-contract-fixtures.mjs",
     "five-service:hermes-phase3:verify": "pnpm --filter @aquiero/contracts build && node scripts/generate-alica-hermes-contract-fixtures.mjs --check && node scripts/verify-alica-hermes-contract-conformance.mjs",
+    "five-service:hermes-phase4:generate": "pnpm --filter @aquiero/contracts build && node scripts/generate-alica-hermes-authorization-shadow-fixtures.mjs",
+    "five-service:hermes-phase4:verify": "pnpm --filter @aquiero/contracts build && node scripts/generate-alica-hermes-authorization-shadow-fixtures.mjs --check && node scripts/verify-alica-hermes-authorization-shadow.mjs",
     "framework:rollout:store:verify": "node scripts/verify-framework-rollout-store.mjs",
     "framework:rollout:worker:verify-real": "node scripts/verify-framework-rollout-worker-real.mjs",
     "phase-14-5:live": "node scripts/verify-hermes-combined-runtime.mjs && node scripts/verify-five-service-runtime.mjs && node scripts/verify-five-service-installer-runtime.mjs",
@@ -64,7 +66,7 @@
     "standalone:check": "node scripts/check-standalone-runtime.mjs",
     "image:check": "node scripts/verify-production-images.mjs --static",
     "image:verify": "node scripts/verify-production-images.mjs",
-    "qa": "pnpm lint && pnpm typecheck && pnpm five-service:hermes-phase3:verify && pnpm test && pnpm build && pnpm contracts:check && pnpm standalone:check && pnpm backup:prune:self-test && pnpm identity:capacity:self-test && pnpm canary:self-test && pnpm format:check",
+    "qa": "pnpm lint && pnpm typecheck && pnpm five-service:hermes-phase3:verify && pnpm five-service:hermes-phase4:verify && pnpm test && pnpm build && pnpm contracts:check && pnpm standalone:check && pnpm backup:prune:self-test && pnpm identity:capacity:self-test && pnpm canary:self-test && pnpm format:check",
     "clean": "pnpm -r --if-present clean"
   },
   "devDependencies": {
