@@ -135,7 +135,8 @@ WITH ni AS (
 )
 UPDATE core.alica_cell_instances SET status='retired',revision=revision+1 WHERE instance_id='${instanceId}';
 SELECT core.evaluate_alica_instance_authorization('${principalId}','${clientId}','${tenantId}','${instanceId}','frameworks.read',true,true);
-SELECT core.evaluate_alica_instance_authorization('${principalId}','${clientId}','${tenantId}',instance_id,'frameworks.read',true,true) FROM ng;
+SELECT core.evaluate_alica_instance_authorization('${principalId}','${clientId}','${tenantId}',i.instance_id,'frameworks.read',true,true)
+FROM core.alica_cell_instances i WHERE i.replacement_for_instance_id='${instanceId}';
 ROLLBACK;`),
 );
 assert.deepEqual(moved, ['AUTHORIZATION_DENIED', 'AUTHORIZED']);
@@ -157,7 +158,8 @@ WITH nc AS (
 )
 UPDATE core.alica_registered_clients SET status='disabled',revision=revision+1 WHERE client_id='${clientId}';
 SELECT core.evaluate_alica_instance_authorization('${principalId}','${clientId}','${tenantId}','${instanceId}','frameworks.read',true,true);
-SELECT core.evaluate_alica_instance_authorization('${principalId}',client_id,'${tenantId}','${instanceId}','frameworks.read',true,true) FROM ig;
+SELECT core.evaluate_alica_instance_authorization('${principalId}',c.client_id,'${tenantId}','${instanceId}','frameworks.read',true,true)
+FROM core.alica_registered_clients c WHERE c.client_key='uniui-dsh-replacement';
 ROLLBACK;`),
 );
 assert.deepEqual(replaced, ['AUTHORIZATION_DENIED', 'AUTHORIZED']);
