@@ -126,7 +126,7 @@ WITH ids AS (
  INSERT INTO core.alica_registered_clients(client_id,client_key,display_name,client_type,identity_profile,status)
  SELECT client_id,'uniui-dsh','UNIUI DSH','browser-bff','dsh-standard/v1','active' FROM ids
 ), caps AS (
- SELECT coalesce(jsonb_agg(key ORDER BY key),'[]'::jsonb) value FROM public.permissions
+ SELECT coalesce(jsonb_agg(name ORDER BY name),'[]'::jsonb) value FROM public.permissions
 ), tg AS (
  INSERT INTO core.alica_tenant_client_grants(grant_id,tenant_id,client_id,status,capability_ceiling,authority)
  SELECT core.generate_alica_id('grn'),tenant_id,client_id,'active',caps.value,'cell' FROM ids CROSS JOIN caps
