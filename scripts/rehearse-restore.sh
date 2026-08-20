@@ -42,6 +42,27 @@ AUDIT_IMAGE=${UNIFY_AUDIT_IMAGE:-${UNIFY_CORE_IMAGE:-unify-gateway:local}}
 docker run --rm --network "container:$CONTAINER" --entrypoint /nodejs/bin/node \
   -e DATABASE_URL=postgresql://postgres@127.0.0.1:5432/unify \
   "$AUDIT_IMAGE" dist/cli/verify-audit.js
-printf 'Restore rehearsal passed: tables=%s migrations=%s isolated_container=%s\n' \
-  "$TABLE_COUNT" "$MIGRATION_COUNT" "$CONTAINER"
+CORE_SCHEMA=$(docker exec "$CONTAINER" psql -U postgres -d unify -Atc \
+  "SELECT CASE WHEN to_regnamespace('core') IS NULL THEN 'absent' ELSE 'present' END")
+CORE_SUMMARY=absent
+if [[ "$CORE_SCHEMA" == present ]]; then
+  CORE_MIGRATIONS=$(docker exec "$CONTAINER" psql -U postgres -d unify -Atc \
+    "SELECT string_agg(version::text,',' ORDER BY version) FROM core.schema_migrations")
+  [[ "$CORE_MIGRATIONS" == '1,2,3,4,5,6,7,8,9,10,11,12' ]] || {
+    echo "Core migration lineage mismatch after restore: $CORE_MIGRATIONS" >&2
+    exit 1
+  }
+  CORE_TABLES=$(docker exec "$CONTAINER" psql -U postgres -d unify -Atc \
+    "SELECT count(*) FROM information_schema.tables WHERE table_schema='core'")
+  CORE_AUDIT_FAILURES=$(docker exec "$CONTAINER" psql -U postgres -d unify -Atc \
+    'SELECT count(*) FROM core.verify_audit_chain()')
+  [[ "$CORE_AUDIT_FAILURES" == 0 ]] || { echo 'Core audit chain failed after restore' >&2; exit 1; }
+  CORE_PROFILES=$(docker exec "$CONTAINER" psql -U postgres -d unify -Atc \
+    'SELECT count(*) FROM core.agent_profile_projections')
+  CORE_PROJECTION_DIGEST=$(docker exec "$CONTAINER" psql -U postgres -d unify -Atc \
+    "SELECT encode(digest(string_agg(native_profile_alias||':'||safe_display_name||':'||source_version,'|' ORDER BY native_profile_alias),'sha256'),'hex') FROM core.agent_profile_projections")
+  CORE_SUMMARY="tables=$CORE_TABLES migrations=12 profiles=$CORE_PROFILES projectionSha256=$CORE_PROJECTION_DIGEST"
+fi
+printf 'Restore rehearsal passed: public_tables=%s gateway_migrations=%s core=%s isolated_container=%s\n' \
+  "$TABLE_COUNT" "$MIGRATION_COUNT" "$CORE_SUMMARY" "$CONTAINER"
 printf 'Release manifest: %s\n' "$(tr '\n' ' ' < "$TMP/release.manifest")"

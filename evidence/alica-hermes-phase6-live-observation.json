@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "alica-hermes-live-read-observation/v0.1",
+  "observedAt": "2026-08-20T06:57:33.963Z",
+  "approvedRevision": "66b7196df1cb6f305706944a6b25fc0bdb08b49b",
+  "target": "unify-postgres-1/unify",
+  "backup": {
+    "file": "phase6-pre-migration-20260820T065117Z.tar.enc",
+    "sha256": "7442d8c98417b2b8ed7303ac9310971c5955bec491a5ae7b5df58818356047cc",
+    "restoreRehearsal": "passed"
+  },
+  "owner": {
+    "frameworkId": "hermes-main",
+    "instanceId": "herman-local-private",
+    "release": "0.20.0",
+    "commit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+    "health": "degraded",
+    "profileSourceVersion": "sha256:fa9d4d75c8977989085cb20706693104ab7469b6b2ddd5aefa801c1968aee148",
+    "profileCount": 6
+  },
+  "projection": {
+    "counts": {
+      "frameworks": 1,
+      "profiles": 6,
+      "aliases": 10,
+      "capabilities": 4,
+      "holds": 3,
+      "observations": 4,
+      "registrations": 0,
+      "operations": 0,
+      "executions": 0,
+      "sessions": 0,
+      "chatLinks": 0
+    },
+    "digest": "sha256:7352671df82b767d777d4286a3c63f6df2048687a07b871b89d38f68bb806848",
+    "ownerMatched": true,
+    "freshnessThresholdSeconds": 600,
+    "observedFresh": true
+  },
+  "degradation": {
+    "conversations": "unavailable",
+    "reasonCode": "capability_unavailable",
+    "sessionsPersisted": 0,
+    "chatLinksPersisted": 0
+  },
+  "events": {
+    "advertised": false,
+    "ownerCursorBefore": "MTg",
+    "ownerCursorAfter": "MTg",
+    "projectionState": "held",
+    "moved": false
+  },
+  "faults": {
+    "staleClassified": true,
+    "unavailableClassified": true,
+    "ownerMutation": 0
+  },
+  "commandPathChanges": 0,
+  "runtimeHooks": 0,
+  "enforcementChanges": 0
+}

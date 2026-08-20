@@ -240,8 +240,14 @@ for (const required of [
 ])
   assert.ok(isolationMigration.includes(required), `Isolation migration is missing ${required}`);
 const backupScript = readFileSync(resolve(root, 'scripts/backup-gateway.sh'), 'utf8');
-assert.ok(backupScript.includes('exec -T unify-postgres'));
-assert.ok(backupScript.includes('deploy/five-service/compose.yaml'));
+for (const required of [
+  'UNIFY_COMPOSE_FILE',
+  'for candidate in unify-postgres postgres',
+  'config --services',
+  'DB_CONTAINER=',
+  'docker exec "$DB_CONTAINER"',
+])
+  assert.ok(backupScript.includes(required), `Backup script is missing ${required}`);
 
 const caddyfile = readFileSync(resolve(root, 'deploy/five-service/Caddyfile'), 'utf8');
 for (const required of [
