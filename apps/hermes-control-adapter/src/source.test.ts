@@ -90,6 +90,27 @@ describe('HermesNativeSource', () => {
     );
   });
 
+  it('parses profile IDs that fill the native table column and leave one separator space', async () => {
+    const source = new HermesNativeSource({
+      runner: new FixtureRunner({
+        'profile list':
+          ' Profile          Model                        Gateway      Alias        Distribution\n  alica-p7-canary —                            stopped      —            —\n',
+        'profile describe alica-p7-canary': 'Governed canary',
+      }),
+    });
+    await expect(source.profiles()).resolves.toMatchObject({
+      items: [
+        {
+          id: 'alica-p7-canary',
+          displayName: 'alica-p7-canary',
+          active: false,
+          gatewayStatus: 'stopped',
+          description: 'Governed canary',
+        },
+      ],
+    });
+  });
+
   it('executes native profile updates through the supported non-interactive CLI', async () => {
     const source = new HermesNativeSource({
       runner: new FixtureRunner({

@@ -84,42 +84,41 @@ export class HermesNativeSource implements AdapterSource {
   async profiles(): Promise<Snapshot<HermesProfile>> {
     const output = stripAnsi(await this.options.runner.run(['profile', 'list']));
     const items = await Promise.all(
-      output
-        .split('\n')
-        .map((line) => line.trim())
-        .filter((line) => /^[◆ ]?[a-z0-9][a-z0-9_-]*\s{2,}/i.test(line))
-        .map(async (line) => {
-          const columns = line
-            .replace(/^◆/, '◆ ')
-            .trim()
-            .split(/\s{2,}/);
-          const active = columns[0]?.startsWith('◆') ?? false;
-          const id = (columns[0] ?? '').replace(/^◆\s*/, '').trim();
-          const gateway = columns[2]?.trim().toLowerCase();
-          const profile: HermesProfile = {
-            id,
-            displayName: id === 'default' ? this.baseProfileDisplayName : id,
-            active,
-            gatewayStatus:
-              gateway === 'running' ? 'running' : gateway === 'stopped' ? 'stopped' : 'unknown',
-          };
-          if (columns[1] && columns[1] !== '—') profile.model = columns[1];
-          if (id.toLowerCase() !== 'profile') {
-            try {
-              const description = stripAnsi(
-                await this.options.runner.run(['profile', 'describe', id]),
-              ).trim();
-              if (description && !description.startsWith('(no description set'))
-                profile.description = description;
-            } catch {
-              // Description enrichment is optional and must never hide profile inventory truth.
-            }
+      output.split('\n').map(async (line) => {
+        const columns =
+          /^\s*(◆)?\s*([a-z0-9][a-z0-9_-]*)\s+(\S+)\s+(running|stopped|—)(?:\s+.*)?$/i.exec(line);
+        if (!columns) return undefined;
+        const active = columns[1] === '◆';
+        const id = columns[2] ?? '';
+        const model = columns[3];
+        const gateway = columns[4]?.toLowerCase();
+        const profile: HermesProfile = {
+          id,
+          displayName: id === 'default' ? this.baseProfileDisplayName : id,
+          active,
+          gatewayStatus:
+            gateway === 'running' ? 'running' : gateway === 'stopped' ? 'stopped' : 'unknown',
+        };
+        if (model && model !== '—') profile.model = model;
+        if (id.toLowerCase() !== 'profile') {
+          try {
+            const description = stripAnsi(
+              await this.options.runner.run(['profile', 'describe', id]),
+            ).trim();
+            if (description && !description.startsWith('(no description set'))
+              profile.description = description;
+          } catch {
+            // Description enrichment is optional and must never hide profile inventory truth.
           }
-          return profile;
-        }),
+        }
+        return profile;
+      }),
     );
     return snapshot(
-      items.filter((item) => item.id.length > 0 && item.id.toLowerCase() !== 'profile'),
+      items.filter(
+        (item): item is HermesProfile =>
+          item !== undefined && item.id.length > 0 && item.id.toLowerCase() !== 'profile',
+      ),
     );
   }
 

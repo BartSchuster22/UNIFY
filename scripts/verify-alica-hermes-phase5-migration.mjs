@@ -17,9 +17,11 @@ const assertions = readFileSync(join(phase5, 'rehearsal-assertions.sql'), 'utf8'
 const migrations = readdirSync(join(root, 'apps/core/migrations'))
   .filter((name) => /^\d{3}_[a-z0-9_]+\.sql$/.test(name))
   .sort();
+const migrationVersions = migrations.map((name) => Number(name.slice(0, 3)));
+assert.ok(migrationVersions.includes(12), 'Phase 5 migration 012 is missing');
 assert.deepEqual(
-  migrations.map((name) => Number(name.slice(0, 3))),
-  Array.from({ length: 12 }, (_, index) => index + 1),
+  migrationVersions,
+  Array.from({ length: migrationVersions.length }, (_, index) => index + 1),
 );
 
 const requiredTables = [

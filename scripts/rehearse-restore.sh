@@ -48,10 +48,17 @@ CORE_SUMMARY=absent
 if [[ "$CORE_SCHEMA" == present ]]; then
   CORE_MIGRATIONS=$(docker exec "$CONTAINER" psql -U postgres -d unify -Atc \
     "SELECT string_agg(version::text,',' ORDER BY version) FROM core.schema_migrations")
-  [[ "$CORE_MIGRATIONS" == '1,2,3,4,5,6,7,8,9,10,11,12' ]] || {
-    echo "Core migration lineage mismatch after restore: $CORE_MIGRATIONS" >&2
+  EXPECTED_CORE_MIGRATIONS=$(printf '%s\n' apps/core/migrations/[0-9][0-9][0-9]_*.sql |
+    xargs -n1 basename |
+    cut -d_ -f1 |
+    sed -E 's/^0+//' |
+    paste -sd, -)
+  [[ "$CORE_MIGRATIONS" == "$EXPECTED_CORE_MIGRATIONS" ]] || {
+    echo "Core migration lineage mismatch after restore: actual=$CORE_MIGRATIONS expected=$EXPECTED_CORE_MIGRATIONS" >&2
     exit 1
   }
+  CORE_MIGRATION_COUNT=$(docker exec "$CONTAINER" psql -U postgres -d unify -Atc \
+    'SELECT count(*) FROM core.schema_migrations')
   CORE_TABLES=$(docker exec "$CONTAINER" psql -U postgres -d unify -Atc \
     "SELECT count(*) FROM information_schema.tables WHERE table_schema='core'")
   CORE_AUDIT_FAILURES=$(docker exec "$CONTAINER" psql -U postgres -d unify -Atc \
@@ -61,7 +68,7 @@ if [[ "$CORE_SCHEMA" == present ]]; then
     'SELECT count(*) FROM core.agent_profile_projections')
   CORE_PROJECTION_DIGEST=$(docker exec "$CONTAINER" psql -U postgres -d unify -Atc \
     "SELECT encode(digest(string_agg(native_profile_alias||':'||safe_display_name||':'||source_version,'|' ORDER BY native_profile_alias),'sha256'),'hex') FROM core.agent_profile_projections")
-  CORE_SUMMARY="tables=$CORE_TABLES migrations=12 profiles=$CORE_PROFILES projectionSha256=$CORE_PROJECTION_DIGEST"
+  CORE_SUMMARY="tables=$CORE_TABLES migrations=$CORE_MIGRATION_COUNT profiles=$CORE_PROFILES projectionSha256=$CORE_PROJECTION_DIGEST"
 fi
 printf 'Restore rehearsal passed: public_tables=%s gateway_migrations=%s core=%s isolated_container=%s\n' \
   "$TABLE_COUNT" "$MIGRATION_COUNT" "$CORE_SUMMARY" "$CONTAINER"

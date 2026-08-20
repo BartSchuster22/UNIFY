@@ -25,9 +25,10 @@ async function withTempDirectory(work: (directory: string) => Promise<void>): Pr
 
 test('discovers contiguous migrations and stable checksums', async () => {
   const migrations = await loadMigrations();
+  const versions = migrations.map((migration) => migration.version);
   assert.deepEqual(
-    migrations.map((migration) => migration.version),
-    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    versions,
+    Array.from({ length: versions.length }, (_, index) => index + 1),
   );
   assert.equal(new Set(migrations.map((migration) => migration.checksum)).size, migrations.length);
   for (const migration of migrations) assert.match(migration.checksum, /^[a-f0-9]{64}$/);
@@ -88,11 +89,12 @@ test(
     const pool = new Pool({ connectionString: integrationUrl, max: 4 });
     try {
       await pool.query('DROP SCHEMA IF EXISTS core CASCADE');
+      const expectedVersions = (await loadMigrations()).map((migration) => migration.version);
       const first = await migrateDatabase(pool);
-      assert.deepEqual(first.applied, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+      assert.deepEqual(first.applied, expectedVersions);
       const second = await migrateDatabase(pool);
       assert.deepEqual(second.applied, []);
-      assert.equal(second.previouslyApplied, 12);
+      assert.equal(second.previouslyApplied, expectedVersions.length);
       await verifyDatabase(pool);
       const storedMigration = await pool.query<{ checksum: string }>(
         'SELECT checksum FROM core.schema_migrations WHERE version = 1',

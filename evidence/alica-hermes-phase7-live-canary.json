@@ -1,0 +1,233 @@
+{
+  "schema": "alica-hermes-governed-command-canary/v0.1",
+  "approvalReference": "PROJECT-ALICA/direct-stakeholder/2026-08-20/phase7",
+  "policy": {
+    "policyId": "cny_01M0F1A1DGFEKB7WKBQM6JME70",
+    "frameworkId": "frm_01M0EZ9T88FTEBJ9HNNTE1M18M",
+    "contextAgentProfileId": "agp_01M0EZABTFE6F8EV5X88JEEE45",
+    "contextNativeProfileId": "default",
+    "targetAgentProfileId": "agp_01M0F1A1DMFC0S9SWPNXJ32PES",
+    "nativeTargetId": "alica-p7-canary",
+    "controllerServicePrincipalId": "svc_01M0F1A1DKF66VN8M2AS424T0D",
+    "canonicalPrincipalId": "prn_01M0F1A1DMFQC9XTGPD3BT40M3",
+    "tenantId": "ten_01M0F1A1DMFXT9F836DYE5YGHP",
+    "clientId": "cli_01M0F1A1DME8G9MFXJTV5RYYHX",
+    "applicationId": "app_01M0F1A1DMEA2RVQJXXY1NWQ8D"
+  },
+  "owner": {
+    "baseUrl": "https://127.0.0.1:28082",
+    "frameworkId": "hermes-main",
+    "instanceId": "herman-local-private",
+    "release": "0.20.0",
+    "commit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+    "capability": "profiles.execute"
+  },
+  "limits": {
+    "policyFreshnessSeconds": 1200,
+    "ownerObservationFreshnessSeconds": 60,
+    "requestTimeoutMs": 15000,
+    "faultTimeoutMs": 250,
+    "dispatchLimit": 2,
+    "failureThreshold": 2
+  },
+  "baseline": {
+    "observedAt": "2026-08-20T07:46:47.619Z",
+    "owner": {
+      "frameworkId": "hermes-main",
+      "instanceId": "herman-local-private",
+      "release": "0.20.0",
+      "commit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+      "capabilityStatus": "supported",
+      "capabilityModes": ["validate", "dry-run", "execute", "verify"],
+      "profiles": {
+        "sourceVersion": "sha256:fa9d4d75c8977989085cb20706693104ab7469b6b2ddd5aefa801c1968aee148",
+        "observedAt": "2026-08-20T07:46:47.524Z",
+        "ids": ["chatboard", "default", "devops-agent", "pm-agent", "test-agent", "ulrich"],
+        "count": 6
+      }
+    },
+    "database": {
+      "migrations": 13,
+      "canonicalProfiles": 6,
+      "canonicalOperations": 0,
+      "canonicalExecutions": 0,
+      "gatewayOperations": 66,
+      "adapterEvents": 9
+    }
+  },
+  "authorization": {
+    "operationFamily": "profile-lifecycle",
+    "allowedOperations": ["profile.create", "profile.delete"],
+    "exactScopeRequired": true,
+    "rawRouteExposed": false,
+    "commandRunnerDeployed": false
+  },
+  "phases": {
+    "seed": {
+      "passed": true,
+      "at": "2026-08-20T07:46:47.725Z"
+    },
+    "forwardRepair": {
+      "passed": true,
+      "at": "2026-08-20T07:52:40.277Z",
+      "migration": 14,
+      "blockedReservationId": "rsv_01M0F26W7CFZ8VFQY6Q6J0Y3P7",
+      "safeErrorCode": "P7_IMMUTABLE_EVIDENCE_GUARD",
+      "ownerDispatchCount": 0,
+      "ownerStateUnchanged": true,
+      "immutableCanonicalEvidencePreserved": true,
+      "predecessorState": "cancelled",
+      "policyRearmedFresh": true
+    },
+    "transportRecovery": {
+      "passed": true,
+      "at": "2026-08-20T08:07:15.643Z",
+      "migration": 15,
+      "reservationId": "rsv_01M0F2HC39E58STKXJ44QM7H1N",
+      "safeErrorCode": "P7_ADAPTER_CONNECTION_TERMINATED",
+      "ownerDispatchCount": 0,
+      "ownerStateReconciled": true,
+      "ownerStateUnchanged": true,
+      "provisionalDispatchLeaseReturned": true,
+      "failureCount": 1,
+      "terminalDigest": "fa8f56851972dec238e34a43cdc814db948db84001487723d95700c1a4b11a53"
+    },
+    "parserRepair": {
+      "passed": true,
+      "at": "2026-08-20T08:18:29.134Z",
+      "migration": 16,
+      "reservationId": "rsv_01M0F3CAWAE0QVJGPQDKHP1SSN",
+      "safeErrorCode": "P7_PROFILE_LIST_WIDTH_PARSER",
+      "ownerCreateCompleted": true,
+      "adapterVerificationFailed": true,
+      "adapterParserFixedAndRedeployed": true,
+      "ownerProfileVisibleAfterRepair": true,
+      "sourceVersion": "sha256:16dbcd5529af400dbb6147b280f5852653e49c75881c76d67836d7b17bc8b913",
+      "terminalDigest": "0f842edc768bee5acae285891b055a20990ddcfb2eb30c1ba73bd72803ca0d2d",
+      "remainingDispatches": 1
+    },
+    "deleteReconciliation": {
+      "passed": true,
+      "at": "2026-08-20T08:26:42.181Z",
+      "migration": 17,
+      "reservationId": "rsv_01M0F40QY8EHJ9VT4S5Q9XYT2R",
+      "safeErrorCode": "P7_BOUNDED_DELETE_TIMEOUT",
+      "ownerDeleteCompleted": true,
+      "nativeTargetAbsent": true,
+      "terminalSourceVersion": "sha256:2a1eca4c8831411f2111d99c8920e6dcc25b348086a667ad6b1ec49da24b1813",
+      "preParserSourceVersion": "sha256:fa9d4d75c8977989085cb20706693104ab7469b6b2ddd5aefa801c1968aee148",
+      "representationVersionChangedByParserRepair": true,
+      "terminalDigest": "ff4643302a6d01da190516f67933a92c3c638571191dd94c15ffe33e66562acc",
+      "remainingDispatches": 0
+    },
+    "canary": {
+      "passed": true,
+      "at": "2026-08-20T08:26:42.186Z",
+      "validate": {
+        "status": "validated",
+        "ownerMutation": 0
+      },
+      "dryRun": {
+        "status": "dry-run",
+        "ownerMutation": 0
+      },
+      "create": {
+        "reservationId": "rsv_01M0F3CAWAE0QVJGPQDKHP1SSN",
+        "reconciledAfterAdapterVerificationFailure": true,
+        "sourceVersion": "sha256:16dbcd5529af400dbb6147b280f5852653e49c75881c76d67836d7b17bc8b913",
+        "profileCount": 7,
+        "terminalDigest": "0f842edc768bee5acae285891b055a20990ddcfb2eb30c1ba73bd72803ca0d2d"
+      },
+      "duplicate": {
+        "replayedWithoutOwner": true,
+        "conflictDeniedBeforeOwner": true,
+        "evidenceDigest": "87b94c9cf05ac498293dd04f2c084cffd7690f4884f571e638ca611a83cc8d28"
+      },
+      "rollback": {
+        "reservationId": "rsv_01M0F40QY8EHJ9VT4S5Q9XYT2R",
+        "operationId": "reconciled:P7_BOUNDED_DELETE_TIMEOUT",
+        "restoredSourceVersion": "sha256:2a1eca4c8831411f2111d99c8920e6dcc25b348086a667ad6b1ec49da24b1813",
+        "preParserSourceVersion": "sha256:fa9d4d75c8977989085cb20706693104ab7469b6b2ddd5aefa801c1968aee148",
+        "restoredProfileIds": [
+          "chatboard",
+          "default",
+          "devops-agent",
+          "pm-agent",
+          "test-agent",
+          "ulrich"
+        ],
+        "terminalDigest": "ff4643302a6d01da190516f67933a92c3c638571191dd94c15ffe33e66562acc",
+        "ownerStateRestored": true,
+        "representationVersionChangedByParserRepair": true
+      },
+      "adapterEvents": {
+        "afterReconciliation": 10
+      },
+      "ownerDispatches": 2
+    },
+    "faults": {
+      "passed": true,
+      "at": "2026-08-20T08:29:35.376Z",
+      "reconciledAfterObservationTimestampAssertion": true,
+      "timeout": {
+        "failedBeforeOwner": true,
+        "evidenceDigest": "96fbd549e5df9d8571c068df50a77b0e4838a640b581eddc9c9553fc1f08c714"
+      },
+      "duplicate": {
+        "replayedWithoutOwner": true,
+        "conflictDeniedBeforeOwner": true,
+        "evidenceDigest": "87b94c9cf05ac498293dd04f2c084cffd7690f4884f571e638ca611a83cc8d28"
+      },
+      "provenance": {
+        "deniedBeforeOwner": true,
+        "evidenceDigest": "fa0266aece51b8d9f99d18abdae23006af3b5dfdb42748060cb76d78238de950"
+      },
+      "circuit": {
+        "openedAtThreshold": true,
+        "reservationBlockedBeforeOwner": true,
+        "openDigest": "32140c4aeb7a6157166073c0534e330461879a1865c473a5b38a0da4ec8e8fca",
+        "blockedDigest": "673c8698d31b1ef6a3ed55da358f0739cd071d9c66c6ae2ad9aada09517107fb"
+      },
+      "ownerStateUnchanged": true,
+      "ownerEventsUnchanged": true,
+      "ownerDispatches": 0
+    },
+    "disable": {
+      "passed": true,
+      "at": "2026-08-20T08:29:47.468Z",
+      "enabled": false,
+      "circuitState": "disabled",
+      "disabledProbeDeniedBeforeOwner": true,
+      "dispatchCount": 2,
+      "failureCount": 2,
+      "reservations": 4,
+      "faultEvidenceRows": 6,
+      "canonicalOperations": 3,
+      "canonicalExecutions": 2,
+      "gatewayOperations": 66,
+      "sessions": 0,
+      "chatLinks": 0,
+      "ownerStateRestored": true,
+      "terminalSourceVersion": "sha256:2a1eca4c8831411f2111d99c8920e6dcc25b348086a667ad6b1ec49da24b1813",
+      "preParserSourceVersion": "sha256:fa9d4d75c8977989085cb20706693104ab7469b6b2ddd5aefa801c1968aee148",
+      "representationVersionChangedByParserRepair": true,
+      "finalOwnerProfiles": {
+        "sourceVersion": "sha256:2a1eca4c8831411f2111d99c8920e6dcc25b348086a667ad6b1ec49da24b1813",
+        "observedAt": "2026-08-20T08:29:47.263Z",
+        "ids": ["chatboard", "default", "devops-agent", "pm-agent", "test-agent", "ulrich"],
+        "count": 6
+      }
+    }
+  },
+  "result": {
+    "passed": true,
+    "ownerDispatches": 2,
+    "duplicateOwnerDispatches": 0,
+    "ownerStateRestored": true,
+    "policyDisabled": true,
+    "commandRunnerDeployed": false,
+    "rawRouteExposed": false,
+    "phase8Authorized": false
+  },
+  "artifactDigest": "21f0c4878c74daeb17ec5e38bd4148d348d2c06a5537873f697d085d1f7ff0b6"
+}
