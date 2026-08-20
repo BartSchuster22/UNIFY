@@ -1,0 +1,114 @@
+{
+  "contractVersion": "alica-identity-tenancy-phase1-baseline/v0.1",
+  "workstream": {
+    "programOrdinal": "11/13",
+    "subprojectNumber": 6,
+    "name": "Identity and Tenancy",
+    "dependencies": [1, 2, 5],
+    "predecessor": "Subproject 4 Identity/Tenancy/Authorization (`alica-identity/v0.1` and `alica-identity-schema/v0.1`)"
+  },
+  "phaseSequence": [
+    {
+      "id": "I0",
+      "name": "Scope, authority and predecessor reconciliation",
+      "gate": "Numbering, authorities, dependencies and withheld powers are explicit",
+      "status": "completed"
+    },
+    {
+      "id": "I1",
+      "name": "Read-only DSH/PSI identity and instance baseline",
+      "gate": "Exact source digests, redacted live cardinalities, no secret output and zero mutation",
+      "status": "completed"
+    },
+    {
+      "id": "I2",
+      "name": "Additive canonical schema and isolated migration rehearsal",
+      "gate": "Home tenant, principals, aliases, memberships and instances recover exactly; predecessor behavior unchanged",
+      "status": "pending"
+    },
+    {
+      "id": "I3",
+      "name": "Non-enforcing persistence and principal binding backfill",
+      "gate": "Every predecessor user/service maps exactly once; no email/name linking; authorization unchanged",
+      "status": "pending"
+    },
+    {
+      "id": "I4",
+      "name": "DSH profile tenant/client/instance authorization shadow",
+      "gate": "Principal × client × tenant × exact instance intersection is same-or-narrower with zero cross-tenant access",
+      "status": "pending"
+    },
+    {
+      "id": "I5",
+      "name": "PSI managed profile enrollment and projection shadow",
+      "gate": "Signed/replay-safe Cell-bound accepted projection; central outage remains locally safe; entitlement grants no permission",
+      "status": "pending"
+    },
+    {
+      "id": "I6",
+      "name": "Staged enforcement, revocation and profile canaries",
+      "gate": "Read then mutation families enforce without widened access; revocation and stale-state fail closed",
+      "status": "pending"
+    },
+    {
+      "id": "I7",
+      "name": "Recovery, move/replace, closure and credential retirement",
+      "gate": "Identity survives restore/move, replacement receives correct identity, closure retains evidence and recovery is proven",
+      "status": "pending"
+    }
+  ],
+  "observed": {
+    "unify": {
+      "revision": "d3675c5cc7dddbe1b0ad7cbd612dfccd7313e390",
+      "liveCounts": {
+        "users": 1,
+        "roles": 4,
+        "permissions": 22,
+        "sessionsAtLeast": 1264,
+        "applications": 0,
+        "frameworks": 1
+      },
+      "coreMigrations": 22,
+      "canonicalIdentityTables": 0,
+      "transaction": "repeatable-read/read-only",
+      "writeProbe": "rejected"
+    },
+    "psi": {
+      "revision": "4c3bb5171985f471b6d621c83f8fe3e767607fa2",
+      "workingTreeDirty": true,
+      "profile": "managed-psi predecessor",
+      "authentication": "locally signed JWT with sub/email/role",
+      "uprmSeam": "optional user synchronization by externalUserId; no accepted federation projection",
+      "userIdSchemaFields": 9,
+      "instanceTableCount": 2,
+      "tenantClaimsInAccessToken": 0,
+      "instanceClaimsInAccessToken": 0,
+      "canonicalPrincipalBindings": 0,
+      "canonicalTenantBindings": 0,
+      "canonicalInstanceAuthorizationBindings": 0
+    },
+    "dsh": {
+      "profile": "dsh predecessor in current UNIFY Cell",
+      "homeTenantPersisted": false,
+      "canonicalPrincipalBindings": false,
+      "exactInstanceAuthorization": false
+    }
+  },
+  "psiSourceDigests": {
+    "apps/backend-api/src/auth.ts": "28b3c18d3e172b151b9dfbbbd49a21f8fed0dc775c1463682b8f38a95f67fcd5",
+    "apps/backend-api/src/types.ts": "49e240ca9fdbb5ffcdce9a525c4fb0ad3cd0ff67f8a22026aebbe1869ad4338c",
+    "apps/backend-api/src/integrations/uprm/identity.ts": "4922c245a87c0778f8f3e9d1e01ca65bccdfcad81aa3a4817be1305ab5c85d64",
+    "apps/backend-api/src/integrations/uprm/types.ts": "36c83d0068d4785d5e8dc6e2cc2bb103d0760bdcfc90ab020bfd58c8e667c947",
+    "apps/backend-api/src/modules/admin-provisioning/routes.ts": "7ce2d84aa8c2f2cdc277258db20a3304fc0194d9c70a35e5a63d058613092496",
+    "packages/db/src/schema.ts": "82f4fcce6e2b88156216370656081cc64dad109f9a698ff967e361ee46679d5f"
+  },
+  "terminal": {
+    "mutation": false,
+    "enforcement": false,
+    "credentialsRead": false,
+    "identifiersEmitted": false,
+    "phaseI0": "passed",
+    "phaseI1": "passed",
+    "nextGate": "I2 requires explicit approval of an executable additive migration and isolated rehearsal"
+  }
+}
