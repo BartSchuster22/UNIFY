@@ -76,13 +76,14 @@ async function ownerGet(path) {
 
 assert.equal(
   psql("SELECT string_agg(version::text,',' ORDER BY version) FROM core.schema_migrations;"),
-  Array.from({ length: 22 }, (_, index) => index + 1).join(','),
+  Array.from({ length: 23 }, (_, index) => index + 1).join(','),
 );
 for (const [version, name] of [
   [19, 'alica_hermes_phase9_capability_families'],
   [20, 'alica_hermes_phase9_immutable_journal_recovery'],
   [21, 'alica_hermes_phase9_operation_timestamp_recovery'],
   [22, 'alica_hermes_phase10_operational_drills'],
+  [23, 'alica_identity_tenancy_phase11'],
 ]) {
   const file = join(
     root,
