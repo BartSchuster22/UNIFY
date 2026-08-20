@@ -55,6 +55,13 @@ assert.deepEqual(manifest.terminal, {
     'I2 requires explicit approval of an executable additive migration and isolated rehearsal',
 });
 
+const implementationRevision = run('git', ['rev-parse', 'HEAD'], root);
+run(
+  'git',
+  ['merge-base', '--is-ancestor', manifest.observed.unify.baselineRevision, implementationRevision],
+  root,
+);
+
 const psiRevision = run('git', ['rev-parse', 'HEAD'], psiRoot);
 assert.equal(psiRevision, manifest.observed.psi.revision);
 assert.notEqual(
@@ -148,7 +155,8 @@ console.log(
       phases: manifest.phaseSequence.length,
       completedPhases: 2,
       unify: {
-        revision: manifest.observed.unify.revision,
+        baselineRevision: manifest.observed.unify.baselineRevision,
+        implementationRevision,
         users: live.counts.users,
         roles: live.counts.roles,
         permissions: live.counts.permissions,
