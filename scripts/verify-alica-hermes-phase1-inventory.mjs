@@ -78,7 +78,7 @@ WITH registration AS (
 ), isolation AS (
   SELECT json_build_object(
     'runtimeRoleCount', count(*) FILTER (WHERE rolname = 'unify_hermes_adapter_runtime'),
-    'isolatedLoginRoleCount', count(*) FILTER (WHERE rolname IN ('unify_alica_adapter','unify_herman_adapter')),
+    'isolatedServiceRoleCount', count(*) FILTER (WHERE rolname IN ('unify_alica_adapter','unify_herman_adapter') AND NOT rolcanlogin),
     'rowSecurityTableCount', (SELECT count(*) FROM pg_class WHERE relname IN ('hermes_adapter_events','hermes_adapter_idempotency','hermes_adapter_audit') AND relrowsecurity),
     'frameworkPolicyCount', (SELECT count(*) FROM pg_policies WHERE tablename IN ('hermes_adapter_events','hermes_adapter_idempotency','hermes_adapter_audit'))
   ) AS value
