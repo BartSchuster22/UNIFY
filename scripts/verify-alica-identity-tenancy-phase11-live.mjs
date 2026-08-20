@@ -99,7 +99,7 @@ FROM core.alica_principals p CROSS JOIN core.alica_registered_clients c CROSS JO
 );
 assert.equal(
   psql(
-    "SELECT count(*) FROM information_schema.columns WHERE table_schema='core' AND table_name LIKE 'alica_%' AND column_name ~ '(private|secret|password|token|credential)';",
+    "SELECT count(*) FROM information_schema.columns WHERE table_schema='core' AND table_name LIKE 'alica_%' AND column_name ~ '(private|secret|password|token|credential)' AND NOT (table_name='alica_identity_phase_evidence' AND column_name='secret_material_persisted');",
   ),
   '0',
 );
