@@ -1,0 +1,41 @@
+{
+  "contractVersion": "alica-hermes-operational-drills/v0.1",
+  "authorizationReference": "Direct stakeholder instruction 2026-08-20: continue with Phase 10 and complete",
+  "originMigration": 21,
+  "targetMigration": 22,
+  "rollbackClass": "application-rollback-forward-schema",
+  "failureDisposition": "forward-recovery-only-or-full-restore",
+  "execution": {
+    "liveOwner": "read-only",
+    "liveCore": "migration-022-and-immutable-digest-evidence-only",
+    "databaseDrills": "isolated-restored-database",
+    "credentialDrill": "isolated-adapter-injection",
+    "recurringAuthority": false,
+    "policyEnabled": false
+  },
+  "drills": [
+    { "kind": "release-compatibility", "identity": "not-applicable", "requiredResult": "passed" },
+    { "kind": "restore-identity", "identity": "preserved", "requiredResult": "passed" },
+    { "kind": "move-identity", "identity": "preserved", "requiredResult": "passed" },
+    { "kind": "clone-identity", "identity": "new-identity", "requiredResult": "passed" },
+    {
+      "kind": "event-projection-rebuild",
+      "identity": "not-applicable",
+      "requiredResult": "passed"
+    },
+    { "kind": "credential-revocation", "identity": "not-applicable", "requiredResult": "passed" },
+    { "kind": "retirement", "identity": "not-applicable", "requiredResult": "passed" }
+  ],
+  "stopConditions": [
+    "widened-authority",
+    "secret-leakage",
+    "owner-mutation",
+    "migration-lineage-ambiguity",
+    "identity-reuse-on-clone",
+    "identity-change-on-restore-or-move",
+    "nondeterministic-rebuild",
+    "old-credential-accepted-after-rotation",
+    "evidence-loss-on-retirement",
+    "service-health-regression"
+  ]
+}

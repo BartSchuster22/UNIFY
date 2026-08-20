@@ -103,12 +103,13 @@ function create(
   scopes: readonly FrameworkScope[] = ['control:read', 'control:execute', 'control:events'],
   events = new MemoryAdapterEventStore(),
   baseline?: { frameworkRelease: string; frameworkCommit: string },
+  bearerToken = 'test-token-with-enough-entropy',
 ) {
   const app = buildHermesControlAdapter({
     frameworkId: 'hermes-dev',
     displayName: 'Hermes Dev',
     instanceId: 'instance-1',
-    bearerToken: 'test-token-with-enough-entropy',
+    bearerToken,
     scopes: [...scopes],
     source: testSource,
     events,
@@ -169,6 +170,33 @@ describe('Hermes control adapter', () => {
       status: 'unsupported',
       reasonCode: 'SECOND_CONSUMER_FORBIDDEN',
     });
+  });
+
+  it('revokes a replaced bearer without changing framework identity', async () => {
+    const oldToken = 'phase10-old-token-with-enough-entropy';
+    const newToken = 'phase10-new-token-with-enough-entropy';
+    const oldApp = create(source, undefined, undefined, undefined, oldToken);
+    const oldIdentity = await oldApp.inject({
+      method: 'GET',
+      url: '/control/v1/identity',
+      headers: { authorization: `Bearer ${oldToken}` },
+    });
+    expect(oldIdentity.statusCode).toBe(200);
+
+    const rotatedApp = create(source, undefined, undefined, undefined, newToken);
+    const revoked = await rotatedApp.inject({
+      method: 'GET',
+      url: '/control/v1/identity',
+      headers: { authorization: `Bearer ${oldToken}` },
+    });
+    const accepted = await rotatedApp.inject({
+      method: 'GET',
+      url: '/control/v1/identity',
+      headers: { authorization: `Bearer ${newToken}` },
+    });
+    expect(revoked.statusCode).toBe(401);
+    expect(accepted.statusCode).toBe(200);
+    expect(accepted.json().data).toEqual(oldIdentity.json().data);
   });
 
   it('reports an exact verified candidate baseline during isolated assessment', async () => {
