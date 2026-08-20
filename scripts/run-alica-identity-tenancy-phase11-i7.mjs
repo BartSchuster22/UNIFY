@@ -133,7 +133,7 @@ WITH ni AS (
  SELECT core.generate_alica_id('grn'),g.membership_id,g.client_id,ni.instance_id,'active',g.capability_ceiling,'cell'
  FROM core.alica_principal_instance_grants g CROSS JOIN ni WHERE g.instance_id='${instanceId}' RETURNING instance_id
 )
-UPDATE core.alica_cell_instances SET status='moved',revision=revision+1 WHERE instance_id='${instanceId}';
+UPDATE core.alica_cell_instances SET status='retired',revision=revision+1 WHERE instance_id='${instanceId}';
 SELECT core.evaluate_alica_instance_authorization('${principalId}','${clientId}','${tenantId}','${instanceId}','frameworks.read',true,true);
 SELECT core.evaluate_alica_instance_authorization('${principalId}','${clientId}','${tenantId}',instance_id,'frameworks.read',true,true) FROM ng;
 ROLLBACK;`),
