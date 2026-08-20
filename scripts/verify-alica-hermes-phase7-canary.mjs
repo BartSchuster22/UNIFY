@@ -44,10 +44,17 @@ const check = (condition, message) => {
 };
 const includes = (text, needle, label = needle) => check(text.includes(needle), `missing ${label}`);
 
+const migrationNames = readdirSync(join(root, 'apps/core/migrations'))
+  .filter((name) => /^\d{3}_.+\.sql$/.test(name))
+  .sort();
+check(migrationNames.length >= 17, 'Phase 7 requires the original 17 Core migrations');
 check(
-  readdirSync(join(root, 'apps/core/migrations')).filter((name) => /^\d{3}_.+\.sql$/.test(name))
-    .length === 17,
-  'exactly 17 ordered Core migrations required',
+  migrationNames.slice(0, 17).every((name, index) => Number(name.slice(0, 3)) === index + 1),
+  'Phase 7 requires a contiguous ordered migration prefix 001-017',
+);
+check(
+  migrationNames[16] === '017_phase7_post_owner_delete_reconciliation.sql',
+  'Phase 7 migration prefix must end with the approved migration 017',
 );
 for (const table of [
   'core.framework_command_canary_policies',

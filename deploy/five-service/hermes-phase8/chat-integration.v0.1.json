@@ -1,0 +1,91 @@
+{
+  "schema": "alica-chat-hermes-integration/v0.1",
+  "approvalReference": "PROJECT-ALICA/direct-stakeholder/2026-08-20/phase8",
+  "chatOwner": {
+    "authority": "chat.aquiero.com",
+    "repository": "BartSchuster22/agent-chat",
+    "trackedBaselineCommit": "42d4a8887c466de06db8cbbf7f9fc663391d3b85",
+    "owns": [
+      "product-sessions",
+      "messages",
+      "durable-events",
+      "ephemeral-realtime",
+      "retention-and-deletion"
+    ]
+  },
+  "hermesOwner": {
+    "frameworkId": "frm_01M0EZ9T88FTEBJ9HNNTE1M18M",
+    "nativeFrameworkId": "hermes-main",
+    "owns": [
+      "native-sessions",
+      "native-executions",
+      "native-message-identifiers",
+      "tools",
+      "memory",
+      "provider-model-routing"
+    ]
+  },
+  "scope": {
+    "principalId": "prn_01M0F1A1DMFQC9XTGPD3BT40M3",
+    "tenantId": "ten_01M0F1A1DMFXT9F836DYE5YGHP",
+    "clientId": "cli_01M0F1A1DME8G9MFXJTV5RYYHX",
+    "applicationId": "app_01M0F1A1DMEA2RVQJXXY1NWQ8D",
+    "productAgentId": "agt_01M0F1A1DME8G9MFXJTV5RYYHX",
+    "agentProfileId": "agp_01M0EZABTFE6F8EV5X88JEEE45"
+  },
+  "projection": {
+    "contentClassification": "metadata-only",
+    "allowed": [
+      "owner-identifiers",
+      "source-versions",
+      "scope-identifiers",
+      "authorization-receipts",
+      "link-receipts",
+      "durable-event-cursors",
+      "retention-state",
+      "fault-evidence"
+    ],
+    "forbidden": [
+      "message-content",
+      "attachments",
+      "prompts",
+      "tool-inputs",
+      "tool-outputs",
+      "provider-credentials",
+      "model-credentials"
+    ]
+  },
+  "workflow": [
+    "chat-creates-product-session-and-conversation-id",
+    "unify-validates-exact-principal-tenant-client-application-agent-profile-scope",
+    "hermes-creates-or-resolves-native-session-execution",
+    "chat-persists-immutable-native-link",
+    "unify-persists-metadata-only-projection-and-receipts"
+  ],
+  "realtime": {
+    "durableEvents": "sequenced-and-replayable",
+    "ephemeralFrames": "non-authoritative-not-persisted",
+    "replayGap": "explicit-fault-and-owner-resync"
+  },
+  "deletion": {
+    "governedDelete": "archive-and-immutable-deletion-request",
+    "hardCascade": false,
+    "messageEvidenceRetained": true
+  },
+  "stopConditions": [
+    "scope-mismatch",
+    "source-version-mismatch",
+    "cross-tenant-or-profile-read",
+    "second-active-native-link",
+    "idempotency-key-conflict",
+    "message-content-in-unify",
+    "owner-mutation-from-fault-path",
+    "hard-delete-of-governed-session",
+    "secret-or-sensitive-output"
+  ],
+  "deployment": {
+    "runtimeWriterDeployed": false,
+    "rawRouteExposed": false,
+    "productionChatMutationAuthorized": false
+  }
+}

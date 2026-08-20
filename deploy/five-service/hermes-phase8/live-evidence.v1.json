@@ -1,0 +1,63 @@
+{
+  "schema": "alica-chat-hermes-phase8-live-evidence/v1",
+  "observedAt": "2026-08-20T09:47:18Z",
+  "authorization": {
+    "reference": "PROJECT-ALICA/direct-stakeholder/2026-08-20/phase8",
+    "productionChatMutation": false,
+    "runtimeWriterDeployment": false
+  },
+  "chatOwner": {
+    "repository": "git@github.com:BartSchuster22/CHAT.git",
+    "commit": "5c4bdc0d29160af7874339b402ec6c0439025b0f",
+    "sqliteMigrations": 14,
+    "controlApiChecks": 30,
+    "phase8SqliteQuickCheck": "ok",
+    "productionServiceStateAtDiscovery": "stopped",
+    "productionConversationCreated": false
+  },
+  "isolatedPostgres": {
+    "coreMigrationsApplied": 18,
+    "coreTables": 87,
+    "sessionProjections": 1,
+    "authorizationReceipts": 3,
+    "activeLinkReceipts": 1,
+    "contentColumns": 0,
+    "auditViolations": 0,
+    "rowsAfterRollback": 0
+  },
+  "recovery": {
+    "backup": "backups/unify-pre-phase8-20260820T093841Z.dump",
+    "backupSizeBytes": 931032,
+    "backupSha256": "7a0289155e11867b3be21eb35429d7544be28cfaa4cb03a836a94846e8586f8b",
+    "restoredMigrationCount": 17,
+    "restoredPhase8Tables": 0,
+    "restoredAuditViolations": 0
+  },
+  "liveCore": {
+    "migration": 18,
+    "migrationAppliedAt": "2026-08-20T09:46:45.9105Z",
+    "migrationSha256": "ccfec0a3a8c6ac0e47e0c3e1e055cb9707495569239b398953203702893a1653",
+    "phase8Tables": 4,
+    "phase8Rows": 0,
+    "immutableTriggers": 4,
+    "auditViolations": 0,
+    "enabledCanaryPolicies": 0,
+    "temporaryDatabases": 0,
+    "gatewayHealth": "healthy",
+    "adapterHealth": "healthy",
+    "postgresHealth": "healthy"
+  },
+  "verification": {
+    "phase7Checks": 154,
+    "phase8Checks": 58,
+    "fullQa": "pass",
+    "contentReplication": false,
+    "ownerMutation": 0,
+    "runtimeHooks": 0
+  },
+  "residualObservations": [
+    "One pre-existing Phase 7 framework operation remains in authorized state while all canary policies are disabled; Phase 8 did not mutate it.",
+    "No production Hermes conversation capability was available, so no native conversation identity was fabricated and no live /CHAT link was created.",
+    "The pre-migration backup is operational recovery material and is intentionally not committed to git."
+  ]
+}
