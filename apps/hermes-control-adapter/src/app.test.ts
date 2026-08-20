@@ -314,6 +314,22 @@ describe('Hermes control adapter', () => {
       status: 'completed',
       operation: 'profile.rename',
       targetId: 'seed',
+      replayed: false,
+    });
+    expect(executeProfile).toHaveBeenCalledTimes(1);
+
+    const replayed = await app.inject({
+      method: 'POST',
+      url: '/control/v1/commands/profiles',
+      headers: auth,
+      payload: { ...payload, mode: 'execute' },
+    });
+    expect(replayed.statusCode).toBe(200);
+    expect(replayed.json().data).toMatchObject({
+      status: 'completed',
+      operation: 'profile.rename',
+      targetId: 'seed',
+      replayed: true,
     });
     expect(executeProfile).toHaveBeenCalledTimes(1);
   });

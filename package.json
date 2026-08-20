@@ -57,6 +57,8 @@
     "five-service:hermes-phase7:reconcile-faults": "node scripts/run-alica-hermes-phase7-canary.mjs --reconcile-faults",
     "five-service:hermes-phase7:disable": "node scripts/run-alica-hermes-phase7-canary.mjs --disable",
     "five-service:hermes-phase8:verify": "node scripts/verify-alica-hermes-phase8-chat-integration.mjs",
+    "five-service:hermes-phase9:canary": "node scripts/run-alica-hermes-phase9-canary.mjs",
+    "five-service:hermes-phase9:verify": "node scripts/verify-alica-hermes-phase9-canary.mjs",
     "framework:rollout:store:verify": "node scripts/verify-framework-rollout-store.mjs",
     "framework:rollout:worker:verify-real": "node scripts/verify-framework-rollout-worker-real.mjs",
     "phase-14-5:live": "node scripts/verify-hermes-combined-runtime.mjs && node scripts/verify-five-service-runtime.mjs && node scripts/verify-five-service-installer-runtime.mjs",
@@ -83,7 +85,7 @@
     "standalone:check": "node scripts/check-standalone-runtime.mjs",
     "image:check": "node scripts/verify-production-images.mjs --static",
     "image:verify": "node scripts/verify-production-images.mjs",
-    "qa": "pnpm lint && pnpm typecheck && pnpm five-service:hermes-phase3:verify && pnpm five-service:hermes-phase4:verify && pnpm five-service:hermes-phase5:verify && pnpm five-service:hermes-phase6:verify && pnpm five-service:hermes-phase7:verify && pnpm five-service:hermes-phase8:verify && pnpm test && pnpm build && pnpm contracts:check && pnpm standalone:check && pnpm backup:prune:self-test && pnpm identity:capacity:self-test && pnpm canary:self-test && pnpm format:check",
+    "qa": "pnpm lint && pnpm typecheck && pnpm five-service:hermes-phase3:verify && pnpm five-service:hermes-phase4:verify && pnpm five-service:hermes-phase5:verify && pnpm five-service:hermes-phase6:verify && pnpm five-service:hermes-phase7:verify && pnpm five-service:hermes-phase8:verify && pnpm five-service:hermes-phase9:verify && pnpm test && pnpm build && pnpm contracts:check && pnpm standalone:check && pnpm backup:prune:self-test && pnpm identity:capacity:self-test && pnpm canary:self-test && pnpm format:check",
     "clean": "pnpm -r --if-present clean"
   },
   "devDependencies": {

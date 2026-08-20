@@ -95,6 +95,32 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
     auditedRequests.add(request);
   };
 
+  const replayCommand = async (
+    request: FastifyRequest,
+    capability: string,
+    command: { mode: string; idempotencyKey: string },
+    requestHash: string,
+  ): Promise<Record<string, unknown> | undefined> => {
+    if (command.mode !== 'execute') return undefined;
+    const prior = await options.events.replay(
+      options.frameworkId,
+      capability,
+      command.idempotencyKey,
+      requestHash,
+    );
+    if (!prior) return undefined;
+    const response = structuredClone(prior.response);
+    const data = response.data;
+    let operationId: string | undefined;
+    if (data && typeof data === 'object' && !Array.isArray(data)) {
+      const record = data as Record<string, unknown>;
+      record.replayed = true;
+      if (typeof record.operationId === 'string') operationId = record.operationId;
+    }
+    await auditCommand(request, 'success', operationId, 'replayed');
+    return response;
+  };
+
   app.addHook('onRequest', async (request) => {
     if (!request.url.startsWith('/control/v1/')) return;
     const token = request.headers.authorization?.replace(/^Bearer\s+/i, '') ?? '';
@@ -343,6 +369,13 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
     async (request) => {
       requireScope(scopes, 'control:execute');
       const command = request.body;
+      const replay = await replayCommand(
+        request,
+        'control.reconcile',
+        command,
+        sourceVersion(command),
+      );
+      if (replay) return replay;
       const families = reconcileFamilies(command.payload.families);
       const operationId = randomUUID();
       if (command.mode === 'validate') {
@@ -417,6 +450,13 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
       requireScope(scopes, 'control:execute');
       const command = request.body;
       const renameTargetId = validateProfilePayload(command);
+      const replay = await replayCommand(
+        request,
+        'profiles.execute',
+        command,
+        sourceVersion(command),
+      );
+      if (replay) return replay;
       const before = await options.source.profiles();
       if (command.expectedSourceVersion && command.expectedSourceVersion !== before.sourceVersion)
         throw new AdapterError(
@@ -510,6 +550,18 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
           : 'control:execute',
       );
       validateModelManagementPayload(command);
+      const ownerCapability =
+        command.operation.startsWith('provider.credential.') ||
+        command.operation.startsWith('provider.oauth.')
+          ? 'providers.credentials.execute'
+          : 'models.execute';
+      const replay = await replayCommand(
+        request,
+        ownerCapability,
+        command,
+        sourceVersion(safeModelManagementCommand(command)),
+      );
+      if (replay) return replay;
       const before = providerStateOperation
         ? await options.source.providers()
         : await options.source.models();
@@ -550,11 +602,7 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
       });
       const committed = await options.events.commit({
         frameworkId: options.frameworkId,
-        capability:
-          command.operation.startsWith('provider.credential.') ||
-          command.operation.startsWith('provider.oauth.')
-            ? 'providers.credentials.execute'
-            : 'models.execute',
+        capability: ownerCapability,
         idempotencyKey: command.idempotencyKey,
         requestHash: sourceVersion(safeModelManagementCommand(command)),
         command: safeModelManagementCommand(command),
@@ -592,6 +640,8 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
       requireScope(scopes, 'control:execute');
       const command = request.body;
       validateWorkPayload(command);
+      const replay = await replayCommand(request, 'work.execute', command, sourceVersion(command));
+      if (replay) return replay;
       const beforeVersion = await workSourceVersion(options.source, command);
       if (command.expectedSourceVersion && command.expectedSourceVersion !== beforeVersion)
         throw new AdapterError(
@@ -665,6 +715,13 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
       requireScope(scopes, 'control:execute');
       const command = request.body;
       validateConversationPayload(command);
+      const replay = await replayCommand(
+        request,
+        'conversations.execute',
+        command,
+        sourceVersion(command),
+      );
+      if (replay) return replay;
       const beforeVersion =
         command.operation === 'session.create'
           ? (await options.source.sessions()).sourceVersion

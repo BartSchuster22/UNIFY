@@ -11,6 +11,7 @@ coverage/
 .tmp/
 backups/
 artifacts/
+.artifacts/
 .secrets/
 secrets/*
 !secrets/README.md

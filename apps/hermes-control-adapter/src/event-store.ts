@@ -33,6 +33,29 @@ export class PostgresAdapterEventStore implements AdapterEventStore {
     }
   }
 
+  async replay(
+    frameworkId: string,
+    capability: string,
+    idempotencyKey: string,
+    requestHash: string,
+  ): Promise<IdempotentCommitResult | null> {
+    const existing = await this.pool.query<{
+      request_hash: string;
+      response_body: Record<string, unknown> | null;
+    }>(
+      `SELECT request_hash, response_body
+         FROM hermes_adapter_idempotency
+        WHERE framework_id = $1 AND capability = $2 AND idempotency_key = $3`,
+      [frameworkId, capability, idempotencyKey],
+    );
+    const prior = existing.rows[0];
+    if (!prior) return null;
+    if (prior.request_hash !== requestHash)
+      throw new IdempotencyConflictError('Idempotency key was used with another request');
+    if (!prior.response_body) throw new IdempotencyBusyError('Idempotent operation is in progress');
+    return { response: prior.response_body, replayed: true, emittedEvents: 0 };
+  }
+
   async commit(input: IdempotentCommitInput): Promise<IdempotentCommitResult> {
     const client = await this.pool.connect();
     try {
@@ -216,6 +239,19 @@ export class MemoryAdapterEventStore implements AdapterEventStore {
 
   async ready() {
     return true;
+  }
+
+  async replay(
+    frameworkId: string,
+    capability: string,
+    idempotencyKey: string,
+    requestHash: string,
+  ): Promise<IdempotentCommitResult | null> {
+    const prior = this.idempotency.get(`${frameworkId}:${capability}:${idempotencyKey}`);
+    if (!prior) return null;
+    if (prior.hash !== requestHash)
+      throw new IdempotencyConflictError('Idempotency key was used with another request');
+    return { response: structuredClone(prior.response), replayed: true, emittedEvents: 0 };
   }
 
   async commit(input: IdempotentCommitInput): Promise<IdempotentCommitResult> {

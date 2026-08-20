@@ -28,10 +28,13 @@ const check = (condition, message) => {
 };
 const includes = (text, value) => check(text.includes(value), `missing ${value}`);
 
+const migrationFiles = readdirSync(join(root, 'apps/core/migrations')).filter((name) =>
+  /^\d{3}_.+\.sql$/.test(name),
+);
+check(migrationFiles.length >= 18, 'Phase 8 requires at least 18 Core migrations');
 check(
-  readdirSync(join(root, 'apps/core/migrations')).filter((name) => /^\d{3}_.+\.sql$/.test(name))
-    .length === 18,
-  'exactly 18 Core migrations required',
+  migrationFiles.includes('018_alica_chat_hermes_integration.sql'),
+  'Phase 8 Core migration is required',
 );
 for (const table of [
   'chat_product_session_projections',

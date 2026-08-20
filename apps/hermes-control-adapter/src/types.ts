@@ -74,6 +74,12 @@ export interface IdempotentCommitResult {
 
 export interface AdapterEventStore {
   ready(): Promise<boolean>;
+  replay(
+    frameworkId: string,
+    capability: string,
+    idempotencyKey: string,
+    requestHash: string,
+  ): Promise<IdempotentCommitResult | null>;
   commit(input: IdempotentCommitInput): Promise<IdempotentCommitResult>;
   list(frameworkId: string, afterSequence: number, limit: number): Promise<HermesEventEnvelope[]>;
   audit(input: AdapterAuditInput): Promise<void>;
