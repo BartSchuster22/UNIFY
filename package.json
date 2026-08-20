@@ -79,6 +79,12 @@
     "identity:capacity": "node scripts/identity-capacity-gate.mjs",
     "identity:capacity:self-test": "node scripts/identity-capacity-gate.mjs --self-test",
     "identity-tenancy:phase1:verify": "node scripts/verify-alica-identity-tenancy-phase1.mjs",
+    "identity-tenancy:phase11:migration:verify": "node scripts/verify-alica-identity-tenancy-phase11-migration.mjs",
+    "identity-tenancy:phase11:shadow:verify": "node scripts/verify-alica-identity-tenancy-phase11-shadow.mjs",
+    "identity-tenancy:phase11:rehearse": "node scripts/rehearse-alica-identity-tenancy-phase11.mjs",
+    "identity-tenancy:phase11:run": "node scripts/run-alica-identity-tenancy-phase11.mjs",
+    "identity-tenancy:phase11:i7": "node scripts/run-alica-identity-tenancy-phase11-i7.mjs",
+    "identity-tenancy:phase11:live:verify": "node scripts/verify-alica-identity-tenancy-phase11-live.mjs",
     "restore:rehearse": "bash scripts/rehearse-restore.sh",
     "performance:smoke": "node scripts/performance-smoke.mjs",
     "canary:self-test": "node scripts/production-canary.mjs --self-test",
@@ -89,7 +95,7 @@
     "standalone:check": "node scripts/check-standalone-runtime.mjs",
     "image:check": "node scripts/verify-production-images.mjs --static",
     "image:verify": "node scripts/verify-production-images.mjs",
-    "qa": "pnpm lint && pnpm typecheck && pnpm five-service:hermes-phase3:verify && pnpm five-service:hermes-phase4:verify && pnpm five-service:hermes-phase5:verify && pnpm five-service:hermes-phase6:verify && pnpm five-service:hermes-phase7:verify && pnpm five-service:hermes-phase8:verify && pnpm five-service:hermes-phase9:verify && pnpm five-service:hermes-phase10:verify && pnpm test && pnpm build && pnpm contracts:check && pnpm standalone:check && pnpm backup:prune:self-test && pnpm identity:capacity:self-test && pnpm identity-tenancy:phase1:verify && pnpm canary:self-test && pnpm format:check",
+    "qa": "pnpm lint && pnpm typecheck && pnpm five-service:hermes-phase3:verify && pnpm five-service:hermes-phase4:verify && pnpm five-service:hermes-phase5:verify && pnpm five-service:hermes-phase6:verify && pnpm five-service:hermes-phase7:verify && pnpm five-service:hermes-phase8:verify && pnpm five-service:hermes-phase9:verify && pnpm five-service:hermes-phase10:verify && pnpm test && pnpm build && pnpm contracts:check && pnpm standalone:check && pnpm backup:prune:self-test && pnpm identity:capacity:self-test && pnpm identity-tenancy:phase1:verify && pnpm identity-tenancy:phase11:migration:verify && pnpm identity-tenancy:phase11:shadow:verify && pnpm identity-tenancy:phase11:live:verify && pnpm canary:self-test && pnpm format:check",
     "clean": "pnpm -r --if-present clean"
   },
   "devDependencies": {

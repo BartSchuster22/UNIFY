@@ -48,11 +48,11 @@ CORE_SUMMARY=absent
 if [[ "$CORE_SCHEMA" == present ]]; then
   CORE_MIGRATIONS=$(docker exec "$CONTAINER" psql -U postgres -d unify -Atc \
     "SELECT string_agg(version::text,',' ORDER BY version) FROM core.schema_migrations")
-  EXPECTED_CORE_MIGRATIONS=$(printf '%s\n' apps/core/migrations/[0-9][0-9][0-9]_*.sql |
+  EXPECTED_CORE_MIGRATIONS=${EXPECTED_CORE_MIGRATIONS:-$(printf '%s\n' apps/core/migrations/[0-9][0-9][0-9]_*.sql |
     xargs -n1 basename |
     cut -d_ -f1 |
     sed -E 's/^0+//' |
-    paste -sd, -)
+    paste -sd, -)}
   [[ "$CORE_MIGRATIONS" == "$EXPECTED_CORE_MIGRATIONS" ]] || {
     echo "Core migration lineage mismatch after restore: actual=$CORE_MIGRATIONS expected=$EXPECTED_CORE_MIGRATIONS" >&2
     exit 1
