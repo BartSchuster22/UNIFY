@@ -343,6 +343,28 @@ describe('HermesNativeSource', () => {
     ).resolves.toMatchObject({ task: { id: 'task-1', status: 'triage' } });
   });
 
+  it('treats starting an already-ready native task as reconciled idempotent success', async () => {
+    const source = new HermesNativeSource({
+      runner: new FixtureRunner({
+        'kanban --board alpha list --json --archived --sort updated': JSON.stringify([
+          { id: 'task-1', title: 'Ready task', status: 'ready', priority: 50 },
+        ]),
+      }),
+    });
+    await expect(
+      source.executeWork({
+        mode: 'execute',
+        idempotencyKey: 'start-ready-1',
+        requestId: 'request-start-ready',
+        correlationId: 'correlation-start-ready',
+        actor: { type: 'user', id: 'user-1' },
+        operation: 'task.start',
+        targetId: 'task-1',
+        payload: { boardId: 'alpha' },
+      }),
+    ).resolves.toMatchObject({ task: { id: 'task-1', status: 'ready' } });
+  });
+
   it('uses existing Hermes session APIs and fails unavailable rather than returning empty truth', async () => {
     const fetchImpl: typeof fetch = async (input) => {
       const url = String(input);

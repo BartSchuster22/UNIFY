@@ -726,16 +726,26 @@ export class HermesNativeSource implements AdapterSource {
           ),
         };
       }
-      case 'task.start':
+      case 'task.start': {
+        const boardId = payloadString(payload, 'boardId', 200);
+        assertNativeId(boardId);
+        const current = (await this.tasks(boardId)).items.find(
+          (task) => task.id === command.targetId,
+        );
+        if (!current) throw new Error('Hermes task does not exist');
+        if (current.status === 'ready' || current.status === 'running') return { task: current };
+        if (current.status !== 'todo' && current.status !== 'blocked')
+          throw new Error(`Hermes task cannot start from '${current.status}'`);
         await this.options.runner.run([
           'kanban',
           '--board',
-          payloadString(payload, 'boardId', 200),
+          boardId,
           'promote',
           command.targetId,
           'Promoted to ready from UNIFY',
         ]);
         return { task: { id: command.targetId, status: 'ready' } };
+      }
       case 'task.block':
         await this.options.runner.run([
           'kanban',
