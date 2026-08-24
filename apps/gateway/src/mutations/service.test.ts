@@ -301,7 +301,7 @@ describe('standalone mutation policy', () => {
   it('governs profile rename with framework isolation, source version, confirmation, and replay', async () => {
     const store = new Store();
     const profileManagement = vi.fn().mockResolvedValue({
-      data: { status: 'completed', operation: 'profile.rename', targetId: 'default' },
+      data: { status: 'completed', operation: 'profile.rename', targetId: 'research-agent' },
     });
     const service = new MutationService(
       new GovernanceService(store),
@@ -312,7 +312,7 @@ describe('standalone mutation policy', () => {
       target: {
         owner: 'hermes',
         kind: 'profile',
-        nativeId: 'default',
+        nativeId: 'research-agent',
         frameworkId: 'hermes-herman',
       },
       payload: { newId: 'herman', expectedSourceVersion: 'sha256:profiles-v1' },
@@ -328,7 +328,7 @@ describe('standalone mutation policy', () => {
     expect(profileManagement).toHaveBeenCalledWith(
       'hermes-herman',
       'profile.rename',
-      'default',
+      'research-agent',
       raw.payload,
       'execute',
       expect.objectContaining({ idempotencyKey: 'profile-rename-key' }),
@@ -336,11 +336,38 @@ describe('standalone mutation policy', () => {
 
     for (const invalid of [
       { ...raw, confirmed: false },
-      { ...raw, payload: { ...raw.payload, newId: 'default' } },
+      { ...raw, payload: { ...raw.payload, newId: 'research-agent' } },
       { ...raw, payload: { newId: 'herman' } },
       { ...raw, target: { ...raw.target, frameworkId: undefined } },
     ])
       expect(() => service.parse(invalid)).toThrow();
+  });
+
+  it('protects the built-in default profile from rename and deletion at the UNIFY boundary', () => {
+    const service = new MutationService(new GovernanceService(new Store()), hermes(vi.fn()));
+    const target = {
+      owner: 'hermes' as const,
+      kind: 'profile',
+      nativeId: 'default',
+      frameworkId: 'hermes-alica',
+    };
+    for (const value of [
+      {
+        operationType: 'profile.rename',
+        target,
+        payload: { newId: 'alica', expectedSourceVersion: 'sha256:profiles-v2' },
+        mode: 'execute',
+        confirmed: true,
+      },
+      {
+        operationType: 'profile.delete',
+        target,
+        payload: { expectedSourceVersion: 'sha256:profiles-v2' },
+        mode: 'execute',
+        confirmed: true,
+      },
+    ])
+      expect(() => service.parse(value)).toThrowError(/built-in default Hermes profile/i);
   });
 
   it('routes credential management with dedicated RBAC and never persists the credential', async () => {

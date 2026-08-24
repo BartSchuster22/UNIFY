@@ -380,6 +380,25 @@ describe('named-user session security', () => {
       meta: { owner: 'hermes', frameworkId: 'hermes-main' },
       items: [{ owner: 'hermes' }],
     });
+    const agents = await app.inject({
+      method: 'GET',
+      url: '/api/v1/frameworks/hermes-main/agents',
+      headers: { cookie },
+    });
+    expect(agents.statusCode).toBe(200);
+    expect(agents.json()).toMatchObject({
+      meta: { owner: 'hermes', frameworkId: 'hermes-main' },
+      items: [
+        {
+          id: 'default',
+          kind: 'agent',
+          agentId: 'hermes-main:default',
+          nativeProfileId: 'default',
+          owner: 'hermes',
+          frameworkId: 'hermes-main',
+        },
+      ],
+    });
     const providers = await app.inject({
       method: 'GET',
       url: '/api/v1/frameworks/hermes-main/providers',

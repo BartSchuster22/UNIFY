@@ -19,6 +19,7 @@ import { MemoryV4AdapterError, type MemoryV4Adapter } from './memory-v4/client.j
 import { memoryRoute } from './memory-v4/types.js';
 import { registerFrameworkMemoryRoutes } from './framework-memory/routes.js';
 import type { FrameworkUpdateVisibilityService } from './framework-updates/service.js';
+import { AgentManagementService, type AgentMutationBody } from './agents/service.js';
 export interface AppOptions {
   authStore: AuthStore;
   authPepper: string;
@@ -63,6 +64,9 @@ export function buildApp(options: AppOptions) {
     governance && options.hermesGateway
       ? new MutationService(governance, options.hermesGateway)
       : null;
+  const agents = options.hermesGateway
+    ? new AgentManagementService(options.hermesGateway, mutations)
+    : null;
   const requestLimiter = new FixedWindowRateLimiter(options.requestRateLimit ?? 600, 60_000);
   void app.register(cookie);
   app.addHook('onRequest', async (request, reply) => {
@@ -322,16 +326,7 @@ export function buildApp(options: AppOptions) {
           'Mutation execution is unavailable',
         );
       const input = mutations.parse(request.body);
-      auth.requirePermission(current, mutations.permission(input));
-
-      const rawKey = request.headers['idempotency-key'];
-      const idempotencyKey = Array.isArray(rawKey) ? rawKey[0] : rawKey;
-      const result = await mutations.run(current.userId, idempotencyKey, input);
-      return reply.status(result.replayed ? 200 : 201).send({
-        replayed: result.replayed,
-        operation: publicOperation(result.operation),
-        result: result.result,
-      });
+      return mutationReply(current, request, reply, input);
     },
   );
   app.get('/api/v1/memory/status', async (request) => {
@@ -815,6 +810,158 @@ export function buildApp(options: AppOptions) {
       );
     },
   );
+  type AgentCreateBody = AgentMutationBody & { id: string };
+  type AgentRenameBody = AgentMutationBody & { newId: string; confirmed: true };
+  type AgentDeleteBody = AgentMutationBody & { confirmed: true };
+  const agentParamsSchema = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['frameworkId'],
+    properties: { frameworkId: { type: 'string', minLength: 1, maxLength: 200 } },
+  } as const;
+  const agentItemParamsSchema = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['frameworkId', 'profileId'],
+    properties: {
+      frameworkId: { type: 'string', minLength: 1, maxLength: 200 },
+      profileId: { type: 'string', pattern: '^[a-z0-9][a-z0-9_-]{0,127}$' },
+    },
+  } as const;
+  const agentMutationProperties = {
+    expectedSourceVersion: { type: 'string', minLength: 1, maxLength: 500 },
+    description: { type: 'string', maxLength: 5000 },
+    mode: { type: 'string', enum: ['validate', 'dry-run', 'execute'] },
+  } as const;
+  app.get<{ Params: { frameworkId: string }; Querystring: FrameworkPageQuery }>(
+    '/api/v1/frameworks/:frameworkId/agents',
+    { schema: { params: agentParamsSchema } },
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'profiles.read');
+      return requireAgentManagement().list(
+        request.params.frameworkId,
+        frameworkPageQuery(request.query),
+      );
+    },
+  );
+  app.post<{ Params: { frameworkId: string }; Body: AgentCreateBody }>(
+    '/api/v1/frameworks/:frameworkId/agents',
+    {
+      schema: {
+        params: agentParamsSchema,
+        body: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['id', 'expectedSourceVersion'],
+          properties: {
+            ...agentMutationProperties,
+            id: { type: 'string', pattern: '^[a-z0-9][a-z0-9_-]{0,127}$' },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      const current = await mutationSession(request);
+      const input = requireAgentManagement().mutation(
+        'profile.create',
+        request.params.frameworkId,
+        request.body.id,
+        request.body,
+      );
+      return mutationReply(current, request, reply, input);
+    },
+  );
+  app.patch<{
+    Params: { frameworkId: string; profileId: string };
+    Body: AgentMutationBody;
+  }>(
+    '/api/v1/frameworks/:frameworkId/agents/:profileId',
+    {
+      schema: {
+        params: agentItemParamsSchema,
+        body: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['description', 'expectedSourceVersion'],
+          properties: agentMutationProperties,
+        },
+      },
+    },
+    async (request, reply) => {
+      const current = await mutationSession(request);
+      const input = requireAgentManagement().mutation(
+        'profile.update',
+        request.params.frameworkId,
+        request.params.profileId,
+        request.body,
+      );
+      return mutationReply(current, request, reply, input);
+    },
+  );
+  app.post<{
+    Params: { frameworkId: string; profileId: string };
+    Body: AgentRenameBody;
+  }>(
+    '/api/v1/frameworks/:frameworkId/agents/:profileId/rename',
+    {
+      schema: {
+        params: agentItemParamsSchema,
+        body: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['newId', 'expectedSourceVersion', 'confirmed'],
+          properties: {
+            expectedSourceVersion: agentMutationProperties.expectedSourceVersion,
+            mode: agentMutationProperties.mode,
+            newId: { type: 'string', pattern: '^[a-z0-9][a-z0-9_-]{0,127}$' },
+            confirmed: { type: 'boolean', const: true },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      const current = await mutationSession(request);
+      const input = requireAgentManagement().mutation(
+        'profile.rename',
+        request.params.frameworkId,
+        request.params.profileId,
+        request.body,
+      );
+      return mutationReply(current, request, reply, input);
+    },
+  );
+  app.delete<{
+    Params: { frameworkId: string; profileId: string };
+    Body: AgentDeleteBody;
+  }>(
+    '/api/v1/frameworks/:frameworkId/agents/:profileId',
+    {
+      schema: {
+        params: agentItemParamsSchema,
+        body: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['expectedSourceVersion', 'confirmed'],
+          properties: {
+            expectedSourceVersion: agentMutationProperties.expectedSourceVersion,
+            mode: agentMutationProperties.mode,
+            confirmed: { type: 'boolean', const: true },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      const current = await mutationSession(request);
+      const input = requireAgentManagement().mutation(
+        'profile.delete',
+        request.params.frameworkId,
+        request.params.profileId,
+        request.body,
+      );
+      return mutationReply(current, request, reply, input);
+    },
+  );
   app.get<{ Params: { frameworkId: string }; Querystring: FrameworkPageQuery }>(
     '/api/v1/frameworks/:frameworkId/providers',
     async (request) => {
@@ -984,6 +1131,33 @@ export function buildApp(options: AppOptions) {
         'Hermes framework gateway is unavailable',
       );
     return options.hermesGateway;
+  }
+  function requireAgentManagement(): AgentManagementService {
+    if (!agents)
+      throw new GovernanceError(
+        'AGENT_MANAGEMENT_UNAVAILABLE',
+        503,
+        'Governed Agent management is unavailable',
+      );
+    return agents;
+  }
+  async function mutationReply(
+    current: SessionRecord,
+    request: FastifyRequest,
+    reply: FastifyReply,
+    input: ReturnType<MutationService['parse']>,
+  ) {
+    if (!mutations)
+      throw new GovernanceError('MUTATIONS_UNAVAILABLE', 503, 'Mutation execution is unavailable');
+    auth.requirePermission(current, mutations.permission(input));
+    const rawKey = request.headers['idempotency-key'];
+    const idempotencyKey = Array.isArray(rawKey) ? rawKey[0] : rawKey;
+    const result = await mutations.run(current.userId, idempotencyKey, input);
+    return reply.status(result.replayed ? 200 : 201).send({
+      replayed: result.replayed,
+      operation: publicOperation(result.operation),
+      result: result.result,
+    });
   }
   function frameworkPageQuery(query: FrameworkPageQuery) {
     let limit: number | undefined;

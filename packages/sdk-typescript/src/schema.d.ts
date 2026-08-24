@@ -2064,6 +2064,62 @@ export interface components {
                 hasMore: boolean;
             };
         };
+        GatewayHermesAgent: {
+            id: string;
+            displayName: string;
+            active: boolean;
+            gatewayStatus: "running" | "stopped" | "unknown";
+            model?: string;
+            provider?: string;
+            description?: string;
+            /** @constant */
+            owner: "hermes";
+            frameworkId: string;
+            sourceVersion: string;
+            /** Format: date-time */
+            observedAt: string;
+            /** @constant */
+            kind: "agent";
+            agentId: string;
+            nativeProfileId: string;
+        };
+        GatewayHermesAgents: {
+            meta: {
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                frameworkVersion: string;
+                frameworkCommit: string;
+                sourceVersion: string;
+                /** Format: date-time */
+                observedAt: string;
+                /** @constant */
+                freshness: "current";
+            };
+            items: {
+                id: string;
+                displayName: string;
+                active: boolean;
+                gatewayStatus: "running" | "stopped" | "unknown";
+                model?: string;
+                provider?: string;
+                description?: string;
+                /** @constant */
+                owner: "hermes";
+                frameworkId: string;
+                sourceVersion: string;
+                /** Format: date-time */
+                observedAt: string;
+                /** @constant */
+                kind: "agent";
+                agentId: string;
+                nativeProfileId: string;
+            }[];
+            page: {
+                nextCursor?: string;
+                hasMore: boolean;
+            };
+        };
         GatewayHermesProvider: {
             id: string;
             displayName: string;

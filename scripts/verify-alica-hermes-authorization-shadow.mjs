@@ -56,10 +56,10 @@ const before = snapshot();
 const surface = inventory();
 assert.equal(surface.schemaVersion, HERMES_AUTHORIZATION_SURFACE);
 assert.equal(surface.contractVersion, HERMES_AUTHORIZATION_SHADOW_CONTRACT);
-assert.equal(surface.gatewayRoutes.length, 17);
+assert.equal(surface.gatewayRoutes.length, 22);
 assert.equal(surface.adapterRoutes.length, 19);
 assert.equal(surface.operations.length, 31);
-assert.equal(surface.catalog.length, 67);
+assert.equal(surface.catalog.length, 72);
 assert.deepEqual(surface.dynamicPermissionExpressions, ['mutations.permission(input)']);
 assert.equal(surface.mutationPerformed, false);
 assert.equal(surface.enforcementChanged, false);
@@ -69,7 +69,7 @@ const document = JSON.parse(read(fixturePath));
 assert.equal(document.contractVersion, HERMES_AUTHORIZATION_SHADOW_CONTRACT);
 assert.equal(document.sourceVersion, surface.sourceVersion);
 assert.deepEqual(document.inventory, {
-  gatewayRoutes: 17,
+  gatewayRoutes: 22,
   adapterRoutes: 19,
   operations: 31,
   dynamicPermissionExpressions: ['mutations.permission(input)'],
@@ -81,12 +81,12 @@ assert.deepEqual(document.boundary, {
   liveAccess: false,
   mutationPerformed: false,
 });
-assert.equal(document.fixtures.length, 116);
+assert.equal(document.fixtures.length, 121);
 
 const coverageNames = new Set(
   document.fixtures.filter((item) => item.name.startsWith('coverage:')).map((item) => item.name),
 );
-assert.equal(coverageNames.size, 67);
+assert.equal(coverageNames.size, 72);
 for (const item of surface.catalog)
   assert.ok(coverageNames.has(`coverage:${item.key}`), `Missing coverage fixture: ${item.key}`);
 
@@ -123,7 +123,7 @@ for (const item of document.fixtures) {
   counts[first.shadowTarget.effect] += 1;
   reasonCodes.add(first.shadowTarget.reasonCode);
 }
-assert.deepEqual(counts, { matched: 70, tightened: 46, widened: 0, allow: 66, deny: 50 });
+assert.deepEqual(counts, { matched: 75, tightened: 46, widened: 0, allow: 71, deny: 50 });
 
 for (const reason of [
   'AUTHENTICATION_REQUIRED',

@@ -13,6 +13,7 @@ import {
   HermesProfileCommandSchema,
   HermesProviderSchema,
   HermesVersionResponseSchema,
+  GatewayHermesAgentsSchema,
 } from './index.js';
 
 const meta = {
@@ -121,6 +122,38 @@ describe('hermes-control/v1 frozen contracts', () => {
         payload: { newId: 'alica' },
         operation: 'profile.rename',
         targetId: 'default',
+      }),
+    ).toBe(true);
+  });
+
+  it('defines governed Agents as framework-scoped native profile projections', () => {
+    expect(
+      Value.Check(GatewayHermesAgentsSchema, {
+        meta: {
+          owner: 'hermes',
+          frameworkId: 'hermes-alica',
+          frameworkVersion: PINNED_HERMES_RELEASE,
+          frameworkCommit: PINNED_HERMES_COMMIT,
+          sourceVersion: 'sha256:profiles-v2',
+          freshness: 'current',
+          observedAt: meta.observedAt,
+        },
+        items: [
+          {
+            id: 'research-agent',
+            displayName: 'Research Agent',
+            active: false,
+            gatewayStatus: 'stopped',
+            owner: 'hermes',
+            frameworkId: 'hermes-alica',
+            sourceVersion: 'sha256:profiles-v2',
+            observedAt: meta.observedAt,
+            kind: 'agent',
+            agentId: 'hermes-alica:research-agent',
+            nativeProfileId: 'research-agent',
+          },
+        ],
+        page: { hasMore: false },
       }),
     ).toBe(true);
   });

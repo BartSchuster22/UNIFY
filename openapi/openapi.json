@@ -12518,6 +12518,272 @@
           }
         }
       },
+      "GatewayHermesAgent": {
+        "$id": "GatewayHermesAgent",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "displayName",
+          "active",
+          "gatewayStatus",
+          "owner",
+          "frameworkId",
+          "sourceVersion",
+          "observedAt",
+          "kind",
+          "agentId",
+          "nativeProfileId"
+        ],
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          },
+          "displayName": {
+            "minLength": 1,
+            "maxLength": 200,
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "gatewayStatus": {
+            "anyOf": [
+              {
+                "const": "running",
+                "type": "string"
+              },
+              {
+                "const": "stopped",
+                "type": "string"
+              },
+              {
+                "const": "unknown",
+                "type": "string"
+              }
+            ]
+          },
+          "model": {
+            "maxLength": 300,
+            "type": "string"
+          },
+          "provider": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 5000,
+            "type": "string"
+          },
+          "owner": {
+            "const": "hermes",
+            "type": "string"
+          },
+          "frameworkId": {
+            "$id": "HermesFrameworkId",
+            "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+            "type": "string"
+          },
+          "sourceVersion": {
+            "minLength": 1,
+            "maxLength": 256,
+            "type": "string"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "kind": {
+            "const": "agent",
+            "type": "string"
+          },
+          "agentId": {
+            "minLength": 3,
+            "maxLength": 329,
+            "type": "string"
+          },
+          "nativeProfileId": {
+            "minLength": 1,
+            "maxLength": 128,
+            "type": "string"
+          }
+        }
+      },
+      "GatewayHermesAgents": {
+        "$id": "GatewayHermesAgents",
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "meta",
+          "items",
+          "page"
+        ],
+        "properties": {
+          "meta": {
+            "$id": "GatewayHermesMetadata",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "owner",
+              "frameworkId",
+              "frameworkVersion",
+              "frameworkCommit",
+              "sourceVersion",
+              "observedAt",
+              "freshness"
+            ],
+            "properties": {
+              "owner": {
+                "const": "hermes",
+                "type": "string"
+              },
+              "frameworkId": {
+                "$id": "HermesFrameworkId",
+                "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+                "type": "string"
+              },
+              "frameworkVersion": {
+                "minLength": 1,
+                "maxLength": 128,
+                "type": "string"
+              },
+              "frameworkCommit": {
+                "pattern": "^[a-f0-9]{40}$",
+                "type": "string"
+              },
+              "sourceVersion": {
+                "minLength": 1,
+                "maxLength": 256,
+                "type": "string"
+              },
+              "observedAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "freshness": {
+                "const": "current",
+                "type": "string"
+              }
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$id": "GatewayHermesAgent",
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "id",
+                "displayName",
+                "active",
+                "gatewayStatus",
+                "owner",
+                "frameworkId",
+                "sourceVersion",
+                "observedAt",
+                "kind",
+                "agentId",
+                "nativeProfileId"
+              ],
+              "properties": {
+                "id": {
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                "displayName": {
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                "active": {
+                  "type": "boolean"
+                },
+                "gatewayStatus": {
+                  "anyOf": [
+                    {
+                      "const": "running",
+                      "type": "string"
+                    },
+                    {
+                      "const": "stopped",
+                      "type": "string"
+                    },
+                    {
+                      "const": "unknown",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "model": {
+                  "maxLength": 300,
+                  "type": "string"
+                },
+                "provider": {
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                "description": {
+                  "maxLength": 5000,
+                  "type": "string"
+                },
+                "owner": {
+                  "const": "hermes",
+                  "type": "string"
+                },
+                "frameworkId": {
+                  "$id": "HermesFrameworkId",
+                  "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$",
+                  "type": "string"
+                },
+                "sourceVersion": {
+                  "minLength": 1,
+                  "maxLength": 256,
+                  "type": "string"
+                },
+                "observedAt": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "kind": {
+                  "const": "agent",
+                  "type": "string"
+                },
+                "agentId": {
+                  "minLength": 3,
+                  "maxLength": 329,
+                  "type": "string"
+                },
+                "nativeProfileId": {
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "page": {
+            "$id": "HermesPage",
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "hasMore"
+            ],
+            "properties": {
+              "nextCursor": {
+                "minLength": 1,
+                "maxLength": 2048,
+                "type": "string"
+              },
+              "hasMore": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
       "GatewayHermesProvider": {
         "$id": "GatewayHermesProvider",
         "additionalProperties": false,

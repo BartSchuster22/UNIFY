@@ -1,7 +1,7 @@
 {
   "schemaVersion": "alica-hermes-authorization-shadow-fixtures/v1",
   "contractVersion": "alica-hermes-authorization-shadow/v0.1",
-  "sourceVersion": "sha256:9d9671c6f288b2005dd589cc9ce9080045be670f30e515c9b808465b1b5567d7",
+  "sourceVersion": "sha256:825cea90e3deed9ca9e6c5f35dc91a31744874e990fe103759420e150373681f",
   "generatedFrom": {
     "gateway": "apps/gateway/src/app.ts",
     "adapter": "apps/hermes-control-adapter/src/app.ts",
@@ -21,7 +21,7 @@
     "mutationPerformed": false
   },
   "inventory": {
-    "gatewayRoutes": 17,
+    "gatewayRoutes": 22,
     "adapterRoutes": 19,
     "operations": 31,
     "dynamicPermissionExpressions": ["mutations.permission(input)"]
@@ -506,6 +506,371 @@
             "name": "profiles.read",
             "status": "supported",
             "modes": ["read"]
+          },
+          "policy": {
+            "explicitDeny": false,
+            "projectionFresh": true,
+            "approvalRequired": false,
+            "approvalProvided": true
+          },
+          "delegation": { "kind": "direct" }
+        }
+      },
+      "expected": {
+        "predecessor": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "shadowTarget": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "comparison": "matched"
+      }
+    },
+    {
+      "name": "coverage:gateway-route:GET /api/v1/frameworks/:frameworkId/agents",
+      "input": {
+        "surface": {
+          "key": "gateway-route:GET /api/v1/frameworks/:frameworkId/agents",
+          "surface": "gateway-route",
+          "method": "GET",
+          "path": "/api/v1/frameworks/:frameworkId/agents",
+          "permission": "profiles.read",
+          "capability": "profiles.read",
+          "capabilityAdvertised": true,
+          "adapterScope": "control:read",
+          "collection": true,
+          "mode": "read"
+        },
+        "predecessor": {
+          "authenticated": true,
+          "principalActive": true,
+          "permissionGranted": true,
+          "adapterScopeAllowed": true
+        },
+        "target": {
+          "principal": {
+            "id": "prn_018f47e2-9097-7a31-8dd8-21df0f736c3a",
+            "status": "active",
+            "authenticationFresh": true,
+            "authenticationStrongEnough": true
+          },
+          "tenant": {
+            "id": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "status": "active",
+            "membershipStatus": "active",
+            "membershipFresh": true
+          },
+          "client": {
+            "id": "cli_018f47e2-9097-7a31-8dd8-21df0f736c3c",
+            "status": "active",
+            "tenantGrantAllows": true,
+            "principalGrantAllows": true
+          },
+          "resource": {
+            "requestedFrameworkId": "hermes-main",
+            "grantedFrameworkId": "hermes-main",
+            "nativeResourceId": "native-resource-1",
+            "tenantId": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "exactGrantAllows": true,
+            "collectionFiltered": true,
+            "registrationStatus": "active",
+            "registrationVerified": true,
+            "compatibilityAccepted": true,
+            "tenantClientAvailability": true
+          },
+          "adapterScopeAllows": true,
+          "capability": {
+            "name": "profiles.read",
+            "status": "supported",
+            "modes": ["read"]
+          },
+          "policy": {
+            "explicitDeny": false,
+            "projectionFresh": true,
+            "approvalRequired": false,
+            "approvalProvided": true
+          },
+          "delegation": { "kind": "direct" }
+        }
+      },
+      "expected": {
+        "predecessor": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "shadowTarget": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "comparison": "matched"
+      }
+    },
+    {
+      "name": "coverage:gateway-route:POST /api/v1/frameworks/:frameworkId/agents",
+      "input": {
+        "surface": {
+          "key": "gateway-route:POST /api/v1/frameworks/:frameworkId/agents",
+          "surface": "gateway-route",
+          "method": "POST",
+          "path": "/api/v1/frameworks/:frameworkId/agents",
+          "permission": "profiles.manage",
+          "capability": "profiles.execute",
+          "capabilityAdvertised": true,
+          "adapterScope": "control:execute",
+          "collection": false,
+          "mode": "execute"
+        },
+        "predecessor": {
+          "authenticated": true,
+          "principalActive": true,
+          "permissionGranted": true,
+          "adapterScopeAllowed": true
+        },
+        "target": {
+          "principal": {
+            "id": "prn_018f47e2-9097-7a31-8dd8-21df0f736c3a",
+            "status": "active",
+            "authenticationFresh": true,
+            "authenticationStrongEnough": true
+          },
+          "tenant": {
+            "id": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "status": "active",
+            "membershipStatus": "active",
+            "membershipFresh": true
+          },
+          "client": {
+            "id": "cli_018f47e2-9097-7a31-8dd8-21df0f736c3c",
+            "status": "active",
+            "tenantGrantAllows": true,
+            "principalGrantAllows": true
+          },
+          "resource": {
+            "requestedFrameworkId": "hermes-main",
+            "grantedFrameworkId": "hermes-main",
+            "nativeResourceId": "native-resource-1",
+            "tenantId": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "exactGrantAllows": true,
+            "collectionFiltered": true,
+            "registrationStatus": "active",
+            "registrationVerified": true,
+            "compatibilityAccepted": true,
+            "tenantClientAvailability": true
+          },
+          "adapterScopeAllows": true,
+          "capability": {
+            "name": "profiles.execute",
+            "status": "supported",
+            "modes": ["execute"]
+          },
+          "policy": {
+            "explicitDeny": false,
+            "projectionFresh": true,
+            "approvalRequired": false,
+            "approvalProvided": true
+          },
+          "delegation": { "kind": "direct" }
+        }
+      },
+      "expected": {
+        "predecessor": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "shadowTarget": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "comparison": "matched"
+      }
+    },
+    {
+      "name": "coverage:gateway-route:PATCH /api/v1/frameworks/:frameworkId/agents/:profileId",
+      "input": {
+        "surface": {
+          "key": "gateway-route:PATCH /api/v1/frameworks/:frameworkId/agents/:profileId",
+          "surface": "gateway-route",
+          "method": "PATCH",
+          "path": "/api/v1/frameworks/:frameworkId/agents/:profileId",
+          "permission": "profiles.manage",
+          "capability": "profiles.execute",
+          "capabilityAdvertised": true,
+          "adapterScope": "control:execute",
+          "collection": false,
+          "mode": "execute"
+        },
+        "predecessor": {
+          "authenticated": true,
+          "principalActive": true,
+          "permissionGranted": true,
+          "adapterScopeAllowed": true
+        },
+        "target": {
+          "principal": {
+            "id": "prn_018f47e2-9097-7a31-8dd8-21df0f736c3a",
+            "status": "active",
+            "authenticationFresh": true,
+            "authenticationStrongEnough": true
+          },
+          "tenant": {
+            "id": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "status": "active",
+            "membershipStatus": "active",
+            "membershipFresh": true
+          },
+          "client": {
+            "id": "cli_018f47e2-9097-7a31-8dd8-21df0f736c3c",
+            "status": "active",
+            "tenantGrantAllows": true,
+            "principalGrantAllows": true
+          },
+          "resource": {
+            "requestedFrameworkId": "hermes-main",
+            "grantedFrameworkId": "hermes-main",
+            "nativeResourceId": "native-resource-1",
+            "tenantId": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "exactGrantAllows": true,
+            "collectionFiltered": true,
+            "registrationStatus": "active",
+            "registrationVerified": true,
+            "compatibilityAccepted": true,
+            "tenantClientAvailability": true
+          },
+          "adapterScopeAllows": true,
+          "capability": {
+            "name": "profiles.execute",
+            "status": "supported",
+            "modes": ["execute"]
+          },
+          "policy": {
+            "explicitDeny": false,
+            "projectionFresh": true,
+            "approvalRequired": false,
+            "approvalProvided": true
+          },
+          "delegation": { "kind": "direct" }
+        }
+      },
+      "expected": {
+        "predecessor": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "shadowTarget": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "comparison": "matched"
+      }
+    },
+    {
+      "name": "coverage:gateway-route:POST /api/v1/frameworks/:frameworkId/agents/:profileId/rename",
+      "input": {
+        "surface": {
+          "key": "gateway-route:POST /api/v1/frameworks/:frameworkId/agents/:profileId/rename",
+          "surface": "gateway-route",
+          "method": "POST",
+          "path": "/api/v1/frameworks/:frameworkId/agents/:profileId/rename",
+          "permission": "profiles.manage",
+          "capability": "profiles.execute",
+          "capabilityAdvertised": true,
+          "adapterScope": "control:execute",
+          "collection": false,
+          "mode": "execute"
+        },
+        "predecessor": {
+          "authenticated": true,
+          "principalActive": true,
+          "permissionGranted": true,
+          "adapterScopeAllowed": true
+        },
+        "target": {
+          "principal": {
+            "id": "prn_018f47e2-9097-7a31-8dd8-21df0f736c3a",
+            "status": "active",
+            "authenticationFresh": true,
+            "authenticationStrongEnough": true
+          },
+          "tenant": {
+            "id": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "status": "active",
+            "membershipStatus": "active",
+            "membershipFresh": true
+          },
+          "client": {
+            "id": "cli_018f47e2-9097-7a31-8dd8-21df0f736c3c",
+            "status": "active",
+            "tenantGrantAllows": true,
+            "principalGrantAllows": true
+          },
+          "resource": {
+            "requestedFrameworkId": "hermes-main",
+            "grantedFrameworkId": "hermes-main",
+            "nativeResourceId": "native-resource-1",
+            "tenantId": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "exactGrantAllows": true,
+            "collectionFiltered": true,
+            "registrationStatus": "active",
+            "registrationVerified": true,
+            "compatibilityAccepted": true,
+            "tenantClientAvailability": true
+          },
+          "adapterScopeAllows": true,
+          "capability": {
+            "name": "profiles.execute",
+            "status": "supported",
+            "modes": ["execute"]
+          },
+          "policy": {
+            "explicitDeny": false,
+            "projectionFresh": true,
+            "approvalRequired": false,
+            "approvalProvided": true
+          },
+          "delegation": { "kind": "direct" }
+        }
+      },
+      "expected": {
+        "predecessor": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "shadowTarget": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "comparison": "matched"
+      }
+    },
+    {
+      "name": "coverage:gateway-route:DELETE /api/v1/frameworks/:frameworkId/agents/:profileId",
+      "input": {
+        "surface": {
+          "key": "gateway-route:DELETE /api/v1/frameworks/:frameworkId/agents/:profileId",
+          "surface": "gateway-route",
+          "method": "DELETE",
+          "path": "/api/v1/frameworks/:frameworkId/agents/:profileId",
+          "permission": "profiles.manage",
+          "capability": "profiles.execute",
+          "capabilityAdvertised": true,
+          "adapterScope": "control:execute",
+          "collection": false,
+          "mode": "execute"
+        },
+        "predecessor": {
+          "authenticated": true,
+          "principalActive": true,
+          "permissionGranted": true,
+          "adapterScopeAllowed": true
+        },
+        "target": {
+          "principal": {
+            "id": "prn_018f47e2-9097-7a31-8dd8-21df0f736c3a",
+            "status": "active",
+            "authenticationFresh": true,
+            "authenticationStrongEnough": true
+          },
+          "tenant": {
+            "id": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "status": "active",
+            "membershipStatus": "active",
+            "membershipFresh": true
+          },
+          "client": {
+            "id": "cli_018f47e2-9097-7a31-8dd8-21df0f736c3c",
+            "status": "active",
+            "tenantGrantAllows": true,
+            "principalGrantAllows": true
+          },
+          "resource": {
+            "requestedFrameworkId": "hermes-main",
+            "grantedFrameworkId": "hermes-main",
+            "nativeResourceId": "native-resource-1",
+            "tenantId": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "exactGrantAllows": true,
+            "collectionFiltered": true,
+            "registrationStatus": "active",
+            "registrationVerified": true,
+            "compatibilityAccepted": true,
+            "tenantClientAvailability": true
+          },
+          "adapterScopeAllows": true,
+          "capability": {
+            "name": "profiles.execute",
+            "status": "supported",
+            "modes": ["execute"]
           },
           "policy": {
             "explicitDeny": false,

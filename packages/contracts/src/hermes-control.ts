@@ -844,6 +844,21 @@ export const GatewayHermesProfilesSchema = gatewayCollection(
   'GatewayHermesProfiles',
   GatewayHermesProfileSchema,
 );
+export const GatewayHermesAgentSchema = Type.Composite(
+  [
+    GatewayHermesProfileSchema,
+    Type.Object({
+      kind: Type.Literal('agent'),
+      agentId: Type.String({ minLength: 3, maxLength: 329 }),
+      nativeProfileId: Type.String({ minLength: 1, maxLength: 128 }),
+    }),
+  ],
+  { $id: 'GatewayHermesAgent', additionalProperties: false },
+);
+export const GatewayHermesAgentsSchema = gatewayCollection(
+  'GatewayHermesAgents',
+  GatewayHermesAgentSchema,
+);
 export const GatewayHermesProviderSchema = gatewayOwnedItem(
   'GatewayHermesProvider',
   HermesProviderSchema,
@@ -924,6 +939,7 @@ export type HermesHealthResponse = Static<typeof HermesHealthResponseSchema>;
 export type HermesVersionResponse = Static<typeof HermesVersionResponseSchema>;
 export type HermesCapabilitiesResponse = Static<typeof HermesCapabilitiesResponseSchema>;
 export type HermesProfile = Static<typeof HermesProfileSchema>;
+export type GatewayHermesAgent = Static<typeof GatewayHermesAgentSchema>;
 export type HermesProvider = Static<typeof HermesProviderSchema>;
 export type HermesModel = Static<typeof HermesModelSchema>;
 export type HermesBoard = Static<typeof HermesBoardSchema>;
@@ -1007,6 +1023,8 @@ export const HermesControlSchemas = [
   GatewayHermesCapabilitiesSchema,
   GatewayHermesProfileSchema,
   GatewayHermesProfilesSchema,
+  GatewayHermesAgentSchema,
+  GatewayHermesAgentsSchema,
   GatewayHermesProviderSchema,
   GatewayHermesProvidersSchema,
   GatewayHermesProjectSchema,

@@ -130,6 +130,36 @@ const GATEWAY_ROUTE_POLICY = Object.freeze({
     'control:read',
     true,
   ],
+  'GET /api/v1/frameworks/:frameworkId/agents': [
+    'profiles.read',
+    'profiles.read',
+    'control:read',
+    true,
+  ],
+  'POST /api/v1/frameworks/:frameworkId/agents': [
+    'profiles.manage',
+    'profiles.execute',
+    'control:execute',
+    false,
+  ],
+  'PATCH /api/v1/frameworks/:frameworkId/agents/:profileId': [
+    'profiles.manage',
+    'profiles.execute',
+    'control:execute',
+    false,
+  ],
+  'POST /api/v1/frameworks/:frameworkId/agents/:profileId/rename': [
+    'profiles.manage',
+    'profiles.execute',
+    'control:execute',
+    false,
+  ],
+  'DELETE /api/v1/frameworks/:frameworkId/agents/:profileId': [
+    'profiles.manage',
+    'profiles.execute',
+    'control:execute',
+    false,
+  ],
   'GET /api/v1/frameworks/:frameworkId/providers': [
     'models.read',
     'providers.read',

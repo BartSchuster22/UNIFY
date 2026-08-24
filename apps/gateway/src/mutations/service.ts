@@ -254,6 +254,15 @@ function validateProfileCommand(input: MutationInput, definition: MutationDefini
       409,
       'This profile operation requires explicit confirmation',
     );
+  if (
+    input.target.nativeId === 'default' &&
+    (input.operationType === 'profile.rename' || input.operationType === 'profile.delete')
+  )
+    throw new GovernanceError(
+      'PROTECTED_PROFILE',
+      409,
+      'The built-in default Hermes profile cannot be renamed or deleted',
+    );
   const expectedSourceVersion = input.payload.expectedSourceVersion;
   if (typeof expectedSourceVersion !== 'string' || !expectedSourceVersion.trim())
     throw new GovernanceError(
