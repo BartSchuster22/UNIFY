@@ -21,15 +21,15 @@ const shadow = JSON.parse(
   ),
 );
 assert.equal(IDENTITY_TENANCY_AUTHORIZATION_CONTRACT, 'alica-identity-tenancy-authorization/v0.1');
-assert.equal(shadow.fixtures.length, 121);
+assert.equal(shadow.fixtures.length, 128);
 const predecessorCounts = { matched: 0, tightened: 0, widened: 0 };
 for (const fixture of shadow.fixtures) {
   const decision = evaluateHermesAuthorizationShadow(fixture.input);
   predecessorCounts[decision.comparison] += 1;
 }
-assert.deepEqual(predecessorCounts, { matched: 75, tightened: 46, widened: 0 });
+assert.deepEqual(predecessorCounts, { matched: 82, tightened: 46, widened: 0 });
 const coverage = shadow.fixtures.filter((fixture) => fixture.name.startsWith('coverage:'));
-assert.equal(coverage.length, 72);
+assert.equal(coverage.length, 79);
 
 const ids = {
   principal: 'prn_01M0FC3KKXD92Z74HGF1A87ZYQ',
@@ -121,8 +121,8 @@ for (const fixture of coverage) {
   entitlementOnly.technicalPermission = false;
   expect(entitlementOnly, 'deny', 'TECHNICAL_PERMISSION_REQUIRED');
 }
-assert.equal(decisions, 720);
-assert.equal(reasonCounts.get('AUTHORIZED'), 72);
+assert.equal(decisions, 790);
+assert.equal(reasonCounts.get('AUTHORIZED'), 79);
 
 const { publicKey, privateKey } = generateKeyPairSync('ed25519');
 const now = new Date('2026-08-20T16:00:00.000Z');
@@ -177,11 +177,11 @@ console.log(
     {
       ok: true,
       contractVersion: IDENTITY_TENANCY_AUTHORIZATION_CONTRACT,
-      predecessorFixtures: 121,
-      routeOperationSurfaces: 72,
+      predecessorFixtures: 128,
+      routeOperationSurfaces: 79,
       decisions,
-      allows: 72,
-      denies: 648,
+      allows: 79,
+      denies: 711,
       widened: 0,
       managedProjectionAccepted: true,
       managedProjectionNegativeCases: 6,

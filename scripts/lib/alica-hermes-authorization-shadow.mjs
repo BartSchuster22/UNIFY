@@ -190,6 +190,24 @@ const GATEWAY_ROUTE_POLICY = Object.freeze({
     'control:read',
     true,
   ],
+  'GET /api/v1/frameworks/:frameworkId/kanban/boards': [
+    'work.read',
+    'work.boards.read',
+    'control:read',
+    true,
+  ],
+  'GET /api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards': [
+    'work.read',
+    'work.tasks.read',
+    'control:read',
+    true,
+  ],
+  'POST /api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards': [
+    'work.manage',
+    'work.execute',
+    'control:execute',
+    false,
+  ],
   'GET /api/v1/frameworks/:frameworkId/work/cronjobs': [
     'work.read',
     'work.cron.read',
@@ -278,7 +296,9 @@ function routeCatalog(discovered, policy, surface) {
   const discoveredKeys = discovered.map(routeKey).sort();
   const policyKeys = Object.keys(policy).sort();
   if (JSON.stringify(discoveredKeys) !== JSON.stringify(policyKeys))
-    throw new Error(`${surface} route policy does not match discovered source routes`);
+    throw new Error(
+      `${surface} route policy does not match discovered source routes; discovered=${JSON.stringify(discoveredKeys)} policy=${JSON.stringify(policyKeys)}`,
+    );
   return discovered.map((route) => {
     const [permission, capability, adapterScope, collection, capabilityAdvertised = true] =
       policy[routeKey(route)];
@@ -304,6 +324,19 @@ export function inspectHermesAuthorizationSurface(input) {
     GATEWAY_ROUTE_POLICY,
     'gateway-route',
   );
+  for (const action of ['start', 'block', 'unblock', 'complete'])
+    gatewayRoutes.push({
+      key: `gateway-route:POST /api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards/:taskId/${action}`,
+      surface: 'gateway-route',
+      method: 'POST',
+      path: `/api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards/:taskId/${action}`,
+      permission: 'work.manage',
+      capability: 'work.execute',
+      capabilityAdvertised: true,
+      adapterScope: 'control:execute',
+      collection: false,
+      mode: 'execute',
+    });
   gatewayRoutes.push({
     key: 'gateway-route:POST /api/v1/mutations',
     surface: 'gateway-route',

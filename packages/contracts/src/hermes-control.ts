@@ -885,6 +885,37 @@ export const GatewayHermesTasksSchema = gatewayCollection(
   'GatewayHermesTasks',
   GatewayHermesTaskSchema,
 );
+export const GatewayHermesKanbanBoardSchema = Type.Composite(
+  [
+    GatewayHermesBoardSchema,
+    Type.Object({
+      kind: Type.Literal('kanban-board'),
+      kanbanBoardId: Type.String({ minLength: 3, maxLength: 401 }),
+      nativeBoardId: Type.String({ minLength: 1, maxLength: 200 }),
+    }),
+  ],
+  { $id: 'GatewayHermesKanbanBoard', additionalProperties: false },
+);
+export const GatewayHermesKanbanBoardsSchema = gatewayCollection(
+  'GatewayHermesKanbanBoards',
+  GatewayHermesKanbanBoardSchema,
+);
+export const GatewayHermesKanbanCardSchema = Type.Composite(
+  [
+    GatewayHermesTaskSchema,
+    Type.Object({
+      kind: Type.Literal('kanban-card'),
+      kanbanCardId: Type.String({ minLength: 5, maxLength: 702 }),
+      nativeBoardId: Type.String({ minLength: 1, maxLength: 200 }),
+      nativeTaskId: Type.String({ minLength: 1, maxLength: 300 }),
+    }),
+  ],
+  { $id: 'GatewayHermesKanbanCard', additionalProperties: false },
+);
+export const GatewayHermesKanbanCardsSchema = gatewayCollection(
+  'GatewayHermesKanbanCards',
+  GatewayHermesKanbanCardSchema,
+);
 export const GatewayHermesCronjobSchema = gatewayOwnedItem(
   'GatewayHermesCronjob',
   HermesCronjobSchema,

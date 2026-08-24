@@ -20,6 +20,7 @@ import { memoryRoute } from './memory-v4/types.js';
 import { registerFrameworkMemoryRoutes } from './framework-memory/routes.js';
 import type { FrameworkUpdateVisibilityService } from './framework-updates/service.js';
 import { AgentManagementService, type AgentMutationBody } from './agents/service.js';
+import { KanbanManagementService, type KanbanMutationBody } from './kanban/service.js';
 export interface AppOptions {
   authStore: AuthStore;
   authPepper: string;
@@ -66,6 +67,9 @@ export function buildApp(options: AppOptions) {
       : null;
   const agents = options.hermesGateway
     ? new AgentManagementService(options.hermesGateway, mutations)
+    : null;
+  const kanban = options.hermesGateway
+    ? new KanbanManagementService(options.hermesGateway, mutations)
     : null;
   const requestLimiter = new FixedWindowRateLimiter(options.requestRateLimit ?? 600, 60_000);
   void app.register(cookie);
@@ -1018,6 +1022,127 @@ export function buildApp(options: AppOptions) {
       frameworkPageQuery(request.query),
     );
   });
+  const kanbanFrameworkParamsSchema = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['frameworkId'],
+    properties: { frameworkId: { type: 'string', minLength: 1, maxLength: 200 } },
+  } as const;
+  const kanbanBoardParamsSchema = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['frameworkId', 'boardId'],
+    properties: {
+      frameworkId: { type: 'string', minLength: 1, maxLength: 200 },
+      boardId: { type: 'string', minLength: 1, maxLength: 200 },
+    },
+  } as const;
+  const kanbanCardParamsSchema = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['frameworkId', 'boardId', 'taskId'],
+    properties: {
+      ...kanbanBoardParamsSchema.properties,
+      taskId: { type: 'string', minLength: 1, maxLength: 300 },
+    },
+  } as const;
+  const kanbanMutationProperties = {
+    expectedSourceVersion: { type: 'string', minLength: 1, maxLength: 500 },
+    mode: { type: 'string', enum: ['validate', 'dry-run', 'execute'] },
+  } as const;
+  app.get<{ Params: { frameworkId: string }; Querystring: FrameworkPageQuery }>(
+    '/api/v1/frameworks/:frameworkId/kanban/boards',
+    { schema: { params: kanbanFrameworkParamsSchema } },
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'work.read');
+      return requireKanbanManagement().boards(
+        request.params.frameworkId,
+        frameworkPageQuery(request.query),
+      );
+    },
+  );
+  app.get<{ Params: { frameworkId: string; boardId: string }; Querystring: FrameworkPageQuery }>(
+    '/api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards',
+    { schema: { params: kanbanBoardParamsSchema } },
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'work.read');
+      return requireKanbanManagement().cards(
+        request.params.frameworkId,
+        request.params.boardId,
+        frameworkPageQuery(request.query),
+      );
+    },
+  );
+  app.post<{
+    Params: { frameworkId: string; boardId: string };
+    Body: KanbanMutationBody & { title: string };
+  }>(
+    '/api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards',
+    {
+      schema: {
+        params: kanbanBoardParamsSchema,
+        body: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['title', 'expectedSourceVersion'],
+          properties: {
+            ...kanbanMutationProperties,
+            title: { type: 'string', minLength: 1, maxLength: 2000 },
+            body: { type: 'string', maxLength: 1000000 },
+            assignee: { type: 'string', maxLength: 200 },
+            priority: { type: 'integer' },
+            triage: { type: 'boolean' },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      const current = await mutationSession(request);
+      const input = requireKanbanManagement().mutation(
+        'work.task.create',
+        request.params.frameworkId,
+        request.params.boardId,
+        'new',
+        request.body,
+      );
+      return mutationReply(current, request, reply, input);
+    },
+  );
+  for (const action of ['start', 'block', 'unblock', 'complete'] as const)
+    app.post<{
+      Params: { frameworkId: string; boardId: string; taskId: string };
+      Body: KanbanMutationBody;
+    }>(
+      `/api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards/:taskId/${action}`,
+      {
+        schema: {
+          params: kanbanCardParamsSchema,
+          body: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['expectedSourceVersion'],
+            properties: {
+              ...kanbanMutationProperties,
+              reason: { type: 'string', maxLength: 2000 },
+              result: { type: 'string', maxLength: 20000 },
+            },
+          },
+        },
+      },
+      async (request, reply) => {
+        const current = await mutationSession(request);
+        const input = requireKanbanManagement().mutation(
+          `work.task.${action}`,
+          request.params.frameworkId,
+          request.params.boardId,
+          request.params.taskId,
+          request.body,
+        );
+        return mutationReply(current, request, reply, input);
+      },
+    );
   app.get<{ Params: { frameworkId: string }; Querystring: FrameworkPageQuery }>(
     '/api/v1/frameworks/:frameworkId/work/cronjobs',
     async (request) => {
@@ -1140,6 +1265,15 @@ export function buildApp(options: AppOptions) {
         'Governed Agent management is unavailable',
       );
     return agents;
+  }
+  function requireKanbanManagement(): KanbanManagementService {
+    if (!kanban)
+      throw new GovernanceError(
+        'KANBAN_MANAGEMENT_UNAVAILABLE',
+        503,
+        'Governed Kanban management is unavailable',
+      );
+    return kanban;
   }
   async function mutationReply(
     current: SessionRecord,

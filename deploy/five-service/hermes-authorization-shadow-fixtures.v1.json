@@ -1,7 +1,7 @@
 {
   "schemaVersion": "alica-hermes-authorization-shadow-fixtures/v1",
   "contractVersion": "alica-hermes-authorization-shadow/v0.1",
-  "sourceVersion": "sha256:825cea90e3deed9ca9e6c5f35dc91a31744874e990fe103759420e150373681f",
+  "sourceVersion": "sha256:1ffdc055bdeedeeed030d5f7e8ccbedfdae37810528d1c642c586d6301d5da74",
   "generatedFrom": {
     "gateway": "apps/gateway/src/app.ts",
     "adapter": "apps/hermes-control-adapter/src/app.ts",
@@ -21,7 +21,7 @@
     "mutationPerformed": false
   },
   "inventory": {
-    "gatewayRoutes": 22,
+    "gatewayRoutes": 29,
     "adapterRoutes": 19,
     "operations": 31,
     "dynamicPermissionExpressions": ["mutations.permission(input)"]
@@ -1253,6 +1253,225 @@
       }
     },
     {
+      "name": "coverage:gateway-route:GET /api/v1/frameworks/:frameworkId/kanban/boards",
+      "input": {
+        "surface": {
+          "key": "gateway-route:GET /api/v1/frameworks/:frameworkId/kanban/boards",
+          "surface": "gateway-route",
+          "method": "GET",
+          "path": "/api/v1/frameworks/:frameworkId/kanban/boards",
+          "permission": "work.read",
+          "capability": "work.boards.read",
+          "capabilityAdvertised": true,
+          "adapterScope": "control:read",
+          "collection": true,
+          "mode": "read"
+        },
+        "predecessor": {
+          "authenticated": true,
+          "principalActive": true,
+          "permissionGranted": true,
+          "adapterScopeAllowed": true
+        },
+        "target": {
+          "principal": {
+            "id": "prn_018f47e2-9097-7a31-8dd8-21df0f736c3a",
+            "status": "active",
+            "authenticationFresh": true,
+            "authenticationStrongEnough": true
+          },
+          "tenant": {
+            "id": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "status": "active",
+            "membershipStatus": "active",
+            "membershipFresh": true
+          },
+          "client": {
+            "id": "cli_018f47e2-9097-7a31-8dd8-21df0f736c3c",
+            "status": "active",
+            "tenantGrantAllows": true,
+            "principalGrantAllows": true
+          },
+          "resource": {
+            "requestedFrameworkId": "hermes-main",
+            "grantedFrameworkId": "hermes-main",
+            "nativeResourceId": "native-resource-1",
+            "tenantId": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "exactGrantAllows": true,
+            "collectionFiltered": true,
+            "registrationStatus": "active",
+            "registrationVerified": true,
+            "compatibilityAccepted": true,
+            "tenantClientAvailability": true
+          },
+          "adapterScopeAllows": true,
+          "capability": {
+            "name": "work.boards.read",
+            "status": "supported",
+            "modes": ["read"]
+          },
+          "policy": {
+            "explicitDeny": false,
+            "projectionFresh": true,
+            "approvalRequired": false,
+            "approvalProvided": true
+          },
+          "delegation": { "kind": "direct" }
+        }
+      },
+      "expected": {
+        "predecessor": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "shadowTarget": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "comparison": "matched"
+      }
+    },
+    {
+      "name": "coverage:gateway-route:GET /api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards",
+      "input": {
+        "surface": {
+          "key": "gateway-route:GET /api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards",
+          "surface": "gateway-route",
+          "method": "GET",
+          "path": "/api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards",
+          "permission": "work.read",
+          "capability": "work.tasks.read",
+          "capabilityAdvertised": true,
+          "adapterScope": "control:read",
+          "collection": true,
+          "mode": "read"
+        },
+        "predecessor": {
+          "authenticated": true,
+          "principalActive": true,
+          "permissionGranted": true,
+          "adapterScopeAllowed": true
+        },
+        "target": {
+          "principal": {
+            "id": "prn_018f47e2-9097-7a31-8dd8-21df0f736c3a",
+            "status": "active",
+            "authenticationFresh": true,
+            "authenticationStrongEnough": true
+          },
+          "tenant": {
+            "id": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "status": "active",
+            "membershipStatus": "active",
+            "membershipFresh": true
+          },
+          "client": {
+            "id": "cli_018f47e2-9097-7a31-8dd8-21df0f736c3c",
+            "status": "active",
+            "tenantGrantAllows": true,
+            "principalGrantAllows": true
+          },
+          "resource": {
+            "requestedFrameworkId": "hermes-main",
+            "grantedFrameworkId": "hermes-main",
+            "nativeResourceId": "native-resource-1",
+            "tenantId": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "exactGrantAllows": true,
+            "collectionFiltered": true,
+            "registrationStatus": "active",
+            "registrationVerified": true,
+            "compatibilityAccepted": true,
+            "tenantClientAvailability": true
+          },
+          "adapterScopeAllows": true,
+          "capability": {
+            "name": "work.tasks.read",
+            "status": "supported",
+            "modes": ["read"]
+          },
+          "policy": {
+            "explicitDeny": false,
+            "projectionFresh": true,
+            "approvalRequired": false,
+            "approvalProvided": true
+          },
+          "delegation": { "kind": "direct" }
+        }
+      },
+      "expected": {
+        "predecessor": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "shadowTarget": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "comparison": "matched"
+      }
+    },
+    {
+      "name": "coverage:gateway-route:POST /api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards",
+      "input": {
+        "surface": {
+          "key": "gateway-route:POST /api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards",
+          "surface": "gateway-route",
+          "method": "POST",
+          "path": "/api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards",
+          "permission": "work.manage",
+          "capability": "work.execute",
+          "capabilityAdvertised": true,
+          "adapterScope": "control:execute",
+          "collection": false,
+          "mode": "execute"
+        },
+        "predecessor": {
+          "authenticated": true,
+          "principalActive": true,
+          "permissionGranted": true,
+          "adapterScopeAllowed": true
+        },
+        "target": {
+          "principal": {
+            "id": "prn_018f47e2-9097-7a31-8dd8-21df0f736c3a",
+            "status": "active",
+            "authenticationFresh": true,
+            "authenticationStrongEnough": true
+          },
+          "tenant": {
+            "id": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "status": "active",
+            "membershipStatus": "active",
+            "membershipFresh": true
+          },
+          "client": {
+            "id": "cli_018f47e2-9097-7a31-8dd8-21df0f736c3c",
+            "status": "active",
+            "tenantGrantAllows": true,
+            "principalGrantAllows": true
+          },
+          "resource": {
+            "requestedFrameworkId": "hermes-main",
+            "grantedFrameworkId": "hermes-main",
+            "nativeResourceId": "native-resource-1",
+            "tenantId": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "exactGrantAllows": true,
+            "collectionFiltered": true,
+            "registrationStatus": "active",
+            "registrationVerified": true,
+            "compatibilityAccepted": true,
+            "tenantClientAvailability": true
+          },
+          "adapterScopeAllows": true,
+          "capability": {
+            "name": "work.execute",
+            "status": "supported",
+            "modes": ["execute"]
+          },
+          "policy": {
+            "explicitDeny": false,
+            "projectionFresh": true,
+            "approvalRequired": false,
+            "approvalProvided": true
+          },
+          "delegation": { "kind": "direct" }
+        }
+      },
+      "expected": {
+        "predecessor": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "shadowTarget": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "comparison": "matched"
+      }
+    },
+    {
       "name": "coverage:gateway-route:GET /api/v1/frameworks/:frameworkId/work/cronjobs",
       "input": {
         "surface": {
@@ -1545,6 +1764,298 @@
           "reasonCode": "CAPABILITY_UNADVERTISED"
         },
         "comparison": "tightened"
+      }
+    },
+    {
+      "name": "coverage:gateway-route:POST /api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards/:taskId/start",
+      "input": {
+        "surface": {
+          "key": "gateway-route:POST /api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards/:taskId/start",
+          "surface": "gateway-route",
+          "method": "POST",
+          "path": "/api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards/:taskId/start",
+          "permission": "work.manage",
+          "capability": "work.execute",
+          "capabilityAdvertised": true,
+          "adapterScope": "control:execute",
+          "collection": false,
+          "mode": "execute"
+        },
+        "predecessor": {
+          "authenticated": true,
+          "principalActive": true,
+          "permissionGranted": true,
+          "adapterScopeAllowed": true
+        },
+        "target": {
+          "principal": {
+            "id": "prn_018f47e2-9097-7a31-8dd8-21df0f736c3a",
+            "status": "active",
+            "authenticationFresh": true,
+            "authenticationStrongEnough": true
+          },
+          "tenant": {
+            "id": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "status": "active",
+            "membershipStatus": "active",
+            "membershipFresh": true
+          },
+          "client": {
+            "id": "cli_018f47e2-9097-7a31-8dd8-21df0f736c3c",
+            "status": "active",
+            "tenantGrantAllows": true,
+            "principalGrantAllows": true
+          },
+          "resource": {
+            "requestedFrameworkId": "hermes-main",
+            "grantedFrameworkId": "hermes-main",
+            "nativeResourceId": "native-resource-1",
+            "tenantId": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "exactGrantAllows": true,
+            "collectionFiltered": true,
+            "registrationStatus": "active",
+            "registrationVerified": true,
+            "compatibilityAccepted": true,
+            "tenantClientAvailability": true
+          },
+          "adapterScopeAllows": true,
+          "capability": {
+            "name": "work.execute",
+            "status": "supported",
+            "modes": ["execute"]
+          },
+          "policy": {
+            "explicitDeny": false,
+            "projectionFresh": true,
+            "approvalRequired": false,
+            "approvalProvided": true
+          },
+          "delegation": { "kind": "direct" }
+        }
+      },
+      "expected": {
+        "predecessor": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "shadowTarget": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "comparison": "matched"
+      }
+    },
+    {
+      "name": "coverage:gateway-route:POST /api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards/:taskId/block",
+      "input": {
+        "surface": {
+          "key": "gateway-route:POST /api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards/:taskId/block",
+          "surface": "gateway-route",
+          "method": "POST",
+          "path": "/api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards/:taskId/block",
+          "permission": "work.manage",
+          "capability": "work.execute",
+          "capabilityAdvertised": true,
+          "adapterScope": "control:execute",
+          "collection": false,
+          "mode": "execute"
+        },
+        "predecessor": {
+          "authenticated": true,
+          "principalActive": true,
+          "permissionGranted": true,
+          "adapterScopeAllowed": true
+        },
+        "target": {
+          "principal": {
+            "id": "prn_018f47e2-9097-7a31-8dd8-21df0f736c3a",
+            "status": "active",
+            "authenticationFresh": true,
+            "authenticationStrongEnough": true
+          },
+          "tenant": {
+            "id": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "status": "active",
+            "membershipStatus": "active",
+            "membershipFresh": true
+          },
+          "client": {
+            "id": "cli_018f47e2-9097-7a31-8dd8-21df0f736c3c",
+            "status": "active",
+            "tenantGrantAllows": true,
+            "principalGrantAllows": true
+          },
+          "resource": {
+            "requestedFrameworkId": "hermes-main",
+            "grantedFrameworkId": "hermes-main",
+            "nativeResourceId": "native-resource-1",
+            "tenantId": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "exactGrantAllows": true,
+            "collectionFiltered": true,
+            "registrationStatus": "active",
+            "registrationVerified": true,
+            "compatibilityAccepted": true,
+            "tenantClientAvailability": true
+          },
+          "adapterScopeAllows": true,
+          "capability": {
+            "name": "work.execute",
+            "status": "supported",
+            "modes": ["execute"]
+          },
+          "policy": {
+            "explicitDeny": false,
+            "projectionFresh": true,
+            "approvalRequired": false,
+            "approvalProvided": true
+          },
+          "delegation": { "kind": "direct" }
+        }
+      },
+      "expected": {
+        "predecessor": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "shadowTarget": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "comparison": "matched"
+      }
+    },
+    {
+      "name": "coverage:gateway-route:POST /api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards/:taskId/unblock",
+      "input": {
+        "surface": {
+          "key": "gateway-route:POST /api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards/:taskId/unblock",
+          "surface": "gateway-route",
+          "method": "POST",
+          "path": "/api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards/:taskId/unblock",
+          "permission": "work.manage",
+          "capability": "work.execute",
+          "capabilityAdvertised": true,
+          "adapterScope": "control:execute",
+          "collection": false,
+          "mode": "execute"
+        },
+        "predecessor": {
+          "authenticated": true,
+          "principalActive": true,
+          "permissionGranted": true,
+          "adapterScopeAllowed": true
+        },
+        "target": {
+          "principal": {
+            "id": "prn_018f47e2-9097-7a31-8dd8-21df0f736c3a",
+            "status": "active",
+            "authenticationFresh": true,
+            "authenticationStrongEnough": true
+          },
+          "tenant": {
+            "id": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "status": "active",
+            "membershipStatus": "active",
+            "membershipFresh": true
+          },
+          "client": {
+            "id": "cli_018f47e2-9097-7a31-8dd8-21df0f736c3c",
+            "status": "active",
+            "tenantGrantAllows": true,
+            "principalGrantAllows": true
+          },
+          "resource": {
+            "requestedFrameworkId": "hermes-main",
+            "grantedFrameworkId": "hermes-main",
+            "nativeResourceId": "native-resource-1",
+            "tenantId": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "exactGrantAllows": true,
+            "collectionFiltered": true,
+            "registrationStatus": "active",
+            "registrationVerified": true,
+            "compatibilityAccepted": true,
+            "tenantClientAvailability": true
+          },
+          "adapterScopeAllows": true,
+          "capability": {
+            "name": "work.execute",
+            "status": "supported",
+            "modes": ["execute"]
+          },
+          "policy": {
+            "explicitDeny": false,
+            "projectionFresh": true,
+            "approvalRequired": false,
+            "approvalProvided": true
+          },
+          "delegation": { "kind": "direct" }
+        }
+      },
+      "expected": {
+        "predecessor": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "shadowTarget": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "comparison": "matched"
+      }
+    },
+    {
+      "name": "coverage:gateway-route:POST /api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards/:taskId/complete",
+      "input": {
+        "surface": {
+          "key": "gateway-route:POST /api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards/:taskId/complete",
+          "surface": "gateway-route",
+          "method": "POST",
+          "path": "/api/v1/frameworks/:frameworkId/kanban/boards/:boardId/cards/:taskId/complete",
+          "permission": "work.manage",
+          "capability": "work.execute",
+          "capabilityAdvertised": true,
+          "adapterScope": "control:execute",
+          "collection": false,
+          "mode": "execute"
+        },
+        "predecessor": {
+          "authenticated": true,
+          "principalActive": true,
+          "permissionGranted": true,
+          "adapterScopeAllowed": true
+        },
+        "target": {
+          "principal": {
+            "id": "prn_018f47e2-9097-7a31-8dd8-21df0f736c3a",
+            "status": "active",
+            "authenticationFresh": true,
+            "authenticationStrongEnough": true
+          },
+          "tenant": {
+            "id": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "status": "active",
+            "membershipStatus": "active",
+            "membershipFresh": true
+          },
+          "client": {
+            "id": "cli_018f47e2-9097-7a31-8dd8-21df0f736c3c",
+            "status": "active",
+            "tenantGrantAllows": true,
+            "principalGrantAllows": true
+          },
+          "resource": {
+            "requestedFrameworkId": "hermes-main",
+            "grantedFrameworkId": "hermes-main",
+            "nativeResourceId": "native-resource-1",
+            "tenantId": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "exactGrantAllows": true,
+            "collectionFiltered": true,
+            "registrationStatus": "active",
+            "registrationVerified": true,
+            "compatibilityAccepted": true,
+            "tenantClientAvailability": true
+          },
+          "adapterScopeAllows": true,
+          "capability": {
+            "name": "work.execute",
+            "status": "supported",
+            "modes": ["execute"]
+          },
+          "policy": {
+            "explicitDeny": false,
+            "projectionFresh": true,
+            "approvalRequired": false,
+            "approvalProvided": true
+          },
+          "delegation": { "kind": "direct" }
+        }
+      },
+      "expected": {
+        "predecessor": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "shadowTarget": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "comparison": "matched"
       }
     },
     {
