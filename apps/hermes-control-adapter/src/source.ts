@@ -772,6 +772,7 @@ export class HermesNativeSource implements AdapterSource {
           payloadString(payload, 'boardId', 200),
           'complete',
           command.targetId,
+          '--result',
           optionalPayloadString(payload, 'result', 20_000) ?? 'Completed from UNIFY',
         ]);
         return { task: { id: command.targetId, status: 'done' } };

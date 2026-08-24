@@ -365,6 +365,26 @@ describe('HermesNativeSource', () => {
     ).resolves.toMatchObject({ task: { id: 'task-1', status: 'ready' } });
   });
 
+  it('uses the native result flag when completing a task', async () => {
+    const source = new HermesNativeSource({
+      runner: new FixtureRunner({
+        'kanban --board alpha complete task-1 --result Verified': '',
+      }),
+    });
+    await expect(
+      source.executeWork({
+        mode: 'execute',
+        idempotencyKey: 'complete-1',
+        requestId: 'request-complete',
+        correlationId: 'correlation-complete',
+        actor: { type: 'user', id: 'user-1' },
+        operation: 'task.complete',
+        targetId: 'task-1',
+        payload: { boardId: 'alpha', result: 'Verified' },
+      }),
+    ).resolves.toMatchObject({ task: { id: 'task-1', status: 'done' } });
+  });
+
   it('uses existing Hermes session APIs and fails unavailable rather than returning empty truth', async () => {
     const fetchImpl: typeof fetch = async (input) => {
       const url = String(input);
