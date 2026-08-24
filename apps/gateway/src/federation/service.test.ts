@@ -173,6 +173,22 @@ describe('Cross-Hermes worker federation leases', () => {
     ]);
   });
 
+  it('fails closed after restart at worker-running instead of duplicating native execution', async () => {
+    const { service, store, work } = fixture();
+    await service.createOrResume('operator-1', 'idem-1', body);
+    const persisted = store.record!;
+    store.record = { ...persisted, status: 'running', stage: 'worker-running', result: null };
+    work.mockClear();
+
+    await expect(service.createOrResume('operator-1', 'idem-1', body)).rejects.toMatchObject({
+      code: 'FEDERATION_WORKER_OUTCOME_UNKNOWN',
+    });
+    expect(work.mock.calls.map((call) => [call[0], call[1], call[2]])).toEqual([
+      ['hermes-alica', 'task.block', 'ALICA-1'],
+    ]);
+    expect(store.record).toMatchObject({ status: 'failed', stage: 'source-blocked' });
+  });
+
   it('fails closed on non-canonical or same-framework federation', async () => {
     const { service } = fixture();
     await expect(

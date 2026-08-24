@@ -8,7 +8,7 @@ CREATE TABLE federation_worker_leases (
   worker_profile_id text NOT NULL CHECK (length(worker_profile_id) BETWEEN 1 AND 200),
   worker_task_id text CHECK (worker_task_id IS NULL OR length(worker_task_id) BETWEEN 1 AND 300),
   status text NOT NULL CHECK (status IN ('pending','running','completed','failed')),
-  stage text NOT NULL CHECK (stage IN ('pending','source-started','worker-completed','source-completed','source-blocked')),
+  stage text NOT NULL DEFAULT 'pending' CHECK (stage IN ('pending', 'source-started', 'worker-running', 'worker-completed', 'source-completed', 'source-blocked')),
   attempt integer NOT NULL DEFAULT 1 CHECK (attempt >= 1),
   lease_expires_at timestamptz NOT NULL,
   heartbeat_at timestamptz NOT NULL DEFAULT now(),

@@ -1,7 +1,12 @@
 export type FederationLeaseStatus = 'pending' | 'running' | 'completed' | 'failed';
 
 export type FederationLeaseStage =
-  'pending' | 'source-started' | 'worker-completed' | 'source-completed' | 'source-blocked';
+  | 'pending'
+  | 'source-started'
+  | 'worker-running'
+  | 'worker-completed'
+  | 'source-completed'
+  | 'source-blocked';
 
 export interface FederationLeaseRecord {
   id: string;

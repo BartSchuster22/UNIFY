@@ -10758,6 +10758,10 @@
             "type": "string"
           },
           {
+            "const": "task.run",
+            "type": "string"
+          },
+          {
             "const": "cron.create",
             "type": "string"
           },
@@ -10896,6 +10900,10 @@
               },
               {
                 "const": "task.complete",
+                "type": "string"
+              },
+              {
+                "const": "task.run",
                 "type": "string"
               },
               {
@@ -11039,6 +11047,10 @@
                   },
                   {
                     "const": "task.complete",
+                    "type": "string"
+                  },
+                  {
+                    "const": "task.run",
                     "type": "string"
                   },
                   {

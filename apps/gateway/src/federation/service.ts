@@ -68,6 +68,13 @@ export class FederationLeaseService {
 
       let workerResult = persistedWorkerResult(lease);
       if (!workerResult) {
+        if (lease.stage === 'worker-running')
+          throw new GovernanceError(
+            'FEDERATION_WORKER_OUTCOME_UNKNOWN',
+            502,
+            'Worker execution was interrupted after its durable claim; refusing duplicate execution',
+          );
+        lease = (await this.store.advance(lease.id, 'worker-running', 'running')) ?? lease;
         const worker = await this.hermes.work(
           input.workerFrameworkId,
           'task.run',

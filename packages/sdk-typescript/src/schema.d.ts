@@ -1769,7 +1769,7 @@ export interface components {
                 emittedEvents: number;
             };
         };
-        HermesWorkOperation: "project.create" | "project.rename" | "project.archive" | "task.create" | "task.start" | "task.block" | "task.unblock" | "task.complete" | "cron.create" | "cron.run" | "cron.pause" | "cron.resume" | "cron.delete";
+        HermesWorkOperation: "project.create" | "project.rename" | "project.archive" | "task.create" | "task.start" | "task.block" | "task.unblock" | "task.complete" | "task.run" | "cron.create" | "cron.run" | "cron.pause" | "cron.resume" | "cron.delete";
         HermesWorkCommand: {
             mode: "validate" | "dry-run" | "execute";
             idempotencyKey: string;
@@ -1783,7 +1783,7 @@ export interface components {
             payload: {
                 [key: string]: unknown;
             };
-            operation: "project.create" | "project.rename" | "project.archive" | "task.create" | "task.start" | "task.block" | "task.unblock" | "task.complete" | "cron.create" | "cron.run" | "cron.pause" | "cron.resume" | "cron.delete";
+            operation: "project.create" | "project.rename" | "project.archive" | "task.create" | "task.start" | "task.block" | "task.unblock" | "task.complete" | "task.run" | "cron.create" | "cron.run" | "cron.pause" | "cron.resume" | "cron.delete";
             targetId: string;
         };
         HermesWorkResult: {
@@ -1799,7 +1799,7 @@ export interface components {
                 operationId: string;
                 status: "validated" | "dry-run" | "completed";
                 replayed: boolean;
-                operation: "project.create" | "project.rename" | "project.archive" | "task.create" | "task.start" | "task.block" | "task.unblock" | "task.complete" | "cron.create" | "cron.run" | "cron.pause" | "cron.resume" | "cron.delete";
+                operation: "project.create" | "project.rename" | "project.archive" | "task.create" | "task.start" | "task.block" | "task.unblock" | "task.complete" | "task.run" | "cron.create" | "cron.run" | "cron.pause" | "cron.resume" | "cron.delete";
                 targetId: string;
                 result: {
                     [key: string]: unknown;
