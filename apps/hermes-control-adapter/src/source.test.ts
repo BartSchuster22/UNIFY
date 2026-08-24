@@ -132,6 +132,42 @@ describe('HermesNativeSource', () => {
     ).resolves.toEqual({ profile: { id: 'default', updated: true } });
   });
 
+  it('reconciles a profile command error against authoritative native truth', async () => {
+    let profiles = ' ◆default         gpt-5.6-sol    running      —\n';
+    const runner: CommandRunner = {
+      async run(args) {
+        const command = args.join(' ');
+        if (command === 'profile list') return profiles;
+        if (command === 'profile describe default') return '(no description set)';
+        if (command === 'profile describe recovered-agent') return 'Recovered Agent';
+        if (command.startsWith('profile create recovered-agent ')) {
+          profiles += '  recovered-agent gpt-5.6-sol    stopped      —\n';
+          throw new Error('native command connection closed after apply');
+        }
+        throw new Error(`Missing fixture: ${command}`);
+      },
+    };
+    const source = new HermesNativeSource({ runner });
+    await expect(
+      source.executeProfile({
+        mode: 'execute',
+        idempotencyKey: 'profile-create-reconciled',
+        requestId: 'request-reconciled',
+        correlationId: 'correlation-reconciled',
+        actor: { type: 'service', id: 'unify-core' },
+        operation: 'profile.create',
+        targetId: 'recovered-agent',
+        payload: { description: 'Recovered Agent' },
+      }),
+    ).resolves.toEqual({
+      profile: {
+        id: 'recovered-agent',
+        created: true,
+        reconciledAfterCommandError: true,
+      },
+    });
+  });
+
   it('renames profiles natively, rejects occupied destinations, and supports safe replay', async () => {
     const rename = new HermesNativeSource({
       runner: new FixtureRunner({

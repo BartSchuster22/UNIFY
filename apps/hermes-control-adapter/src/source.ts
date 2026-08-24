@@ -131,27 +131,56 @@ export class HermesNativeSource implements AdapterSource {
       case 'profile.create': {
         if (!current) {
           const description = optionalPayloadString(payload, 'description', 5_000);
-          await this.options.runner.run([
-            'profile',
-            'create',
-            command.targetId,
-            '--no-alias',
-            ...(description ? ['--description', description] : []),
-          ]);
+          try {
+            await this.options.runner.run([
+              'profile',
+              'create',
+              command.targetId,
+              '--no-alias',
+              ...(description ? ['--description', description] : []),
+            ]);
+          } catch (error) {
+            const reconciled = (await this.profiles()).items.some(
+              (item) => item.id === command.targetId,
+            );
+            if (!reconciled) throw error;
+            return {
+              profile: {
+                id: command.targetId,
+                created: true,
+                reconciledAfterCommandError: true,
+              },
+            };
+          }
         }
         return { profile: { id: command.targetId, created: !current } };
       }
       case 'profile.update': {
         if (!current) throw new SourceUnavailableError('Profile was not found');
         const description = optionalPayloadString(payload, 'description', 5_000);
-        if (description !== undefined)
-          await this.options.runner.run([
-            'profile',
-            'describe',
-            command.targetId,
-            '--text',
-            description,
-          ]);
+        if (description !== undefined) {
+          try {
+            await this.options.runner.run([
+              'profile',
+              'describe',
+              command.targetId,
+              '--text',
+              description,
+            ]);
+          } catch (error) {
+            const reconciled = (await this.profiles()).items.some(
+              (item) => item.id === command.targetId && item.description === description,
+            );
+            if (!reconciled) throw error;
+            return {
+              profile: {
+                id: command.targetId,
+                updated: true,
+                reconciledAfterCommandError: true,
+              },
+            };
+          }
+        }
         return { profile: { id: command.targetId, updated: description !== undefined } };
       }
       case 'profile.rename': {
@@ -177,7 +206,25 @@ export class HermesNativeSource implements AdapterSource {
           throw new SourceUnavailableError('Profile was not found');
         }
         if (destination) throw new SourceConflictError('Profile destination already exists');
-        await this.options.runner.run(['profile', 'rename', command.targetId, newId]);
+        try {
+          await this.options.runner.run(['profile', 'rename', command.targetId, newId]);
+        } catch (error) {
+          const reconciled = (await this.profiles()).items;
+          if (
+            reconciled.some((item) => item.id === command.targetId) ||
+            !reconciled.some((item) => item.id === newId)
+          )
+            throw error;
+          return {
+            profile: {
+              fromId: command.targetId,
+              id: newId,
+              renamed: true,
+              alreadyRenamed: false,
+              reconciledAfterCommandError: true,
+            },
+          };
+        }
         return {
           profile: {
             fromId: command.targetId,
@@ -188,8 +235,23 @@ export class HermesNativeSource implements AdapterSource {
         };
       }
       case 'profile.delete':
-        if (current)
-          await this.options.runner.run(['profile', 'delete', command.targetId, '--yes']);
+        if (current) {
+          try {
+            await this.options.runner.run(['profile', 'delete', command.targetId, '--yes']);
+          } catch (error) {
+            const reconciled = !(await this.profiles()).items.some(
+              (item) => item.id === command.targetId,
+            );
+            if (!reconciled) throw error;
+            return {
+              profile: {
+                id: command.targetId,
+                deleted: true,
+                reconciledAfterCommandError: true,
+              },
+            };
+          }
+        }
         return { profile: { id: command.targetId, deleted: Boolean(current) } };
     }
   }
