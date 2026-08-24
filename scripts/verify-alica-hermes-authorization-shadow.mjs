@@ -58,8 +58,8 @@ assert.equal(surface.schemaVersion, HERMES_AUTHORIZATION_SURFACE);
 assert.equal(surface.contractVersion, HERMES_AUTHORIZATION_SHADOW_CONTRACT);
 assert.equal(surface.gatewayRoutes.length, 29);
 assert.equal(surface.adapterRoutes.length, 19);
-assert.equal(surface.operations.length, 31);
-assert.equal(surface.catalog.length, 79);
+assert.equal(surface.operations.length, 32);
+assert.equal(surface.catalog.length, 80);
 assert.deepEqual(surface.dynamicPermissionExpressions, ['mutations.permission(input)']);
 assert.equal(surface.mutationPerformed, false);
 assert.equal(surface.enforcementChanged, false);
@@ -71,7 +71,7 @@ assert.equal(document.sourceVersion, surface.sourceVersion);
 assert.deepEqual(document.inventory, {
   gatewayRoutes: 29,
   adapterRoutes: 19,
-  operations: 31,
+  operations: 32,
   dynamicPermissionExpressions: ['mutations.permission(input)'],
 });
 assert.deepEqual(document.boundary, {
@@ -81,19 +81,19 @@ assert.deepEqual(document.boundary, {
   liveAccess: false,
   mutationPerformed: false,
 });
-assert.equal(document.fixtures.length, 128);
+assert.equal(document.fixtures.length, 129);
 
 const coverageNames = new Set(
   document.fixtures.filter((item) => item.name.startsWith('coverage:')).map((item) => item.name),
 );
-assert.equal(coverageNames.size, 79);
+assert.equal(coverageNames.size, 80);
 for (const item of surface.catalog)
   assert.ok(coverageNames.has(`coverage:${item.key}`), `Missing coverage fixture: ${item.key}`);
 
 const operationCoverage = document.fixtures.filter((item) =>
   item.name.startsWith('coverage:operation:'),
 );
-assert.equal(operationCoverage.length, 31);
+assert.equal(operationCoverage.length, 32);
 assert.deepEqual(
   operationCoverage.map((item) => item.input.surface.operation).sort(),
   surface.operations.map((item) => item.operation).sort(),
@@ -123,7 +123,7 @@ for (const item of document.fixtures) {
   counts[first.shadowTarget.effect] += 1;
   reasonCodes.add(first.shadowTarget.reasonCode);
 }
-assert.deepEqual(counts, { matched: 82, tightened: 46, widened: 0, allow: 78, deny: 50 });
+assert.deepEqual(counts, { matched: 83, tightened: 46, widened: 0, allow: 79, deny: 50 });
 
 for (const reason of [
   'AUTHENTICATION_REQUIRED',

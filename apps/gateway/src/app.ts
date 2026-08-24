@@ -21,6 +21,8 @@ import { registerFrameworkMemoryRoutes } from './framework-memory/routes.js';
 import type { FrameworkUpdateVisibilityService } from './framework-updates/service.js';
 import { AgentManagementService, type AgentMutationBody } from './agents/service.js';
 import { KanbanManagementService, type KanbanMutationBody } from './kanban/service.js';
+import { FederationLeaseService, type FederationCreateBody } from './federation/service.js';
+import type { FederationLeaseStore } from './federation/types.js';
 export interface AppOptions {
   authStore: AuthStore;
   authPepper: string;
@@ -35,6 +37,7 @@ export interface AppOptions {
   hermesGateway?: HermesGatewayService;
   frameworkUpdates?: FrameworkUpdateVisibilityService;
   memoryV4Adapter?: MemoryV4Adapter;
+  federationLeaseStore?: FederationLeaseStore;
 }
 const SESSION_COOKIE = 'aquiero_session';
 const CSRF_COOKIE = 'aquiero_csrf';
@@ -71,6 +74,10 @@ export function buildApp(options: AppOptions) {
   const kanban = options.hermesGateway
     ? new KanbanManagementService(options.hermesGateway, mutations)
     : null;
+  const federation =
+    options.hermesGateway && options.federationLeaseStore
+      ? new FederationLeaseService(options.federationLeaseStore, options.hermesGateway)
+      : null;
   const requestLimiter = new FixedWindowRateLimiter(options.requestRateLimit ?? 600, 60_000);
   void app.register(cookie);
   app.addHook('onRequest', async (request, reply) => {
@@ -165,7 +172,8 @@ export function buildApp(options: AppOptions) {
       (!options.notificationStore || (await options.notificationStore.ready())) &&
       (!options.frameworkRegistry || (await options.frameworkRegistry.ready())) &&
       (!options.hermesGateway || (await options.hermesGateway.ready())) &&
-      (!options.frameworkUpdates || (await options.frameworkUpdates.ready()));
+      (!options.frameworkUpdates || (await options.frameworkUpdates.ready())) &&
+      (!options.federationLeaseStore || (await options.federationLeaseStore.ready()));
     return reply
       .status(ready ? 200 : 503)
       .send({ status: ready ? 'ready' : 'not_ready', release: options.release ?? 'development' });
@@ -1143,6 +1151,99 @@ export function buildApp(options: AppOptions) {
         return mutationReply(current, request, reply, input);
       },
     );
+
+  app.get<{ Querystring: Pick<ReadQuery, 'cursor' | 'limit'> }>(
+    '/api/v1/federation/leases',
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'work.manage');
+      const page = paginate(
+        (await requireFederation().list(Number(request.query.limit ?? 100))).map((item) => item),
+        request.query,
+        (item) => item.id,
+      );
+      return { items: page.items, meta: meta(request.id, [], page.page) };
+    },
+  );
+  app.get<{ Params: { leaseId: string } }>(
+    '/api/v1/federation/leases/:leaseId',
+    async (request, reply) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'work.manage');
+      const lease = await requireFederation().get(request.params.leaseId);
+      return (
+        lease ??
+        reply.status(404).send({
+          error: {
+            code: 'FEDERATION_LEASE_NOT_FOUND',
+            message: 'Federation lease not found',
+            requestId: request.id,
+            retryable: false,
+          },
+        })
+      );
+    },
+  );
+  app.post<{ Body: FederationCreateBody }>(
+    '/api/v1/federation/leases',
+    {
+      bodyLimit: 256 * 1024,
+      schema: {
+        body: {
+          type: 'object',
+          additionalProperties: false,
+          required: [
+            'sourceFrameworkId',
+            'sourceBoardId',
+            'sourceTaskId',
+            'sourceSourceVersion',
+            'workerFrameworkId',
+            'workerProfileId',
+            'prompt',
+          ],
+          properties: {
+            sourceFrameworkId: { type: 'string', const: 'hermes-alica' },
+            sourceBoardId: { type: 'string', minLength: 1, maxLength: 200 },
+            sourceTaskId: { type: 'string', minLength: 1, maxLength: 300 },
+            sourceSourceVersion: { type: 'string', minLength: 1, maxLength: 500 },
+            workerFrameworkId: { type: 'string', const: 'hermes-herman' },
+            workerProfileId: { type: 'string', minLength: 1, maxLength: 200 },
+            prompt: { type: 'string', minLength: 1, maxLength: 65536 },
+            result: false,
+            workerTimeoutSeconds: { type: 'integer', minimum: 30, maximum: 3600 },
+            leaseTtlSeconds: { type: 'integer', minimum: 60, maximum: 86400 },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      const current = await mutationSession(request);
+      auth.requirePermission(current, 'work.manage');
+      const rawIdempotency = request.headers['idempotency-key'];
+      const idempotencyKey = Array.isArray(rawIdempotency) ? rawIdempotency[0] : rawIdempotency;
+      if (!idempotencyKey)
+        throw new GovernanceError('IDEMPOTENCY_KEY_REQUIRED', 428, 'Idempotency-Key is required');
+      const result = await requireFederation().createOrResume(
+        current.userId,
+        idempotencyKey,
+        request.body,
+      );
+      await governance?.audit({
+        actorUserId: current.userId,
+        sessionId: current.sessionId,
+        action: 'federation.lease.create-or-resume',
+        target: result.lease.source,
+        details: {
+          leaseId: result.lease.id,
+          replayed: result.replayed,
+          worker: result.lease.worker,
+        },
+        outcome: 'success',
+        requestId: request.id,
+      });
+      return reply.status(result.replayed ? 200 : 201).send(result);
+    },
+  );
   app.get<{ Params: { frameworkId: string }; Querystring: FrameworkPageQuery }>(
     '/api/v1/frameworks/:frameworkId/work/cronjobs',
     async (request) => {
@@ -1274,6 +1375,15 @@ export function buildApp(options: AppOptions) {
         'Governed Kanban management is unavailable',
       );
     return kanban;
+  }
+  function requireFederation(): FederationLeaseService {
+    if (!federation)
+      throw new GovernanceError(
+        'FEDERATION_UNAVAILABLE',
+        503,
+        'Cross-Hermes worker federation is unavailable',
+      );
+    return federation;
   }
   async function mutationReply(
     current: SessionRecord,

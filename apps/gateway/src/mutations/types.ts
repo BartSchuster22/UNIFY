@@ -179,6 +179,12 @@ export const workMutationDefinitions: Record<string, MutationDefinition> = {
     permission: 'work.manage',
     executionPath: 'hermes-control',
   },
+  'work.task.run': {
+    owner: 'hermes',
+    kind: 'profile',
+    permission: 'work.manage',
+    executionPath: 'hermes-control',
+  },
   'work.cron.create': {
     owner: 'hermes',
     kind: 'cronjob',

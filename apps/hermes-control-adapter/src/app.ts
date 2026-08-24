@@ -962,6 +962,7 @@ function validateWorkPayload(command: HermesWorkCommand) {
     'task.block': ['boardId'],
     'task.unblock': ['boardId'],
     'task.complete': ['boardId'],
+    'task.run': ['profileId', 'prompt'],
     'cron.create': ['name', 'schedule', 'prompt'],
   };
   const missing = (required[command.operation] ?? []).find((key) => {
@@ -979,6 +980,8 @@ function validateWorkPayload(command: HermesWorkCommand) {
 }
 
 function workSourceVersion(source: AdapterSource, command: HermesWorkCommand): Promise<string> {
+  if (command.operation === 'task.run')
+    return source.profiles().then((snapshot) => snapshot.sourceVersion);
   if (command.operation.startsWith('project.'))
     return source.projects().then((snapshot) => snapshot.sourceVersion);
   if (command.operation.startsWith('cron.'))

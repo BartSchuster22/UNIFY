@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { buildApp } from './app.js';
 import { hashPassword, sha256 } from './auth/crypto.js';
 import type {
@@ -418,6 +418,155 @@ describe('named-user session security', () => {
       headers: { cookie },
     });
     expect(legacyModels.statusCode).toBe(404);
+    await app.close();
+  });
+
+  it('enforces federation routes with session auth, CSRF, RBAC, and native worker-only execution', async () => {
+    const store = fixtureStore();
+    const admin = store.principals.get('admin')!;
+    store.principals.set('admin', { ...admin, permissions: [...admin.permissions, 'work.manage'] });
+    const records = new Map<string, unknown>();
+    const now = new Date('2026-08-24T00:00:00.000Z');
+    const federationLeaseStore = {
+      async ready() {
+        return true;
+      },
+      async claim(input: Record<string, unknown>) {
+        if (records.has('lease')) return { kind: 'replayed', lease: records.get('lease') };
+        const lease = {
+          id: 'lease-route-1',
+          sourceFrameworkId: input.sourceFrameworkId,
+          sourceBoardId: input.sourceBoardId,
+          sourceTaskId: input.sourceTaskId,
+          workerFrameworkId: input.workerFrameworkId,
+          workerBoardId: input.workerBoardId,
+          workerProfileId: input.workerProfileId,
+          workerTaskId: null,
+          status: 'pending',
+          stage: 'pending',
+          attempt: 1,
+          leaseExpiresAt: now,
+          heartbeatAt: now,
+          requestHash: input.requestHash,
+          result: null,
+          error: null,
+          createdBy: input.actorUserId,
+          createdAt: now,
+          updatedAt: now,
+        };
+        records.set('lease', lease);
+        return { kind: 'created', lease };
+      },
+      async advance(
+        _id: string,
+        stage: string,
+        status: string,
+        patch: Record<string, unknown> = {},
+      ) {
+        const lease = {
+          ...(records.get('lease') as Record<string, unknown>),
+          stage,
+          status,
+          ...patch,
+        };
+        records.set('lease', lease);
+        return lease;
+      },
+      async get() {
+        return records.get('lease') ?? null;
+      },
+      async list() {
+        return records.has('lease') ? [records.get('lease')] : [];
+      },
+    };
+    const work = vi.fn(async (...args: unknown[]) => {
+      const operation = String(args[1]);
+      return {
+        data: {
+          status: 'completed',
+          operation,
+          result: { taskRun: { profileId: 'reviewer', result: 'native worker result' } },
+        },
+      };
+    });
+    const app = buildApp({
+      authStore: store,
+      authPepper: pepper,
+      secureCookies: false,
+      hermesGateway: { work, ready: async () => true } as never,
+      federationLeaseStore: federationLeaseStore as never,
+    });
+    const payload = {
+      sourceFrameworkId: 'hermes-alica',
+      sourceBoardId: 'alica',
+      sourceTaskId: 'ALICA-1',
+      sourceSourceVersion: 'tasks:v1',
+      workerFrameworkId: 'hermes-herman',
+      workerProfileId: 'reviewer',
+      prompt: 'Run this natively',
+      workerTimeoutSeconds: 60,
+    };
+
+    expect(
+      (await app.inject({ method: 'POST', url: '/api/v1/federation/leases', payload })).statusCode,
+    ).toBe(401);
+
+    const viewer = await login(app, 'viewer');
+    const viewerCookie = `aquiero_session=${viewer.session}; aquiero_csrf=${viewer.csrf}`;
+    expect(
+      (
+        await app.inject({
+          method: 'POST',
+          url: '/api/v1/federation/leases',
+          headers: { cookie: viewerCookie, 'idempotency-key': 'route-key' },
+          payload,
+        })
+      ).statusCode,
+    ).toBe(403);
+
+    const adminLogin = await login(app, 'admin');
+    const adminCookie = `aquiero_session=${adminLogin.session}; aquiero_csrf=${adminLogin.csrf}`;
+    expect(
+      (
+        await app.inject({
+          method: 'POST',
+          url: '/api/v1/federation/leases',
+          headers: { cookie: adminCookie, 'idempotency-key': 'route-key' },
+          payload,
+        })
+      ).statusCode,
+    ).toBe(403);
+
+    const forged = await app.inject({
+      method: 'POST',
+      url: '/api/v1/federation/leases',
+      headers: {
+        cookie: adminCookie,
+        'x-csrf-token': adminLogin.csrf,
+        'idempotency-key': 'route-key-forged',
+      },
+      payload: { ...payload, result: 'forged result' },
+    });
+    expect(forged.statusCode).toBe(400);
+    expect(work).not.toHaveBeenCalled();
+
+    const allowed = await app.inject({
+      method: 'POST',
+      url: '/api/v1/federation/leases',
+      headers: {
+        cookie: adminCookie,
+        'x-csrf-token': adminLogin.csrf,
+        'idempotency-key': 'route-key',
+      },
+      payload,
+    });
+    expect(allowed.statusCode).toBe(201);
+    expect(work.mock.calls.map((call) => [call[0], call[1], call[2]])).toEqual([
+      ['hermes-alica', 'task.start', 'ALICA-1'],
+      ['hermes-herman', 'task.run', 'reviewer'],
+      ['hermes-alica', 'task.complete', 'ALICA-1'],
+    ]);
+    expect(work.mock.calls.map((call) => call[1])).not.toContain('task.create');
     await app.close();
   });
 

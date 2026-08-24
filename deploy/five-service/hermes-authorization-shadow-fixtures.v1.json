@@ -1,7 +1,7 @@
 {
   "schemaVersion": "alica-hermes-authorization-shadow-fixtures/v1",
   "contractVersion": "alica-hermes-authorization-shadow/v0.1",
-  "sourceVersion": "sha256:1ffdc055bdeedeeed030d5f7e8ccbedfdae37810528d1c642c586d6301d5da74",
+  "sourceVersion": "sha256:c33f476dedebdfd3dc10bc8a13215456cb84eb65a7fcf5c82714d33f04db8730",
   "generatedFrom": {
     "gateway": "apps/gateway/src/app.ts",
     "adapter": "apps/hermes-control-adapter/src/app.ts",
@@ -23,7 +23,7 @@
   "inventory": {
     "gatewayRoutes": 29,
     "adapterRoutes": 19,
-    "operations": 31,
+    "operations": 32,
     "dynamicPermissionExpressions": ["mutations.permission(input)"]
   },
   "fixtures": [
@@ -5745,6 +5745,85 @@
           "operation": "work.task.create",
           "adapterOperation": "task.create",
           "kind": "task",
+          "permission": "work.manage",
+          "capability": "work.execute",
+          "capabilityAdvertised": true,
+          "adapterScope": "control:execute",
+          "collection": false,
+          "mode": "execute",
+          "highRisk": false,
+          "requiresChatLink": false
+        },
+        "predecessor": {
+          "authenticated": true,
+          "principalActive": true,
+          "permissionGranted": true,
+          "adapterScopeAllowed": true
+        },
+        "target": {
+          "principal": {
+            "id": "prn_018f47e2-9097-7a31-8dd8-21df0f736c3a",
+            "status": "active",
+            "authenticationFresh": true,
+            "authenticationStrongEnough": true
+          },
+          "tenant": {
+            "id": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "status": "active",
+            "membershipStatus": "active",
+            "membershipFresh": true
+          },
+          "client": {
+            "id": "cli_018f47e2-9097-7a31-8dd8-21df0f736c3c",
+            "status": "active",
+            "tenantGrantAllows": true,
+            "principalGrantAllows": true
+          },
+          "resource": {
+            "requestedFrameworkId": "hermes-main",
+            "grantedFrameworkId": "hermes-main",
+            "nativeResourceId": "native-resource-1",
+            "tenantId": "ten_018f47e2-9097-7a31-8dd8-21df0f736c3b",
+            "exactGrantAllows": true,
+            "collectionFiltered": true,
+            "registrationStatus": "active",
+            "registrationVerified": true,
+            "compatibilityAccepted": true,
+            "tenantClientAvailability": true
+          },
+          "adapterScopeAllows": true,
+          "capability": {
+            "name": "work.execute",
+            "status": "supported",
+            "modes": ["execute"]
+          },
+          "policy": {
+            "explicitDeny": false,
+            "projectionFresh": true,
+            "approvalRequired": false,
+            "approvalProvided": true
+          },
+          "delegation": { "kind": "direct" }
+        }
+      },
+      "expected": {
+        "predecessor": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "shadowTarget": { "effect": "allow", "reasonCode": "AUTHORIZED" },
+        "comparison": "matched"
+      }
+    },
+    {
+      "name": "coverage:operation:work.task.run",
+      "input": {
+        "surface": {
+          "key": "operation:work.task.run",
+          "surface": "operation",
+          "method": "POST",
+          "path": "/api/v1/mutations",
+          "adapterPath": "/control/v1/commands/work",
+          "operation": "work.task.run",
+          "adapterOperation": "task.run",
+          "kind": "profile",
           "permission": "work.manage",
           "capability": "work.execute",
           "capabilityAdvertised": true,

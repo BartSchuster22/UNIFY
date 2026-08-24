@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
+import { join } from 'node:path';
 import { promisify } from 'node:util';
 import type {
   HermesBoard,
@@ -23,8 +24,14 @@ import { truthfulProviderContract } from './provider-contracts.js';
 const execFileAsync = promisify(execFile);
 const ansi = new RegExp(String.raw`\u001B\[[0-9;]*m`, 'g');
 
+export interface CommandRunnerOptions {
+  timeoutMs?: number;
+  maxBuffer?: number;
+  profileId?: string;
+}
+
 export interface CommandRunner {
-  run(args: string[]): Promise<string>;
+  run(args: string[], options?: CommandRunnerOptions): Promise<string>;
 }
 
 export class HermesCliRunner implements CommandRunner {
@@ -33,15 +40,19 @@ export class HermesCliRunner implements CommandRunner {
     private readonly home?: string,
   ) {}
 
-  async run(args: string[]) {
+  async run(args: string[], options: CommandRunnerOptions = {}) {
+    const selectedHome =
+      this.home && options.profileId && options.profileId !== 'default'
+        ? join(this.home, 'profiles', options.profileId)
+        : this.home;
     const { stdout } = await execFileAsync(this.binary, args, {
       encoding: 'utf8',
-      timeout: 15_000,
-      maxBuffer: 16 * 1024 * 1024,
+      timeout: options.timeoutMs ?? 15_000,
+      maxBuffer: options.maxBuffer ?? 16 * 1024 * 1024,
       env: {
         ...process.env,
         NO_COLOR: '1',
-        ...(this.home ? { HERMES_HOME: this.home } : {}),
+        ...(selectedHome ? { HERMES_HOME: selectedHome } : {}),
       },
     });
     return stdout;
@@ -776,6 +787,32 @@ export class HermesNativeSource implements AdapterSource {
           optionalPayloadString(payload, 'result', 20_000) ?? 'Completed from UNIFY',
         ]);
         return { task: { id: command.targetId, status: 'done' } };
+      case 'task.run': {
+        const profileId = payloadString(payload, 'profileId', 128);
+        assertNativeId(profileId);
+        const prompt = payloadString(payload, 'prompt', 64 * 1024);
+        const profiles = (await this.profiles()).items;
+        if (!profiles.some((item) => item.id === profileId))
+          throw new SourceUnavailableError('Hermes worker profile was not found');
+        const timeoutSeconds = boundedTimeoutSeconds(payload.timeoutSeconds);
+        const output = stripAnsi(
+          await this.options.runner.run(['chat', '-q', prompt, '--quiet', '--source', 'tool'], {
+            timeoutMs: timeoutSeconds * 1000,
+            maxBuffer: 512 * 1024,
+            profileId,
+          }),
+        ).trim();
+        if (!output) throw new SourceUnavailableError('Hermes worker returned an empty result');
+        const result = output.length > 128 * 1024 ? output.slice(0, 128 * 1024) : output;
+        return {
+          taskRun: {
+            profileId,
+            completed: true,
+            timeoutSeconds,
+            result,
+          },
+        };
+      }
       case 'cron.create': {
         const name = payloadString(payload, 'name', 500);
         const schedule = payloadString(payload, 'schedule', 500);
@@ -1197,6 +1234,13 @@ function normalizeCronSchedule(value: string) {
   const unit = match[2]?.toLowerCase();
   const minutes = unit === 'd' ? count * 1440 : unit === 'h' ? count * 60 : count;
   return `every ${minutes}m`;
+}
+
+function boundedTimeoutSeconds(value: unknown) {
+  if (value === undefined) return 600;
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < 30 || value > 3600)
+    throw new Error('Hermes work payload timeoutSeconds is invalid');
+  return value;
 }
 
 function providerId(value: string) {

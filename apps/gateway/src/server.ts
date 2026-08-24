@@ -10,6 +10,7 @@ import { HttpFrameworkProbe } from './framework-registry/probe.js';
 import { PostgresFrameworkEventJournal } from './hermes-control/event-journal.js';
 import { HermesGatewayService } from './hermes-control/service.js';
 import { MemoryV4Adapter } from './memory-v4/client.js';
+import { PostgresFederationLeaseStore } from './federation/postgres-store.js';
 import {
   FrameworkUpdateVisibilityService,
   GitHubTrustedReleaseClient,
@@ -121,6 +122,7 @@ const app = buildApp({
   hermesGateway,
   frameworkUpdates,
   ...(memoryV4Adapter ? { memoryV4Adapter } : {}),
+  federationLeaseStore: new PostgresFederationLeaseStore(pool),
 
   requestRateLimit: Number(process.env.REQUESTS_PER_MINUTE ?? 600),
 });

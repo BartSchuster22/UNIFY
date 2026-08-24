@@ -280,6 +280,36 @@ describe('Hermes control adapter', () => {
     });
   });
 
+  it('accepts the native task.run Work command schema and returns typed worker evidence', async () => {
+    const executeWork = vi.fn(async () => ({
+      taskRun: { profileId: 'reviewer', completed: true, result: 'worker result' },
+    }));
+    const app = create({ ...source, executeWork });
+    const reply = await app.inject({
+      method: 'POST',
+      url: '/control/v1/commands/work',
+      headers: auth,
+      payload: {
+        ...command({
+          payload: { profileId: 'reviewer', prompt: 'Run natively', timeoutSeconds: 60 },
+        }),
+        operation: 'task.run',
+        targetId: 'reviewer',
+        expectedSourceVersion: 'sha256:profiles',
+      },
+    });
+
+    expect(reply.statusCode).toBe(200);
+    expect(Value.Check(HermesWorkResultSchema, reply.json())).toBe(true);
+    expect(reply.json().data).toMatchObject({
+      status: 'completed',
+      operation: 'task.run',
+      targetId: 'reviewer',
+      result: { taskRun: { profileId: 'reviewer', result: 'worker result' } },
+    });
+    expect(executeWork).toHaveBeenCalledWith(expect.objectContaining({ operation: 'task.run' }));
+  });
+
   it('validates, dry-runs, executes, and verifies native profile rename with optimistic concurrency', async () => {
     let profiles = [
       { id: 'seed', displayName: 'seed', active: true, gatewayStatus: 'running' as const },

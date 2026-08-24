@@ -43,6 +43,10 @@ const rolloutMigration = readFileSync(
   resolve(import.meta.dirname, '../migrations/012_framework_governed_rollouts.up.sql'),
   'utf8',
 );
+const federationMigration = readFileSync(
+  resolve(import.meta.dirname, '../migrations/016_cross_hermes_worker_federation.up.sql'),
+  'utf8',
+);
 const hermesBaselineMigration = readFileSync(
   resolve(import.meta.dirname, '../migrations/006_hermes_020_baseline.up.sql'),
 );
@@ -190,6 +194,30 @@ describe('governed framework rollout migration', () => {
     expect(rolloutMigration).toContain('prevent_framework_rollout_target_identity_mutation');
     expect(rolloutMigration).toContain("'dry_run_passed'");
     expect(rolloutMigration).toContain("'converged'");
+  });
+});
+
+describe('cross-Hermes worker federation migration', () => {
+  it('persists a single durable worker lease per source card with immutable evidence and runtime grants', () => {
+    expect(federationMigration).toContain('CREATE TABLE federation_worker_leases');
+    expect(federationMigration).toContain(
+      "source_framework_id text NOT NULL CHECK (source_framework_id = 'hermes-alica')",
+    );
+    expect(federationMigration).toContain(
+      "worker_framework_id text NOT NULL CHECK (worker_framework_id = 'hermes-herman')",
+    );
+    expect(federationMigration).toContain('CONSTRAINT federation_one_worker_per_source UNIQUE');
+    expect(federationMigration).toContain("status IN ('pending','running','completed','failed')");
+    expect(federationMigration).toContain("'worker-completed'");
+    expect(federationMigration).toContain('lease_expires_at timestamptz NOT NULL');
+    expect(federationMigration).toContain('heartbeat_at timestamptz NOT NULL');
+    expect(federationMigration).toContain('attempt integer NOT NULL DEFAULT 1');
+    expect(federationMigration).toContain('federation worker lease identity is immutable');
+    expect(federationMigration).toContain('CREATE TABLE federation_worker_lease_events');
+    expect(federationMigration).toContain('federation worker lease evidence is immutable');
+    expect(federationMigration).toContain(
+      'GRANT SELECT, INSERT, UPDATE ON federation_worker_leases TO gateway_runtime',
+    );
   });
 });
 

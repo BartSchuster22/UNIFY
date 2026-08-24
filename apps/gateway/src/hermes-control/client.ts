@@ -185,7 +185,14 @@ export class HermesControlClient {
   }
 
   work(command: HermesWorkCommand): Promise<Static<typeof HermesWorkResultSchema>> {
-    return this.request('POST', '/control/v1/commands/work', HermesWorkResultSchema, command);
+    const timeoutMs = command.operation === 'task.run' ? 3_700_000 : this.timeoutMs;
+    return this.request(
+      'POST',
+      '/control/v1/commands/work',
+      HermesWorkResultSchema,
+      command,
+      timeoutMs,
+    );
   }
 
   modelManagement(

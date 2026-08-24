@@ -606,6 +606,7 @@ export const HermesWorkOperationSchema = Type.Union(
     Type.Literal('task.block'),
     Type.Literal('task.unblock'),
     Type.Literal('task.complete'),
+    Type.Literal('task.run'),
     Type.Literal('cron.create'),
     Type.Literal('cron.run'),
     Type.Literal('cron.pause'),

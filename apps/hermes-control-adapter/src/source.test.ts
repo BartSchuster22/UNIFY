@@ -9,8 +9,10 @@ import {
 } from './source.js';
 
 class FixtureRunner implements CommandRunner {
+  readonly calls: Array<{ args: string[]; options?: unknown }> = [];
   constructor(private readonly outputs: Record<string, string>) {}
-  async run(args: string[]) {
+  async run(args: string[], options?: unknown) {
+    this.calls.push({ args, options });
     const key = args.join(' ');
     const value = this.outputs[key];
     if (value === undefined) throw new Error(`Missing fixture: ${key}`);
@@ -597,6 +599,66 @@ describe('HermesNativeSource', () => {
       readinessReasonCodes: ['SETUP_CONTRACT_UNKNOWN'],
     });
     expect(JSON.stringify(items)).not.toMatch(/API_KEY|TOKEN|secret-file-path/i);
+  });
+
+  it('runs native task.run by validating the selected worker profile and invoking Hermes one-shot without Kanban writes', async () => {
+    const runner = new FixtureRunner({
+      'profile list':
+        ' ◆default         gpt-5.6-sol    running      —\n  reviewer        gpt-5.5        stopped      —\n',
+      'profile describe default': '(no description set)',
+      'profile describe reviewer': 'Reviews delegated work',
+      'chat -q Investigate this --quiet --source tool': 'worker completed\n',
+    });
+    const source = new HermesNativeSource({ runner });
+
+    await expect(
+      source.executeWork({
+        mode: 'execute',
+        idempotencyKey: 'native-run-idempotency',
+        requestId: 'request-native-run',
+        correlationId: 'correlation-native-run',
+        actor: { type: 'service', id: 'unify-core' },
+        operation: 'task.run',
+        targetId: 'reviewer',
+        payload: { profileId: 'reviewer', prompt: 'Investigate this', timeoutSeconds: 60 },
+      }),
+    ).resolves.toEqual({
+      taskRun: {
+        profileId: 'reviewer',
+        completed: true,
+        timeoutSeconds: 60,
+        result: 'worker completed',
+      },
+    });
+    expect(runner.calls.map((call) => call.args[0])).not.toContain('kanban');
+    expect(runner.calls.at(-1)).toEqual({
+      args: ['chat', '-q', 'Investigate this', '--quiet', '--source', 'tool'],
+      options: { timeoutMs: 60_000, maxBuffer: 512 * 1024, profileId: 'reviewer' },
+    });
+  });
+
+  it('rejects task.run for an unknown worker profile before invoking chat', async () => {
+    const runner = new FixtureRunner({
+      'profile list': ' ◆default         gpt-5.6-sol    running      —\n',
+      'profile describe default': '(no description set)',
+    });
+    const source = new HermesNativeSource({ runner });
+
+    await expect(
+      source.executeWork({
+        mode: 'execute',
+        idempotencyKey: 'native-run-missing-profile',
+        requestId: 'request-native-run-missing',
+        correlationId: 'correlation-native-run-missing',
+        actor: { type: 'service', id: 'unify-core' },
+        operation: 'task.run',
+        targetId: 'reviewer',
+        payload: { profileId: 'reviewer', prompt: 'Investigate this' },
+      }),
+    ).rejects.toThrow('worker profile was not found');
+    expect(runner.calls.map((call) => call.args.join(' '))).not.toContain(
+      'chat -q Investigate this --quiet --source tool',
+    );
   });
 
   it('rejects unsafe Hermes API endpoints before issuing a request', () => {

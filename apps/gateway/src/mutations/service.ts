@@ -404,6 +404,7 @@ function validateWorkCommand(input: MutationInput, definition: MutationDefinitio
     'work.task.block': ['boardId'],
     'work.task.unblock': ['boardId'],
     'work.task.complete': ['boardId'],
+    'work.task.run': ['profileId', 'prompt'],
     'work.cron.create': ['name', 'schedule', 'prompt'],
   };
   for (const field of required[input.operationType] ?? []) {
