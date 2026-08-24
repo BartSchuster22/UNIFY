@@ -64,7 +64,3 @@ $$;
 CREATE TRIGGER federation_worker_lease_event_immutable
   BEFORE UPDATE OR DELETE ON federation_worker_lease_events
   FOR EACH ROW EXECUTE FUNCTION prevent_federation_event_mutation();
-
-GRANT SELECT, INSERT, UPDATE ON federation_worker_leases TO gateway_runtime;
-GRANT SELECT, INSERT ON federation_worker_lease_events TO gateway_runtime;
-GRANT USAGE, SELECT ON SEQUENCE federation_worker_lease_events_id_seq TO gateway_runtime;

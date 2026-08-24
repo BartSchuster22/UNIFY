@@ -215,9 +215,9 @@ describe('cross-Hermes worker federation migration', () => {
     expect(federationMigration).toContain('federation worker lease identity is immutable');
     expect(federationMigration).toContain('CREATE TABLE federation_worker_lease_events');
     expect(federationMigration).toContain('federation worker lease evidence is immutable');
-    expect(federationMigration).toContain(
-      'GRANT SELECT, INSERT, UPDATE ON federation_worker_leases TO gateway_runtime',
-    );
+    expect(federationMigration).not.toContain('unify_hermes_adapter_runtime');
+    expect(federationMigration).not.toContain('unify_alica_adapter');
+    expect(federationMigration).not.toContain('unify_herman_adapter');
   });
 });
 
