@@ -15,7 +15,7 @@ CREATE TABLE federation_worker_leases (
   request_hash text NOT NULL CHECK (request_hash ~ '^[a-f0-9]{64}$'),
   result jsonb,
   error jsonb,
-  created_by text NOT NULL REFERENCES users(id),
+  created_by uuid NOT NULL REFERENCES users(id),
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT federation_distinct_frameworks CHECK (source_framework_id <> worker_framework_id),
