@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   Card,
+  Checkbox,
   Code,
   Divider,
   Group,
@@ -25,9 +26,10 @@ import { IconCalendar, IconClipboardList, IconPlus, IconRefresh } from '@tabler/
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ApiError, api, gateway } from './api';
 import { useFrameworkContext } from './FrameworkContext';
-import type { Collection, MutationRequest, UnifiedResource } from './types';
+import type { Collection, FederationLease, MutationRequest, UnifiedResource } from './types';
 
-type WorkPage = 'overview' | 'projects' | 'board' | 'details' | 'add' | 'cronjobs' | 'settings';
+type WorkPage =
+  'overview' | 'projects' | 'board' | 'details' | 'add' | 'federation' | 'cronjobs' | 'settings';
 type ProjectForm = {
   slug: string;
   name: string;
@@ -59,6 +61,7 @@ const pageOptions: Array<{ value: WorkPage; label: string }> = [
   { value: 'board', label: 'Kanban project' },
   { value: 'details', label: 'Project details' },
   { value: 'add', label: 'Add new' },
+  { value: 'federation', label: 'Alica → Herman' },
   { value: 'cronjobs', label: 'Cronjobs' },
   { value: 'settings', label: 'Settings' },
 ];
@@ -83,6 +86,12 @@ export function WorkView({ canManage }: { canManage: boolean }) {
   );
   const [busy, setBusy] = useState(false);
   const [workCapability, setWorkCapability] = useState<WorkCapability>();
+  const [leases, setLeases] = useState<FederationLease[]>([]);
+  const [workerProfiles, setWorkerProfiles] = useState<Array<{ id: string; displayName: string }>>(
+    [],
+  );
+  const [federationLoading, setFederationLoading] = useState(false);
+  const [federationFailure, setFederationFailure] = useState<string>();
   const loadGeneration = useRef(0);
   const selectedFramework = useRef(frameworkId);
   selectedFramework.current = frameworkId;
@@ -115,6 +124,31 @@ export function WorkView({ canManage }: { canManage: boolean }) {
     }
   }, [frameworkId]);
 
+  const loadFederation = useCallback(async () => {
+    if (!canManage) return;
+    setFederationLoading(true);
+    setFederationFailure(undefined);
+    try {
+      const [leaseCollection, profiles] = await Promise.all([
+        gateway.federationLeases(),
+        gateway.hermesProfiles('hermes-herman'),
+      ]);
+      setLeases(leaseCollection.items);
+      setWorkerProfiles(
+        profiles.items
+          .map((profile) => ({
+            id: text(profile.id),
+            displayName: text(profile.displayName) || text(profile.id),
+          }))
+          .filter((profile) => profile.id),
+      );
+    } catch (error) {
+      setFederationFailure(errorMessage(error));
+    } finally {
+      setFederationLoading(false);
+    }
+  }, [canManage]);
+
   useEffect(() => {
     setData({ items: [] });
     setSelectedProject('');
@@ -136,6 +170,10 @@ export function WorkView({ canManage }: { canManage: boolean }) {
     window.addEventListener('popstate', restoreFromHistory);
     return () => window.removeEventListener('popstate', restoreFromHistory);
   }, []);
+
+  useEffect(() => {
+    if (page === 'federation') void loadFederation();
+  }, [loadFederation, page]);
 
   const projects = useMemo(() => nativeProjects(data.items), [data.items]);
   const tasks = useMemo(
@@ -210,7 +248,13 @@ export function WorkView({ canManage }: { canManage: boolean }) {
             Projects, Kanban cards, and schedules are read from and mutated through native Hermes.
           </Text>
         </Box>
-        <Button variant="light" leftSection={<IconRefresh size={16} />} onClick={() => void load()}>
+        <Button
+          variant="light"
+          leftSection={<IconRefresh size={16} />}
+          onClick={() =>
+            void Promise.all([load(), ...(page === 'federation' ? [loadFederation()] : [])])
+          }
+        >
           Refresh
         </Button>
       </Group>
@@ -324,6 +368,20 @@ export function WorkView({ canManage }: { canManage: boolean }) {
               onCreated={(slug) => navigate('board', slug)}
               canManage={canExecuteWork}
               busy={busy}
+            />
+          )}
+          {page === 'federation' && (
+            <FederationView
+              frameworkId={frameworkId}
+              tasks={tasks}
+              leases={leases}
+              workerProfiles={workerProfiles}
+              canManage={canManage}
+              loading={federationLoading}
+              failure={federationFailure}
+              onReload={async () => {
+                await Promise.all([load(), loadFederation()]);
+              }}
             />
           )}
           {page === 'cronjobs' && (
@@ -1273,6 +1331,258 @@ function Cronjobs({
           </Button>
         </Stack>
       </Modal>
+    </Stack>
+  );
+}
+
+function FederationView({
+  frameworkId,
+  tasks,
+  leases,
+  workerProfiles,
+  canManage,
+  loading,
+  failure,
+  onReload,
+}: {
+  frameworkId: string;
+  tasks: UnifiedResource[];
+  leases: FederationLease[];
+  workerProfiles: Array<{ id: string; displayName: string }>;
+  canManage: boolean;
+  loading: boolean;
+  failure?: string | undefined;
+  onReload: () => Promise<void>;
+}) {
+  const eligible = tasks.filter((task) => ['triage', 'todo', 'ready'].includes(taskLane(task)));
+  const [taskId, setTaskId] = useState('');
+  const [profileId, setProfileId] = useState('');
+  const [prompt, setPrompt] = useState('');
+  const [confirmed, setConfirmed] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitFailure, setSubmitFailure] = useState<string>();
+  const [notice, setNotice] = useState<string>();
+  const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
+  const selectedTask = eligible.find((task) => task.resource.nativeId === taskId);
+
+  useEffect(() => {
+    if (!taskId && eligible[0]) setTaskId(eligible[0].resource.nativeId);
+  }, [eligible, taskId]);
+  useEffect(() => {
+    if (!profileId && workerProfiles[0]) setProfileId(workerProfiles[0].id);
+  }, [profileId, workerProfiles]);
+  useEffect(() => {
+    if (selectedTask && !prompt)
+      setPrompt(
+        text(selectedTask.data.description) || selectedTask.title || selectedTask.resource.nativeId,
+      );
+  }, [prompt, selectedTask]);
+
+  const changeIntent = (apply: () => void) => {
+    apply();
+    setConfirmed(false);
+    setNotice(undefined);
+    setSubmitFailure(undefined);
+    setIdempotencyKey(crypto.randomUUID());
+  };
+
+  const delegate = async () => {
+    if (
+      !selectedTask ||
+      !profileId ||
+      !prompt.trim() ||
+      !confirmed ||
+      frameworkId !== 'hermes-alica'
+    )
+      return;
+    setSubmitting(true);
+    setSubmitFailure(undefined);
+    setNotice(undefined);
+    try {
+      const response = await gateway.createFederationLease(
+        {
+          sourceFrameworkId: 'hermes-alica',
+          sourceBoardId: text(selectedTask.data.boardId),
+          sourceTaskId: selectedTask.resource.nativeId,
+          sourceSourceVersion: selectedTask.resource.sourceVersion ?? '',
+          workerFrameworkId: 'hermes-herman',
+          workerProfileId: profileId,
+          prompt: prompt.trim(),
+        },
+        idempotencyKey,
+      );
+      setNotice(
+        response.replayed
+          ? `Lease ${response.lease.id} was safely replayed without another worker execution.`
+          : `Lease ${response.lease.id} reached ${response.lease.status}/${response.lease.stage}.`,
+      );
+      setConfirmed(false);
+      setIdempotencyKey(crypto.randomUUID());
+      await onReload();
+    } catch (error) {
+      setSubmitFailure(errorMessage(error));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (!canManage)
+    return (
+      <Alert color="yellow" title="Federation is restricted">
+        Bounded Alica → Herman delegation requires <Code>work.manage</Code>.
+      </Alert>
+    );
+
+  return (
+    <Stack>
+      <Box>
+        <Title order={2}>Bounded Alica → Herman delegation</Title>
+        <Text c="dimmed">
+          Delegate one canonical Alica card to one selected native Herman profile. Alica keeps the
+          only board card; UNIFY persists the lease and never accepts caller-supplied results.
+        </Text>
+      </Box>
+      {frameworkId !== 'hermes-alica' && (
+        <Alert color="yellow" title="Select Alica as the source framework">
+          This contract is intentionally fixed to <Code>hermes-alica</Code> →{' '}
+          <Code>hermes-herman</Code>. Select Alica above to choose an eligible source card.
+        </Alert>
+      )}
+      {failure && (
+        <Alert color="red" title="Federation inventory unavailable">
+          {failure}
+        </Alert>
+      )}
+      {submitFailure && (
+        <Alert color="red" title="Delegation failed">
+          {submitFailure} The same idempotency key is retained for a safe retry.
+        </Alert>
+      )}
+      {notice && (
+        <Alert color="teal" title="Delegation recorded">
+          {notice}
+        </Alert>
+      )}
+      <Card withBorder>
+        <Stack>
+          <Select
+            label="Canonical Alica card"
+            value={taskId || null}
+            data={eligible.map((task) => ({
+              value: task.resource.nativeId,
+              label: `${text(task.data.boardId)} · ${task.title}`,
+            }))}
+            onChange={(value) =>
+              changeIntent(() => {
+                setTaskId(value ?? '');
+                const task = eligible.find((item) => item.resource.nativeId === value);
+                setPrompt(task ? text(task.data.description) || task.title : '');
+              })
+            }
+            disabled={frameworkId !== 'hermes-alica' || loading}
+            searchable
+            nothingFoundMessage="No triage, todo, or ready Alica cards"
+          />
+          <Select
+            label="Native Herman worker profile"
+            value={profileId || null}
+            data={workerProfiles.map((profile) => ({
+              value: profile.id,
+              label: `${profile.displayName} (${profile.id})`,
+            }))}
+            onChange={(value) => changeIntent(() => setProfileId(value ?? ''))}
+            disabled={loading}
+            searchable
+          />
+          <Textarea
+            label="Worker prompt"
+            description="This prompt is sent to the selected Herman profile. Result fields cannot be supplied by the browser."
+            minRows={5}
+            value={prompt}
+            onChange={(event) => changeIntent(() => setPrompt(event.currentTarget.value))}
+          />
+          <Checkbox
+            checked={confirmed}
+            onChange={(event) => setConfirmed(event.currentTarget.checked)}
+            label="I confirm this exact Alica card and Herman profile delegation"
+          />
+          <Button
+            loading={submitting}
+            disabled={
+              frameworkId !== 'hermes-alica' ||
+              !selectedTask ||
+              !profileId ||
+              !prompt.trim() ||
+              !confirmed ||
+              loading
+            }
+            onClick={() => void delegate()}
+          >
+            Delegate exact card
+          </Button>
+        </Stack>
+      </Card>
+      <Group justify="space-between">
+        <Title order={3}>Durable federation leases</Title>
+        <Button variant="light" loading={loading} onClick={() => void onReload()}>
+          Refresh leases
+        </Button>
+      </Group>
+      {loading && !leases.length ? (
+        <Paper withBorder p="lg">
+          <Group justify="center">
+            <Loader size="sm" />
+            <Text>Loading durable leases…</Text>
+          </Group>
+        </Paper>
+      ) : !leases.length ? (
+        <Empty text="No durable federation leases exist." />
+      ) : (
+        <Paper withBorder>
+          <ScrollArea type="auto">
+            <Table striped highlightOnHover>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Lease</Table.Th>
+                  <Table.Th>Source card</Table.Th>
+                  <Table.Th>Worker profile</Table.Th>
+                  <Table.Th>Status</Table.Th>
+                  <Table.Th>Updated</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {leases.map((lease) => (
+                  <Table.Tr key={lease.id}>
+                    <Table.Td>
+                      <Code>{lease.id}</Code>
+                    </Table.Td>
+                    <Table.Td>
+                      {lease.source.boardId} · <Code>{lease.source.taskId}</Code>
+                    </Table.Td>
+                    <Table.Td>
+                      {lease.worker.frameworkId} · <Code>{lease.worker.profileId}</Code>
+                    </Table.Td>
+                    <Table.Td>
+                      <Badge
+                        color={
+                          lease.status === 'completed'
+                            ? 'teal'
+                            : lease.status === 'failed'
+                              ? 'red'
+                              : 'blue'
+                        }
+                      >
+                        {lease.status} / {lease.stage}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>{formatDate(lease.updatedAt)}</Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          </ScrollArea>
+        </Paper>
+      )}
     </Stack>
   );
 }

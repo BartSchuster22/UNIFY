@@ -255,6 +255,81 @@ describe('UNIFY Work & Kanban', () => {
     expect(gateway.mutate).not.toHaveBeenCalled();
   });
 
+  it('creates only the bounded Alica to Herman lease from an exact authoritative card version', async () => {
+    window.history.replaceState(null, '', '/?view=work&framework=hermes-alica');
+    vi.spyOn(gateway, 'federationLeases').mockResolvedValue({ items: [] });
+    vi.spyOn(gateway, 'hermesProfiles').mockResolvedValue({
+      items: [
+        {
+          id: 'default',
+          displayName: 'Herman default',
+          owner: 'hermes',
+          frameworkId: 'hermes-herman',
+        },
+      ],
+      meta: { ...meta, frameworkId: 'hermes-herman' },
+      page,
+    });
+    const create = vi.spyOn(gateway, 'createFederationLease').mockResolvedValue({
+      replayed: false,
+      lease: {
+        id: 'lease-ui-1',
+        source: { frameworkId: 'hermes-alica', boardId: 'alpha', taskId: 'TASK-3' },
+        worker: {
+          frameworkId: 'hermes-herman',
+          boardId: 'native',
+          profileId: 'default',
+          taskId: null,
+        },
+        status: 'completed',
+        stage: 'source-completed',
+        attempt: 1,
+        leaseExpiresAt: '2026-08-25T00:00:00.000Z',
+        heartbeatAt: '2026-08-24T23:00:00.000Z',
+        createdAt: '2026-08-24T22:00:00.000Z',
+        updatedAt: '2026-08-24T23:00:00.000Z',
+      },
+    });
+
+    renderWork();
+    await screen.findByText('Blocked release');
+    fireEvent.click(screen.getByRole('radio', { name: 'Alica → Herman' }));
+    expect(await screen.findByText('Bounded Alica → Herman delegation')).toBeInTheDocument();
+    expect(await screen.findByDisplayValue('New intake')).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole('checkbox', {
+        name: 'I confirm this exact Alica card and Herman profile delegation',
+      }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Delegate exact card' }));
+    await waitFor(() => expect(create).toHaveBeenCalledTimes(1));
+    expect(create.mock.calls[0]?.[0]).toEqual({
+      sourceFrameworkId: 'hermes-alica',
+      sourceBoardId: 'alpha',
+      sourceTaskId: 'TASK-3',
+      sourceSourceVersion: 'sha256:test',
+      workerFrameworkId: 'hermes-herman',
+      workerProfileId: 'default',
+      prompt: 'New intake',
+    });
+    expect(create.mock.calls[0]?.[0]).not.toHaveProperty('result');
+    expect(create.mock.calls[0]?.[1]).toMatch(/^[0-9a-f-]{36}$/);
+    expect(
+      await screen.findByText(/lease-ui-1 reached completed\/source-completed/),
+    ).toBeInTheDocument();
+  });
+
+  it('fails the federation UI closed when Herman is selected as the source', async () => {
+    window.history.replaceState(null, '', '/?view=work&framework=hermes-herman');
+    vi.spyOn(gateway, 'federationLeases').mockResolvedValue({ items: [] });
+    vi.spyOn(gateway, 'hermesProfiles').mockResolvedValue({ items: [], meta, page });
+    renderWork();
+    await screen.findByText('Blocked release');
+    fireEvent.click(screen.getByRole('radio', { name: 'Alica → Herman' }));
+    expect(await screen.findByText('Select Alica as the source framework')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Delegate exact card' })).toBeDisabled();
+  });
+
   it('shows native cron controls and refuses browser-owned notification fallback truth', async () => {
     renderWork();
     await screen.findByText('Blocked release');

@@ -81,6 +81,45 @@ export interface MutationResponse {
   result: unknown;
 }
 
+export interface FederationLease {
+  id: string;
+  source: { frameworkId: string; boardId: string; taskId: string };
+  worker: { frameworkId: string; boardId: string; profileId: string; taskId: string | null };
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  stage:
+    | 'pending'
+    | 'source-started'
+    | 'worker-running'
+    | 'worker-completed'
+    | 'source-completed'
+    | 'source-blocked';
+  attempt: number;
+  leaseExpiresAt: string;
+  heartbeatAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FederationLeaseCollection {
+  items: FederationLease[];
+  meta?: ResponseMeta;
+}
+
+export interface FederationLeaseRequest {
+  sourceFrameworkId: 'hermes-alica';
+  sourceBoardId: string;
+  sourceTaskId: string;
+  sourceSourceVersion: string;
+  workerFrameworkId: 'hermes-herman';
+  workerProfileId: string;
+  prompt: string;
+}
+
+export interface FederationLeaseResponse {
+  replayed: boolean;
+  lease: FederationLease;
+}
+
 export interface SessionSummary {
   id: string;
   deviceLabel: string | null;

@@ -1,4 +1,12 @@
-import type { ApiFailure, MutationRequest, MutationResponse, Principal } from './types';
+import type {
+  ApiFailure,
+  FederationLeaseCollection,
+  FederationLeaseRequest,
+  FederationLeaseResponse,
+  MutationRequest,
+  MutationResponse,
+  Principal,
+} from './types';
 
 export class ApiError extends Error {
   constructor(
@@ -87,6 +95,17 @@ export const gateway = {
     api<HermesCollection<Record<string, unknown>>>(
       `/frameworks/${encodeURIComponent(frameworkId)}/work/cronjobs?limit=500`,
     ),
+  hermesProfiles: (frameworkId: string) =>
+    api<HermesCollection<Record<string, unknown>>>(
+      `/frameworks/${encodeURIComponent(frameworkId)}/profiles?limit=500`,
+    ),
+  federationLeases: () => api<FederationLeaseCollection>('/federation/leases?limit=500'),
+  createFederationLease: (request: FederationLeaseRequest, idempotencyKey: string) =>
+    api<FederationLeaseResponse>('/federation/leases', {
+      method: 'POST',
+      headers: { 'idempotency-key': idempotencyKey },
+      body: JSON.stringify(request),
+    }),
   mutate: (request: MutationRequest, idempotencyKey: string = crypto.randomUUID()) =>
     api<MutationResponse>('/mutations', {
       method: 'POST',
