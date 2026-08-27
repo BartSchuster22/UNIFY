@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.alica.invalid/alica-readonly-report-v1.schema.json",
+  "title": "ALICA read-only lifecycle report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "command",
+    "generatedAt",
+    "status",
+    "mutationPerformed",
+    "releaseId",
+    "manifestDigest",
+    "cellId",
+    "checks",
+    "drift",
+    "summary"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "alica-readonly-report/v1" },
+    "command": { "enum": ["preflight", "status", "verify"] },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "status": { "enum": ["PASS", "FAIL", "NOT_INSTALLED"] },
+    "mutationPerformed": { "const": false },
+    "releaseId": { "type": "string" },
+    "manifestDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "cellId": { "type": ["string", "null"] },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "status", "code", "detail"],
+        "properties": {
+          "name": { "type": "string" },
+          "status": { "enum": ["PASS", "FAIL"] },
+          "code": { "type": "string" },
+          "detail": { "type": "string" }
+        }
+      }
+    },
+    "drift": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["class", "resource", "expected", "observed"],
+        "properties": {
+          "class": { "type": "string" },
+          "resource": { "type": "string" },
+          "expected": { "type": "string" },
+          "observed": { "type": "string" }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["passed", "failed", "drift"],
+      "properties": {
+        "passed": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "drift": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

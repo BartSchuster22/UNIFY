@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.alica.invalid/alica-manifest-signature-v1.schema.json",
+  "title": "ALICA detached manifest signature v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "algorithm", "keyId", "manifestDigest", "signature"],
+  "properties": {
+    "schemaVersion": { "const": "alica-manifest-signature/v1" },
+    "algorithm": { "const": "ed25519" },
+    "keyId": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "manifestDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "signature": { "type": "string", "contentEncoding": "base64" }
+  }
+}

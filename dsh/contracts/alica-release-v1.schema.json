@@ -1,0 +1,481 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.alica.invalid/alica-release-v1.schema.json",
+  "title": "ALICA whole-Cell release manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "canonicalEncoding",
+    "releaseId",
+    "releaseVersion",
+    "createdAt",
+    "cellContract",
+    "releaseClass",
+    "installable",
+    "product",
+    "profiles",
+    "platforms",
+    "sources",
+    "components",
+    "topology",
+    "compatibility",
+    "migrationPlan",
+    "rollback",
+    "dataUnits",
+    "endpoints",
+    "secretRequirements",
+    "acceptanceSuite",
+    "releaseNotes",
+    "knownRisks",
+    "irreversibleChanges"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "alica-release/v1" },
+    "canonicalEncoding": { "const": "alica-canonical-json/v1" },
+    "releaseId": {
+      "type": "string",
+      "pattern": "^rel_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "releaseVersion": { "$ref": "#/$defs/semver" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "cellContract": { "const": "alica-cell/v0.1" },
+    "releaseClass": {
+      "enum": ["development", "candidate", "stable", "lts", "hotfix", "withdrawn", "revoked"]
+    },
+    "installable": { "type": "boolean" },
+    "product": { "$ref": "#/$defs/product" },
+    "profiles": {
+      "type": "array",
+      "prefixItems": [{ "const": "dsh-minimal/v1" }],
+      "items": false,
+      "minItems": 1,
+      "maxItems": 1
+    },
+    "platforms": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/platform" },
+      "minItems": 1,
+      "maxItems": 1
+    },
+    "sources": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/source" },
+      "minItems": 1,
+      "maxItems": 32
+    },
+    "components": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/component" },
+      "minItems": 12,
+      "maxItems": 12
+    },
+    "topology": { "$ref": "#/$defs/topology" },
+    "compatibility": { "$ref": "#/$defs/compatibility" },
+    "migrationPlan": { "$ref": "#/$defs/migrationPlan" },
+    "rollback": { "$ref": "#/$defs/rollback" },
+    "dataUnits": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/dataUnit" },
+      "minItems": 8,
+      "maxItems": 8
+    },
+    "endpoints": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/endpoint" },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "secretRequirements": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/secretRequirement" },
+      "minItems": 1,
+      "maxItems": 64
+    },
+    "acceptanceSuite": { "$ref": "#/$defs/artifact" },
+    "releaseNotes": { "$ref": "#/$defs/artifact" },
+    "knownRisks": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 512 },
+      "maxItems": 128,
+      "uniqueItems": true
+    },
+    "irreversibleChanges": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 512 },
+      "maxItems": 128,
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"
+    },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,62}$" },
+    "versionRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimumInclusive", "maximumExclusive"],
+      "properties": {
+        "minimumInclusive": { "$ref": "#/$defs/semver" },
+        "maximumExclusive": { "$ref": "#/$defs/semver" }
+      }
+    },
+    "product": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "productId",
+        "releaseLine",
+        "profile",
+        "freezeDigest",
+        "binaryLicense",
+        "eulaDigest",
+        "centralRuntimeDependencies"
+      ],
+      "properties": {
+        "productId": { "const": "com.alica.community-dsh" },
+        "releaseLine": { "const": "1.0" },
+        "profile": { "const": "dsh-minimal/v1" },
+        "freezeDigest": {
+          "const": "sha256:084ee1cfe6a16afcfac7178484afd359c7f9012d69552ce37839594a39c4b3b1"
+        },
+        "binaryLicense": { "const": "ALICA-Community-DSH-EULA-1.0" },
+        "eulaDigest": {
+          "const": "sha256:3b172e3850816750ff7b5a7d6d4b9f311f5c745159e201f42fea647c4dad1f3c"
+        },
+        "centralRuntimeDependencies": { "const": [] }
+      }
+    },
+    "platform": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "osId",
+        "osVersion",
+        "architecture",
+        "init",
+        "docker",
+        "compose",
+        "minimum",
+        "upgradeHeadroomBytes"
+      ],
+      "properties": {
+        "osId": { "const": "debian" },
+        "osVersion": { "const": "13" },
+        "architecture": { "const": "amd64" },
+        "init": { "const": "systemd" },
+        "docker": { "$ref": "#/$defs/versionRange" },
+        "compose": { "$ref": "#/$defs/versionRange" },
+        "minimum": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["vcpu", "memoryBytes", "freeDiskBytes"],
+          "properties": {
+            "vcpu": { "const": 4 },
+            "memoryBytes": { "const": 8589934592 },
+            "freeDiskBytes": { "const": 107374182400 }
+          }
+        },
+        "upgradeHeadroomBytes": { "type": "integer", "minimum": 21474836480 }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "commit", "treeDigest"],
+      "properties": {
+        "repository": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "commit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "treeDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "artifact", "digest"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "artifact": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "digest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "componentId",
+        "authority",
+        "version",
+        "kind",
+        "realization",
+        "artifact",
+        "digest",
+        "signaturePolicy",
+        "sbom",
+        "provenance",
+        "componentContract",
+        "provides",
+        "requires",
+        "configSchema",
+        "dataSchema"
+      ],
+      "properties": {
+        "componentId": { "$ref": "#/$defs/id" },
+        "authority": { "$ref": "#/$defs/id" },
+        "version": { "$ref": "#/$defs/semver" },
+        "kind": { "enum": ["oci-image", "host-binary", "host-unit-bundle"] },
+        "realization": { "enum": ["oci-container", "host-binary", "systemd-units"] },
+        "artifact": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "digest": { "$ref": "#/$defs/digest" },
+        "signaturePolicy": { "const": "alica-executable/v1" },
+        "sbom": { "$ref": "#/$defs/artifact" },
+        "provenance": { "$ref": "#/$defs/artifact" },
+        "componentContract": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "provides": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "requires": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "configSchema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "digest"],
+          "properties": { "id": { "type": "string" }, "digest": { "$ref": "#/$defs/digest" } }
+        },
+        "dataSchema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["authority", "target"],
+          "properties": { "authority": { "type": "string" }, "target": { "type": "string" } }
+        }
+      }
+    },
+    "port": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hostIp", "published", "target", "protocol"],
+      "properties": {
+        "hostIp": { "const": "0.0.0.0" },
+        "published": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "target": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "protocol": { "const": "tcp" }
+      }
+    },
+    "topology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["project", "labels", "containers", "networks", "volumes", "hostUnits"],
+      "properties": {
+        "project": { "const": "alica" },
+        "labels": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["cellId", "releaseId", "componentId", "managed"],
+          "properties": {
+            "cellId": { "const": "com.alica.cell.id" },
+            "releaseId": { "const": "com.alica.release.id" },
+            "componentId": { "const": "com.alica.component.id" },
+            "managed": { "const": "com.alica.managed" }
+          }
+        },
+        "containers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "componentId",
+              "service",
+              "networks",
+              "volumes",
+              "publishedPorts",
+              "healthRequired"
+            ],
+            "properties": {
+              "componentId": { "$ref": "#/$defs/id" },
+              "service": { "$ref": "#/$defs/id" },
+              "networks": {
+                "type": "array",
+                "items": { "$ref": "#/$defs/id" },
+                "uniqueItems": true
+              },
+              "volumes": {
+                "type": "array",
+                "items": { "$ref": "#/$defs/id" },
+                "uniqueItems": true
+              },
+              "publishedPorts": { "type": "array", "items": { "$ref": "#/$defs/port" } },
+              "healthRequired": { "type": "boolean" }
+            }
+          }
+        },
+        "networks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "internal"],
+            "properties": { "id": { "$ref": "#/$defs/id" }, "internal": { "type": "boolean" } }
+          }
+        },
+        "volumes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "authority"],
+            "properties": { "id": { "$ref": "#/$defs/id" }, "authority": { "$ref": "#/$defs/id" } }
+          }
+        },
+        "hostUnits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["componentId", "unit", "required"],
+            "properties": {
+              "componentId": { "$ref": "#/$defs/id" },
+              "unit": { "type": "string" },
+              "required": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["freshInstall", "supportedOrigins"],
+      "properties": {
+        "freshInstall": { "type": "boolean" },
+        "supportedOrigins": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["releaseId", "manifestDigest", "profiles", "evidence"],
+            "properties": {
+              "releaseId": { "type": "string" },
+              "manifestDigest": { "$ref": "#/$defs/digest" },
+              "profiles": { "type": "array", "items": { "type": "string" } },
+              "evidence": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+            }
+          }
+        }
+      }
+    },
+    "migrationPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["planId", "steps"],
+      "properties": {
+        "planId": { "type": "string" },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "stepId",
+              "authority",
+              "toolDigest",
+              "dependsOn",
+              "from",
+              "to",
+              "idempotent",
+              "timeoutSeconds",
+              "verify",
+              "failureDisposition"
+            ],
+            "properties": {
+              "stepId": { "$ref": "#/$defs/id" },
+              "authority": { "$ref": "#/$defs/id" },
+              "toolDigest": { "$ref": "#/$defs/digest" },
+              "dependsOn": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+              "from": { "type": "string" },
+              "to": { "type": "string" },
+              "idempotent": { "type": "boolean" },
+              "timeoutSeconds": { "type": "integer", "minimum": 1 },
+              "verify": { "type": "string" },
+              "failureDisposition": {
+                "enum": [
+                  "recover",
+                  "restore",
+                  "forward_recover",
+                  "hold",
+                  "application_rollback_forward_schema"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "rollback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["supportedTargets", "forwardRecovery"],
+      "properties": {
+        "supportedTargets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["releaseId", "class", "evidence"],
+            "properties": {
+              "releaseId": { "type": "string" },
+              "class": {
+                "enum": [
+                  "definition_rollback",
+                  "application_rollback_forward_schema",
+                  "restore_rollback",
+                  "forward_recovery_only",
+                  "no_automatic_recovery_hold"
+                ]
+              },
+              "evidence": { "type": "string" }
+            }
+          }
+        },
+        "forwardRecovery": { "type": "string", "minLength": 1 }
+      }
+    },
+    "dataUnit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authority", "backupContract", "restoreOrder"],
+      "properties": {
+        "authority": { "$ref": "#/$defs/id" },
+        "backupContract": { "type": "string" },
+        "restoreOrder": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "endpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "exposure", "protocol", "port", "owner"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "exposure": { "enum": ["public", "private"] },
+        "protocol": { "enum": ["http", "https", "tcp"] },
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "owner": { "$ref": "#/$defs/id" }
+      }
+    },
+    "secretRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reference", "class", "consumers"],
+      "properties": {
+        "reference": { "type": "string", "pattern": "^secret://cell/" },
+        "class": { "type": "string" },
+        "consumers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/id" },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

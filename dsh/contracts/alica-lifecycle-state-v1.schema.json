@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.alica.invalid/alica-lifecycle-state-v1.schema.json",
+  "title": "ALICA accepted lifecycle state v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "cellId", "phase", "acceptedCurrent"],
+  "properties": {
+    "schemaVersion": { "const": "alica-lifecycle-state/v1" },
+    "cellId": { "type": "string", "pattern": "^ins_[0-9a-f-]+$" },
+    "phase": { "const": "accepted" },
+    "acceptedCurrent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["releaseId", "manifestDigest", "profile", "acceptedAt"],
+      "properties": {
+        "releaseId": { "type": "string", "pattern": "^rel_[0-9a-f-]+$" },
+        "manifestDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "profile": { "const": "dsh-minimal/v1" },
+        "acceptedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

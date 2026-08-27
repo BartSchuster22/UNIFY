@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.alica.invalid/alica-trust-key-v1.schema.json",
+  "title": "ALICA pinned manifest trust key v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "algorithm", "keyId", "publicKey"],
+  "properties": {
+    "schemaVersion": { "const": "alica-trust-key/v1" },
+    "algorithm": { "const": "ed25519" },
+    "keyId": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "publicKey": { "type": "string", "contentEncoding": "base64" }
+  }
+}

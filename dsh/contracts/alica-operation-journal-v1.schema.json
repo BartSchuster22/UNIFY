@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.alica.invalid/alica-operation-journal-v1.schema.json",
+  "title": "ALICA append-only hash-chained operation journal v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "entries"],
+  "properties": {
+    "schemaVersion": { "const": "alica-operation-journal/v1" },
+    "entries": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": { "$ref": "#/$defs/entry" }
+    }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operationId",
+        "sequence",
+        "kind",
+        "occurredAt",
+        "sourceReleaseId",
+        "targetReleaseId",
+        "targetManifestDigest",
+        "phase",
+        "result",
+        "mutationAuthorized",
+        "evidenceDigests",
+        "previousEntryDigest",
+        "entryDigest"
+      ],
+      "properties": {
+        "operationId": {
+          "type": "string",
+          "pattern": "^op_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "sequence": { "type": "integer", "minimum": 1 },
+        "kind": { "enum": ["install", "update", "rollback", "restore", "self-update"] },
+        "occurredAt": { "type": "string", "format": "date-time" },
+        "sourceReleaseId": { "type": "string", "minLength": 1 },
+        "targetReleaseId": {
+          "type": "string",
+          "pattern": "^rel_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "targetManifestDigest": { "$ref": "#/$defs/digest" },
+        "phase": {
+          "enum": ["planned", "preflight", "running", "verify", "accepted", "failed", "held"]
+        },
+        "result": { "enum": ["pending", "succeeded", "failed", "held"] },
+        "mutationAuthorized": { "type": "boolean" },
+        "evidenceDigests": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/digest" },
+          "uniqueItems": true,
+          "maxItems": 128
+        },
+        "previousEntryDigest": { "$ref": "#/$defs/digest" },
+        "entryDigest": { "$ref": "#/$defs/digest" }
+      }
+    }
+  }
+}

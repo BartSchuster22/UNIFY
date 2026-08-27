@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.alica.invalid/alica-observed-state-v1.schema.json",
+  "title": "ALICA deterministic observed state v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "source",
+    "host",
+    "state",
+    "declaration",
+    "journal",
+    "containers",
+    "networks",
+    "volumes",
+    "hostUnits"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "alica-observed-state/v1" },
+    "source": { "enum": ["live-read-only", "test-fixture"] },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "osId",
+        "osVersion",
+        "architecture",
+        "init",
+        "vcpu",
+        "memoryBytes",
+        "freeDiskBytes",
+        "dockerVersion",
+        "composeVersion",
+        "dockerAvailable"
+      ],
+      "properties": {
+        "osId": { "type": "string" },
+        "osVersion": { "type": "string" },
+        "architecture": { "type": "string" },
+        "init": { "type": "string" },
+        "vcpu": { "type": "integer", "minimum": 1 },
+        "memoryBytes": { "type": "integer", "minimum": 0 },
+        "freeDiskBytes": { "type": "integer", "minimum": 0 },
+        "dockerVersion": { "type": "string" },
+        "composeVersion": { "type": "string" },
+        "dockerAvailable": { "type": "boolean" }
+      }
+    },
+    "state": { "oneOf": [{ "type": "null" }, { "$ref": "alica-lifecycle-state-v1.schema.json" }] },
+    "declaration": {
+      "oneOf": [{ "type": "null" }, { "$ref": "alica-cell-declaration-v1.schema.json" }]
+    },
+    "journal": {
+      "oneOf": [{ "type": "null" }, { "$ref": "alica-operation-journal-v1.schema.json" }]
+    },
+    "containers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "componentId",
+          "name",
+          "imageDigest",
+          "releaseId",
+          "managed",
+          "state",
+          "health",
+          "networks",
+          "volumes",
+          "publishedPorts"
+        ],
+        "properties": {
+          "componentId": { "type": "string" },
+          "name": { "type": "string" },
+          "imageDigest": { "type": "string" },
+          "releaseId": { "type": "string" },
+          "managed": { "type": "string" },
+          "state": { "type": "string" },
+          "health": { "type": "string" },
+          "networks": { "type": "array", "items": { "type": "string" } },
+          "volumes": { "type": "array", "items": { "type": "string" } },
+          "publishedPorts": { "type": "array", "items": { "type": "object" } }
+        }
+      }
+    },
+    "networks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "internal"],
+        "properties": { "id": { "type": "string" }, "internal": { "type": "boolean" } }
+      }
+    },
+    "volumes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "authority"],
+        "properties": { "id": { "type": "string" }, "authority": { "type": "string" } }
+      }
+    },
+    "hostUnits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["componentId", "unit", "loadState", "activeState"],
+        "properties": {
+          "componentId": { "type": "string" },
+          "unit": { "type": "string" },
+          "loadState": { "type": "string" },
+          "activeState": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,368 @@
+{
+  "schemaVersion": "alica-observed-state/v1",
+  "source": "test-fixture",
+  "host": {
+    "osId": "debian",
+    "osVersion": "13",
+    "architecture": "amd64",
+    "init": "systemd",
+    "vcpu": 8,
+    "memoryBytes": 17179869184,
+    "freeDiskBytes": 214748364800,
+    "dockerVersion": "28.4.0",
+    "composeVersion": "2.39.4",
+    "dockerAvailable": true
+  },
+  "state": {
+    "schemaVersion": "alica-lifecycle-state/v1",
+    "cellId": "ins_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b91",
+    "phase": "accepted",
+    "acceptedCurrent": {
+      "releaseId": "rel_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b90",
+      "manifestDigest": "sha256:1bb322baf663684b6d2b9fd831a0e26c03959f5e327dfa5e47f2557f7c1a87c3",
+      "profile": "dsh-minimal/v1",
+      "acceptedAt": "2026-08-27T20:10:00Z"
+    }
+  },
+  "declaration": {
+    "schemaVersion": "alica-cell-declaration/v1",
+    "cellId": "ins_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b91",
+    "createdAt": "2026-08-27T20:00:00Z",
+    "productId": "com.alica.community-dsh",
+    "profile": "dsh-minimal/v1",
+    "deploymentMode": "single-host"
+  },
+  "journal": {
+    "schemaVersion": "alica-operation-journal/v1",
+    "entries": [
+      {
+        "operationId": "op_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b92",
+        "sequence": 1,
+        "kind": "install",
+        "occurredAt": "2026-08-27T20:01:00Z",
+        "sourceReleaseId": "none",
+        "targetReleaseId": "rel_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b90",
+        "targetManifestDigest": "sha256:1bb322baf663684b6d2b9fd831a0e26c03959f5e327dfa5e47f2557f7c1a87c3",
+        "phase": "planned",
+        "result": "pending",
+        "mutationAuthorized": false,
+        "evidenceDigests": [],
+        "previousEntryDigest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "entryDigest": "sha256:491155865c77cd14fbbad627b3ec25a34aba7561f8f31a38f0d44ae1a69bd1a7"
+      },
+      {
+        "operationId": "op_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b92",
+        "sequence": 2,
+        "kind": "install",
+        "occurredAt": "2026-08-27T20:02:00Z",
+        "sourceReleaseId": "none",
+        "targetReleaseId": "rel_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b90",
+        "targetManifestDigest": "sha256:1bb322baf663684b6d2b9fd831a0e26c03959f5e327dfa5e47f2557f7c1a87c3",
+        "phase": "preflight",
+        "result": "pending",
+        "mutationAuthorized": false,
+        "evidenceDigests": [],
+        "previousEntryDigest": "sha256:491155865c77cd14fbbad627b3ec25a34aba7561f8f31a38f0d44ae1a69bd1a7",
+        "entryDigest": "sha256:cf22b6c91edcd42ac4dea60283d17560d3939505249ce4d37eb4e8d8ece0ccf1"
+      },
+      {
+        "operationId": "op_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b92",
+        "sequence": 3,
+        "kind": "install",
+        "occurredAt": "2026-08-27T20:03:00Z",
+        "sourceReleaseId": "none",
+        "targetReleaseId": "rel_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b90",
+        "targetManifestDigest": "sha256:1bb322baf663684b6d2b9fd831a0e26c03959f5e327dfa5e47f2557f7c1a87c3",
+        "phase": "running",
+        "result": "pending",
+        "mutationAuthorized": true,
+        "evidenceDigests": [],
+        "previousEntryDigest": "sha256:cf22b6c91edcd42ac4dea60283d17560d3939505249ce4d37eb4e8d8ece0ccf1",
+        "entryDigest": "sha256:d3ddcc12fdc56f091f4f94abd043ed49de81e8b5dab59238f5b542e4ddeb035b"
+      },
+      {
+        "operationId": "op_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b92",
+        "sequence": 4,
+        "kind": "install",
+        "occurredAt": "2026-08-27T20:04:00Z",
+        "sourceReleaseId": "none",
+        "targetReleaseId": "rel_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b90",
+        "targetManifestDigest": "sha256:1bb322baf663684b6d2b9fd831a0e26c03959f5e327dfa5e47f2557f7c1a87c3",
+        "phase": "verify",
+        "result": "pending",
+        "mutationAuthorized": true,
+        "evidenceDigests": [],
+        "previousEntryDigest": "sha256:d3ddcc12fdc56f091f4f94abd043ed49de81e8b5dab59238f5b542e4ddeb035b",
+        "entryDigest": "sha256:560893dd56660073cae1bcca5061bdd7cf027dce71c870a7b0a25f6ccc826ed1"
+      },
+      {
+        "operationId": "op_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b92",
+        "sequence": 5,
+        "kind": "install",
+        "occurredAt": "2026-08-27T20:05:00Z",
+        "sourceReleaseId": "none",
+        "targetReleaseId": "rel_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b90",
+        "targetManifestDigest": "sha256:1bb322baf663684b6d2b9fd831a0e26c03959f5e327dfa5e47f2557f7c1a87c3",
+        "phase": "accepted",
+        "result": "succeeded",
+        "mutationAuthorized": true,
+        "evidenceDigests": [
+          "sha256:28e8289443a7cb5be09035aa207b58f11f9445853883e10b852614d45306f9ef",
+          "sha256:cf5bcf36ebb4f53ee50c025d600ad7b6fb3fc9804d1a8b284eec5313ef30fef9"
+        ],
+        "previousEntryDigest": "sha256:560893dd56660073cae1bcca5061bdd7cf027dce71c870a7b0a25f6ccc826ed1",
+        "entryDigest": "sha256:c5b1c5e29c15c52f891c9dc6aff416b4010b2f330603388519498ff73c13183b"
+      }
+    ]
+  },
+  "containers": [
+    {
+      "componentId": "caddy",
+      "name": "alica-caddy-1",
+      "imageDigest": "sha256:c56d0940f5bfa24db1258cc83e08f2aaa162dce0d8190a23ca2c1c147db662c3",
+      "releaseId": "rel_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b90",
+      "managed": "true",
+      "state": "running",
+      "health": "healthy",
+      "networks": [
+        "edge",
+        "app"
+      ],
+      "volumes": [
+        "caddy-config"
+      ],
+      "publishedPorts": [
+        {
+          "hostIp": "0.0.0.0",
+          "published": 80,
+          "target": 80,
+          "protocol": "tcp"
+        },
+        {
+          "hostIp": "0.0.0.0",
+          "published": 443,
+          "target": 443,
+          "protocol": "tcp"
+        }
+      ]
+    },
+    {
+      "componentId": "uniui",
+      "name": "alica-uniui-1",
+      "imageDigest": "sha256:87a1dba43706e8aaccd4964743f840e7d9dba61148c36f61af2982b8a9ccfbd0",
+      "releaseId": "rel_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b90",
+      "managed": "true",
+      "state": "running",
+      "health": "healthy",
+      "networks": [
+        "app"
+      ],
+      "volumes": [],
+      "publishedPorts": []
+    },
+    {
+      "componentId": "unify-core",
+      "name": "alica-unify-core-1",
+      "imageDigest": "sha256:9b6fac0bc000e9e3ff9316980870ad03e479df86ce49ae8571883141546faa2e",
+      "releaseId": "rel_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b90",
+      "managed": "true",
+      "state": "running",
+      "health": "healthy",
+      "networks": [
+        "app",
+        "data",
+        "frameworks",
+        "assurance"
+      ],
+      "volumes": [],
+      "publishedPorts": []
+    },
+    {
+      "componentId": "keycloak",
+      "name": "alica-keycloak-1",
+      "imageDigest": "sha256:3e041b6bf0dfa55fc98ad6a755d27dd946a2a8c513a06db678a4fe8f8adb3f39",
+      "releaseId": "rel_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b90",
+      "managed": "true",
+      "state": "running",
+      "health": "healthy",
+      "networks": [
+        "app",
+        "data"
+      ],
+      "volumes": [],
+      "publishedPorts": []
+    },
+    {
+      "componentId": "postgresql",
+      "name": "alica-postgresql-1",
+      "imageDigest": "sha256:30d027f5b086d2487f150fde79835c8fc26fdbeff2854b34038215b3607de2eb",
+      "releaseId": "rel_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b90",
+      "managed": "true",
+      "state": "running",
+      "health": "healthy",
+      "networks": [
+        "data"
+      ],
+      "volumes": [
+        "postgres-data"
+      ],
+      "publishedPorts": []
+    },
+    {
+      "componentId": "alica-runtime",
+      "name": "alica-alica-runtime-1",
+      "imageDigest": "sha256:cb10643c86d31c0b640d95aad779d7607288db43f95e52f5e89a2d9d3a56d204",
+      "releaseId": "rel_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b90",
+      "managed": "true",
+      "state": "running",
+      "health": "healthy",
+      "networks": [
+        "frameworks",
+        "app"
+      ],
+      "volumes": [
+        "alica-state"
+      ],
+      "publishedPorts": []
+    },
+    {
+      "componentId": "herman-runtime",
+      "name": "alica-herman-runtime-1",
+      "imageDigest": "sha256:6d66c244aaea67990f55042bb2888c61e081ddd14711fa8aa561bd681d1c64ea",
+      "releaseId": "rel_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b90",
+      "managed": "true",
+      "state": "running",
+      "health": "healthy",
+      "networks": [
+        "frameworks",
+        "app"
+      ],
+      "volumes": [
+        "herman-state"
+      ],
+      "publishedPorts": []
+    },
+    {
+      "componentId": "memory-v4",
+      "name": "alica-memory-v4-1",
+      "imageDigest": "sha256:d63c5a03af5f2f911943f3ae90fe411a53f3a724017c20b052b8afb0169849b1",
+      "releaseId": "rel_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b90",
+      "managed": "true",
+      "state": "running",
+      "health": "healthy",
+      "networks": [
+        "data",
+        "frameworks"
+      ],
+      "volumes": [
+        "memory-data"
+      ],
+      "publishedPorts": []
+    },
+    {
+      "componentId": "ainba-anchor",
+      "name": "alica-ainba-anchor-1",
+      "imageDigest": "sha256:7eb2e84ae50934b1682b8d78b67463c22656d121a99e14d64a0be06bcd9fa43f",
+      "releaseId": "rel_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b90",
+      "managed": "true",
+      "state": "running",
+      "health": "healthy",
+      "networks": [
+        "frameworks"
+      ],
+      "volumes": [
+        "ainba-data"
+      ],
+      "publishedPorts": []
+    },
+    {
+      "componentId": "doghouse-node",
+      "name": "alica-doghouse-node-1",
+      "imageDigest": "sha256:ea639c3f82bf66b5c5496d67fc5d3f4e1714343855c39e56d22f6c9c947fe31a",
+      "releaseId": "rel_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b90",
+      "managed": "true",
+      "state": "running",
+      "health": "healthy",
+      "networks": [
+        "assurance",
+        "app"
+      ],
+      "volumes": [
+        "doghouse-state"
+      ],
+      "publishedPorts": []
+    }
+  ],
+  "networks": [
+    {
+      "id": "edge",
+      "internal": false
+    },
+    {
+      "id": "app",
+      "internal": true
+    },
+    {
+      "id": "data",
+      "internal": true
+    },
+    {
+      "id": "frameworks",
+      "internal": true
+    },
+    {
+      "id": "assurance",
+      "internal": true
+    }
+  ],
+  "volumes": [
+    {
+      "id": "caddy-config",
+      "authority": "edge"
+    },
+    {
+      "id": "postgres-data",
+      "authority": "postgresql"
+    },
+    {
+      "id": "memory-data",
+      "authority": "memory-v4"
+    },
+    {
+      "id": "alica-state",
+      "authority": "alica"
+    },
+    {
+      "id": "herman-state",
+      "authority": "herman"
+    },
+    {
+      "id": "ainba-data",
+      "authority": "ainba"
+    },
+    {
+      "id": "doghouse-state",
+      "authority": "doghouse"
+    }
+  ],
+  "hostUnits": [
+    {
+      "componentId": "operations-jobs",
+      "unit": "alica-backup.service",
+      "loadState": "loaded",
+      "activeState": "active"
+    },
+    {
+      "componentId": "operations-jobs",
+      "unit": "alica-canary.timer",
+      "loadState": "loaded",
+      "activeState": "active"
+    },
+    {
+      "componentId": "operations-jobs",
+      "unit": "alica-update-check.timer",
+      "loadState": "loaded",
+      "activeState": "active"
+    }
+  ]
+}

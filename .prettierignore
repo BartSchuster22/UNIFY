@@ -7,3 +7,5 @@ openapi
 packages/sdk-typescript/src/schema.d.ts
 deploy/*.service
 LICENSE
+dsh/alicactl/testdata/d1-contract.manifest.json
+dsh/alicactl/testdata/observed-conformant.json

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.alica.invalid/alica-cell-declaration-v1.schema.json",
+  "title": "ALICA Cell identity declaration v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "cellId", "createdAt", "productId", "profile", "deploymentMode"],
+  "properties": {
+    "schemaVersion": { "const": "alica-cell-declaration/v1" },
+    "cellId": {
+      "type": "string",
+      "pattern": "^ins_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "productId": { "const": "com.alica.community-dsh" },
+    "profile": { "const": "dsh-minimal/v1" },
+    "deploymentMode": { "const": "single-host" }
+  }
+}
