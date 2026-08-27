@@ -22,7 +22,7 @@
     "first_party_source": "proprietary-all-rights-reserved",
     "first_party_binary": "ALICA-Community-DSH-EULA-1.0",
     "eula_path": "licenses/ALICA-COMMUNITY-DSH-EULA-1.0.md",
-    "eula_sha256": "f514d2051f6af7eaa81d7873f5ee4972d0236a8c691adccd221915991c6d8168",
+    "eula_sha256": "3b172e3850816750ff7b5a7d6d4b9f311f5c745159e201f42fea647c4dad1f3c",
     "third_party_policy": "retain-upstream-rights-and-bundle-exact-notices"
   },
   "platform": {

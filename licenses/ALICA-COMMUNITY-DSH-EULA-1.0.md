@@ -1,9 +1,9 @@
 # ALICA Community DSH End User License Agreement
 
-**EULA version:** 1.0  
-**Effective date:** 27 August 2026  
-**Licensor:** ALICA Ltd, Hong Kong Special Administrative Region  
-**Product:** ALICA Community DSH 1.x
+**EULA version:** 1.0
+**Effective date:** 27 August 2026
+**Licensor:** ALICA Ltd, Hong Kong Special Administrative Region
+**Product:** ALICA Community DSH 1.0
 
 > This EULA governs ALICA Ltd's proprietary first-party binaries and associated product materials. Open-source and other third-party components remain governed by their own licenses and notices.
 
