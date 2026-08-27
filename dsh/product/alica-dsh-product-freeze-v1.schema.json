@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://releases.alica.example/schemas/alica-dsh-product-freeze-v1.schema.json",
+  "title": "ALICA DSH product freeze v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "status",
+    "effective_date",
+    "product",
+    "license",
+    "platform",
+    "distribution",
+    "capabilities",
+    "dependencies",
+    "authorities"
+  ],
+  "properties": {
+    "schema_version": { "const": "alica-dsh-product-freeze/v1" },
+    "status": { "const": "frozen" },
+    "effective_date": { "type": "string", "format": "date" },
+    "product": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "edition",
+        "release_line",
+        "initial_version",
+        "cell_contract",
+        "profile",
+        "origin",
+        "management",
+        "price",
+        "source_policy"
+      ],
+      "properties": {
+        "id": { "const": "com.alica.community-dsh" },
+        "name": { "const": "ALICA Community DSH" },
+        "edition": { "const": "Community DSH" },
+        "release_line": { "const": "1.0" },
+        "initial_version": { "const": "1.0.0" },
+        "cell_contract": { "const": "alica-cell/v0.1" },
+        "profile": { "const": "dsh-minimal/v1" },
+        "origin": { "const": "dsh" },
+        "management": { "const": "local-only" },
+        "price": { "const": "free-of-charge" },
+        "source_policy": { "const": "proprietary-closed-source" }
+      }
+    },
+    "license": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "licensor",
+        "jurisdiction",
+        "first_party_source",
+        "first_party_binary",
+        "eula_path",
+        "eula_sha256",
+        "third_party_policy"
+      ],
+      "properties": {
+        "licensor": { "const": "ALICA Ltd" },
+        "jurisdiction": { "const": "Hong Kong Special Administrative Region" },
+        "first_party_source": { "const": "proprietary-all-rights-reserved" },
+        "first_party_binary": { "const": "ALICA-Community-DSH-EULA-1.0" },
+        "eula_path": { "const": "licenses/ALICA-COMMUNITY-DSH-EULA-1.0.md" },
+        "eula_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "third_party_policy": { "const": "retain-upstream-rights-and-bundle-exact-notices" }
+      }
+    },
+    "platform": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["os", "architecture", "runtime", "compose", "init", "minimum"],
+      "properties": {
+        "os": { "const": "debian-13" },
+        "architecture": { "const": "linux-amd64" },
+        "runtime": { "const": "docker-engine-community>=28.4.0<29.0.0" },
+        "compose": { "const": "docker-compose-plugin>=2.39.4<3.0.0" },
+        "init": { "const": "systemd" },
+        "minimum": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["vcpu", "memory_gib", "free_disk_gib"],
+          "properties": {
+            "vcpu": { "const": 4 },
+            "memory_gib": { "const": 8 },
+            "free_disk_gib": { "const": 100 }
+          }
+        }
+      }
+    },
+    "distribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["online", "offline", "end_user_source_checkout", "private_credentials"],
+      "properties": {
+        "online": { "const": "tuf+oci" },
+        "offline": { "const": "oci-layout-tar.zst" },
+        "end_user_source_checkout": { "const": false },
+        "private_credentials": { "const": false }
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["included", "excluded"],
+      "properties": {
+        "included": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 12,
+          "items": { "type": "string" }
+        },
+        "excluded": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 10,
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["central_runtime", "provider_modes"],
+      "properties": {
+        "central_runtime": { "const": [] },
+        "provider_modes": {
+          "const": ["local-byok", "local-model-endpoint"]
+        }
+      }
+    },
+    "authorities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "product_governance",
+        "release_truth",
+        "local_lifecycle",
+        "runtime_realization",
+        "local_operator"
+      ],
+      "properties": {
+        "product_governance": { "const": "PROJECT-ALICA" },
+        "release_truth": { "const": "signed-whole-cell-manifest" },
+        "local_lifecycle": { "const": "alicactl" },
+        "runtime_realization": { "const": "generated-docker-compose" },
+        "local_operator": { "const": "final-authority" }
+      }
+    }
+  }
+}

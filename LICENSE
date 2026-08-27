@@ -1,0 +1,9 @@
+ALICA First-Party Proprietary Software Notice
+
+Copyright (c) 2026 ALICA Ltd. All rights reserved.
+
+The first-party source code and materials in this repository are proprietary and confidential unless a file or directory expressly states another license. No permission is granted to copy, publish, redistribute, sublicense, sell, create derivative works from, or disclose this source code except under a written agreement with ALICA Ltd.
+
+The free-to-download ALICA Community DSH binary distribution is licensed separately under `licenses/ALICA-COMMUNITY-DSH-EULA-1.0.md`. That EULA does not make this source repository public or open source.
+
+Third-party code and dependencies remain governed by their respective licenses. See `THIRD-PARTY-NOTICES.md` and the release-specific SBOM/notices generated for each distributed build.

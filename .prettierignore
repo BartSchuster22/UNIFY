@@ -6,3 +6,4 @@ docs
 openapi
 packages/sdk-typescript/src/schema.d.ts
 deploy/*.service
+LICENSE

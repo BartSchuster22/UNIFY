@@ -1,0 +1,88 @@
+{
+  "$schema": "./alica-dsh-product-freeze-v1.schema.json",
+  "schema_version": "alica-dsh-product-freeze/v1",
+  "status": "frozen",
+  "effective_date": "2026-08-27",
+  "product": {
+    "id": "com.alica.community-dsh",
+    "name": "ALICA Community DSH",
+    "edition": "Community DSH",
+    "release_line": "1.0",
+    "initial_version": "1.0.0",
+    "cell_contract": "alica-cell/v0.1",
+    "profile": "dsh-minimal/v1",
+    "origin": "dsh",
+    "management": "local-only",
+    "price": "free-of-charge",
+    "source_policy": "proprietary-closed-source"
+  },
+  "license": {
+    "licensor": "ALICA Ltd",
+    "jurisdiction": "Hong Kong Special Administrative Region",
+    "first_party_source": "proprietary-all-rights-reserved",
+    "first_party_binary": "ALICA-Community-DSH-EULA-1.0",
+    "eula_path": "licenses/ALICA-COMMUNITY-DSH-EULA-1.0.md",
+    "eula_sha256": "f514d2051f6af7eaa81d7873f5ee4972d0236a8c691adccd221915991c6d8168",
+    "third_party_policy": "retain-upstream-rights-and-bundle-exact-notices"
+  },
+  "platform": {
+    "os": "debian-13",
+    "architecture": "linux-amd64",
+    "runtime": "docker-engine-community>=28.4.0<29.0.0",
+    "compose": "docker-compose-plugin>=2.39.4<3.0.0",
+    "init": "systemd",
+    "minimum": {
+      "vcpu": 4,
+      "memory_gib": 8,
+      "free_disk_gib": 100
+    }
+  },
+  "distribution": {
+    "online": "tuf+oci",
+    "offline": "oci-layout-tar.zst",
+    "end_user_source_checkout": false,
+    "private_credentials": false
+  },
+  "capabilities": {
+    "included": [
+      "caddy-ingress",
+      "uniui",
+      "unify-gateway-core",
+      "keycloak-identity-authority",
+      "postgresql",
+      "alica-framework",
+      "herman-framework",
+      "memory-v4",
+      "anchor-ainba",
+      "doghouse-report-only",
+      "alicactl",
+      "profile-required-operations-jobs"
+    ],
+    "excluded": [
+      "psi-dependency",
+      "uprm-dependency",
+      "fleet-dependency",
+      "modelm8-dependency",
+      "aquiero-hosted-runtime-dependency",
+      "kubernetes-runtime",
+      "multi-node-high-availability",
+      "public-marketplace",
+      "third-party-managed-hosting-rights",
+      "automatic-doghouse-repair",
+      "dsh-standard-v1-claim",
+      "arm64-host",
+      "non-debian-host"
+    ]
+  },
+  "dependencies": {
+    "central_runtime": [],
+    "provider_modes": ["local-byok", "local-model-endpoint"]
+  },
+  "authorities": {
+    "product_governance": "PROJECT-ALICA",
+    "release_truth": "signed-whole-cell-manifest",
+    "local_lifecycle": "alicactl",
+    "runtime_realization": "generated-docker-compose",
+    "local_operator": "final-authority"
+  }
+}
