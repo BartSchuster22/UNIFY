@@ -440,11 +440,14 @@ func containsString(values []string, expected string) bool {
 }
 
 func observeDocker(state *LifecycleState, manifest *contract.Manifest, observation *Observation) error {
-	idsRaw, err := dockerOutput("ps", "-aq", "--filter", "label=com.alica.cell.id="+state.CellID)
+	ids, err := dockerResourceIDs(
+		[]string{"ps", "-aq", "--filter", "label=com.alica.cell.id=" + state.CellID},
+		[]string{"ps", "-aq", "--filter", "label=com.docker.compose.project=alica"},
+		[]string{"ps", "-aq", "--filter", "name=^/alica-"},
+	)
 	if err != nil {
 		return fmt.Errorf("docker container inventory: %w", err)
 	}
-	ids := strings.Fields(idsRaw)
 	if len(ids) > 0 {
 		args := append([]string{"inspect"}, ids...)
 		raw, err := dockerOutput(args...)
@@ -463,12 +466,16 @@ func observeDocker(state *LifecycleState, manifest *contract.Manifest, observati
 			observation.Containers = append(observation.Containers, convertContainer(record, imageDigests[record.Image]))
 		}
 	}
-	networkIDs, err := dockerOutput("network", "ls", "-q", "--filter", "label=com.alica.cell.id="+state.CellID)
+	networkFields, err := dockerResourceIDs(
+		[]string{"network", "ls", "-q", "--filter", "label=com.alica.cell.id=" + state.CellID},
+		[]string{"network", "ls", "-q", "--filter", "label=com.docker.compose.project=alica"},
+		[]string{"network", "ls", "-q", "--filter", "name=^alica_"},
+	)
 	if err != nil {
 		return err
 	}
-	if fields := strings.Fields(networkIDs); len(fields) > 0 {
-		args := append([]string{"network", "inspect"}, fields...)
+	if len(networkFields) > 0 {
+		args := append([]string{"network", "inspect"}, networkFields...)
 		raw, err := dockerOutput(args...)
 		if err != nil {
 			return err
@@ -478,15 +485,23 @@ func observeDocker(state *LifecycleState, manifest *contract.Manifest, observati
 			return err
 		}
 		for _, r := range records {
-			observation.Networks = append(observation.Networks, ObservedNetwork{ID: r.Labels["com.alica.network.id"], Internal: r.Internal})
+			id := r.Labels["com.alica.network.id"]
+			if id == "" {
+				id = r.Name
+			}
+			observation.Networks = append(observation.Networks, ObservedNetwork{ID: id, Internal: r.Internal})
 		}
 	}
-	volumeIDs, err := dockerOutput("volume", "ls", "-q", "--filter", "label=com.alica.cell.id="+state.CellID)
+	volumeFields, err := dockerResourceIDs(
+		[]string{"volume", "ls", "-q", "--filter", "label=com.alica.cell.id=" + state.CellID},
+		[]string{"volume", "ls", "-q", "--filter", "label=com.docker.compose.project=alica"},
+		[]string{"volume", "ls", "-q", "--filter", "name=^alica_"},
+	)
 	if err != nil {
 		return err
 	}
-	if fields := strings.Fields(volumeIDs); len(fields) > 0 {
-		args := append([]string{"volume", "inspect"}, fields...)
+	if len(volumeFields) > 0 {
+		args := append([]string{"volume", "inspect"}, volumeFields...)
 		raw, err := dockerOutput(args...)
 		if err != nil {
 			return err
@@ -496,7 +511,11 @@ func observeDocker(state *LifecycleState, manifest *contract.Manifest, observati
 			return err
 		}
 		for _, r := range records {
-			observation.Volumes = append(observation.Volumes, ObservedVolume{ID: r.Labels["com.alica.volume.id"], Authority: r.Labels["com.alica.authority"]})
+			id := r.Labels["com.alica.volume.id"]
+			if id == "" {
+				id = r.Name
+			}
+			observation.Volumes = append(observation.Volumes, ObservedVolume{ID: id, Authority: r.Labels["com.alica.authority"]})
 		}
 	}
 	sort.Slice(observation.Containers, func(i, j int) bool {
@@ -533,10 +552,12 @@ type dockerContainer struct {
 	} `json:"Mounts"`
 }
 type dockerNetwork struct {
+	Name     string            `json:"Name"`
 	Internal bool              `json:"Internal"`
 	Labels   map[string]string `json:"Labels"`
 }
 type dockerVolume struct {
+	Name   string            `json:"Name"`
 	Labels map[string]string `json:"Labels"`
 }
 type dockerImage struct {
@@ -624,6 +645,26 @@ func convertContainer(record dockerContainer, imageDigest string) ObservedContai
 }
 
 func trimResourcePrefix(value string) string { return strings.TrimPrefix(value, "alica_") }
+
+func dockerResourceIDs(queries ...[]string) ([]string, error) {
+	seen := map[string]bool{}
+	for _, query := range queries {
+		output, err := dockerOutput(query...)
+		if err != nil {
+			return nil, err
+		}
+		for _, id := range strings.Fields(output) {
+			seen[id] = true
+		}
+	}
+	ids := make([]string, 0, len(seen))
+	for id := range seen {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
+	return ids, nil
+}
+
 func dockerOutput(args ...string) (string, error) {
 	binary := os.Getenv("ALICACTL_DOCKER_BIN")
 	if binary == "" {

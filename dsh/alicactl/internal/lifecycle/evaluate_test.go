@@ -94,6 +94,32 @@ func TestDriftClassesFailClosed(t *testing.T) {
 		})
 	}
 }
+func TestDockerCandidateInventoryUnionsCellProjectAndName(t *testing.T) {
+	binary := filepath.Join(t.TempDir(), "docker-readonly-mock")
+	script := `#!/bin/sh
+case "$*" in
+  *com.alica.cell.id*) printf 'known\n' ;;
+  *com.docker.compose.project*) printf 'rogue-project\n' ;;
+  *name=*) printf 'known\nrogue-name\n' ;;
+esac
+`
+	if err := os.WriteFile(binary, []byte(script), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("ALICACTL_DOCKER_BIN", binary)
+	ids, err := dockerResourceIDs(
+		[]string{"ps", "-aq", "--filter", "label=com.alica.cell.id=ins_test"},
+		[]string{"ps", "-aq", "--filter", "label=com.docker.compose.project=alica"},
+		[]string{"ps", "-aq", "--filter", "name=^/alica-"},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Join(ids, ",") != "known,rogue-name,rogue-project" {
+		t.Fatalf("unexpected candidate inventory: %v", ids)
+	}
+}
+
 func TestUnsupportedPlatformFailsPreflight(t *testing.T) {
 	t.Setenv("ALICACTL_TEST_MODE", "1")
 	m, d, o := loadFixtures(t)

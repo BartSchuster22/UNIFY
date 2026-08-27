@@ -90,6 +90,7 @@ Performs preflight and then reads the closed Cell declaration, lifecycle accepte
 - Missing accepted-current state returns truthful `NOT_INSTALLED` rather than inventing an installation.
 - Existing state is compared to signed release ID, manifest digest and profile.
 - Docker containers, networks and volumes are inventoried through read-only `list` and `inspect` operations.
+- Candidate inventory is the deterministic union of exact Cell labels, the reserved `alica` Compose project and reserved `alica-`/`alica_` names, so unlabeled but ALICA-named rogue resources reach unknown-resource drift checks.
 - Declared systemd units are read with `systemctl show`.
 - Drift is reported; nothing is repaired.
 
