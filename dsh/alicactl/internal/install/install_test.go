@@ -163,6 +163,32 @@ func TestCleanDockerEnvironmentPreventsHostImageOverride(t *testing.T) {
 	}
 }
 
+func TestPromoteReleaseMovesStagingToStableFinalPath(t *testing.T) {
+	root := t.TempDir()
+	stage := filepath.Join(root, ".release-staging-op_test")
+	final := filepath.Join(root, "release")
+	if err := os.MkdirAll(stage, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	marker := filepath.Join(stage, "compose.yaml")
+	if err := os.WriteFile(marker, []byte("services: {}\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	i := &Installer{Request: Request{InstallationRoot: root}, stage: stage, final: final}
+	if err := i.promoteRelease(); err != nil {
+		t.Fatal(err)
+	}
+	if i.stage != final {
+		t.Fatalf("runtime path must be stable final path: got %q", i.stage)
+	}
+	if _, err := os.Stat(filepath.Join(final, "compose.yaml")); err != nil {
+		t.Fatalf("promoted release missing: %v", err)
+	}
+	if _, err := os.Stat(stage); !os.IsNotExist(err) {
+		t.Fatalf("staging path still exists after promotion: %v", err)
+	}
+}
+
 func TestWriteAtomicEnforcesRequestedModeAfterUmask(t *testing.T) {
 	old := syscall.Umask(0o077)
 	defer syscall.Umask(old)

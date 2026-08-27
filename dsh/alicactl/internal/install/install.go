@@ -166,6 +166,9 @@ func (i *Installer) Install() (result Result, err error) {
 		return Result{}, err
 	}
 	i.mutated = true
+	if err = i.promoteRelease(); err != nil {
+		return Result{}, err
+	}
 	if err = i.activate(); err != nil {
 		return Result{}, err
 	}
@@ -494,9 +497,22 @@ func (i *Installer) verifyRuntime() error {
 	return nil
 }
 
-func (i *Installer) commitState() error {
+func (i *Installer) promoteRelease() error {
+	if i.stage == i.final {
+		return nil
+	}
 	if err := os.Rename(i.stage, i.final); err != nil {
 		return err
+	}
+	i.stage = i.final
+	return syncDirectory(i.Request.InstallationRoot)
+}
+
+func (i *Installer) commitState() error {
+	if i.stage != i.final {
+		if err := i.promoteRelease(); err != nil {
+			return err
+		}
 	}
 	acceptedAt := time.Now().UTC().Format(time.RFC3339)
 	declaration := lifecycle.CellDeclaration{SchemaVersion: "alica-cell-declaration/v1", CellID: i.Request.CellID, CreatedAt: acceptedAt, ProductID: i.Manifest.Product.ProductID, Profile: i.Manifest.Product.Profile, DeploymentMode: "single-host"}
