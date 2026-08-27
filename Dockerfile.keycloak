@@ -1,0 +1,5 @@
+# syntax=docker/dockerfile:1.7
+FROM quay.io/keycloak/keycloak@sha256:09a381c715ab0b111835b70f2905955274843a219c6f27efb348e4d9f4086858
+ENV KC_DB=postgres \
+    KC_HEALTH_ENABLED=true
+RUN /opt/keycloak/bin/kc.sh build

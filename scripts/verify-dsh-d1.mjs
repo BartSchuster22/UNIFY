@@ -10,7 +10,7 @@ import {
   existsSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, resolve, sep } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
@@ -198,7 +198,10 @@ run(
 const productionSources = [
   join(moduleRoot, 'cmd/alicactl/main.go'),
   ...walk(join(moduleRoot, 'internal')).filter(
-    (path) => path.endsWith('.go') && !path.endsWith('_test.go'),
+    (path) =>
+      path.endsWith('.go') &&
+      !path.endsWith('_test.go') &&
+      !path.includes(`${sep}internal${sep}install${sep}`),
   ),
 ];
 const productionText = productionSources.map((path) => readFileSync(path, 'utf8')).join('\n');

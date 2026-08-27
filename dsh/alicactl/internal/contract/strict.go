@@ -256,6 +256,10 @@ func decodeClosed(raw []byte, destination any) error {
 	return nil
 }
 
+func LoadClosedJSON(path string, max int64, destination any) error {
+	return loadClosedFile(path, max, destination)
+}
+
 func loadClosedFile(path string, max int64, destination any) error {
 	raw, err := readBounded(path, max)
 	if err != nil {

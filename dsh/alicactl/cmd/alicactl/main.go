@@ -10,10 +10,11 @@ import (
 	"path/filepath"
 
 	"github.com/alica-ltd/alica-community-dsh/alicactl/internal/contract"
+	"github.com/alica-ltd/alica-community-dsh/alicactl/internal/install"
 	"github.com/alica-ltd/alica-community-dsh/alicactl/internal/lifecycle"
 )
 
-const version = "1.0.0-d1"
+const version = "1.0.0-d2"
 
 type options struct {
 	manifest    string
@@ -21,6 +22,7 @@ type options struct {
 	publicKey   string
 	root        string
 	observation string
+	request     string
 	json        bool
 }
 
@@ -39,7 +41,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		usage(stdout)
 		return 0
 	}
-	if args[0] != "preflight" && args[0] != "status" && args[0] != "verify" {
+	if args[0] != "preflight" && args[0] != "status" && args[0] != "verify" && args[0] != "plan" && args[0] != "install" {
 		fmt.Fprintf(stderr, "alicactl: unknown command %q\n", args[0])
 		usage(stderr)
 		return 2
@@ -53,12 +55,21 @@ func run(args []string, stdout, stderr io.Writer) int {
 	flags.StringVar(&opts.publicKey, "public-key", "", "pinned Ed25519 trust key JSON")
 	flags.StringVar(&opts.root, "root", "/", "host root to inspect read-only")
 	flags.StringVar(&opts.observation, "observation", "", "deterministic observation fixture (test mode only)")
+	flags.StringVar(&opts.request, "request", "", "closed unified clean-install request JSON")
 	flags.BoolVar(&opts.json, "json", false, "emit JSON report")
 	if err := flags.Parse(args[1:]); err != nil {
 		return 2
 	}
 	if flags.NArg() != 0 {
 		fmt.Fprintln(stderr, "alicactl: positional arguments are forbidden")
+		return 2
+	}
+	if (command == "plan" || command == "install") && opts.request == "" {
+		fmt.Fprintln(stderr, "alicactl: --request is required for plan and install")
+		return 2
+	}
+	if command != "plan" && command != "install" && opts.request != "" {
+		fmt.Fprintln(stderr, "alicactl: --request is accepted only by plan and install")
 		return 2
 	}
 	if err := validateOptions(opts); err != nil {
@@ -69,6 +80,31 @@ func run(args []string, stdout, stderr io.Writer) int {
 	if err != nil {
 		fmt.Fprintf(stderr, "alicactl: manifest trust rejected: %v\n", err)
 		return 2
+	}
+	if command == "plan" || command == "install" {
+		request, requestErr := install.LoadRequest(opts.request)
+		if requestErr != nil {
+			fmt.Fprintf(stderr, "alicactl: request rejected: %v\n", requestErr)
+			return 2
+		}
+		installer, installErr := install.New(manifest, digest, request)
+		if installErr != nil {
+			fmt.Fprintf(stderr, "alicactl: installation rejected: %v\n", installErr)
+			return 2
+		}
+		var result install.Result
+		if command == "plan" {
+			result, installErr = installer.Plan()
+		} else {
+			result, installErr = installer.Install()
+		}
+		if installErr != nil {
+			fmt.Fprintf(stderr, "alicactl: %s failed: %v\n", command, installErr)
+			return 3
+		}
+		encoded, _ := json.MarshalIndent(result, "", "  ")
+		fmt.Fprintln(stdout, string(encoded))
+		return 0
 	}
 	observation, err := lifecycle.Observe(opts.root, manifest, opts.observation)
 	if err != nil {
@@ -104,6 +140,9 @@ func validateOptions(opts options) error {
 			return fmt.Errorf("--%s is invalid", name)
 		}
 	}
+	if len(opts.request) > 4096 {
+		return errors.New("--request is invalid")
+	}
 	return nil
 }
 
@@ -128,6 +167,8 @@ func usage(writer io.Writer) {
   alicactl preflight --manifest FILE --signature FILE --public-key FILE [--root /] [--json]
   alicactl status    --manifest FILE --signature FILE --public-key FILE [--root /] [--json]
   alicactl verify    --manifest FILE --signature FILE --public-key FILE [--root /] [--json]
+  alicactl plan      --manifest FILE --signature FILE --public-key FILE --request FILE
+  alicactl install   --manifest FILE --signature FILE --public-key FILE --request FILE
 
-D1 commands are strictly read-only. --observation is accepted only when ALICACTL_TEST_MODE=1.`)
+D1 inspection commands remain strictly read-only. D2 plan is read-only; D2 install is the single transactional clean-install writer. --observation is accepted only when ALICACTL_TEST_MODE=1.`)
 }

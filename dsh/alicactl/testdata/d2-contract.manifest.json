@@ -1,0 +1,819 @@
+{
+  "schemaVersion": "alica-release/v1",
+  "canonicalEncoding": "alica-canonical-json/v1",
+  "releaseId": "rel_0198f8e0-6200-7a11-8c21-4f5d6e7a8b90",
+  "releaseVersion": "1.0.0-d2.fixture.1",
+  "createdAt": "2026-08-27T22:00:00Z",
+  "cellContract": "alica-cell/v0.1",
+  "releaseClass": "development",
+  "installable": true,
+  "product": {
+    "productId": "com.alica.community-dsh",
+    "releaseLine": "1.0",
+    "profile": "dsh-minimal/v1",
+    "freezeDigest": "sha256:084ee1cfe6a16afcfac7178484afd359c7f9012d69552ce37839594a39c4b3b1",
+    "binaryLicense": "ALICA-Community-DSH-EULA-1.0",
+    "eulaDigest": "sha256:3b172e3850816750ff7b5a7d6d4b9f311f5c745159e201f42fea647c4dad1f3c",
+    "centralRuntimeDependencies": []
+  },
+  "profiles": [
+    "dsh-minimal/v1"
+  ],
+  "platforms": [
+    {
+      "osId": "debian",
+      "osVersion": "13",
+      "architecture": "amd64",
+      "init": "systemd",
+      "docker": {
+        "minimumInclusive": "28.4.0",
+        "maximumExclusive": "29.0.0"
+      },
+      "compose": {
+        "minimumInclusive": "2.39.4",
+        "maximumExclusive": "3.0.0"
+      },
+      "minimum": {
+        "vcpu": 4,
+        "memoryBytes": 8589934592,
+        "freeDiskBytes": 107374182400
+      },
+      "upgradeHeadroomBytes": 21474836480
+    }
+  ],
+  "sources": [
+    {
+      "repository": "BartSchuster22/UNIFY",
+      "commit": "70584d03f7a24ef1bfa303d5c8c82c03ceedbde7",
+      "treeDigest": "sha256:af991d90129d16e59b8af8439a4e1628f54e7f283da86db6bbaf09378bbecb7d"
+    },
+    {
+      "repository": "BartSchuster22/memory-v4",
+      "commit": "6111107fa709826c0642651f7f256c0c7fe3116a",
+      "treeDigest": "sha256:cb93f06749129b0143656f00fd3f14ed8aaac47a35822afa1761ef812c6f7df5"
+    },
+    {
+      "repository": "BartSchuster22/doghouse",
+      "commit": "8ce1b1c09c0a7f2b91d8c65a9c820a64e4cea271",
+      "treeDigest": "sha256:3cbcb7f1701a7242023969dec1ec001f5adcf06a5df15c32fdd5bc3e182a75c8"
+    },
+    {
+      "repository": "NousResearch/hermes-agent",
+      "commit": "9e54eee44f1cbbe62247a36546e51ff8940373c6",
+      "treeDigest": "sha256:0b051afe7003bacd7536d801969d7456ea7aaedd2f278a8637d2e18fc902fecd"
+    }
+  ],
+  "components": [
+    {
+      "componentId": "caddy",
+      "authority": "edge",
+      "version": "2.8.4",
+      "kind": "oci-image",
+      "realization": "oci-container",
+      "artifact": "oci://ghcr.io/bartschuster22/alica-community-dsh/caddy@sha256:108a242cdaa59e995eaff1dbeb2e5435a1203985f345115d35127f2a63c771ab",
+      "digest": "sha256:108a242cdaa59e995eaff1dbeb2e5435a1203985f345115d35127f2a63c771ab",
+      "signaturePolicy": "alica-executable/v1",
+      "sbom": {
+        "id": "caddy-sbom-cyclonedx-1.6",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/caddy-sbom-cyclonedx-1.6@sha256:e8c50aab9cc2dbb1d49ee95c0f8721c59a95c44d1f429e2e24d83a3f0e5d0897",
+        "digest": "sha256:e8c50aab9cc2dbb1d49ee95c0f8721c59a95c44d1f429e2e24d83a3f0e5d0897"
+      },
+      "provenance": {
+        "id": "caddy-provenance-slsa-v1",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/caddy-provenance-slsa-v1@sha256:13abd27a1f137bf8ea5612aa352cce4e54397756be67169826221a205f723431",
+        "digest": "sha256:13abd27a1f137bf8ea5612aa352cce4e54397756be67169826221a205f723431"
+      },
+      "componentContract": "caddy/v1",
+      "provides": [
+        "alica-https/v1"
+      ],
+      "requires": [],
+      "configSchema": {
+        "id": "caddy-config/v1",
+        "digest": "sha256:4d6ac2d31e6baef3cec44a02a7bf6c403447eb960506efdb5b7aef7c140f61b8"
+      },
+      "dataSchema": {
+        "authority": "edge",
+        "target": "caddy-config/v1"
+      }
+    },
+    {
+      "componentId": "uniui",
+      "authority": "uniui",
+      "version": "1.0.0",
+      "kind": "oci-image",
+      "realization": "oci-container",
+      "artifact": "oci://ghcr.io/bartschuster22/alica-community-dsh/uniui@sha256:5e9ef7d61f91e9c22eb2640028f32247174c25a0e987185e5bbad17fede0de58",
+      "digest": "sha256:5e9ef7d61f91e9c22eb2640028f32247174c25a0e987185e5bbad17fede0de58",
+      "signaturePolicy": "alica-executable/v1",
+      "sbom": {
+        "id": "uniui-sbom-cyclonedx-1.6",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/uniui-sbom-cyclonedx-1.6@sha256:8f6196a9b0095ed812ec882afa2cba83247fad68a0440c0cdcf5b72e55e15771",
+        "digest": "sha256:8f6196a9b0095ed812ec882afa2cba83247fad68a0440c0cdcf5b72e55e15771"
+      },
+      "provenance": {
+        "id": "uniui-provenance-slsa-v1",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/uniui-provenance-slsa-v1@sha256:8adf4df6c4cb812208a8d02f5c1bc4dc0c179e13707489d41294d14205a63d11",
+        "digest": "sha256:8adf4df6c4cb812208a8d02f5c1bc4dc0c179e13707489d41294d14205a63d11"
+      },
+      "componentContract": "uniui/v1",
+      "provides": [
+        "uniui-web/v1"
+      ],
+      "requires": [
+        "unify-api/v1"
+      ],
+      "configSchema": {
+        "id": "uniui-config/v1",
+        "digest": "sha256:021f8376a02123fc8deb0b9060644552f7851d558e8c27832746672b4ab798f7"
+      },
+      "dataSchema": {
+        "authority": "uniui",
+        "target": "stateless/v1"
+      }
+    },
+    {
+      "componentId": "unify-core",
+      "authority": "unify",
+      "version": "1.0.0",
+      "kind": "oci-image",
+      "realization": "oci-container",
+      "artifact": "oci://ghcr.io/bartschuster22/alica-community-dsh/unify-core@sha256:114a16a81ef07ca0a34e7d94e92d1d253ef1c6440950a906e9f326a095862c5e",
+      "digest": "sha256:114a16a81ef07ca0a34e7d94e92d1d253ef1c6440950a906e9f326a095862c5e",
+      "signaturePolicy": "alica-executable/v1",
+      "sbom": {
+        "id": "unify-core-sbom-cyclonedx-1.6",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/unify-core-sbom-cyclonedx-1.6@sha256:38b0295f7401c12afdec477e33a5b515695b20791afda253e36526fd52bd22c2",
+        "digest": "sha256:38b0295f7401c12afdec477e33a5b515695b20791afda253e36526fd52bd22c2"
+      },
+      "provenance": {
+        "id": "unify-core-provenance-slsa-v1",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/unify-core-provenance-slsa-v1@sha256:6ea54f3a41aa1e5536e778d752f08c31a83318c0c99eb9f485b74ac8ff3b99a8",
+        "digest": "sha256:6ea54f3a41aa1e5536e778d752f08c31a83318c0c99eb9f485b74ac8ff3b99a8"
+      },
+      "componentContract": "unify-core/v1",
+      "provides": [
+        "unify-api/v1"
+      ],
+      "requires": [
+        "postgresql/v16",
+        "keycloak-oidc/v1",
+        "memory-v4-api/v1"
+      ],
+      "configSchema": {
+        "id": "unify-core-config/v1",
+        "digest": "sha256:4ba030d30fe52c43a6d8d4d084be21b2feb0dbf4a3c67ffe0de051345c82351c"
+      },
+      "dataSchema": {
+        "authority": "unify",
+        "target": "core-migrations/d1"
+      }
+    },
+    {
+      "componentId": "keycloak",
+      "authority": "identity",
+      "version": "26.0.8",
+      "kind": "oci-image",
+      "realization": "oci-container",
+      "artifact": "oci://ghcr.io/bartschuster22/alica-community-dsh/keycloak@sha256:840aa7366bda8b9b194646580ee11f0f6fec0f01d1c2500be5298059e1893f25",
+      "digest": "sha256:840aa7366bda8b9b194646580ee11f0f6fec0f01d1c2500be5298059e1893f25",
+      "signaturePolicy": "alica-executable/v1",
+      "sbom": {
+        "id": "keycloak-sbom-cyclonedx-1.6",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/keycloak-sbom-cyclonedx-1.6@sha256:6d73de61924011c24833944354c5d9ea5f69113378db6b392c29e68b735b1c90",
+        "digest": "sha256:6d73de61924011c24833944354c5d9ea5f69113378db6b392c29e68b735b1c90"
+      },
+      "provenance": {
+        "id": "keycloak-provenance-slsa-v1",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/keycloak-provenance-slsa-v1@sha256:fd39736215d23740a15cce4b91037002e74394e763d6fc4a378b94a9861b14be",
+        "digest": "sha256:fd39736215d23740a15cce4b91037002e74394e763d6fc4a378b94a9861b14be"
+      },
+      "componentContract": "keycloak/v1",
+      "provides": [
+        "keycloak-oidc/v1"
+      ],
+      "requires": [
+        "postgresql/v16"
+      ],
+      "configSchema": {
+        "id": "keycloak-config/v1",
+        "digest": "sha256:98bf4195db7b56e0a68d5c7b4009196103137b54016338e9c221b941be8a7fbb"
+      },
+      "dataSchema": {
+        "authority": "identity",
+        "target": "keycloak-schema/d1"
+      }
+    },
+    {
+      "componentId": "postgresql",
+      "authority": "postgresql",
+      "version": "16.10.0",
+      "kind": "oci-image",
+      "realization": "oci-container",
+      "artifact": "oci://docker.io/library/postgres@sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef",
+      "digest": "sha256:1d04b9ba1d4996401f2552b51beda8187f175c0645c091e4781134fc9c9a3eef",
+      "signaturePolicy": "alica-executable/v1",
+      "sbom": {
+        "id": "postgresql-sbom-cyclonedx-1.6",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/postgresql-sbom-cyclonedx-1.6@sha256:fce40f5351b2e831b361955c4e892d29539f3c89a0c82d42374fb04889375875",
+        "digest": "sha256:fce40f5351b2e831b361955c4e892d29539f3c89a0c82d42374fb04889375875"
+      },
+      "provenance": {
+        "id": "postgresql-provenance-slsa-v1",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/postgresql-provenance-slsa-v1@sha256:110b8257de9c2564d8c1d1d681b30bd0eb45420521cc712655026cf4703ff9a1",
+        "digest": "sha256:110b8257de9c2564d8c1d1d681b30bd0eb45420521cc712655026cf4703ff9a1"
+      },
+      "componentContract": "postgresql/v1",
+      "provides": [
+        "postgresql/v16"
+      ],
+      "requires": [],
+      "configSchema": {
+        "id": "postgresql-config/v1",
+        "digest": "sha256:b8bf7d6576098d4f33971fc2dbc53936ca15c1ab25f8834bcdadd0739e5dcc1a"
+      },
+      "dataSchema": {
+        "authority": "postgresql",
+        "target": "postgresql-schema/d1"
+      }
+    },
+    {
+      "componentId": "alica-runtime",
+      "authority": "alica",
+      "version": "1.0.0",
+      "kind": "oci-image",
+      "realization": "oci-container",
+      "artifact": "oci://ghcr.io/bartschuster22/alica-community-dsh/hermes-runtime@sha256:c8a170cf00d9bd598e45fd317d244d0cb949920c5eb5ee68346918c261755a6c",
+      "digest": "sha256:c8a170cf00d9bd598e45fd317d244d0cb949920c5eb5ee68346918c261755a6c",
+      "signaturePolicy": "alica-executable/v1",
+      "sbom": {
+        "id": "alica-runtime-sbom-cyclonedx-1.6",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/alica-runtime-sbom-cyclonedx-1.6@sha256:5e619901bb2fe313671a08c11102322d532fc8e9d664cd040c125d9d06ba87e4",
+        "digest": "sha256:5e619901bb2fe313671a08c11102322d532fc8e9d664cd040c125d9d06ba87e4"
+      },
+      "provenance": {
+        "id": "alica-runtime-provenance-slsa-v1",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/alica-runtime-provenance-slsa-v1@sha256:bb892d3885a6ceb04c2a92877b36574144a9c937d3ebc9b4786f4a7711e4fd99",
+        "digest": "sha256:bb892d3885a6ceb04c2a92877b36574144a9c937d3ebc9b4786f4a7711e4fd99"
+      },
+      "componentContract": "alica-runtime/v1",
+      "provides": [
+        "framework-agent/v1"
+      ],
+      "requires": [
+        "unify-api/v1",
+        "memory-v4-api/v1"
+      ],
+      "configSchema": {
+        "id": "alica-runtime-config/v1",
+        "digest": "sha256:511275bfc3b29371065cae4356602560e34ecf2088502f22195302736fcb4628"
+      },
+      "dataSchema": {
+        "authority": "alica",
+        "target": "alica-state/d1"
+      }
+    },
+    {
+      "componentId": "herman-runtime",
+      "authority": "herman",
+      "version": "1.0.0",
+      "kind": "oci-image",
+      "realization": "oci-container",
+      "artifact": "oci://ghcr.io/bartschuster22/alica-community-dsh/hermes-runtime@sha256:c8a170cf00d9bd598e45fd317d244d0cb949920c5eb5ee68346918c261755a6c",
+      "digest": "sha256:c8a170cf00d9bd598e45fd317d244d0cb949920c5eb5ee68346918c261755a6c",
+      "signaturePolicy": "alica-executable/v1",
+      "sbom": {
+        "id": "herman-runtime-sbom-cyclonedx-1.6",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/herman-runtime-sbom-cyclonedx-1.6@sha256:b336e2933d86bda7e4ecbb71b1dcb0352e73d66d6b1dd217572107debc6f3b09",
+        "digest": "sha256:b336e2933d86bda7e4ecbb71b1dcb0352e73d66d6b1dd217572107debc6f3b09"
+      },
+      "provenance": {
+        "id": "herman-runtime-provenance-slsa-v1",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/herman-runtime-provenance-slsa-v1@sha256:d48661c65480fa126e9108385916beeb038722a45ed73dc79e119b469c0b5777",
+        "digest": "sha256:d48661c65480fa126e9108385916beeb038722a45ed73dc79e119b469c0b5777"
+      },
+      "componentContract": "herman-runtime/v1",
+      "provides": [
+        "framework-agent/v1"
+      ],
+      "requires": [
+        "unify-api/v1",
+        "memory-v4-api/v1"
+      ],
+      "configSchema": {
+        "id": "herman-runtime-config/v1",
+        "digest": "sha256:da7fb70dfcae8e8ea4f2737325d12fa3282ea63be5366fbeb5b4fed024a6a28a"
+      },
+      "dataSchema": {
+        "authority": "herman",
+        "target": "herman-state/d1"
+      }
+    },
+    {
+      "componentId": "memory-v4",
+      "authority": "memory-v4",
+      "version": "1.0.0",
+      "kind": "oci-image",
+      "realization": "oci-container",
+      "artifact": "oci://ghcr.io/bartschuster22/alica-community-dsh/memory-v4@sha256:f3d6eb63447520298890c9f224dea7f86777f085f8ec1c51b79fb322eed512f8",
+      "digest": "sha256:f3d6eb63447520298890c9f224dea7f86777f085f8ec1c51b79fb322eed512f8",
+      "signaturePolicy": "alica-executable/v1",
+      "sbom": {
+        "id": "memory-v4-sbom-cyclonedx-1.6",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/memory-v4-sbom-cyclonedx-1.6@sha256:4b965f800b29889eb32ffa6598890aa98c0a1c50aeb09a9cbd424ee8936f9718",
+        "digest": "sha256:4b965f800b29889eb32ffa6598890aa98c0a1c50aeb09a9cbd424ee8936f9718"
+      },
+      "provenance": {
+        "id": "memory-v4-provenance-slsa-v1",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/memory-v4-provenance-slsa-v1@sha256:9229431db4cd9d8eadce14d21b458906fc2d8c9e726e8bd17283468d67bdf0c7",
+        "digest": "sha256:9229431db4cd9d8eadce14d21b458906fc2d8c9e726e8bd17283468d67bdf0c7"
+      },
+      "componentContract": "memory-v4/v1",
+      "provides": [
+        "memory-v4-api/v1"
+      ],
+      "requires": [
+        "postgresql/v16"
+      ],
+      "configSchema": {
+        "id": "memory-v4-config/v1",
+        "digest": "sha256:de95290f191f856bc5baead879d1ca6ab0bc7ee47cd5ac7e68dc141fc31a17d6"
+      },
+      "dataSchema": {
+        "authority": "memory-v4",
+        "target": "memory-v4-schema/d1"
+      }
+    },
+    {
+      "componentId": "ainba-anchor",
+      "authority": "ainba",
+      "version": "1.0.0",
+      "kind": "oci-image",
+      "realization": "oci-container",
+      "artifact": "oci://registry.fixture.invalid/alica/ainba-anchor@sha256:7eb2e84ae50934b1682b8d78b67463c22656d121a99e14d64a0be06bcd9fa43f",
+      "digest": "sha256:7eb2e84ae50934b1682b8d78b67463c22656d121a99e14d64a0be06bcd9fa43f",
+      "signaturePolicy": "alica-executable/v1",
+      "sbom": {
+        "id": "ainba-anchor-sbom-cyclonedx-1.6",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/ainba-anchor-sbom-cyclonedx-1.6@sha256:3c2b592b9225a035347bca7283ba76b6cd25578e1a6dcb917bba03cd0e4a0f85",
+        "digest": "sha256:3c2b592b9225a035347bca7283ba76b6cd25578e1a6dcb917bba03cd0e4a0f85"
+      },
+      "provenance": {
+        "id": "ainba-anchor-provenance-slsa-v1",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/ainba-anchor-provenance-slsa-v1@sha256:9786b4fbd8b89c1420c53dd17f241cbd012d34ec62ba75bcfa59caa78b5b7326",
+        "digest": "sha256:9786b4fbd8b89c1420c53dd17f241cbd012d34ec62ba75bcfa59caa78b5b7326"
+      },
+      "componentContract": "ainba-anchor/v1",
+      "provides": [
+        "ainba-workload/v1"
+      ],
+      "requires": [
+        "framework-agent/v1",
+        "memory-v4-api/v1"
+      ],
+      "configSchema": {
+        "id": "ainba-anchor-config/v1",
+        "digest": "sha256:9e4fc9d49800b7fcdfde1252cc70e0deddc6eddf2c3563738d45f273112ce2c7"
+      },
+      "dataSchema": {
+        "authority": "ainba",
+        "target": "ainba-data/d1"
+      }
+    },
+    {
+      "componentId": "doghouse-node",
+      "authority": "doghouse",
+      "version": "1.0.0",
+      "kind": "oci-image",
+      "realization": "oci-container",
+      "artifact": "oci://registry.fixture.invalid/alica/doghouse-node@sha256:ea639c3f82bf66b5c5496d67fc5d3f4e1714343855c39e56d22f6c9c947fe31a",
+      "digest": "sha256:ea639c3f82bf66b5c5496d67fc5d3f4e1714343855c39e56d22f6c9c947fe31a",
+      "signaturePolicy": "alica-executable/v1",
+      "sbom": {
+        "id": "doghouse-node-sbom-cyclonedx-1.6",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/doghouse-node-sbom-cyclonedx-1.6@sha256:f7ea46aa6abcd9ba72da6b974b2e25bf18a03e797f9caf7ecceb442c5a985912",
+        "digest": "sha256:f7ea46aa6abcd9ba72da6b974b2e25bf18a03e797f9caf7ecceb442c5a985912"
+      },
+      "provenance": {
+        "id": "doghouse-node-provenance-slsa-v1",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/doghouse-node-provenance-slsa-v1@sha256:fb2cd27613a5a0d4a1bfe5fe0a3868cc662bc6be2df0220ce52b33e0128bd861",
+        "digest": "sha256:fb2cd27613a5a0d4a1bfe5fe0a3868cc662bc6be2df0220ce52b33e0128bd861"
+      },
+      "componentContract": "doghouse-node/v1",
+      "provides": [
+        "doghouse-report/v1"
+      ],
+      "requires": [
+        "unify-api/v1"
+      ],
+      "configSchema": {
+        "id": "doghouse-report-config/v1",
+        "digest": "sha256:c529e7ce0a7987f8622e477700e0d611398a1ceab967ef93ce62bbdf6cd788e5"
+      },
+      "dataSchema": {
+        "authority": "doghouse",
+        "target": "doghouse-state/d1"
+      }
+    },
+    {
+      "componentId": "alicactl",
+      "authority": "lifecycle",
+      "version": "1.0.0",
+      "kind": "host-binary",
+      "realization": "host-binary",
+      "artifact": "file://bundle/alicactl@sha256:0625e7c7c0fd2cc7a4f9cb52d35a890ef29ad7a2148a2e6486974b5204c0455f",
+      "digest": "sha256:0625e7c7c0fd2cc7a4f9cb52d35a890ef29ad7a2148a2e6486974b5204c0455f",
+      "signaturePolicy": "alica-executable/v1",
+      "sbom": {
+        "id": "alicactl-sbom-cyclonedx-1.6",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/alicactl-sbom-cyclonedx-1.6@sha256:f171b1b5cdfb3188488453fb9f5473c98b4e01426e1a7439300d0919918e69bf",
+        "digest": "sha256:f171b1b5cdfb3188488453fb9f5473c98b4e01426e1a7439300d0919918e69bf"
+      },
+      "provenance": {
+        "id": "alicactl-provenance-slsa-v1",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/alicactl-provenance-slsa-v1@sha256:8fb26ab7ff39ded12625e903047cb9b80033c78ed39536f6813120917177f22e",
+        "digest": "sha256:8fb26ab7ff39ded12625e903047cb9b80033c78ed39536f6813120917177f22e"
+      },
+      "componentContract": "alicactl/v1",
+      "provides": [
+        "alica-lifecycle-readonly/v1"
+      ],
+      "requires": [],
+      "configSchema": {
+        "id": "alicactl-config/v1",
+        "digest": "sha256:993ed52c3e5dbb108ca730aad9c14aed48570505dd8cf617ded818ce0e71b35b"
+      },
+      "dataSchema": {
+        "authority": "lifecycle",
+        "target": "lifecycle-state/v1"
+      }
+    },
+    {
+      "componentId": "operations-jobs",
+      "authority": "operations",
+      "version": "1.0.0",
+      "kind": "host-unit-bundle",
+      "realization": "systemd-units",
+      "artifact": "file://bundle/operations-jobs@sha256:b8dde4ddb2fc89bea02ed2bb9f89069954c308e329329b27a541b96589b79ae5",
+      "digest": "sha256:b8dde4ddb2fc89bea02ed2bb9f89069954c308e329329b27a541b96589b79ae5",
+      "signaturePolicy": "alica-executable/v1",
+      "sbom": {
+        "id": "operations-jobs-sbom-cyclonedx-1.6",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/operations-jobs-sbom-cyclonedx-1.6@sha256:36522ee3b8becf008b1bf122e6d62a9736fa7646c74ffa08a2ce7c8d5328a27c",
+        "digest": "sha256:36522ee3b8becf008b1bf122e6d62a9736fa7646c74ffa08a2ce7c8d5328a27c"
+      },
+      "provenance": {
+        "id": "operations-jobs-provenance-slsa-v1",
+        "artifact": "oci://registry.fixture.invalid/alica-evidence/operations-jobs-provenance-slsa-v1@sha256:822759afdb49e4d0393659d0a776cdbc9b1d6fbff318771961f97e96f1bdd950",
+        "digest": "sha256:822759afdb49e4d0393659d0a776cdbc9b1d6fbff318771961f97e96f1bdd950"
+      },
+      "componentContract": "operations-jobs/v1",
+      "provides": [
+        "alica-operations-jobs/v1"
+      ],
+      "requires": [
+        "alica-lifecycle-readonly/v1"
+      ],
+      "configSchema": {
+        "id": "operations-jobs-config/v1",
+        "digest": "sha256:b0ee748d7fa5532b39cba80987e023c653a94308cd230e231c6b8ff04792cc4b"
+      },
+      "dataSchema": {
+        "authority": "operations",
+        "target": "operations-jobs-state/v1"
+      }
+    }
+  ],
+  "topology": {
+    "project": "alica",
+    "labels": {
+      "cellId": "com.alica.cell.id",
+      "releaseId": "com.alica.release.id",
+      "componentId": "com.alica.component.id",
+      "managed": "com.alica.managed"
+    },
+    "containers": [
+      {
+        "componentId": "caddy",
+        "service": "caddy",
+        "networks": [
+          "edge",
+          "app"
+        ],
+        "volumes": [
+          "caddy-config"
+        ],
+        "publishedPorts": [
+          {
+            "hostIp": "0.0.0.0",
+            "published": 80,
+            "target": 80,
+            "protocol": "tcp"
+          },
+          {
+            "hostIp": "0.0.0.0",
+            "published": 443,
+            "target": 443,
+            "protocol": "tcp"
+          }
+        ],
+        "healthRequired": true
+      },
+      {
+        "componentId": "uniui",
+        "service": "uniui",
+        "networks": [
+          "app"
+        ],
+        "volumes": [],
+        "publishedPorts": [],
+        "healthRequired": true
+      },
+      {
+        "componentId": "unify-core",
+        "service": "unify-core",
+        "networks": [
+          "app",
+          "data",
+          "frameworks",
+          "assurance"
+        ],
+        "volumes": [],
+        "publishedPorts": [],
+        "healthRequired": true
+      },
+      {
+        "componentId": "keycloak",
+        "service": "keycloak",
+        "networks": [
+          "app",
+          "data"
+        ],
+        "volumes": [],
+        "publishedPorts": [],
+        "healthRequired": true
+      },
+      {
+        "componentId": "postgresql",
+        "service": "postgresql",
+        "networks": [
+          "data"
+        ],
+        "volumes": [
+          "postgres-data"
+        ],
+        "publishedPorts": [],
+        "healthRequired": true
+      },
+      {
+        "componentId": "alica-runtime",
+        "service": "alica-runtime",
+        "networks": [
+          "frameworks",
+          "app"
+        ],
+        "volumes": [
+          "alica-state"
+        ],
+        "publishedPorts": [],
+        "healthRequired": true
+      },
+      {
+        "componentId": "herman-runtime",
+        "service": "herman-runtime",
+        "networks": [
+          "frameworks",
+          "app"
+        ],
+        "volumes": [
+          "herman-state"
+        ],
+        "publishedPorts": [],
+        "healthRequired": true
+      },
+      {
+        "componentId": "memory-v4",
+        "service": "memory-v4",
+        "networks": [
+          "data",
+          "frameworks"
+        ],
+        "volumes": [
+          "memory-data"
+        ],
+        "publishedPorts": [],
+        "healthRequired": true
+      },
+      {
+        "componentId": "ainba-anchor",
+        "service": "ainba-anchor",
+        "networks": [
+          "frameworks"
+        ],
+        "volumes": [
+          "ainba-data"
+        ],
+        "publishedPorts": [],
+        "healthRequired": true
+      },
+      {
+        "componentId": "doghouse-node",
+        "service": "doghouse-node",
+        "networks": [
+          "assurance",
+          "app"
+        ],
+        "volumes": [
+          "doghouse-state"
+        ],
+        "publishedPorts": [],
+        "healthRequired": true
+      }
+    ],
+    "networks": [
+      {
+        "id": "edge",
+        "internal": false
+      },
+      {
+        "id": "app",
+        "internal": true
+      },
+      {
+        "id": "data",
+        "internal": true
+      },
+      {
+        "id": "frameworks",
+        "internal": true
+      },
+      {
+        "id": "assurance",
+        "internal": true
+      }
+    ],
+    "volumes": [
+      {
+        "id": "caddy-config",
+        "authority": "edge"
+      },
+      {
+        "id": "postgres-data",
+        "authority": "postgresql"
+      },
+      {
+        "id": "memory-data",
+        "authority": "memory-v4"
+      },
+      {
+        "id": "alica-state",
+        "authority": "alica"
+      },
+      {
+        "id": "herman-state",
+        "authority": "herman"
+      },
+      {
+        "id": "ainba-data",
+        "authority": "ainba"
+      },
+      {
+        "id": "doghouse-state",
+        "authority": "doghouse"
+      }
+    ],
+    "hostUnits": [
+      {
+        "componentId": "operations-jobs",
+        "unit": "alica-backup.service",
+        "required": true
+      },
+      {
+        "componentId": "operations-jobs",
+        "unit": "alica-canary.timer",
+        "required": true
+      },
+      {
+        "componentId": "operations-jobs",
+        "unit": "alica-update-check.timer",
+        "required": true
+      }
+    ]
+  },
+  "compatibility": {
+    "freshInstall": true,
+    "supportedOrigins": []
+  },
+  "migrationPlan": {
+    "planId": "migration-plan/d2-unified-clean-install-fixture",
+    "steps": []
+  },
+  "rollback": {
+    "supportedTargets": [],
+    "forwardRecovery": "runbook:alica-dsh-forward-recovery/v1"
+  },
+  "dataUnits": [
+    {
+      "authority": "identity-postgres",
+      "backupContract": "postgresql-native-backup/v1",
+      "restoreOrder": 10
+    },
+    {
+      "authority": "unify-postgres",
+      "backupContract": "postgresql-native-backup/v1",
+      "restoreOrder": 20
+    },
+    {
+      "authority": "memory-v4",
+      "backupContract": "memory-v4-backup/v1",
+      "restoreOrder": 30
+    },
+    {
+      "authority": "alica-state",
+      "backupContract": "framework-state-backup/v1",
+      "restoreOrder": 40
+    },
+    {
+      "authority": "herman-state",
+      "backupContract": "framework-state-backup/v1",
+      "restoreOrder": 50
+    },
+    {
+      "authority": "ainba-data",
+      "backupContract": "ainba-backup/v1",
+      "restoreOrder": 60
+    },
+    {
+      "authority": "doghouse-state",
+      "backupContract": "doghouse-backup/v1",
+      "restoreOrder": 70
+    },
+    {
+      "authority": "lifecycle-state",
+      "backupContract": "alicactl-state-backup/v1",
+      "restoreOrder": 80
+    }
+  ],
+  "endpoints": [
+    {
+      "id": "alica-http-redirect",
+      "exposure": "public",
+      "protocol": "http",
+      "port": 80,
+      "owner": "caddy"
+    },
+    {
+      "id": "alica-https",
+      "exposure": "public",
+      "protocol": "https",
+      "port": 443,
+      "owner": "caddy"
+    }
+  ],
+  "secretRequirements": [
+    {
+      "reference": "secret://cell/postgresql/admin",
+      "class": "database-password",
+      "consumers": [
+        "postgresql"
+      ]
+    },
+    {
+      "reference": "secret://cell/keycloak/admin",
+      "class": "identity-bootstrap",
+      "consumers": [
+        "keycloak"
+      ]
+    },
+    {
+      "reference": "secret://cell/unify/oidc-client",
+      "class": "oidc-client-secret",
+      "consumers": [
+        "unify-core"
+      ]
+    },
+    {
+      "reference": "secret://cell/providers/byok",
+      "class": "provider-credentials",
+      "consumers": [
+        "alica-runtime",
+        "herman-runtime"
+      ]
+    }
+  ],
+  "acceptanceSuite": {
+    "id": "alica-cell-acceptance/v1",
+    "artifact": "oci://registry.fixture.invalid/alica-evidence/alica-cell-acceptance/v1@sha256:c1514c6cdad166c18aa557dc1d780ba84c0e32df7633235385023eb429377e74",
+    "digest": "sha256:c1514c6cdad166c18aa557dc1d780ba84c0e32df7633235385023eb429377e74"
+  },
+  "releaseNotes": {
+    "id": "alica-dsh-release-notes/v1",
+    "artifact": "oci://registry.fixture.invalid/alica-evidence/alica-dsh-release-notes/v1@sha256:4ae1eb667fb53609046cecfd6c41898b620812e3c1c1128d2f2f74b43bb69a45",
+    "digest": "sha256:4ae1eb667fb53609046cecfd6c41898b620812e3c1c1128d2f2f74b43bb69a45"
+  },
+  "knownRisks": [
+    "D2 fixture trust material is test-only and is forbidden for production installation.",
+    "First-party candidate packages must be published without private Aquiero credentials before clean-host acceptance."
+  ],
+  "irreversibleChanges": []
+}

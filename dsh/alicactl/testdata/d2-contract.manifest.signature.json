@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "alica-manifest-signature/v1",
+  "algorithm": "ed25519",
+  "keyId": "d2-fixture-ed25519-2026",
+  "manifestDigest": "sha256:fc6ea858b259ae8c5155c6be2ac30aabc7a3965f7da24da8f5301b5fb207d262",
+  "signature": "A/PKeL0LVZOKlTKqwEIl53dpV25XMAZplrjRDpIMSds1Ly+yRKoDUlFMjQjfG/djt7kUvmVd25ujDskUEYr5CQ=="
+}

@@ -183,7 +183,14 @@ func Observe(root string, manifest *contract.Manifest, fixturePath string) (*Obs
 		return nil, err
 	}
 	observation := &Observation{SchemaVersion: "alica-observed-state/v1", Source: "live-read-only", Host: host, Containers: []ObservedContainer{}, Networks: []ObservedNetwork{}, Volumes: []ObservedVolume{}, HostUnits: []ObservedHostUnit{}}
-	statePath := filepath.Join(root, "var/lib/alica/lifecycle-state.json")
+	lifecyclePath := func(name string) string {
+		preferred := filepath.Join(root, "var/lib/alica/accepted", name)
+		if _, err := os.Stat(preferred); err == nil {
+			return preferred
+		}
+		return filepath.Join(root, "var/lib/alica", name)
+	}
+	statePath := lifecyclePath("lifecycle-state.json")
 	var state LifecycleState
 	if err := loadClosed(statePath, 256*1024, &state); err != nil {
 		if errors.Is(err, os.ErrNotExist) {
@@ -195,7 +202,7 @@ func Observe(root string, manifest *contract.Manifest, fixturePath string) (*Obs
 		return nil, err
 	}
 	observation.State = &state
-	declarationPath := filepath.Join(root, "var/lib/alica/cell-declaration.json")
+	declarationPath := lifecyclePath("cell-declaration.json")
 	var declaration CellDeclaration
 	if err := loadClosed(declarationPath, 256*1024, &declaration); err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
@@ -207,7 +214,7 @@ func Observe(root string, manifest *contract.Manifest, fixturePath string) (*Obs
 		}
 		observation.Declaration = &declaration
 	}
-	journalPath := filepath.Join(root, "var/lib/alica/operation-journal.json")
+	journalPath := lifecyclePath("operation-journal.json")
 	var journal OperationJournal
 	if err := loadClosed(journalPath, 2*1024*1024, &journal); err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
@@ -278,6 +285,10 @@ func inspectHost(root string) (HostFacts, error) {
 	}
 	return facts, nil
 }
+
+func ValidateState(state *LifecycleState) error              { return validateState(state) }
+func ValidateDeclaration(declaration *CellDeclaration) error { return validateDeclaration(declaration) }
+func ValidateJournal(journal *OperationJournal) error        { return validateJournal(journal) }
 
 func validateState(state *LifecycleState) error {
 	if state.SchemaVersion != "alica-lifecycle-state/v1" {

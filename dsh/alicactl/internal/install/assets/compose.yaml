@@ -1,0 +1,445 @@
+name: ${ALICA_PROJECT}
+
+x-alica-runtime: &alica-runtime
+  restart: unless-stopped
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  tmpfs:
+    - /tmp:rw,noexec,nosuid,nodev,size=128m,mode=1777
+  logging:
+    driver: json-file
+    options: { max-size: 10m, max-file: '3' }
+
+services:
+  postgresql:
+    image: ${POSTGRESQL_IMAGE}
+    restart: unless-stopped
+    user: '70:70'
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    environment:
+      POSTGRES_DB: unify
+      POSTGRES_USER: unify
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres-password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/001-alica.sql:ro
+      - ./secrets/postgres-password:/run/secrets/postgres-password:ro
+    tmpfs:
+      - /run/postgresql:rw,nosuid,nodev,size=16m,mode=0770,uid=70,gid=70
+      - /tmp:rw,noexec,nosuid,nodev,size=32m,mode=1777
+    networks: [database]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U unify -d unify]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    labels:
+      com.alica.cell.id: ${ALICA_CELL_ID}
+      com.alica.release.id: ${ALICA_RELEASE_ID}
+      com.alica.managed: 'true'
+      com.alica.component.id: postgresql
+      com.alica.authority: postgresql
+
+  keycloak:
+    image: ${KEYCLOAK_IMAGE}
+    <<: *alica-runtime
+    entrypoint: [/bin/bash, -c]
+    command:
+      - |
+        export KC_DB_PASSWORD="$$(cat /run/secrets/keycloak-database-password)"
+        export KC_BOOTSTRAP_ADMIN_PASSWORD="$$(cat /run/secrets/keycloak-admin-password)"
+        exec /opt/keycloak/bin/kc.sh start --optimized --http-enabled=true --hostname-strict=false
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgresql:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME}
+      KC_PROXY_HEADERS: xforwarded
+    volumes:
+      - ./secrets/keycloak-database-password:/run/secrets/keycloak-database-password:ro
+      - ./secrets/keycloak-admin-password:/run/secrets/keycloak-admin-password:ro
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=128m,mode=1777
+      - /opt/keycloak/data:rw,noexec,nosuid,nodev,size=128m,uid=1000,gid=0,mode=0770
+    networks: [database, application]
+    depends_on:
+      postgresql: { condition: service_healthy }
+    healthcheck:
+      test:
+        [
+          CMD-SHELL,
+          "exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /health/ready HTTP/1.0\r\n\r\n' >&3 && grep -q UP <&3",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    labels:
+      com.alica.cell.id: ${ALICA_CELL_ID}
+      com.alica.release.id: ${ALICA_RELEASE_ID}
+      com.alica.managed: 'true'
+      com.alica.component.id: keycloak
+      com.alica.authority: identity
+
+  memory-v4:
+    image: ${MEMORY_V4_IMAGE}
+    <<: *alica-runtime
+    user: '65532:65532'
+    environment:
+      MEMORYV4_API_KEY_FILE: /run/secrets/memory-v4-token
+      MEMORYV4_API_ACTOR: unify-core
+      MEMORYV4_API_SCOPE: org:alica
+      MEMORYV4_API_ALLOW_ACTOR_DELEGATION: 'true'
+      MEMORYV4_API_PERMISSIONS: memory.read,memory.search,memory.create-working,memory.create,memory.edit,memory.promote,memory.archive,memory.review,memory.audit.read,memory.admin
+      MEMORYV4_DB_PATH: /data/memoryv4.sqlite3
+      MEMORYV4_BACKUP_DIR: /backups
+    volumes:
+      - memory-data:/data
+      - memory-backups:/backups
+      - ./secrets/memory-v4-token:/run/secrets/memory-v4-token:ro
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=32m,mode=0700,uid=65532,gid=65532
+    networks: [application]
+    healthcheck:
+      test:
+        [
+          CMD,
+          python,
+          -c,
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health',timeout=2).read()",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 20
+    labels:
+      com.alica.cell.id: ${ALICA_CELL_ID}
+      com.alica.release.id: ${ALICA_RELEASE_ID}
+      com.alica.managed: 'true'
+      com.alica.component.id: memory-v4
+      com.alica.authority: memory
+
+  migrate:
+    image: ${UNIFY_CORE_IMAGE}
+    command: [scripts/migrate.mjs, up]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    environment:
+      DATABASE_URL_FILE: /run/secrets/database-url
+    volumes:
+      - ./secrets/core-database-url:/run/secrets/database-url:ro
+    networks: [database]
+    depends_on:
+      postgresql: { condition: service_healthy }
+    profiles: [jobs]
+
+  bootstrap-admin:
+    image: ${UNIFY_CORE_IMAGE}
+    command: [dist/cli/bootstrap-admin.js]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    environment:
+      DATABASE_URL_FILE: /run/secrets/database-url
+      AUTH_PEPPER_FILE: /run/secrets/auth-pepper
+      BOOTSTRAP_ADMIN_USERNAME: ${BOOTSTRAP_ADMIN_USERNAME}
+      BOOTSTRAP_ADMIN_PASSWORD_FILE: /run/secrets/bootstrap-admin-password
+      BOOTSTRAP_ADMIN_DISPLAY_NAME: Local Administrator
+    volumes:
+      - ./secrets/core-database-url:/run/secrets/database-url:ro
+      - ./secrets/auth-pepper:/run/secrets/auth-pepper:ro
+      - ./secrets/bootstrap-admin-password:/run/secrets/bootstrap-admin-password:ro
+    networks: [database]
+    depends_on:
+      postgresql: { condition: service_healthy }
+    profiles: [jobs]
+
+  alica:
+    image: ${ALICA_RUNTIME_IMAGE}
+    <<: *alica-runtime
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
+    environment:
+      HERMES_FRAMEWORK_ID: hermes-alica
+      HERMES_DISPLAY_NAME: Alica
+      HERMES_BASE_PROFILE_DISPLAY_NAME: Alica
+      HERMES_INSTANCE_ID: ${ALICA_CELL_ID}-alica
+      HERMES_ADAPTER_SCOPES: control:read,control:execute,control:events,control:secrets,memory:read,memory:write
+      UNIFY_MEMORY_GATEWAY_URL: http://unify-core:8080
+      UNIFY_MEMORY_TOKEN_BUNDLE_FILE: /run/secrets/adapter-token-bundle
+      HERMES_MANAGEMENT_BASE_URL: http://127.0.0.1:29119
+      HERMES_MANAGEMENT_AUTOSTART: 'true'
+      HERMES_API_TOKEN_FILE: /run/secrets/hermes-api-token
+      HERMES_ADAPTER_TOKEN_BUNDLE_FILE: /run/secrets/adapter-token-bundle
+      HERMES_ADAPTER_TLS_KEY_FILE: /run/secrets/adapter-tls-key
+      HERMES_ADAPTER_TLS_CERT_FILE: /run/secrets/adapter-tls-cert
+      HERMES_ADAPTER_TLS_CA_FILE: /run/secrets/framework-ca-cert
+      HERMES_ADAPTER_TLS_SERVER_NAME: alica-adapter
+      DATABASE_URL_FILE: /run/secrets/database-url
+      NODE_EXTRA_CA_CERTS: /run/secrets/framework-ca-cert
+      RELEASE_ID: ${ALICA_RELEASE_ID}
+      PORT: '28082'
+    volumes:
+      - alica-data:/opt/data
+      - ./secrets/alica-api-token:/run/secrets/hermes-api-token:ro
+      - ./secrets/alica-token-bundle.json:/run/secrets/adapter-token-bundle:ro
+      - ./secrets/alica.key:/run/secrets/adapter-tls-key:ro
+      - ./secrets/alica.crt:/run/secrets/adapter-tls-cert:ro
+      - ./secrets/framework-ca.crt:/run/secrets/framework-ca-cert:ro
+      - ./secrets/alica-database-url:/run/secrets/database-url:ro
+    tmpfs:
+      [
+        '/run:rw,exec,nosuid,nodev,size=32m,mode=0755',
+        '/tmp:rw,noexec,nosuid,nodev,size=64m,mode=1777',
+      ]
+    networks:
+      database: {}
+      application: { aliases: [alica-adapter] }
+      egress: {}
+    depends_on:
+      postgresql: { condition: service_healthy }
+    labels:
+      com.alica.cell.id: ${ALICA_CELL_ID}
+      com.alica.release.id: ${ALICA_RELEASE_ID}
+      com.alica.managed: 'true'
+      com.alica.component.id: alica-runtime
+      com.alica.authority: alica
+
+  herman:
+    image: ${HERMAN_RUNTIME_IMAGE}
+    <<: *alica-runtime
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
+    environment:
+      HERMES_FRAMEWORK_ID: hermes-herman
+      HERMES_DISPLAY_NAME: Herman
+      HERMES_BASE_PROFILE_DISPLAY_NAME: Herman
+      HERMES_INSTANCE_ID: ${ALICA_CELL_ID}-herman
+      HERMES_ADAPTER_SCOPES: control:read,control:execute,control:events,control:secrets,memory:read,memory:write
+      UNIFY_MEMORY_GATEWAY_URL: http://unify-core:8080
+      UNIFY_MEMORY_TOKEN_BUNDLE_FILE: /run/secrets/adapter-token-bundle
+      HERMES_MANAGEMENT_BASE_URL: http://127.0.0.1:29119
+      HERMES_MANAGEMENT_AUTOSTART: 'true'
+      HERMES_API_TOKEN_FILE: /run/secrets/hermes-api-token
+      HERMES_ADAPTER_TOKEN_BUNDLE_FILE: /run/secrets/adapter-token-bundle
+      HERMES_ADAPTER_TLS_KEY_FILE: /run/secrets/adapter-tls-key
+      HERMES_ADAPTER_TLS_CERT_FILE: /run/secrets/adapter-tls-cert
+      HERMES_ADAPTER_TLS_CA_FILE: /run/secrets/framework-ca-cert
+      HERMES_ADAPTER_TLS_SERVER_NAME: herman-adapter
+      DATABASE_URL_FILE: /run/secrets/database-url
+      NODE_EXTRA_CA_CERTS: /run/secrets/framework-ca-cert
+      RELEASE_ID: ${ALICA_RELEASE_ID}
+      PORT: '28082'
+    volumes:
+      - herman-data:/opt/data
+      - ./secrets/herman-api-token:/run/secrets/hermes-api-token:ro
+      - ./secrets/herman-token-bundle.json:/run/secrets/adapter-token-bundle:ro
+      - ./secrets/herman.key:/run/secrets/adapter-tls-key:ro
+      - ./secrets/herman.crt:/run/secrets/adapter-tls-cert:ro
+      - ./secrets/framework-ca.crt:/run/secrets/framework-ca-cert:ro
+      - ./secrets/herman-database-url:/run/secrets/database-url:ro
+    tmpfs:
+      [
+        '/run:rw,exec,nosuid,nodev,size=32m,mode=0755',
+        '/tmp:rw,noexec,nosuid,nodev,size=64m,mode=1777',
+      ]
+    networks:
+      database: {}
+      application: { aliases: [herman-adapter] }
+      egress: {}
+    depends_on:
+      postgresql: { condition: service_healthy }
+    labels:
+      com.alica.cell.id: ${ALICA_CELL_ID}
+      com.alica.release.id: ${ALICA_RELEASE_ID}
+      com.alica.managed: 'true'
+      com.alica.component.id: herman-runtime
+      com.alica.authority: herman
+
+  unify-core:
+    image: ${UNIFY_CORE_IMAGE}
+    <<: *alica-runtime
+    user: '65532:65532'
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: '8080'
+      RELEASE_ID: ${ALICA_RELEASE_ID}
+      HERMES_RUNTIME_IMAGE: ${ALICA_RUNTIME_IMAGE}
+      ALICA_HERMES_RUNTIME_IMAGE: ${ALICA_RUNTIME_IMAGE}
+      HERMAN_HERMES_RUNTIME_IMAGE: ${HERMAN_RUNTIME_IMAGE}
+      HERMES_DEPLOYED_FRAMEWORK_VERSION: '0.20.0'
+      HERMES_DEPLOYED_FRAMEWORK_COMMIT: b8b17b8cee50b85adb7fba6ea332dc06731b86f4
+      HERMES_UPSTREAM_REPOSITORY: NousResearch/hermes-agent
+      HERMES_UPDATE_DISCOVERY_INTERVAL_MS: '21600000'
+      DATABASE_URL_FILE: /run/secrets/database-url
+      AUTH_PEPPER_FILE: /run/secrets/auth-pepper
+      FRAMEWORK_AUTH_ENV_NAMES: ALICA_FRAMEWORK_TOKEN,HERMAN_FRAMEWORK_TOKEN
+      ALICA_FRAMEWORK_TOKEN_FILE: /run/secrets/alica-token
+      HERMAN_FRAMEWORK_TOKEN_FILE: /run/secrets/herman-token
+      MEMORY_V4_URL: http://memory-v4:8000
+      MEMORY_V4_TOKEN_FILE: /run/secrets/memory-v4-token
+      MEMORY_V4_SCOPE_PATH: org:alica
+      MEMORY_V4_ALLOW_PRIVATE_HTTP: 'true'
+      ALLOWED_ORIGINS: ${ALICA_PUBLIC_ORIGIN}
+      REQUESTS_PER_MINUTE: '600'
+      KEYCLOAK_ISSUER: http://keycloak:8080/realms/alica
+      NODE_EXTRA_CA_CERTS: /run/secrets/framework-ca-cert
+    volumes:
+      - ./secrets/core-database-url:/run/secrets/database-url:ro
+      - ./secrets/auth-pepper:/run/secrets/auth-pepper:ro
+      - ./secrets/alica-token:/run/secrets/alica-token:ro
+      - ./secrets/herman-token:/run/secrets/herman-token:ro
+      - ./secrets/memory-v4-token:/run/secrets/memory-v4-token:ro
+      - ./secrets/framework-ca.crt:/run/secrets/framework-ca-cert:ro
+    tmpfs: ['/tmp:rw,noexec,nosuid,nodev,size=32m,mode=1777']
+    networks: [application, database]
+    depends_on:
+      postgresql: { condition: service_healthy }
+      keycloak: { condition: service_healthy }
+      memory-v4: { condition: service_healthy }
+      alica: { condition: service_healthy }
+      herman: { condition: service_healthy }
+    labels:
+      com.alica.cell.id: ${ALICA_CELL_ID}
+      com.alica.release.id: ${ALICA_RELEASE_ID}
+      com.alica.managed: 'true'
+      com.alica.component.id: unify-core
+      com.alica.authority: unify
+
+  uniui:
+    image: ${UNIUI_IMAGE}
+    <<: *alica-runtime
+    user: '65532:65532'
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: '3000'
+      GATEWAY_INTERNAL_URL: http://unify-core:8080
+    tmpfs: ['/tmp:rw,noexec,nosuid,nodev,size=16m,mode=0700,uid=65532,gid=65532']
+    networks: [application]
+    depends_on:
+      unify-core: { condition: service_healthy }
+    labels:
+      com.alica.cell.id: ${ALICA_CELL_ID}
+      com.alica.release.id: ${ALICA_RELEASE_ID}
+      com.alica.managed: 'true'
+      com.alica.component.id: uniui
+      com.alica.authority: uniui
+
+  caddy:
+    image: ${CADDY_IMAGE}
+    <<: *alica-runtime
+    user: '10000:10000'
+    command: [caddy, run, --config, /etc/caddy/Caddyfile, --adapter, caddyfile]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks: [application, egress]
+    ports:
+      - target: 8080
+        published: ${ALICA_HTTP_PORT:-80}
+        protocol: tcp
+      - target: 8443
+        published: ${ALICA_HTTPS_PORT:-443}
+        protocol: tcp
+    depends_on:
+      uniui: { condition: service_healthy }
+    healthcheck:
+      test:
+        [
+          CMD,
+          wget,
+          --no-check-certificate,
+          --quiet,
+          --output-document=/dev/null,
+          https://localhost:8443/,
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 5s
+    labels:
+      com.alica.cell.id: ${ALICA_CELL_ID}
+      com.alica.release.id: ${ALICA_RELEASE_ID}
+      com.alica.managed: 'true'
+      com.alica.component.id: caddy
+      com.alica.authority: edge
+
+volumes:
+  postgresql-data:
+    labels:
+      {
+        com.alica.cell.id: '${ALICA_CELL_ID}',
+        com.alica.volume.id: postgresql-data,
+        com.alica.authority: postgresql,
+      }
+  memory-data:
+    labels:
+      {
+        com.alica.cell.id: '${ALICA_CELL_ID}',
+        com.alica.volume.id: memory-data,
+        com.alica.authority: memory,
+      }
+  memory-backups:
+    labels:
+      {
+        com.alica.cell.id: '${ALICA_CELL_ID}',
+        com.alica.volume.id: memory-backups,
+        com.alica.authority: memory,
+      }
+  alica-data:
+    labels:
+      {
+        com.alica.cell.id: '${ALICA_CELL_ID}',
+        com.alica.volume.id: alica-data,
+        com.alica.authority: alica,
+      }
+  herman-data:
+    labels:
+      {
+        com.alica.cell.id: '${ALICA_CELL_ID}',
+        com.alica.volume.id: herman-data,
+        com.alica.authority: herman,
+      }
+  caddy-data:
+    labels:
+      {
+        com.alica.cell.id: '${ALICA_CELL_ID}',
+        com.alica.volume.id: caddy-data,
+        com.alica.authority: edge,
+      }
+  caddy-config:
+    labels:
+      {
+        com.alica.cell.id: '${ALICA_CELL_ID}',
+        com.alica.volume.id: caddy-config,
+        com.alica.authority: edge,
+      }
+
+networks:
+  database:
+    internal: true
+    labels:
+      {
+        com.alica.cell.id: '${ALICA_CELL_ID}',
+        com.alica.network.id: database,
+        com.alica.authority: postgresql,
+      }
+  application:
+    internal: true
+    labels:
+      {
+        com.alica.cell.id: '${ALICA_CELL_ID}',
+        com.alica.network.id: application,
+        com.alica.authority: unify,
+      }
+  egress:
+    labels:
+      {
+        com.alica.cell.id: '${ALICA_CELL_ID}',
+        com.alica.network.id: egress,
+        com.alica.authority: edge,
+      }
