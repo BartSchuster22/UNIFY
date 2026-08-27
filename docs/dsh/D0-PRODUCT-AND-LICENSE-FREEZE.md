@@ -143,7 +143,7 @@ Resource values are D6 qualification targets, not performance claims. Publicatio
 - Unknown/incompatible license findings block publication.
 - ALICA names/marks are not granted except to identify authorized unmodified use.
 
-This product freeze is an engineering and distribution decision record, not legal advice. ALICA Ltd remains responsible for obtaining professional Hong Kong legal review before public publication; such review may tighten wording but cannot silently change the frozen commercial model or customer rights.
+This product freeze is an engineering and distribution decision record, not legal advice. Professional Hong Kong legal review is optional before public publication and is not a D0 completion requirement. If ALICA Ltd chooses review and it changes terms, the revision must be versioned and cannot silently change the frozen commercial model or customer rights.
 
 ## D0 acceptance
 
