@@ -346,7 +346,13 @@ services:
     tmpfs: ['/tmp:rw,noexec,nosuid,nodev,size=16m,mode=1777']
     networks: [application]
     healthcheck:
-      test: [CMD, /nodejs/bin/node, -e, "fetch('http://127.0.0.1:8787/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      test:
+        [
+          CMD,
+          /nodejs/bin/node,
+          -e,
+          "fetch('http://127.0.0.1:8787/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
       interval: 5s
       timeout: 3s
       retries: 30
@@ -377,7 +383,13 @@ services:
     depends_on:
       ainba-anchor: { condition: service_healthy }
     healthcheck:
-      test: [CMD, /nodejs/bin/node, -e, "fetch('http://127.0.0.1:8790/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      test:
+        [
+          CMD,
+          /nodejs/bin/node,
+          -e,
+          "fetch('http://127.0.0.1:8790/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
       interval: 5s
       timeout: 3s
       retries: 30

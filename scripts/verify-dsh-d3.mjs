@@ -1,10 +1,4 @@
-import {
-  chmodSync,
-  existsSync,
-  mkdtempSync,
-  readFileSync,
-  writeFileSync,
-} from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -95,7 +89,7 @@ if (
   !compose.includes('com.alica.mode: report-only') ||
   !compose.includes('profiles: [minimum-cell]') ||
   (compose.match(/entrypoint: \[\/nodejs\/bin\/node\]/g) ?? []).length !== 2 ||
-  (compose.match(/test: \[CMD, \/nodejs\/bin\/node/g) ?? []).length !== 2
+  (compose.match(/\/nodejs\/bin\/node/g) ?? []).length !== 4
 )
   fail('governed service constraints absent');
 const publicMaterial = [

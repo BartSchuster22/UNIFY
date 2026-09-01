@@ -9,4 +9,5 @@ deploy/*.service
 LICENSE
 dsh/alicactl/testdata/d1-contract.manifest.json
 dsh/alicactl/testdata/d2-contract.manifest.json
+dsh/alicactl/testdata/d3-contract.manifest.json
 dsh/alicactl/testdata/observed-conformant.json
