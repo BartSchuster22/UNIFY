@@ -253,6 +253,24 @@ func TestD3ManifestRejectsMissingProvider(t *testing.T) {
 	}
 }
 
+func TestMinimumCellClassificationContinuesThroughD4ToD6(t *testing.T) {
+	for _, version := range []string{"1.0.0-d3.fixture.1", "1.0.0-d4.candidate.1", "1.0.0-d5.candidate.1", "1.0.0-d6.candidate.1"} {
+		manifest := testManifest()
+		manifest.ReleaseVersion = version
+		if !isMinimumCellManifest(manifest) {
+			t.Fatalf("%s was not classified as a minimum complete Cell", version)
+		}
+		if _, err := New(manifest, "sha256:"+strings.Repeat("d", 64), testRequest(t.TempDir())); err == nil {
+			t.Fatalf("%s accepted without the inherited local BYOK provider", version)
+		}
+	}
+	manifest := testManifest()
+	manifest.ReleaseVersion = "1.0.0-d2.fixture.1"
+	if isMinimumCellManifest(manifest) {
+		t.Fatal("D2 was incorrectly classified as a minimum complete Cell")
+	}
+}
+
 func testManifest() *contract.Manifest {
 	componentIDs := append(append([]string(nil), requiredComponents...), minimumCellComponents...)
 	components := make([]contract.Component, 0, len(componentIDs))

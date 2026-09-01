@@ -101,11 +101,11 @@ func New(manifest *contract.Manifest, digest string, request Request) (*Installe
 	if request.EULADigest != manifest.Product.EULADigest {
 		return nil, errors.New("accepted EULA digest does not match manifest")
 	}
-	if isD3Manifest(manifest) && request.Provider == nil {
-		return nil, errors.New("D3 minimum Cell requires a local BYOK provider configuration")
+	if isMinimumCellManifest(manifest) && request.Provider == nil {
+		return nil, errors.New("minimum complete Cell requires a local BYOK provider configuration")
 	}
-	if !isD3Manifest(manifest) && request.Provider != nil {
-		return nil, errors.New("provider configuration is accepted only by a D3 minimum-Cell release")
+	if !isMinimumCellManifest(manifest) && request.Provider != nil {
+		return nil, errors.New("provider configuration is accepted only by a minimum complete Cell release")
 	}
 	images, err := componentImages(manifest)
 	if err != nil {
@@ -127,8 +127,13 @@ func New(manifest *contract.Manifest, digest string, request Request) (*Installe
 	return &Installer{Manifest: manifest, ManifestDigest: digest, Request: request, DockerBin: docker, TestMode: testMode, FakeRuntime: fakeRuntime}, nil
 }
 
-func isD3Manifest(manifest *contract.Manifest) bool {
-	return strings.Contains(manifest.ReleaseVersion, "-d3")
+func isMinimumCellManifest(manifest *contract.Manifest) bool {
+	for _, milestone := range []string{"-d3", "-d4", "-d5", "-d6"} {
+		if strings.Contains(manifest.ReleaseVersion, milestone) {
+			return true
+		}
+	}
+	return false
 }
 
 func (i *Installer) runtimeComponents() []string {
