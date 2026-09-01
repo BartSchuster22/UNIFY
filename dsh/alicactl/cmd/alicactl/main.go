@@ -12,18 +12,21 @@ import (
 	"github.com/alica-ltd/alica-community-dsh/alicactl/internal/contract"
 	"github.com/alica-ltd/alica-community-dsh/alicactl/internal/install"
 	"github.com/alica-ltd/alica-community-dsh/alicactl/internal/lifecycle"
+	"github.com/alica-ltd/alica-community-dsh/alicactl/internal/recovery"
 )
 
-const version = "1.0.0-d3"
+const version = "1.0.0-d4"
 
 type options struct {
-	manifest    string
-	signature   string
-	publicKey   string
-	root        string
-	observation string
-	request     string
-	json        bool
+	manifest       string
+	signature      string
+	publicKey      string
+	root           string
+	observation    string
+	request        string
+	backupID       string
+	syntheticAlert bool
+	json           bool
 }
 
 func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) }
@@ -41,7 +44,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		usage(stdout)
 		return 0
 	}
-	if args[0] != "preflight" && args[0] != "status" && args[0] != "verify" && args[0] != "plan" && args[0] != "install" {
+	if args[0] != "preflight" && args[0] != "status" && args[0] != "verify" && args[0] != "plan" && args[0] != "install" && args[0] != "backup" && args[0] != "restore" && args[0] != "restart" && args[0] != "operations-check" {
 		fmt.Fprintf(stderr, "alicactl: unknown command %q\n", args[0])
 		usage(stderr)
 		return 2
@@ -55,7 +58,9 @@ func run(args []string, stdout, stderr io.Writer) int {
 	flags.StringVar(&opts.publicKey, "public-key", "", "pinned Ed25519 trust key JSON")
 	flags.StringVar(&opts.root, "root", "/", "host root to inspect read-only")
 	flags.StringVar(&opts.observation, "observation", "", "deterministic observation fixture (test mode only)")
-	flags.StringVar(&opts.request, "request", "", "closed unified clean-install request JSON")
+	flags.StringVar(&opts.request, "request", "", "closed command request JSON")
+	flags.StringVar(&opts.backupID, "backup-id", "", "typed backup identity required for restore")
+	flags.BoolVar(&opts.syntheticAlert, "synthetic-alert", false, "deliver a synthetic operations alert (test mode only)")
 	flags.BoolVar(&opts.json, "json", false, "emit JSON report")
 	if err := flags.Parse(args[1:]); err != nil {
 		return 2
@@ -64,13 +69,64 @@ func run(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "alicactl: positional arguments are forbidden")
 		return 2
 	}
-	if (command == "plan" || command == "install") && opts.request == "" {
-		fmt.Fprintln(stderr, "alicactl: --request is required for plan and install")
+	installationCommand := command == "plan" || command == "install"
+	recoveryCommand := command == "backup" || command == "restore" || command == "restart" || command == "operations-check"
+	if (installationCommand || recoveryCommand) && opts.request == "" {
+		fmt.Fprintln(stderr, "alicactl: --request is required for this command")
 		return 2
 	}
-	if command != "plan" && command != "install" && opts.request != "" {
-		fmt.Fprintln(stderr, "alicactl: --request is accepted only by plan and install")
+	if !installationCommand && !recoveryCommand && opts.request != "" {
+		fmt.Fprintln(stderr, "alicactl: --request is not accepted by this command")
 		return 2
+	}
+	if !recoveryCommand && (opts.backupID != "" || opts.syntheticAlert) {
+		fmt.Fprintln(stderr, "alicactl: recovery flags are not accepted by this command")
+		return 2
+	}
+	if recoveryCommand && command != "restore" && opts.backupID != "" {
+		fmt.Fprintln(stderr, "alicactl: --backup-id is accepted only by restore")
+		return 2
+	}
+	if recoveryCommand && command != "operations-check" && opts.syntheticAlert {
+		fmt.Fprintln(stderr, "alicactl: --synthetic-alert is accepted only by operations-check")
+		return 2
+	}
+	if recoveryCommand {
+		request, requestErr := recovery.LoadRequest(opts.request)
+		if requestErr != nil {
+			fmt.Fprintf(stderr, "alicactl: request rejected: %v\n", requestErr)
+			return 2
+		}
+		if opts.backupID != "" {
+			request.BackupID = opts.backupID
+		}
+		manager, managerErr := recovery.New(request)
+		if managerErr != nil {
+			fmt.Fprintf(stderr, "alicactl: operations rejected: %v\n", managerErr)
+			return 2
+		}
+		var value any
+		switch command {
+		case "backup":
+			value, managerErr = manager.Backup()
+		case "restore":
+			value, managerErr = manager.Restore()
+		case "restart":
+			value, managerErr = manager.Restart()
+		case "operations-check":
+			if opts.syntheticAlert && os.Getenv("ALICACTL_OPERATIONS_TEST_MODE") != "1" {
+				fmt.Fprintln(stderr, "alicactl: synthetic alert is test-mode-only")
+				return 2
+			}
+			value, managerErr = manager.OperationsCheck(opts.syntheticAlert)
+		}
+		if managerErr != nil {
+			fmt.Fprintf(stderr, "alicactl: %s failed: %v\n", command, managerErr)
+			return 3
+		}
+		encoded, _ := json.MarshalIndent(value, "", "  ")
+		fmt.Fprintln(stdout, string(encoded))
+		return 0
 	}
 	if err := validateOptions(opts); err != nil {
 		fmt.Fprintf(stderr, "alicactl: %v\n", err)
@@ -81,7 +137,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "alicactl: manifest trust rejected: %v\n", err)
 		return 2
 	}
-	if command == "plan" || command == "install" {
+	if installationCommand {
 		request, requestErr := install.LoadRequest(opts.request)
 		if requestErr != nil {
 			fmt.Fprintf(stderr, "alicactl: request rejected: %v\n", requestErr)
@@ -169,6 +225,10 @@ func usage(writer io.Writer) {
   alicactl verify    --manifest FILE --signature FILE --public-key FILE [--root /] [--json]
   alicactl plan      --manifest FILE --signature FILE --public-key FILE --request FILE
   alicactl install   --manifest FILE --signature FILE --public-key FILE --request FILE
+  alicactl backup    --request RECOVERY.json
+  alicactl restore   --request RECOVERY.json --backup-id bak_UUID7
+  alicactl restart   --request RECOVERY.json
+  alicactl operations-check --request RECOVERY.json [--synthetic-alert]
 
-D1 inspection commands remain strictly read-only. D2 plan is read-only; D2 install is the single transactional clean-install writer. --observation is accepted only when ALICACTL_TEST_MODE=1.`)
+D1 inspection commands remain strictly read-only. D2 install owns clean installation. D4 owns coordinated encrypted backup, isolated restore, restart verification and bounded operations alerts. --observation and --synthetic-alert are test-mode-only.`)
 }

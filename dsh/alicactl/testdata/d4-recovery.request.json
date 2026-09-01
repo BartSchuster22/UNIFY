@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "alica-recovery-operations/v1",
+  "cellId": "ins_0199a000-1000-7a11-8c21-4f5d6e7a8b94",
+  "installationRoot": "/tmp/alica-d4-fixture-cell",
+  "project": "alica-d4-fixture",
+  "encryptionKeyFile": "/tmp/alica-d4-fixture-secrets/backup-key",
+  "localRepository": "/tmp/alica-d4-fixture-repository",
+  "s3": {
+    "endpoint": "https://s3.invalid",
+    "region": "eu-west-1",
+    "bucket": "alica-d4-fixture",
+    "prefix": "cells/fixture",
+    "accessKeyFile": "/tmp/alica-d4-fixture-secrets/s3-access-key",
+    "secretAccessKeyFile": "/tmp/alica-d4-fixture-secrets/s3-secret-key"
+  },
+  "operations": {
+    "webhookUrl": "https://alerts.invalid/alica",
+    "canaryUrl": "https://localhost/healthz",
+    "backupMaxAgeSeconds": 90000,
+    "minimumFreeDiskBytes": 21474836480,
+    "certificateWarnSeconds": 2592000
+  }
+}

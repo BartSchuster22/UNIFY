@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.alica.invalid/alica-recovery-operations-v1.schema.json",
+  "title": "ALICA D4 recovery and operations request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "cellId",
+    "installationRoot",
+    "project",
+    "encryptionKeyFile",
+    "localRepository",
+    "s3",
+    "operations"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "alica-recovery-operations/v1" },
+    "cellId": {
+      "type": "string",
+      "pattern": "^ins_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "installationRoot": { "$ref": "#/$defs/absolutePath" },
+    "project": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,62}$" },
+    "encryptionKeyFile": { "$ref": "#/$defs/absolutePath" },
+    "localRepository": { "$ref": "#/$defs/absolutePath" },
+    "s3": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "endpoint",
+        "region",
+        "bucket",
+        "prefix",
+        "accessKeyFile",
+        "secretAccessKeyFile"
+      ],
+      "properties": {
+        "endpoint": { "type": "string", "format": "uri", "pattern": "^https://" },
+        "region": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "bucket": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]{1,62}$" },
+        "prefix": { "type": "string", "pattern": "^[A-Za-z0-9._/-]{0,256}$" },
+        "accessKeyFile": { "$ref": "#/$defs/absolutePath" },
+        "secretAccessKeyFile": { "$ref": "#/$defs/absolutePath" }
+      }
+    },
+    "operations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "webhookUrl",
+        "canaryUrl",
+        "backupMaxAgeSeconds",
+        "minimumFreeDiskBytes",
+        "certificateWarnSeconds"
+      ],
+      "properties": {
+        "webhookUrl": { "type": "string", "format": "uri", "pattern": "^https://" },
+        "canaryUrl": { "type": "string", "format": "uri", "pattern": "^https://" },
+        "backupMaxAgeSeconds": { "type": "integer", "minimum": 60 },
+        "minimumFreeDiskBytes": { "type": "integer", "minimum": 1 },
+        "certificateWarnSeconds": { "type": "integer", "minimum": 60 }
+      }
+    },
+    "backupId": {
+      "type": "string",
+      "pattern": "^bak_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    }
+  },
+  "$defs": {
+    "absolutePath": { "type": "string", "pattern": "^/", "minLength": 2, "maxLength": 4096 }
+  }
+}

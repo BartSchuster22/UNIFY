@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.alica.invalid/alica-backup-manifest-v1.schema.json",
+  "title": "ALICA coordinated encrypted backup manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "backupId",
+    "cellId",
+    "releaseId",
+    "releaseManifestDigest",
+    "createdAt",
+    "consistency",
+    "encryption",
+    "archiveDigest",
+    "encryptedObjectDigest",
+    "encryptedBytes",
+    "dataUnits",
+    "rpoSeconds",
+    "quiesceMilliseconds",
+    "manifestMac"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "alica-backup-manifest/v1" },
+    "backupId": { "$ref": "#/$defs/backupId" },
+    "cellId": { "$ref": "#/$defs/cellId" },
+    "releaseId": { "$ref": "#/$defs/releaseId" },
+    "releaseManifestDigest": { "$ref": "#/$defs/digest" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "consistency": { "const": "coordinated-cold" },
+    "encryption": { "const": "aes-256-gcm-chunked/v1" },
+    "archiveDigest": { "$ref": "#/$defs/digest" },
+    "encryptedObjectDigest": { "$ref": "#/$defs/digest" },
+    "encryptedBytes": { "type": "integer", "minimum": 1 },
+    "dataUnits": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "digest", "bytes"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,62}$" },
+          "kind": { "enum": ["installation-root", "docker-volume"] },
+          "digest": { "$ref": "#/$defs/digest" },
+          "bytes": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "rpoSeconds": { "type": "integer", "minimum": 0 },
+    "quiesceMilliseconds": { "type": "integer", "minimum": 0 },
+    "manifestMac": { "type": "string", "pattern": "^hmac-sha256:[a-f0-9]{64}$" }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "backupId": {
+      "type": "string",
+      "pattern": "^bak_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "cellId": {
+      "type": "string",
+      "pattern": "^ins_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "releaseId": {
+      "type": "string",
+      "pattern": "^rel_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    }
+  }
+}

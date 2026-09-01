@@ -201,7 +201,8 @@ const productionSources = [
     (path) =>
       path.endsWith('.go') &&
       !path.endsWith('_test.go') &&
-      !path.includes(`${sep}internal${sep}install${sep}`),
+      !path.includes(`${sep}internal${sep}install${sep}`) &&
+      !path.includes(`${sep}internal${sep}recovery${sep}`),
   ),
 ];
 const productionText = productionSources.map((path) => readFileSync(path, 'utf8')).join('\n');
