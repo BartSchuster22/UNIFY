@@ -205,9 +205,58 @@ func TestWriteAtomicEnforcesRequestedModeAfterUmask(t *testing.T) {
 	}
 }
 
+func TestD3MinimumCellRequiresBYOKAndStagesGovernedComponents(t *testing.T) {
+	fixture := t.TempDir()
+	credential := filepath.Join(fixture, "provider-api-key")
+	if err := os.WriteFile(credential, []byte("test-provider-key\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	manifest := testManifest()
+	manifest.ReleaseVersion = "1.0.0-d3.fixture.1"
+	request := testRequest(filepath.Join(fixture, "cell"))
+	request.Provider = &ProviderConfig{Mode: "byok", ProviderID: "openai-compatible", BaseURL: "https://provider.invalid/v1", CredentialFile: credential}
+	t.Setenv("ALICACTL_INSTALL_TEST_MODE", "1")
+	t.Setenv("ALICACTL_INSTALL_FAKE_RUNTIME", "1")
+	t.Setenv("ALICACTL_DOCKER_BIN", fakeDocker(t, fixture, false))
+	installer, err := New(manifest, "sha256:"+strings.Repeat("d", 64), request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := installer.Install()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(result.Components) != 10 {
+		t.Fatalf("D3 component count = %d, want 10", len(result.Components))
+	}
+	root := request.InstallationRoot
+	for _, name := range []string{"release/ainba-anchor.mjs", "release/doghouse-node.mjs", "release/provider-config.json", "release/secrets/provider-api-key"} {
+		if _, err := os.Stat(filepath.Join(root, name)); err != nil {
+			t.Fatalf("missing %s: %v", name, err)
+		}
+	}
+	compose, _ := os.ReadFile(filepath.Join(root, "release/compose.yaml"))
+	if strings.Contains(string(compose), "docker.sock") || !strings.Contains(string(compose), "com.alica.mode: report-only") || !strings.Contains(string(compose), "profiles: [minimum-cell]") {
+		t.Fatal("D3 compose does not enforce report-only governed services")
+	}
+	provider, _ := os.ReadFile(filepath.Join(root, "release/provider-config.json"))
+	if strings.Contains(string(provider), "test-provider-key") {
+		t.Fatal("BYOK credential leaked into provider configuration")
+	}
+}
+
+func TestD3ManifestRejectsMissingProvider(t *testing.T) {
+	manifest := testManifest()
+	manifest.ReleaseVersion = "1.0.0-d3.fixture.1"
+	if _, err := New(manifest, "sha256:"+strings.Repeat("d", 64), testRequest(t.TempDir())); err == nil {
+		t.Fatal("D3 manifest accepted without local BYOK provider")
+	}
+}
+
 func testManifest() *contract.Manifest {
-	components := make([]contract.Component, 0, len(requiredComponents))
-	for _, id := range requiredComponents {
+	componentIDs := append(append([]string(nil), requiredComponents...), minimumCellComponents...)
+	components := make([]contract.Component, 0, len(componentIDs))
+	for _, id := range componentIDs {
 		components = append(components, contract.Component{ComponentID: id, Artifact: "oci://registry.example/alica/" + id + "@sha256:" + strings.Repeat("1", 64)})
 	}
 	return &contract.Manifest{ReleaseID: "rel_0198f3c0-7b00-7a11-8c21-4f5d6e7a8b90", Installable: true, Product: contract.ProductBinding{ProductID: "com.alica.community-dsh", Profile: "dsh-minimal/v1", EULADigest: "sha256:" + strings.Repeat("e", 64)}, Components: components}
@@ -231,7 +280,7 @@ if [ "$1" = version ]; then echo 28.4.0; exit 0; fi
 if [ "$1" = image ] && [ "$2" = inspect ]; then echo sha256:` + strings.Repeat("1", 64) + `; exit 0; fi
 if [ "` + failure + `" = 1 ] && [ "$1" = compose ] && printf '%s' "$*" | grep -q 'up -d --wait postgresql'; then echo injected >&2; exit 9; fi
 if [ "$1" = compose ] && printf '%s' "$*" | grep -q 'ps --services --status running'; then
-  printf '%s\n' alica caddy herman keycloak memory-v4 postgresql unify-core uniui
+  printf '%s\n' ainba-anchor alica caddy doghouse-node herman keycloak memory-v4 postgresql unify-core uniui
 fi
 exit 0
 `

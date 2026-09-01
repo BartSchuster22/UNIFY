@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -24,23 +25,32 @@ import (
 	"github.com/alica-ltd/alica-community-dsh/alicactl/internal/lifecycle"
 )
 
-//go:embed assets/compose.yaml
+//go:embed assets/*
 var assets embed.FS
 
 const maxRequestBytes = 64 * 1024
 
 var requiredComponents = []string{"alica-runtime", "caddy", "herman-runtime", "keycloak", "memory-v4", "postgresql", "unify-core", "uniui"}
+var minimumCellComponents = []string{"ainba-anchor", "doghouse-node"}
+
+type ProviderConfig struct {
+	Mode           string `json:"mode"`
+	ProviderID     string `json:"providerId"`
+	BaseURL        string `json:"baseUrl"`
+	CredentialFile string `json:"credentialFile"`
+}
 
 type Request struct {
-	SchemaVersion    string `json:"schemaVersion"`
-	CellID           string `json:"cellId"`
-	InstallationRoot string `json:"installationRoot"`
-	PublicHost       string `json:"publicHost"`
-	PublicOrigin     string `json:"publicOrigin"`
-	Project          string `json:"project"`
-	AdminUsername    string `json:"adminUsername"`
-	EULADigest       string `json:"eulaDigest"`
-	EULAAccepted     bool   `json:"eulaAccepted"`
+	SchemaVersion    string          `json:"schemaVersion"`
+	CellID           string          `json:"cellId"`
+	InstallationRoot string          `json:"installationRoot"`
+	PublicHost       string          `json:"publicHost"`
+	PublicOrigin     string          `json:"publicOrigin"`
+	Project          string          `json:"project"`
+	AdminUsername    string          `json:"adminUsername"`
+	EULADigest       string          `json:"eulaDigest"`
+	EULAAccepted     bool            `json:"eulaAccepted"`
+	Provider         *ProviderConfig `json:"provider,omitempty"`
 }
 
 type Result struct {
@@ -91,6 +101,12 @@ func New(manifest *contract.Manifest, digest string, request Request) (*Installe
 	if request.EULADigest != manifest.Product.EULADigest {
 		return nil, errors.New("accepted EULA digest does not match manifest")
 	}
+	if isD3Manifest(manifest) && request.Provider == nil {
+		return nil, errors.New("D3 minimum Cell requires a local BYOK provider configuration")
+	}
+	if !isD3Manifest(manifest) && request.Provider != nil {
+		return nil, errors.New("provider configuration is accepted only by a D3 minimum-Cell release")
+	}
 	images, err := componentImages(manifest)
 	if err != nil {
 		return nil, err
@@ -109,6 +125,18 @@ func New(manifest *contract.Manifest, digest string, request Request) (*Installe
 		return nil, errors.New("fake runtime is permitted only in explicit install test mode")
 	}
 	return &Installer{Manifest: manifest, ManifestDigest: digest, Request: request, DockerBin: docker, TestMode: testMode, FakeRuntime: fakeRuntime}, nil
+}
+
+func isD3Manifest(manifest *contract.Manifest) bool {
+	return strings.Contains(manifest.ReleaseVersion, "-d3")
+}
+
+func (i *Installer) runtimeComponents() []string {
+	components := append([]string(nil), requiredComponents...)
+	if i.Request.Provider != nil {
+		components = append(components, minimumCellComponents...)
+	}
+	return components
 }
 
 func (i *Installer) Plan() (Result, error) {
@@ -354,6 +382,23 @@ func (i *Installer) stageRelease() error {
 		"CADDY_IMAGE": images["caddy"], "UNIUI_IMAGE": images["uniui"], "UNIFY_CORE_IMAGE": images["unify-core"], "KEYCLOAK_IMAGE": images["keycloak"],
 		"POSTGRESQL_IMAGE": images["postgresql"], "ALICA_RUNTIME_IMAGE": images["alica-runtime"], "HERMAN_RUNTIME_IMAGE": images["herman-runtime"], "MEMORY_V4_IMAGE": images["memory-v4"],
 	}
+	if i.Request.Provider != nil {
+		env["AINBA_ANCHOR_IMAGE"] = images["ainba-anchor"]
+		env["DOGHOUSE_NODE_IMAGE"] = images["doghouse-node"]
+		for _, name := range []string{"ainba-anchor.mjs", "doghouse-node.mjs"} {
+			content, err := assets.ReadFile("assets/" + name)
+			if err != nil {
+				return err
+			}
+			if err := writeAtomic(filepath.Join(i.stage, name), content, 0o444); err != nil {
+				return err
+			}
+		}
+		provider := map[string]string{"mode": i.Request.Provider.Mode, "providerId": i.Request.Provider.ProviderID, "baseUrl": i.Request.Provider.BaseURL, "credentialReference": "secret://cell/provider-api-key"}
+		if err := writeJSONAtomic(filepath.Join(i.stage, "provider-config.json"), provider, 0o444); err != nil {
+			return err
+		}
+	}
 	if value := os.Getenv("ALICACTL_HTTP_PORT"); i.TestMode && value != "" {
 		env["ALICA_HTTP_PORT"] = value
 	}
@@ -390,6 +435,9 @@ func (i *Installer) stageRelease() error {
 
 func (i *Installer) prepareSecrets() (map[string]string, error) {
 	names := []string{"postgres-password", "keycloak-database-password", "keycloak-admin-password", "alica-database-password", "herman-database-password", "auth-pepper", "bootstrap-admin-password", "memory-v4-token", "alica-api-token", "herman-api-token", "alica-token", "herman-token"}
+	if i.Request.Provider != nil {
+		names = append(names, "ainba-control-token")
+	}
 	values := map[string]string{}
 	for _, name := range names {
 		value, err := randomSecret(36)
@@ -406,6 +454,16 @@ func (i *Installer) prepareSecrets() (map[string]string, error) {
 	values["herman-database-url"] = "postgresql://unify_herman_adapter:" + values["herman-database-password"] + "@postgresql:5432/unify"
 	for _, name := range []string{"core-database-url", "alica-database-url", "herman-database-url"} {
 		if err := writeAtomic(filepath.Join(i.stage, "secrets", name), []byte(values[name]+"\n"), 0o444); err != nil {
+			return nil, err
+		}
+	}
+	if i.Request.Provider != nil {
+		credential, err := readProviderCredential(i.Request.Provider.CredentialFile, i.TestMode)
+		if err != nil {
+			return nil, err
+		}
+		values["provider-api-key"] = credential
+		if err := writeAtomic(filepath.Join(i.stage, "secrets", "provider-api-key"), []byte(credential+"\n"), 0o444); err != nil {
 			return nil, err
 		}
 	}
@@ -453,7 +511,7 @@ func (i *Installer) prepareTLS() error {
 
 func (i *Installer) activate() error {
 	images, _ := componentImages(i.Manifest)
-	keys := append([]string(nil), requiredComponents...)
+	keys := i.runtimeComponents()
 	sort.Strings(keys)
 	for _, key := range keys {
 		if _, err := i.docker("image", "inspect", images[key], "--format", "{{.Id}}"); err != nil {
@@ -474,7 +532,11 @@ func (i *Installer) activate() error {
 	if _, err := i.compose("--profile", "jobs", "run", "--rm", "bootstrap-admin"); err != nil {
 		return err
 	}
-	if _, err := i.compose("up", "-d", "--wait"); err != nil {
+	args := []string{"up", "-d", "--wait"}
+	if i.Request.Provider != nil {
+		args = append([]string{"--profile", "minimum-cell"}, args...)
+	}
+	if _, err := i.compose(args...); err != nil {
 		return err
 	}
 	return nil
@@ -489,7 +551,11 @@ func (i *Installer) verifyRuntime() error {
 	for _, service := range strings.Fields(output) {
 		seen[service] = true
 	}
-	for _, service := range []string{"alica", "caddy", "herman", "keycloak", "memory-v4", "postgresql", "unify-core", "uniui"} {
+	services := []string{"alica", "caddy", "herman", "keycloak", "memory-v4", "postgresql", "unify-core", "uniui"}
+	if i.Request.Provider != nil {
+		services = append(services, "ainba-anchor", "doghouse-node")
+	}
+	for _, service := range services {
 		if !seen[service] {
 			return fmt.Errorf("required service %s is not running", service)
 		}
@@ -722,7 +788,7 @@ func (i *Installer) acceptedState() (lifecycle.LifecycleState, bool) {
 }
 
 func (i *Installer) result(mode string, changed bool) Result {
-	return Result{SchemaVersion: "alica-install-result/v1", Mode: mode, Status: "PASS", Changed: changed, CellID: i.Request.CellID, ReleaseID: i.Manifest.ReleaseID, ManifestDigest: i.ManifestDigest, Components: append([]string(nil), requiredComponents...), Mutation: changed}
+	return Result{SchemaVersion: "alica-install-result/v1", Mode: mode, Status: "PASS", Changed: changed, CellID: i.Request.CellID, ReleaseID: i.Manifest.ReleaseID, ManifestDigest: i.ManifestDigest, Components: i.runtimeComponents(), Mutation: changed}
 }
 
 func validateRequest(r Request) error {
@@ -741,7 +807,44 @@ func validateRequest(r Request) error {
 	if r.Project == "" || strings.ContainsAny(r.Project, " ./") || r.AdminUsername == "" {
 		return errors.New("invalid project or administrator username")
 	}
+	if r.Provider != nil {
+		if r.Provider.Mode != "byok" || r.Provider.ProviderID == "" || len(r.Provider.ProviderID) > 63 || strings.ContainsAny(r.Provider.ProviderID, " /\\") {
+			return errors.New("invalid local BYOK provider identity or mode")
+		}
+		parsed, err := url.Parse(r.Provider.BaseURL)
+		if err != nil || parsed.Scheme != "https" || parsed.Host == "" || parsed.User != nil || parsed.RawQuery != "" || parsed.Fragment != "" {
+			return errors.New("BYOK provider base URL must be an uncredentialed HTTPS origin/path")
+		}
+		if !filepath.IsAbs(r.Provider.CredentialFile) || filepath.Clean(r.Provider.CredentialFile) != r.Provider.CredentialFile {
+			return errors.New("BYOK credential file must be a clean absolute path")
+		}
+	}
 	return nil
+}
+
+func readProviderCredential(path string, testMode bool) (string, error) {
+	info, err := os.Lstat(path)
+	if err != nil {
+		return "", fmt.Errorf("BYOK credential file: %w", err)
+	}
+	if !info.Mode().IsRegular() || info.Mode().Perm()&0o077 != 0 {
+		return "", errors.New("BYOK credential file must be regular and inaccessible to group/other")
+	}
+	if !testMode {
+		stat, ok := info.Sys().(*syscall.Stat_t)
+		if !ok || stat.Uid != 0 {
+			return "", errors.New("BYOK credential file must be owned by root")
+		}
+	}
+	raw, err := os.ReadFile(path)
+	if err != nil || len(raw) == 0 || len(raw) > 16*1024 {
+		return "", errors.New("BYOK credential file must contain 1..16384 bytes")
+	}
+	value := strings.TrimSpace(string(raw))
+	if value == "" || strings.ContainsAny(value, "\r\n") {
+		return "", errors.New("BYOK credential must be one non-empty line")
+	}
+	return value, nil
 }
 
 func componentImages(manifest *contract.Manifest) (map[string]string, error) {
@@ -752,6 +855,11 @@ func componentImages(manifest *contract.Manifest) (map[string]string, error) {
 	for _, required := range requiredComponents {
 		if images[required] == "" {
 			return nil, fmt.Errorf("manifest is missing required D2 component %s", required)
+		}
+	}
+	for _, required := range minimumCellComponents {
+		if images[required] == "" {
+			return nil, fmt.Errorf("manifest is missing required D3 component %s", required)
 		}
 	}
 	return images, nil

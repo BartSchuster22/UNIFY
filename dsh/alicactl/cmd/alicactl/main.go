@@ -14,7 +14,7 @@ import (
 	"github.com/alica-ltd/alica-community-dsh/alicactl/internal/lifecycle"
 )
 
-const version = "1.0.0-d2"
+const version = "1.0.0-d3"
 
 type options struct {
 	manifest    string

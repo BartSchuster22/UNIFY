@@ -27,6 +27,17 @@
     "project": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$" },
     "adminUsername": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$" },
     "eulaDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
-    "eulaAccepted": { "const": true }
+    "eulaAccepted": { "const": true },
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "providerId", "baseUrl", "credentialFile"],
+      "properties": {
+        "mode": { "const": "byok" },
+        "providerId": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,62}$" },
+        "baseUrl": { "type": "string", "pattern": "^https://[^?#]+$" },
+        "credentialFile": { "type": "string", "pattern": "^/(?:[A-Za-z0-9._-]+/?)+$" }
+      }
+    }
   }
 }

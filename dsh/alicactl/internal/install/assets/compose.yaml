@@ -328,6 +328,66 @@ services:
       com.alica.component.id: uniui
       com.alica.authority: uniui
 
+  ainba-anchor:
+    profiles: [minimum-cell]
+    image: ${AINBA_ANCHOR_IMAGE}
+    <<: *alica-runtime
+    user: '0:0'
+    command: [node, /opt/alica/ainba-anchor.mjs]
+    environment:
+      NODE_ENV: production
+    volumes:
+      - ./ainba-anchor.mjs:/opt/alica/ainba-anchor.mjs:ro
+      - ./provider-config.json:/opt/alica/provider-config.json:ro
+      - ./secrets/ainba-control-token:/run/secrets/ainba-control-token:ro
+      - ./secrets/provider-api-key:/run/secrets/provider-api-key:ro
+      - ainba-data:/var/lib/ainba
+    tmpfs: ['/tmp:rw,noexec,nosuid,nodev,size=16m,mode=1777']
+    networks: [application]
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:8787/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 3s
+    labels:
+      com.alica.cell.id: ${ALICA_CELL_ID}
+      com.alica.release.id: ${ALICA_RELEASE_ID}
+      com.alica.managed: 'true'
+      com.alica.component.id: ainba-anchor
+      com.alica.authority: ainba
+      com.alica.lifecycle: cell-governed
+
+  doghouse-node:
+    profiles: [minimum-cell]
+    image: ${DOGHOUSE_NODE_IMAGE}
+    <<: *alica-runtime
+    user: '0:0'
+    command: [node, /opt/alica/doghouse-node.mjs]
+    environment:
+      NODE_ENV: production
+      DOGHOUSE_TARGETS: '[{"id":"ainba-anchor","url":"http://ainba-anchor:8787/health"}]'
+    volumes:
+      - ./doghouse-node.mjs:/opt/alica/doghouse-node.mjs:ro
+      - doghouse-state:/var/lib/doghouse
+    tmpfs: ['/tmp:rw,noexec,nosuid,nodev,size=16m,mode=1777']
+    networks: [application]
+    depends_on:
+      ainba-anchor: { condition: service_healthy }
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:8790/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 3s
+    labels:
+      com.alica.cell.id: ${ALICA_CELL_ID}
+      com.alica.release.id: ${ALICA_RELEASE_ID}
+      com.alica.managed: 'true'
+      com.alica.component.id: doghouse-node
+      com.alica.authority: doghouse
+      com.alica.mode: report-only
+
   caddy:
     image: ${CADDY_IMAGE}
     <<: *alica-runtime
@@ -403,6 +463,20 @@ volumes:
         com.alica.cell.id: '${ALICA_CELL_ID}',
         com.alica.volume.id: herman-data,
         com.alica.authority: herman,
+      }
+  ainba-data:
+    labels:
+      {
+        com.alica.cell.id: '${ALICA_CELL_ID}',
+        com.alica.volume.id: ainba-data,
+        com.alica.authority: ainba,
+      }
+  doghouse-state:
+    labels:
+      {
+        com.alica.cell.id: '${ALICA_CELL_ID}',
+        com.alica.volume.id: doghouse-state,
+        com.alica.authority: doghouse,
       }
   caddy-data:
     labels:
