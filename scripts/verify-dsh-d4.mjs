@@ -46,7 +46,8 @@ for (const binary of [binaryA, binaryB])
   });
 if (hash(binaryA) !== hash(binaryB)) fail('binary is not reproducible');
 const version = run(binaryA, ['version']).stdout.trim();
-if (version !== 'alicactl 1.0.0-d4' && version !== 'alicactl 1.0.0-d5') fail('D4-capable version absent');
+if (version !== 'alicactl 1.0.0-d4' && version !== 'alicactl 1.0.0-d5')
+  fail('D4-capable version absent');
 const source = readFileSync(join(moduleRoot, 'internal/recovery/recovery.go'), 'utf8');
 for (const required of [
   'aes-256-gcm-chunked/v1',
