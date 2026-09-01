@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "alica-clean-install/v1",
+  "cellId": "ins_0199a000-1000-7a11-8c21-4f5d6e7a8b94",
+  "installationRoot": "/tmp/alica-d3-fixture-cell",
+  "publicHost": "localhost",
+  "publicOrigin": "https://localhost",
+  "project": "alica-d3-fixture",
+  "adminUsername": "admin",
+  "eulaDigest": "sha256:3b172e3850816750ff7b5a7d6d4b9f311f5c745159e201f42fea647c4dad1f3c",
+  "eulaAccepted": true,
+  "provider": {
+    "mode": "byok",
+    "providerId": "openai-compatible",
+    "baseUrl": "https://provider.invalid/v1",
+    "credentialFile": "/tmp/alica-d3-provider-api-key"
+  }
+}

@@ -23,6 +23,8 @@
     "dsh:d1:verify": "node scripts/verify-dsh-d1.mjs",
     "dsh:d2:fixture:generate": "python3 scripts/generate-dsh-d2-fixture.py",
     "dsh:d2:verify": "node scripts/verify-dsh-d2.mjs",
+    "dsh:d3:fixture:generate": "python3 scripts/generate-dsh-d3-fixture.py",
+    "dsh:d3:verify": "node scripts/verify-dsh-d3.mjs",
     "typecheck": "pnpm --filter @aquiero/contracts build && pnpm -r --workspace-concurrency=1 --if-present typecheck",
     "test": "pnpm -r --workspace-concurrency=1 --if-present test && vitest run scripts/framework-rollout-worker.test.mjs && python3 -m unittest discover -s integrations/hermes/unify-memory/tests -p 'test_*.py'",
     "lint": "eslint . && node scripts/check-boundaries.mjs && node scripts/check-standalone-runtime.mjs && node scripts/verify-production-images.mjs --static && node scripts/verify-hermes-combined-image.mjs && node scripts/verify-five-service-compose.mjs && node scripts/verify-unify-web-compose.mjs && node scripts/validate-five-service-installation.mjs deploy/five-service/installation-inputs.example.json && node scripts/verify-five-service-installer.mjs && node scripts/verify-alica-identity-shadow.mjs",
@@ -100,7 +102,7 @@
     "standalone:check": "node scripts/check-standalone-runtime.mjs",
     "image:check": "node scripts/verify-production-images.mjs --static",
     "image:verify": "node scripts/verify-production-images.mjs",
-    "qa": "pnpm dsh:d0:verify && pnpm dsh:d1:verify && pnpm dsh:d2:verify && pnpm lint && pnpm typecheck && pnpm five-service:hermes-phase3:verify && pnpm five-service:hermes-phase4:verify && pnpm five-service:hermes-phase5:verify && pnpm five-service:hermes-phase6:verify && pnpm five-service:hermes-phase7:verify && pnpm five-service:hermes-phase8:verify && pnpm five-service:hermes-phase9:verify && pnpm five-service:hermes-phase10:verify && pnpm test && pnpm build && pnpm contracts:check && pnpm standalone:check && pnpm backup:prune:self-test && pnpm identity:capacity:self-test && pnpm identity-tenancy:phase1:verify && pnpm identity-tenancy:phase11:migration:verify && pnpm identity-tenancy:phase11:shadow:verify && pnpm identity-tenancy:phase11:live:verify && pnpm canary:self-test && pnpm format:check",
+    "qa": "pnpm dsh:d0:verify && pnpm dsh:d1:verify && pnpm dsh:d2:verify && pnpm dsh:d3:verify && pnpm lint && pnpm typecheck && pnpm five-service:hermes-phase3:verify && pnpm five-service:hermes-phase4:verify && pnpm five-service:hermes-phase5:verify && pnpm five-service:hermes-phase6:verify && pnpm five-service:hermes-phase7:verify && pnpm five-service:hermes-phase8:verify && pnpm five-service:hermes-phase9:verify && pnpm five-service:hermes-phase10:verify && pnpm test && pnpm build && pnpm contracts:check && pnpm standalone:check && pnpm backup:prune:self-test && pnpm identity:capacity:self-test && pnpm identity-tenancy:phase1:verify && pnpm identity-tenancy:phase11:migration:verify && pnpm identity-tenancy:phase11:shadow:verify && pnpm identity-tenancy:phase11:live:verify && pnpm canary:self-test && pnpm format:check",
     "clean": "pnpm -r --if-present clean"
   },
   "devDependencies": {

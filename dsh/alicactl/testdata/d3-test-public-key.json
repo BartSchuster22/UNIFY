@@ -1,0 +1,6 @@
+{
+  "schemaVersion": "alica-trust-key/v1",
+  "algorithm": "ed25519",
+  "keyId": "d3-fixture-ed25519-2026",
+  "publicKey": "X30MmzBIzO5K8auL0GybAuPor5eAoAJ50iNnQd9JUG8="
+}
