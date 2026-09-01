@@ -211,7 +211,7 @@ func (m *Manager) Backup() (result Result, err error) {
 	}
 	started := time.Now()
 	stopped := false
-	if _, err = m.compose("stop", "--timeout", "60"); err != nil {
+	if _, err = m.compose("--profile", "minimum-cell", "stop", "--timeout", "60"); err != nil {
 		return result, err
 	}
 	stopped = true
