@@ -333,7 +333,8 @@ services:
     image: ${AINBA_ANCHOR_IMAGE}
     <<: *alica-runtime
     user: '0:0'
-    command: [node, /opt/alica/ainba-anchor.mjs]
+    entrypoint: [/nodejs/bin/node]
+    command: [/opt/alica/ainba-anchor.mjs]
     environment:
       NODE_ENV: production
     volumes:
@@ -345,7 +346,7 @@ services:
     tmpfs: ['/tmp:rw,noexec,nosuid,nodev,size=16m,mode=1777']
     networks: [application]
     healthcheck:
-      test: [CMD, node, -e, "fetch('http://127.0.0.1:8787/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      test: [CMD, /nodejs/bin/node, -e, "fetch('http://127.0.0.1:8787/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
       interval: 5s
       timeout: 3s
       retries: 30
@@ -363,7 +364,8 @@ services:
     image: ${DOGHOUSE_NODE_IMAGE}
     <<: *alica-runtime
     user: '0:0'
-    command: [node, /opt/alica/doghouse-node.mjs]
+    entrypoint: [/nodejs/bin/node]
+    command: [/opt/alica/doghouse-node.mjs]
     environment:
       NODE_ENV: production
       DOGHOUSE_TARGETS: '[{"id":"ainba-anchor","url":"http://ainba-anchor:8787/health"}]'
@@ -375,7 +377,7 @@ services:
     depends_on:
       ainba-anchor: { condition: service_healthy }
     healthcheck:
-      test: [CMD, node, -e, "fetch('http://127.0.0.1:8790/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      test: [CMD, /nodejs/bin/node, -e, "fetch('http://127.0.0.1:8790/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
       interval: 5s
       timeout: 3s
       retries: 30

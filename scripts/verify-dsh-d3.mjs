@@ -93,7 +93,9 @@ const compose = readFileSync(join(release, 'compose.yaml'), 'utf8');
 if (
   compose.includes('docker.sock') ||
   !compose.includes('com.alica.mode: report-only') ||
-  !compose.includes('profiles: [minimum-cell]')
+  !compose.includes('profiles: [minimum-cell]') ||
+  (compose.match(/entrypoint: \[\/nodejs\/bin\/node\]/g) ?? []).length !== 2 ||
+  (compose.match(/test: \[CMD, \/nodejs\/bin\/node/g) ?? []).length !== 2
 )
   fail('governed service constraints absent');
 const publicMaterial = [
