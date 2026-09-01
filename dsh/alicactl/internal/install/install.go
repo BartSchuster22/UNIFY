@@ -383,7 +383,7 @@ func (i *Installer) stageRelease() error {
 	images, _ := componentImages(i.Manifest)
 	env := map[string]string{
 		"ALICA_PROJECT": i.Request.Project, "ALICA_CELL_ID": i.Request.CellID, "ALICA_RELEASE_ID": i.Manifest.ReleaseID,
-		"ALICA_PUBLIC_ORIGIN": i.Request.PublicOrigin, "KEYCLOAK_ADMIN_USERNAME": i.Request.AdminUsername, "BOOTSTRAP_ADMIN_USERNAME": i.Request.AdminUsername,
+		"ALICA_PUBLIC_HOST": i.Request.PublicHost, "ALICA_PUBLIC_ORIGIN": i.Request.PublicOrigin, "KEYCLOAK_ADMIN_USERNAME": i.Request.AdminUsername, "BOOTSTRAP_ADMIN_USERNAME": i.Request.AdminUsername,
 		"CADDY_IMAGE": images["caddy"], "UNIUI_IMAGE": images["uniui"], "UNIFY_CORE_IMAGE": images["unify-core"], "KEYCLOAK_IMAGE": images["keycloak"],
 		"POSTGRESQL_IMAGE": images["postgresql"], "ALICA_RUNTIME_IMAGE": images["alica-runtime"], "HERMAN_RUNTIME_IMAGE": images["herman-runtime"], "MEMORY_V4_IMAGE": images["memory-v4"],
 	}

@@ -424,6 +424,8 @@ services:
       - caddy-data:/data
       - caddy-config:/config
     networks: [application, egress]
+    extra_hosts:
+      - '${ALICA_PUBLIC_HOST}:127.0.0.1'
     ports:
       - target: 8080
         published: ${ALICA_HTTP_PORT:-80}
@@ -441,7 +443,7 @@ services:
           --no-check-certificate,
           --quiet,
           --output-document=/dev/null,
-          https://localhost:8443/,
+          'https://${ALICA_PUBLIC_HOST}:8443/',
         ]
       interval: 10s
       timeout: 5s
