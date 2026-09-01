@@ -3,7 +3,6 @@ import {
   existsSync,
   mkdtempSync,
   readFileSync,
-  readdirSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -31,11 +30,6 @@ function run(command, args, options = {}) {
       `${command} ${args.join(' ')} exited ${result.status}\n${result.stdout}\n${result.stderr}`,
     );
   return result;
-}
-function walk(path) {
-  return readdirSync(path, { withFileTypes: true }).flatMap((e) =>
-    e.isDirectory() ? walk(join(path, e.name)) : [join(path, e.name)],
-  );
 }
 const generated = run('python3', ['scripts/generate-dsh-d3-fixture.py', '--check']);
 if (!generated.stdout.includes(expectedDigest)) fail('fixture digest changed');
