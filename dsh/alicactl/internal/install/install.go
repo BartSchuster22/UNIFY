@@ -637,7 +637,7 @@ func (i *Installer) compose(args ...string) (string, error) {
 }
 
 func (i *Installer) docker(args ...string) (string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Minute)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, i.DockerBin, args...)
 	cmd.Env = append(cleanDockerEnvironment(), "DOCKER_CLI_HINTS=false")
