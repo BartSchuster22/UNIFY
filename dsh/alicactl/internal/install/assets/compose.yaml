@@ -200,6 +200,12 @@ services:
       egress: {}
     depends_on:
       postgresql: { condition: service_healthy }
+    healthcheck:
+      test: [CMD, /usr/local/bin/node, /opt/unify-adapter/healthcheck.mjs]
+      interval: 10s
+      timeout: 8s
+      start_period: 60s
+      retries: 30
     labels:
       com.alica.cell.id: ${ALICA_CELL_ID}
       com.alica.release.id: ${ALICA_RELEASE_ID}
@@ -250,6 +256,12 @@ services:
       egress: {}
     depends_on:
       postgresql: { condition: service_healthy }
+    healthcheck:
+      test: [CMD, /usr/local/bin/node, /opt/unify-adapter/healthcheck.mjs]
+      interval: 10s
+      timeout: 8s
+      start_period: 60s
+      retries: 30
     labels:
       com.alica.cell.id: ${ALICA_CELL_ID}
       com.alica.release.id: ${ALICA_RELEASE_ID}
