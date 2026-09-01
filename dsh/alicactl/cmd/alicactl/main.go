@@ -13,9 +13,10 @@ import (
 	"github.com/alica-ltd/alica-community-dsh/alicactl/internal/install"
 	"github.com/alica-ltd/alica-community-dsh/alicactl/internal/lifecycle"
 	"github.com/alica-ltd/alica-community-dsh/alicactl/internal/recovery"
+	"github.com/alica-ltd/alica-community-dsh/alicactl/internal/update"
 )
 
-const version = "1.0.0-d4"
+const version = "1.0.0-d5"
 
 type options struct {
 	manifest       string
@@ -44,7 +45,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		usage(stdout)
 		return 0
 	}
-	if args[0] != "preflight" && args[0] != "status" && args[0] != "verify" && args[0] != "plan" && args[0] != "install" && args[0] != "backup" && args[0] != "restore" && args[0] != "restart" && args[0] != "operations-check" {
+	if args[0] != "preflight" && args[0] != "status" && args[0] != "verify" && args[0] != "plan" && args[0] != "install" && args[0] != "update-plan" && args[0] != "update" && args[0] != "backup" && args[0] != "restore" && args[0] != "restart" && args[0] != "operations-check" {
 		fmt.Fprintf(stderr, "alicactl: unknown command %q\n", args[0])
 		usage(stderr)
 		return 2
@@ -70,12 +71,13 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	installationCommand := command == "plan" || command == "install"
+	updateCommand := command == "update-plan" || command == "update"
 	recoveryCommand := command == "backup" || command == "restore" || command == "restart" || command == "operations-check"
-	if (installationCommand || recoveryCommand) && opts.request == "" {
+	if (installationCommand || updateCommand || recoveryCommand) && opts.request == "" {
 		fmt.Fprintln(stderr, "alicactl: --request is required for this command")
 		return 2
 	}
-	if !installationCommand && !recoveryCommand && opts.request != "" {
+	if !installationCommand && !updateCommand && !recoveryCommand && opts.request != "" {
 		fmt.Fprintln(stderr, "alicactl: --request is not accepted by this command")
 		return 2
 	}
@@ -162,6 +164,31 @@ func run(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stdout, string(encoded))
 		return 0
 	}
+	if updateCommand {
+		request, requestErr := update.LoadRequest(opts.request)
+		if requestErr != nil {
+			fmt.Fprintf(stderr, "alicactl: request rejected: %v\n", requestErr)
+			return 2
+		}
+		manager, updateErr := update.New(manifest, digest, opts.manifest, opts.signature, opts.publicKey, request)
+		if updateErr != nil {
+			fmt.Fprintf(stderr, "alicactl: update rejected: %v\n", updateErr)
+			return 2
+		}
+		var result update.Result
+		if command == "update-plan" {
+			result, updateErr = manager.Plan()
+		} else {
+			result, updateErr = manager.Apply()
+		}
+		if updateErr != nil {
+			fmt.Fprintf(stderr, "alicactl: %s failed: %v\n", command, updateErr)
+			return 3
+		}
+		encoded, _ := json.MarshalIndent(result, "", "  ")
+		fmt.Fprintln(stdout, string(encoded))
+		return 0
+	}
 	observation, err := lifecycle.Observe(opts.root, manifest, opts.observation)
 	if err != nil {
 		fmt.Fprintf(stderr, "alicactl: observation failed: %v\n", err)
@@ -225,10 +252,12 @@ func usage(writer io.Writer) {
   alicactl verify    --manifest FILE --signature FILE --public-key FILE [--root /] [--json]
   alicactl plan      --manifest FILE --signature FILE --public-key FILE --request FILE
   alicactl install   --manifest FILE --signature FILE --public-key FILE --request FILE
+  alicactl update-plan --manifest FILE --signature FILE --public-key FILE --request UPDATE.json
+  alicactl update      --manifest FILE --signature FILE --public-key FILE --request UPDATE.json
   alicactl backup    --request RECOVERY.json
   alicactl restore   --request RECOVERY.json --backup-id bak_UUID7
   alicactl restart   --request RECOVERY.json
   alicactl operations-check --request RECOVERY.json [--synthetic-alert]
 
-D1 inspection commands remain strictly read-only. D2 install owns clean installation. D4 owns coordinated encrypted backup, isolated restore, restart verification and bounded operations alerts. --observation and --synthetic-alert are test-mode-only.`)
+D1 inspection commands remain strictly read-only. D2 install owns clean installation. D4 owns recovery and operations. D5 owns manually approved candidate-channel updates with threshold trust, exact directional compatibility, mandatory off-host backup and atomic accepted-current mutation. --observation and --synthetic-alert are test-mode-only.`)
 }
