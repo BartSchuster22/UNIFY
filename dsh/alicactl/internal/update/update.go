@@ -268,11 +268,17 @@ func (m *Manager) Apply() (res Result, err error) {
 	if err = os.Rename(stage, current); err != nil {
 		return res, err
 	}
-	if _, err = m.compose(current, "--profile", "minimum-cell", "up", "-d", "--wait"); err != nil {
+	var activationErr error
+	if m.TestMode && os.Getenv("ALICACTL_UPDATE_FAIL_PHASE") == "activate" {
+		activationErr = errors.New("injected target activation failure")
+	} else {
+		_, activationErr = m.compose(current, "--profile", "minimum-cell", "up", "-d", "--wait")
+	}
+	if activationErr != nil {
 		_ = os.RemoveAll(current)
 		_ = os.Rename(previous, current)
 		_, _ = m.compose(current, "--profile", "minimum-cell", "up", "-d", "--wait")
-		return res, fmt.Errorf("target activation rolled back before acceptance: %w", err)
+		return res, fmt.Errorf("target activation rolled back before acceptance: %w", activationErr)
 	}
 	if err = m.verifyRuntime(current); err != nil {
 		_ = os.RemoveAll(current)
