@@ -23,6 +23,7 @@ def render(r):
     s['hermes']['volumes']=[v for v in s['hermes']['volumes'] if 'acceptance-client' not in v]
     s['hermes']['networks']['model-egress']={}
     s['postgresql']['environment']['POSTGRES_USER']='unify_bootstrap'
+    s['postgresql']['healthcheck']['test']=['CMD-SHELL','pg_isready -h 127.0.0.1 -U unify_bootstrap -d unify']
     s['migrate']['environment']['DATABASE_URL_FILE']='/run/secrets/database-url'
     s['migrate']['volumes']=[v.replace('core-database-url','migration-database-url') for v in s['migrate']['volumes']]
     core=s['unify-core'];core['environment'].pop('KEYCLOAK_ISSUER',None)

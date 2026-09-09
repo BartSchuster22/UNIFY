@@ -4,6 +4,7 @@ R={'cell':'dsh2-test','origin':'https://stage2.dsh.invalid:19443','port':19443,'
 class Render(unittest.TestCase):
  def test_runtime_database_role_is_not_bootstrap(self):
   d=render(R)
+  self.assertIn('-h 127.0.0.1',d['services']['postgresql']['healthcheck']['test'][1])
   self.assertEqual(d['services']['postgresql']['environment']['POSTGRES_USER'],'unify_bootstrap')
   self.assertEqual(d['services']['migrate']['environment']['DATABASE_URL_FILE'],'/run/secrets/database-url')
   self.assertFalse(any('migration-database-url' in v for v in d['services']['unify-core']['volumes']))
