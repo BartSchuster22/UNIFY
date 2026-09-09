@@ -983,7 +983,7 @@ export class HermesNativeSource implements AdapterSource {
   async health() {
     const checks: Record<string, 'healthy' | 'degraded' | 'unavailable'> = {};
     try {
-      await this.options.runner.run(['version']);
+      await this.options.runner.run(['--version']);
       checks.cli = 'healthy';
     } catch {
       checks.cli = 'unavailable';

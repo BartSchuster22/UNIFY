@@ -127,7 +127,7 @@ const messages = await call(
 assert.equal(messages.status, 200);
 assert.ok(Array.isArray(messages.body.data.items));
 
-for (const service of ['unify-hermes-gateway', 'unify-control-adapter']) {
+for (const service of ['gateway-default', 'unify-control-adapter']) {
   const result = spawnSync('/command/s6-svstat', ['-o', 'pid', `/run/service/${service}`], {
     encoding: 'utf8',
   });

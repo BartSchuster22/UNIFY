@@ -1,3 +1,4 @@
+import { verifyPackagedBaseline } from './packaged-baseline.js';
 import { execFile } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
@@ -131,7 +132,7 @@ async function verifyImmutableBaseline(
   binary: string,
   supportedRelease: string,
   supportedCommit: string,
-  candidateAssessment: boolean,
+  _candidateAssessment: boolean,
 ) {
   if (!/^[a-f0-9]{40}$/u.test(supportedCommit))
     throw new Error('Expected Hermes candidate commit is invalid');
@@ -153,18 +154,10 @@ async function verifyImmutableBaseline(
       throw error;
   }
 
-  const version = (await execFileAsync(binary, ['version'], { encoding: 'utf8', timeout: 5_000 }))
+  const version = (await execFileAsync(binary, ['--version'], { encoding: 'utf8', timeout: 5_000 }))
     .stdout;
-  const release = /Hermes Agent v([^\s]+)/u.exec(version)?.[1];
-  const commit = /upstream\s+([0-9a-f]{8,40})/u.exec(version)?.[1];
-  const carriedCommit = /local\s+([0-9a-f]{8,40})/u.exec(version)?.[1];
-  const immutableDockerBuild =
-    !candidateAssessment && commit === '413ed6b9' && carriedCommit === '9e54eee4';
-  if (
-    release !== supportedRelease ||
-    (!immutableDockerBuild && (!commit || !supportedCommit.startsWith(commit)))
-  )
-    throw new Error('Installed Hermes release does not match the immutable supported baseline');
+  const buildCommit = await readFile(`${path}/.hermes_build_sha`, 'utf8');
+  verifyPackagedBaseline(version, buildCommit, supportedRelease, supportedCommit);
 }
 
 function required(name: string) {

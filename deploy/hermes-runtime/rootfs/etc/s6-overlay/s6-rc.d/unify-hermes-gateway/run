@@ -6,4 +6,13 @@ export API_SERVER_ENABLED=true
 export API_SERVER_HOST="${HERMES_API_HOST:-127.0.0.1}"
 export API_SERVER_PORT="${HERMES_API_PORT:-8642}"
 
-exec /command/s6-setuidgid hermes /opt/hermes/bin/hermes gateway run
+# Native boot registers slots before the scandir supervisor sees them.
+/command/s6-svscanctl -a /run/service
+for attempt in {1..100}; do
+  if /command/s6-svok /run/service/gateway-default; then
+    exec /command/s6-setuidgid hermes /opt/hermes/bin/hermes gateway run
+  fi
+  sleep 0.1
+done
+printf '%s\n' 'Native gateway supervisor did not become available' >&2
+exit 1

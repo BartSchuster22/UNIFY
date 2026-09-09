@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.7
+# syntax=docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
 
 ARG SOURCE_DATE_EPOCH=0
 ARG HERMES_BASE_IMAGE=nousresearch/hermes-agent@sha256:fcbe95482353e41cd30d39ddfc0f57ba3720f6da6969a7a69cdfb0d84b045cb6
@@ -16,6 +16,7 @@ COPY packages/contracts packages/contracts
 COPY apps/hermes-control-adapter apps/hermes-control-adapter
 RUN pnpm --filter @aquiero/contracts build \
   && pnpm --filter @aquiero/hermes-control-adapter build \
+  && pnpm --filter @aquiero/hermes-control-adapter test \
   && pnpm --filter @aquiero/hermes-control-adapter deploy --prod --legacy /opt/unify-adapter \
   && rm -rf /opt/unify-adapter/node_modules/.cache \
   && find /opt/unify-adapter -exec touch -h -d "@${SOURCE_DATE_EPOCH}" {} +
@@ -36,6 +37,8 @@ COPY deploy/hermes-runtime/rootfs/etc/cont-init.d/10-hermes-api-secret /etc/cont
 COPY deploy/hermes-runtime/rootfs/etc/cont-init.d/15-unify-memory-plugin /etc/cont-init.d/15-unify-memory-plugin
 COPY deploy/hermes-runtime/rootfs/etc/s6-overlay/s6-rc.d/unify-hermes-gateway/run /etc/s6-overlay/s6-rc.d/unify-hermes-gateway/run
 COPY deploy/hermes-runtime/rootfs/etc/s6-overlay/s6-rc.d/unify-hermes-gateway/type /etc/s6-overlay/s6-rc.d/unify-hermes-gateway/type
+COPY deploy/hermes-runtime/rootfs/etc/s6-overlay/s6-rc.d/unify-hermes-gateway/up /etc/s6-overlay/s6-rc.d/unify-hermes-gateway/up
+COPY deploy/hermes-runtime/rootfs/etc/s6-overlay/s6-rc.d/unify-hermes-gateway/dependencies.d/legacy-cont-init /etc/s6-overlay/s6-rc.d/unify-hermes-gateway/dependencies.d/legacy-cont-init
 COPY deploy/hermes-runtime/rootfs/etc/s6-overlay/s6-rc.d/unify-control-adapter/run /etc/s6-overlay/s6-rc.d/unify-control-adapter/run
 COPY deploy/hermes-runtime/rootfs/etc/s6-overlay/s6-rc.d/unify-control-adapter/type /etc/s6-overlay/s6-rc.d/unify-control-adapter/type
 COPY deploy/hermes-runtime/rootfs/etc/s6-overlay/s6-rc.d/unify-control-adapter/dependencies.d/unify-hermes-gateway /etc/s6-overlay/s6-rc.d/unify-control-adapter/dependencies.d/unify-hermes-gateway
@@ -53,7 +56,7 @@ RUN python /tmp/patch-provider-validation.py \
       /opt/unify-adapter/healthcheck.mjs \
   && rm -f /etc/s6-overlay/s6-rc.d/user/contents.d/main-hermes \
   && /usr/local/bin/node --version \
-  && /opt/hermes/bin/hermes version
+  && /opt/hermes/bin/hermes --version
 
 ENV HOME=/opt/data \
     HERMES_HOME=/opt/data \
@@ -69,6 +72,7 @@ ENV HOME=/opt/data \
     EXPECTED_HERMES_RELEASE=${HERMES_RELEASE} \
     EXPECTED_HERMES_COMMIT=${HERMES_COMMIT} \
     HERMES_CANDIDATE_ASSESSMENT=${HERMES_CANDIDATE_ASSESSMENT} \
+    PATH=/command:/opt/hermes/bin:/opt/hermes/.venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
     UNIFY_ADAPTER_RELEASE=${UNIFY_ADAPTER_RELEASE}
 
 LABEL org.opencontainers.image.title="UNIFY Hermes combined runtime" \

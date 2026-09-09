@@ -63,7 +63,7 @@ const getJson = (path, token) =>
   });
 
 try {
-  assertServiceUp('unify-hermes-gateway');
+  assertServiceUp('gateway-default');
   assertServiceUp('unify-control-adapter');
   const token = readActiveToken();
   const [health, version] = await Promise.all([
