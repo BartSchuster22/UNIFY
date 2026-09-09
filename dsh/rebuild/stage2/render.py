@@ -23,7 +23,7 @@ def render(r):
     s['hermes']['volumes']=[v for v in s['hermes']['volumes'] if 'acceptance-client' not in v]
     s['hermes']['networks']['model-egress']={}
     s['postgresql']['environment']['POSTGRES_USER']='unify_bootstrap'
-    s['migrate']['environment']['DATABASE_URL_FILE']='/run/secrets/migration-database-url'
+    s['migrate']['environment']['DATABASE_URL_FILE']='/run/secrets/database-url'
     s['migrate']['volumes']=[v.replace('core-database-url','migration-database-url') for v in s['migrate']['volumes']]
     core=s['unify-core'];core['environment'].pop('KEYCLOAK_ISSUER',None)
     core['environment'].update(AUTH_MODE='oidc',OIDC_ISSUER=r['origin']+'/identity/realms/alica',OIDC_PUBLIC_ORIGIN=r['origin'],OIDC_CLIENT_ID='dsh-core',OIDC_CLIENT_SECRET_FILE='/run/secrets/oidc-client-secret',OIDC_TRANSPORT_ISSUER='http://keycloak:8080/identity/realms/alica')

@@ -5,8 +5,11 @@ class Render(unittest.TestCase):
  def test_runtime_database_role_is_not_bootstrap(self):
   d=render(R)
   self.assertEqual(d['services']['postgresql']['environment']['POSTGRES_USER'],'unify_bootstrap')
-  self.assertEqual(d['services']['migrate']['environment']['DATABASE_URL_FILE'],'/run/secrets/migration-database-url')
+  self.assertEqual(d['services']['migrate']['environment']['DATABASE_URL_FILE'],'/run/secrets/database-url')
   self.assertFalse(any('migration-database-url' in v for v in d['services']['unify-core']['volumes']))
+  for name in ['migrate','unify-core','reconcile-frameworks']:
+   service=d['services'][name]
+   self.assertIn(service['environment']['DATABASE_URL_FILE'],[v.split(':')[1] for v in service['volumes']])
  def test_identity_boundary(self):
   d=render(R);s=d['services'];self.assertEqual(s['unify-core']['environment']['AUTH_MODE'],'oidc');self.assertNotIn('bootstrap-admin',s);self.assertNotIn('herman',s);self.assertEqual(len([v for v in s.values() if 'jobs' not in v.get('profiles',[])]),7)
  def test_private_graph_and_model_egress(self):
