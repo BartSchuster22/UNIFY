@@ -24,6 +24,6 @@ class Preparation(unittest.TestCase):
   self.installer.prepare();(self.root/'compose.json').chmod(0o600);(self.root/'compose.json').write_text('{}')
   with self.assertRaises(TransactionError):self.installer.prepare()
  def test_changed_secret_rejected_without_rewriting_database_config(self):
-  self.installer.prepare();p=self.root/'secrets/postgres-password';before=sha(self.root/'secrets/core-database-url');p.chmod(0o600);p.write_text('changed-fixture\n')
+  self.installer.prepare();p=self.root/'secrets/core-database-password';before=sha(self.root/'secrets/core-database-url');p.chmod(0o600);p.write_text('changed-fixture\n')
   with self.assertRaises(TransactionError):self.installer.prepare()
   self.assertEqual(before,sha(self.root/'secrets/core-database-url'))

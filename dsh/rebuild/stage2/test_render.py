@@ -2,6 +2,11 @@ import unittest
 from render import render,realm,caddyfile,validate_request
 R={'cell':'dsh2-test','origin':'https://stage2.dsh.invalid:19443','port':19443,'bind':'127.0.0.1','owner':'owner'}
 class Render(unittest.TestCase):
+ def test_runtime_database_role_is_not_bootstrap(self):
+  d=render(R)
+  self.assertEqual(d['services']['postgresql']['environment']['POSTGRES_USER'],'unify_bootstrap')
+  self.assertEqual(d['services']['migrate']['environment']['DATABASE_URL_FILE'],'/run/secrets/migration-database-url')
+  self.assertFalse(any('migration-database-url' in v for v in d['services']['unify-core']['volumes']))
  def test_identity_boundary(self):
   d=render(R);s=d['services'];self.assertEqual(s['unify-core']['environment']['AUTH_MODE'],'oidc');self.assertNotIn('bootstrap-admin',s);self.assertNotIn('herman',s);self.assertEqual(len([v for v in s.values() if 'jobs' not in v.get('profiles',[])]),7)
  def test_private_graph_and_model_egress(self):

@@ -89,16 +89,17 @@ class Installer:
                 fd=os.open(p,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,mode)
                 with os.fdopen(fd,'w') as f:f.write(value);f.flush();os.fsync(f.fileno())
         values={}
-        for name in ['postgres-password','keycloak-database-password','keycloak-admin-password','alica-database-password','auth-pepper','memory-v4-token','alica-api-token','alica-token','oidc-client-secret','owner-password']:
+        for name in ['postgres-password','core-database-password','keycloak-database-password','keycloak-admin-password','alica-database-password','auth-pepper','memory-v4-token','alica-api-token','alica-token','oidc-client-secret','owner-password']:
             p=s/name
             if p.is_symlink():raise TransactionError('Symlink in candidate secrets')
             if not p.exists():text('secrets/'+name,secrets.token_hex(36)+'\n',0o400 if name=='owner-password' else 0o444)
             values[name]=p.read_text().strip()
-        text('secrets/core-database-url','postgresql://unify:'+values['postgres-password']+'@postgresql:5432/unify\n')
+        text('secrets/core-database-url','postgresql://unify:'+values['core-database-password']+'@postgresql:5432/unify\n')
+        text('secrets/migration-database-url','postgresql://unify_bootstrap:'+values['postgres-password']+'@postgresql:5432/unify\n')
         text('secrets/alica-database-url','postgresql://unify_alica_adapter:'+values['alica-database-password']+'@postgresql:5432/unify\n')
         text('secrets/alica-token-bundle.json',json.dumps({'active':{'version':'dsh-stage2','token':values['alica-token']}})+'\n')
         text('secrets/realm.json',json.dumps(realm(self.r,values['oidc-client-secret'],values['owner-password'])))
-        text('postgres-init.sql',"CREATE ROLE keycloak LOGIN PASSWORD '"+values['keycloak-database-password']+"';\nCREATE DATABASE keycloak OWNER keycloak;\nCREATE ROLE unify_alica_adapter LOGIN PASSWORD '"+values['alica-database-password']+"';\n")
+        text('postgres-init.sql',"CREATE ROLE unify LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD '"+values['core-database-password']+"';\n"+"CREATE ROLE keycloak LOGIN PASSWORD '"+values['keycloak-database-password']+"';\nCREATE DATABASE keycloak OWNER keycloak;\nCREATE ROLE unify_alica_adapter LOGIN PASSWORD '"+values['alica-database-password']+"';\n")
         u=validate_request(self.r)
         if not (s/'framework-ca.crt').exists():
             command(['openssl','req','-x509','-newkey','rsa:2048','-nodes','-days','30','-subj','/CN=DSH Stage 2 Engineering CA','-addext','basicConstraints=critical,CA:TRUE','-addext','keyUsage=critical,keyCertSign,cRLSign','-keyout',str(s/'framework-ca.key'),'-out',str(s/'framework-ca.crt')])
@@ -156,6 +157,7 @@ class Installer:
         steps=[('images',self.load_images),('prepare',self.prepare),('config',lambda:self.compose('config','--quiet')),
           ('database',lambda:self.compose('up','-d','--wait','--wait-timeout','120','postgresql')),
           ('migrate',lambda:self.compose('--profile','jobs','run','--rm','--no-deps','migrate')),
+          ('runtime-grants',lambda:self.docker('exec',self.r['cell']+'-postgresql-1','psql','-v','ON_ERROR_STOP=1','-U','unify_bootstrap','-d','unify','-c','GRANT USAGE ON SCHEMA public TO unify; GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO unify; GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO unify;')),
           ('authorities',lambda:self.compose('up','-d','--wait','--wait-timeout','240','hermes','memory-v4','keycloak')),
           ('register',lambda:self.compose('--profile','jobs','run','--rm','--no-deps','reconcile-frameworks')),
           ('application',lambda:self.compose('up','-d','--wait','--wait-timeout','240'))]
