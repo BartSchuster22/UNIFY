@@ -376,6 +376,56 @@ function BootState() {
 }
 
 function Login({ onLogin }: { onLogin: (principal: Principal) => void }) {
+  const [method, setMethod] = useState<'loading' | 'oidc' | 'password' | 'unavailable'>('loading');
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    const controller = new AbortController();
+    setMethod('loading');
+    api<{ method: string; loginPath: string | null }>('/auth/method', { signal: controller.signal })
+      .then((result) => {
+        if (result.method === 'oidc' && result.loginPath === '/api/v1/auth/oidc/login')
+          setMethod('oidc');
+        else if (result.method === 'password') setMethod('password');
+        else setMethod('unavailable');
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setMethod('unavailable');
+      });
+    return () => controller.abort();
+  }, [attempt]);
+  if (method === 'password') return <PasswordLogin onLogin={onLogin} />;
+  return (
+    <main className="login-page">
+      <Paper className="login-card" p="xl" shadow="xl">
+        <Stack>
+          <Title order={1}>Sign in to DSH</Title>
+          {method === 'loading' ? (
+            <Text role="status">Checking sign-in service…</Text>
+          ) : method === 'oidc' ? (
+            <>
+              <Text>
+                Your local identity provider owns your password. UNIFY receives a scoped,
+                short-lived session—not your password.
+              </Text>
+              <Button component="a" href="/api/v1/auth/oidc/login">
+                Continue to secure sign-in
+              </Button>
+            </>
+          ) : (
+            <>
+              <Alert color="red" role="alert" title="Sign-in unavailable">
+                The identity configuration could not be verified. Password fallback is disabled.
+              </Alert>
+              <Button onClick={() => setAttempt((value) => value + 1)}>Retry</Button>
+            </>
+          )}
+        </Stack>
+      </Paper>
+    </main>
+  );
+}
+
+function PasswordLogin({ onLogin }: { onLogin: (principal: Principal) => void }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [failure, setFailure] = useState<ApiFailure | null>(null);

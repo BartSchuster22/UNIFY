@@ -1,5 +1,11 @@
 import { readFile } from 'node:fs/promises';
 import pg from 'pg';
+import { KeycloakOidcProvider, OidcService } from './auth/oidc.js';
+import { PostgresOidcStore } from './auth/oidc-store.js';
+import {
+  ProjectCredentialService,
+  PostgresProjectCredentialStore,
+} from './auth/project-credentials.js';
 import { startUpdateDiscovery } from './update-discovery.js';
 import { deploymentImages } from './deployment-images.js';
 import { buildApp } from './app.js';
@@ -103,7 +109,33 @@ const memoryV4Adapter = memoryV4Url
       allowPrivateHttp: memoryV4AllowPrivateHttp === 'true',
     })
   : undefined;
+const authMode = process.env.AUTH_MODE ?? 'local';
+if (!['local', 'oidc'].includes(authMode)) throw new Error('Unsupported AUTH_MODE');
+if (authMode === 'local' && Object.keys(process.env).some((k) => k.startsWith('OIDC_')))
+  throw new Error('OIDC configuration requires AUTH_MODE=oidc');
+const oidc =
+  authMode === 'oidc'
+    ? new OidcService(
+        new KeycloakOidcProvider({
+          issuer: requiredEnvironment('OIDC_ISSUER'),
+          clientId: requiredEnvironment('OIDC_CLIENT_ID'),
+          clientSecret: await secret('OIDC_CLIENT_SECRET'),
+          publicOrigin: requiredEnvironment('OIDC_PUBLIC_ORIGIN'),
+          ...(process.env.OIDC_TRANSPORT_ISSUER
+            ? { transportIssuer: process.env.OIDC_TRANSPORT_ISSUER }
+            : {}),
+        }),
+        new PostgresOidcStore(pool),
+        authPepper,
+      )
+    : undefined;
 const app = buildApp({
+  ...(oidc
+    ? {
+        oidc,
+        projectCredentials: new ProjectCredentialService(new PostgresProjectCredentialStore(pool)),
+      }
+    : {}),
   authStore: new PostgresAuthStore(pool),
   governanceStore: new PostgresGovernanceStore(pool),
   authPepper,

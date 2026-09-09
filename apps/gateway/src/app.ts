@@ -3,6 +3,8 @@ import Fastify, { type FastifyReply, type FastifyRequest } from 'fastify';
 import { randomUUID } from 'node:crypto';
 import { AuthError, AuthService } from './auth/service.js';
 import type { AuthStore, SessionRecord } from './auth/types.js';
+import type { OidcService } from './auth/oidc.js';
+import type { ProjectCredentialService } from './auth/project-credentials.js';
 import { GovernanceError, GovernanceService } from './governance/service.js';
 import type { GovernanceStore, OperationRecord } from './governance/types.js';
 import {
@@ -24,6 +26,8 @@ import { KanbanManagementService, type KanbanMutationBody } from './kanban/servi
 import { FederationLeaseService, type FederationCreateBody } from './federation/service.js';
 import type { FederationLeaseStore } from './federation/types.js';
 export interface AppOptions {
+  oidc?: OidcService;
+  projectCredentials?: ProjectCredentialService;
   authStore: AuthStore;
   authPepper: string;
   secureCookies?: boolean;
@@ -42,6 +46,8 @@ export interface AppOptions {
 const SESSION_COOKIE = 'aquiero_session';
 const CSRF_COOKIE = 'aquiero_csrf';
 export function buildApp(options: AppOptions) {
+  if (options.oidc && options.secureCookies === false)
+    throw new Error('OIDC requires secure cookies');
   const app = Fastify({
     logger: options.logger
       ? {
@@ -53,6 +59,14 @@ export function buildApp(options: AppOptions) {
               'res.headers.set-cookie',
             ],
             censor: '[REDACTED]',
+          },
+          serializers: {
+            req: (req) => ({
+              method: req.method,
+              url: req.url.split('?')[0] ?? '/',
+              hostname: req.hostname,
+              remoteAddress: req.ip,
+            }),
           },
         }
       : false,
@@ -144,7 +158,9 @@ export function buildApp(options: AppOptions) {
     });
   });
   async function session(request: FastifyRequest): Promise<SessionRecord> {
-    return auth.authenticate(request.cookies[SESSION_COOKIE]);
+    const current = await auth.authenticate(request.cookies[SESSION_COOKIE]);
+    if (options.oidc) await options.oidc.validateSession(current.sessionId);
+    return current;
   }
   async function mutationSession(request: FastifyRequest): Promise<SessionRecord> {
     const current = await session(request);
@@ -161,6 +177,51 @@ export function buildApp(options: AppOptions) {
     secure: options.secureCookies ?? true,
     sameSite: 'strict' as const,
   };
+  app.get('/api/v1/auth/method', async () => ({
+    method: options.oidc ? 'oidc' : 'password',
+    loginPath: options.oidc ? '/api/v1/auth/oidc/login' : null,
+  }));
+  if (options.oidc) {
+    const oidc = options.oidc;
+    const flowCookie = '__Host-dsh_oidc';
+    const flowOptions = { path: '/', secure: true, httpOnly: true, sameSite: 'lax' as const };
+    app.get('/api/v1/auth/oidc/login', async (_request, reply) => {
+      const flow = await oidc.begin();
+      reply.setCookie(flowCookie, flow.state, { ...flowOptions, maxAge: 300 });
+      return reply.redirect(flow.url);
+    });
+    app.get<{ Querystring: { state?: string; code?: string } }>(
+      '/api/v1/auth/oidc/callback',
+      async (request, reply) => {
+        reply.clearCookie(flowCookie, flowOptions);
+        const result = await oidc.callback(
+          request.query.state,
+          request.cookies[flowCookie],
+          request.query.code,
+          auth,
+          { ip: request.ip, userAgent: request.headers['user-agent'] },
+        );
+        await governance?.audit({
+          actorUserId: result.principal.userId,
+          sessionId: result.sessionId,
+          action: 'auth.oidc.login',
+          outcome: 'success',
+          requestId: request.id,
+        });
+        reply.setCookie(SESSION_COOKIE, result.sessionToken, {
+          ...cookieOptions,
+          httpOnly: true,
+          expires: result.expiresAt,
+        });
+        reply.setCookie(CSRF_COOKIE, result.csrfToken, {
+          ...cookieOptions,
+          httpOnly: false,
+          expires: result.expiresAt,
+        });
+        return reply.redirect('/');
+      },
+    );
+  }
   app.get('/api/v1/health/live', async () => ({
     status: 'ok',
     release: options.release ?? 'development',
@@ -195,6 +256,8 @@ export function buildApp(options: AppOptions) {
       },
     },
     async (request, reply) => {
+      if (options.oidc)
+        throw new AuthError('LOCAL_LOGIN_DISABLED', 403, 'Use identity-provider login');
       const result = await auth.login(request.body.username ?? '', request.body.password ?? '', {
         ip: request.ip,
         userAgent: request.headers['user-agent'],
@@ -221,6 +284,137 @@ export function buildApp(options: AppOptions) {
       return result.principal;
     },
   );
+  if (options.oidc && options.projectCredentials) {
+    const credentials = options.projectCredentials;
+    app.get('/api/v1/service-credentials', async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'users.manage');
+      return {
+        items: await credentials.store.list(),
+        permission: 'project.read',
+        audience: 'dsh-project-api-v1',
+      };
+    });
+    app.post<{
+      Body: { name: string; frameworkId: string; projectId: string; ttlSeconds: number };
+    }>(
+      '/api/v1/service-credentials',
+      {
+        schema: {
+          body: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['name', 'frameworkId', 'projectId', 'ttlSeconds'],
+            properties: {
+              name: { type: 'string', minLength: 1, maxLength: 100 },
+              frameworkId: { type: 'string', pattern: '^[a-zA-Z0-9_-]{1,128}$' },
+              projectId: { type: 'string', pattern: '^[a-zA-Z0-9_.-]{1,200}$' },
+              ttlSeconds: { type: 'integer', minimum: 60, maximum: 86400 },
+            },
+          },
+        },
+      },
+      async (request, reply) => {
+        const current = await mutationSession(request);
+        auth.requirePermission(current, 'users.manage');
+        const b = request.body;
+        const result = await credentials.create(
+          current.userId,
+          b.name,
+          b.frameworkId,
+          b.projectId,
+          b.ttlSeconds,
+        );
+        await governance?.audit({
+          actorUserId: current.userId,
+          sessionId: current.sessionId,
+          action: 'service-credential.create',
+          outcome: 'success',
+          requestId: request.id,
+          target: {
+            credentialId: result.grant.id,
+            frameworkId: b.frameworkId,
+            projectId: b.projectId,
+          },
+        });
+        return reply.status(201).send(result);
+      },
+    );
+    app.delete<{ Params: { id: string } }>(
+      '/api/v1/service-credentials/:id',
+      {
+        schema: {
+          params: {
+            type: 'object',
+            required: ['id'],
+            properties: {
+              id: {
+                type: 'string',
+                pattern:
+                  '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+              },
+            },
+          },
+        },
+      },
+      async (request, reply) => {
+        const current = await mutationSession(request);
+        auth.requirePermission(current, 'users.manage');
+        const revoked = await credentials.store.revoke(request.params.id);
+        await governance?.audit({
+          actorUserId: current.userId,
+          sessionId: current.sessionId,
+          action: 'service-credential.revoke',
+          outcome: 'success',
+          requestId: request.id,
+          target: { credentialId: request.params.id },
+        });
+        return reply.status(revoked ? 204 : 404).send();
+      },
+    );
+    app.get<{ Params: { frameworkId: string; projectId: string } }>(
+      '/api/v1/service/frameworks/:frameworkId/projects/:projectId',
+      async (request) => {
+        if (request.cookies[SESSION_COOKIE])
+          throw new AuthError(
+            'CREDENTIAL_CLASS_CONFLICT',
+            400,
+            'Do not mix browser and service credentials',
+          );
+        const { frameworkId, projectId } = request.params;
+        const grant = await credentials.authorize(
+          request.headers.authorization,
+          frameworkId,
+          projectId,
+        );
+        const projects = await requireHermesGateway().projects(frameworkId, { limit: 500 });
+        const project = projects.items.find((item) => item.id === projectId);
+        if (!project)
+          throw new AuthError(
+            'PROJECT_NOT_FOUND',
+            404,
+            'Project not found in the bounded native read',
+          );
+        await governance?.audit({
+          actorUserId: grant.ownerId,
+          sessionId: 'service:' + grant.id,
+          action: 'service.project.read',
+          outcome: 'success',
+          requestId: request.id,
+          target: { credentialId: grant.id, frameworkId, projectId },
+        });
+        return {
+          data: project,
+          meta: {
+            owner: 'hermes',
+            frameworkId,
+            credentialId: grant.id,
+            permission: 'project.read',
+          },
+        };
+      },
+    );
+  }
   app.get('/api/v1/auth/me', async (request) => {
     const current = await session(request);
     return {

@@ -59,11 +59,23 @@ export class AuthService {
       throw new AuthError('AUTH_INVALID_CREDENTIALS', 401, 'Invalid username or password');
     }
     await this.#store.clearLoginFailures(subject);
+    return this.issuePrincipalSession(user.id, context);
+  }
+  async issuePrincipalSession(
+    userId: string,
+    context: LoginContext,
+    deadline?: Date,
+  ): Promise<LoginResult> {
+    const now = this.#now();
+    const principal = await this.#store.getPrincipal(userId);
+    if (!principal) throw new AuthError('AUTH_PRINCIPAL_UNAVAILABLE', 403, 'Principal unavailable');
     const sessionToken = opaqueToken();
     const csrfToken = opaqueToken();
-    const expiresAt = new Date(now.getTime() + this.#ttl);
+    const expiresAt = new Date(
+      Math.min(now.getTime() + this.#ttl, deadline?.getTime() ?? Infinity),
+    );
     const sessionId = await this.#store.createSession({
-      userId: user.id,
+      userId,
       tokenHash: sha256(sessionToken),
       csrfHash: sha256(csrfToken),
       deviceLabel: context.deviceLabel?.slice(0, 200) ?? null,
@@ -71,8 +83,6 @@ export class AuthService {
       userAgentHash: context.userAgent ? sha256(`${this.#pepper}:${context.userAgent}`) : null,
       expiresAt,
     });
-    const principal = await this.#store.getPrincipal(user.id);
-    if (!principal) throw new AuthError('AUTH_PRINCIPAL_UNAVAILABLE', 503, 'Principal unavailable');
     return { principal, sessionId, sessionToken, csrfToken, expiresAt };
   }
   async authenticate(sessionToken: string | undefined): Promise<SessionRecord> {
