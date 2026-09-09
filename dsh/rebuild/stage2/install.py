@@ -19,7 +19,10 @@ SERVICES={'postgresql','keycloak','memory-v4','hermes','unify-core','uniui','cad
 KEYS={'hermes':'ALICA_RUNTIME_IMAGE','unify-core':'UNIFY_CORE_IMAGE','uniui':'UNIUI_IMAGE','memory-v4':'MEMORY_V4_IMAGE','postgresql':'POSTGRESQL_IMAGE','keycloak':'KEYCLOAK_IMAGE','caddy':'CADDY_IMAGE'}
 
 def sha(path):
-    with Path(path).open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
+    digest=hashlib.sha256()
+    with Path(path).open('rb') as f:
+        for block in iter(lambda:f.read(1024*1024),b''):digest.update(block)
+    return digest.hexdigest()
 
 def command(args,timeout=300):
     p=subprocess.run(args,capture_output=True,text=True,timeout=timeout)
@@ -74,7 +77,9 @@ class Installer:
             with socket.socket() as sock:sock.bind((self.r['bind'],self.r['port']))
         return {'schema':'dsh-stage2-plan/v1','state':state['state'],'cell':self.r['cell'],'release_sha256':sha(self.bundle/'release.json'),'mutations':False,'images_to_load':missing}
     def prepare(self):
-        s=self.root/'secrets';s.mkdir(mode=0o700,exist_ok=True)
+        s=self.root/'secrets'
+        if s.is_symlink():raise TransactionError('Unsafe secrets directory')
+        s.mkdir(mode=0o700,exist_ok=True)
         def text(name,value,mode=0o444):
             p=self.root/name
             if p.is_symlink():raise TransactionError('Symlink in candidate files')
@@ -96,7 +101,7 @@ class Installer:
         text('postgres-init.sql',"CREATE ROLE keycloak LOGIN PASSWORD '"+values['keycloak-database-password']+"';\nCREATE DATABASE keycloak OWNER keycloak;\nCREATE ROLE unify_alica_adapter LOGIN PASSWORD '"+values['alica-database-password']+"';\n")
         u=validate_request(self.r)
         if not (s/'framework-ca.crt').exists():
-            command(['openssl','req','-x509','-newkey','rsa:2048','-nodes','-days','30','-subj','/CN=DSH Stage 2 Engineering CA','-keyout',str(s/'framework-ca.key'),'-out',str(s/'framework-ca.crt')])
+            command(['openssl','req','-x509','-newkey','rsa:2048','-nodes','-days','30','-subj','/CN=DSH Stage 2 Engineering CA','-addext','basicConstraints=critical,CA:TRUE','-addext','keyUsage=critical,keyCertSign,cRLSign','-keyout',str(s/'framework-ca.key'),'-out',str(s/'framework-ca.crt')])
             (s/'framework-ca.key').chmod(0o400);(s/'framework-ca.crt').chmod(0o444)
         for stem,dns in [('alica','hermes-adapter'),('edge',u.hostname)]:
             if not (s/(stem+'.crt')).exists():
@@ -104,6 +109,8 @@ class Installer:
                 text('secrets/'+stem+'.ext','subjectAltName=DNS:'+dns+'\nextendedKeyUsage=serverAuth\n')
                 command(['openssl','x509','-req','-in',str(s/(stem+'.csr')),'-CA',str(s/'framework-ca.crt'),'-CAkey',str(s/'framework-ca.key'),'-CAcreateserial','-days','30','-sha256','-extfile',str(s/(stem+'.ext')),'-out',str(s/(stem+'.crt'))])
                 for suffix in ['.key','.crt']:(s/(stem+suffix)).chmod(0o444)
+        for stem,dns in [('alica','hermes-adapter'),('edge',u.hostname)]:
+            command(['openssl','verify','-x509_strict','-purpose','sslserver','-verify_hostname',dns,'-CAfile',str(s/'framework-ca.crt'),str(s/(stem+'.crt'))])
         env={'ALICA_PROJECT':self.r['cell'],'ALICA_CELL_ID':self.r['cell'],'ALICA_RELEASE_ID':self.release['release'],'ALICA_PUBLIC_HOST':u.hostname,'ALICA_PUBLIC_ORIGIN':self.r['origin'],'KEYCLOAK_ADMIN_USERNAME':'recovery-admin'}
         for name,key in KEYS.items():env[key]=self.release['images'][name]['id']
         env['DSH_HERMES_OCI_REF']=self.release['images']['hermes']['oci_reference']
@@ -127,8 +134,24 @@ class Installer:
         if missing:self.docker('load','--input',str(self.bundle/'images.tar'))
         for record in self.release['images'].values():
             if self.docker('image','inspect',record['id'],'--format','{{.Id}}')!=record['id']:raise TransactionError('Loaded image identity mismatch')
-    def install(self):
+    def operator(self):
         if os.geteuid()!=0:raise TransactionError('Root operator required')
+        for path in [self.root,*self.root.parents]:
+            if path.exists() and (path.stat().st_uid!=0 or path.stat().st_mode&0o022):raise TransactionError('Root-owned non-writable installation ancestry required')
+    def start(self):
+        self.operator();self.plan()
+        if self.tx.inspect()['state']!='installed':raise TransactionError('Completed installation required; use install to recover a failed transaction')
+        with self.tx.locked():
+            try:
+                self.prepare();self.compose('up','-d','--wait','--wait-timeout','240')
+                records=[c for c in self.owned() if c['Config']['Labels'].get('com.alica.component') in SERVICES]
+                if len(records)!=7 or any(not c['State']['Running'] or c['State'].get('Health',{}).get('Status')!='healthy' for c in records):raise TransactionError('Candidate joint health failed')
+            except BaseException:
+                self.stop();raise
+        return {'state':'installed','runtime_health':'healthy','model_setup':'not_evaluated','production_ready':False}
+    def install(self):
+        self.operator()
+        if self.tx.inspect()['state']=='installed':return self.start()
         self.plan()
         steps=[('images',self.load_images),('prepare',self.prepare),('config',lambda:self.compose('config','--quiet')),
           ('database',lambda:self.compose('up','-d','--wait','--wait-timeout','120','postgresql')),
@@ -140,10 +163,11 @@ class Installer:
         return {**result,'model_setup':'required','production_ready':False}
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('action',choices=['plan','install','stop']);p.add_argument('--bundle',required=True);p.add_argument('--release-sha256',required=True);p.add_argument('--root',required=True);p.add_argument('--request',required=True);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('action',choices=['plan','install','start','stop']);p.add_argument('--bundle',required=True);p.add_argument('--release-sha256',required=True);p.add_argument('--root',required=True);p.add_argument('--request',required=True);a=p.parse_args()
     i=Installer(a.bundle,a.release_sha256,a.root,json.loads(Path(a.request).read_text()))
     if a.action=='plan':result=i.plan()
     elif a.action=='install':result=i.install()
+    elif a.action=='start':result=i.start()
     else:
         if os.geteuid()!=0:raise TransactionError('Root operator required')
         with i.tx.locked():i.stop()

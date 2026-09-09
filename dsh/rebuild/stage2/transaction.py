@@ -8,6 +8,8 @@ import json
 import os
 from pathlib import Path
 import stat
+import tempfile
+import shutil
 
 class TransactionError(RuntimeError): pass
 
@@ -66,9 +68,16 @@ class Transaction:
             except BlockingIOError:raise TransactionError('Another installation transaction is active')
             self.inspect()
             if not self.root.exists():
-                self.root.mkdir(mode=0o700)
-                atomic_json(self.owner,self.identity)
-                atomic_json(self.journal,{'state':'prepared','completed':[]})
+                staging=Path(tempfile.mkdtemp(prefix='.'+self.root.name+'.prepare-',dir=parent))
+                try:
+                    atomic_json(staging/'owner.json',self.identity)
+                    atomic_json(staging/'transaction.json',{'state':'prepared','completed':[]})
+                    os.rename(staging,self.root)
+                    parent_fd=os.open(parent,os.O_RDONLY|os.O_DIRECTORY)
+                    try:os.fsync(parent_fd)
+                    finally:os.close(parent_fd)
+                finally:
+                    if staging.exists():shutil.rmtree(staging)
             yield
         finally:os.close(fd)
 
