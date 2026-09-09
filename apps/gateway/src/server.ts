@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import pg from 'pg';
+import { deploymentImages } from './deployment-images.js';
 import { buildApp } from './app.js';
 import { PostgresAuthStore } from './auth/postgres-store.js';
 import { PostgresGovernanceStore } from './governance/postgres-store.js';
@@ -53,20 +54,13 @@ const hermesGateway = new HermesGatewayService(
   new PostgresFrameworkEventJournal(pool),
 );
 const updateRepository = process.env.HERMES_UPSTREAM_REPOSITORY ?? 'NousResearch/hermes-agent';
-const deployedImages = {
-  'hermes-alica':
-    process.env.ALICA_HERMES_RUNTIME_IMAGE ?? requiredEnvironment('HERMES_RUNTIME_IMAGE'),
-  'hermes-herman':
-    process.env.HERMAN_HERMES_RUNTIME_IMAGE ?? requiredEnvironment('HERMES_RUNTIME_IMAGE'),
-} as const;
+const deployedImages = deploymentImages(process.env, requiredEnvironment);
 const deployedVersion = requiredEnvironment('HERMES_DEPLOYED_FRAMEWORK_VERSION');
+
 const deployedCommit = requiredEnvironment('HERMES_DEPLOYED_FRAMEWORK_COMMIT');
 if (!/^[a-f0-9]{40}$/.test(deployedCommit))
   throw new Error('HERMES_DEPLOYED_FRAMEWORK_COMMIT must be a full Git commit');
-const deploymentInputs: DeploymentMetadataInput[] = (
-  Object.keys(deployedImages) as Array<keyof typeof deployedImages>
-).map((frameworkId) => {
-  const deployedImage = deployedImages[frameworkId];
+const deploymentInputs: DeploymentMetadataInput[] = Object.entries(deployedImages).map(([frameworkId, deployedImage]) => {
   const deployedDigest = deployedImage.match(/@(sha256:[a-f0-9]{64})$/)?.[1];
   if (!deployedDigest)
     throw new Error(`${frameworkId} runtime image must be pinned by sha256 digest`);

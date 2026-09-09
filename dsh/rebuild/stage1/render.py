@@ -30,6 +30,7 @@ def render():
     for k in ['HERMAN_HERMES_RUNTIME_IMAGE', 'HERMAN_FRAMEWORK_TOKEN_FILE', 'ALICA_HERMES_RUNTIME_IMAGE', 'ALICA_FRAMEWORK_TOKEN_FILE']:
         core['environment'].pop(k, None)
     core['environment'].update(FRAMEWORK_AUTH_ENV_NAMES='DSH_FRAMEWORK_TOKEN', DSH_FRAMEWORK_TOKEN_FILE='/run/secrets/alica-token', FRAMEWORK_REGISTRATION_FILE='/app/frameworks.json', HERMES_UPDATE_DISCOVERY_INTERVAL_MS='0')
+    core['environment']['HERMES_DEPLOYED_IMAGES_JSON']='{"hermes-alica":"${DSH_HERMES_OCI_REF}"}'
     core['volumes'] = [v for v in core['volumes'] if 'herman' not in v]
     core['volumes'].append('./frameworks.json:/app/frameworks.json:ro')
     core['depends_on'].pop('alica'); core['depends_on'].pop('herman')

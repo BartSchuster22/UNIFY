@@ -74,6 +74,8 @@ def prepare(package,d,lock):
     env={'ALICA_PROJECT':PROJECT,'ALICA_CELL_ID':'ins_dsh_stage1','ALICA_RELEASE_ID':'dsh-stage1','ALICA_PUBLIC_HOST':'stage1.dsh.invalid','ALICA_PUBLIC_ORIGIN':'https://stage1.dsh.invalid:18443','ALICA_ALLOWED_ORIGINS':'https://stage1.dsh.invalid:18443','BOOTSTRAP_ADMIN_USERNAME':'stage1-admin','KEYCLOAK_ADMIN_USERNAME':'stage1-admin'}
     keys={'hermes':'ALICA_RUNTIME_IMAGE','unify-core':'UNIFY_CORE_IMAGE','uniui':'UNIUI_IMAGE','memory-v4':'MEMORY_V4_IMAGE','postgresql':'POSTGRESQL_IMAGE','keycloak':'KEYCLOAK_IMAGE','caddy':'CADDY_IMAGE'}
     for name,key in keys.items():env[key]=lock['images'][name]['id']
+    h=lock['images']['hermes']
+    env['DSH_HERMES_OCI_REF']=h['reference'].split(':')[0]+'@'+h['local_manifest_identity']
     (ROOT/'.env').write_text('\n'.join(k+'='+v for k,v in env.items())+'\n')
     # Resolve the generated template without allowing mutable image pulls.
     for service in d['services'].values():service['pull_policy']='never'
