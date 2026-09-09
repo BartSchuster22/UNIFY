@@ -51,7 +51,7 @@ class Transaction:
         if not self.owner.is_file():raise TransactionError('Refusing existing unowned installation path')
         if json.loads(self.owner.read_text())!=self.identity:raise TransactionError('Owner/request/release mismatch')
         value=json.loads(self.journal.read_text()) if self.journal.exists() else {'state':'prepared','completed':[]}
-        if value.get('state') not in {'prepared','running','rolled-back','rollback-failed','installed'}:
+        if value.get('state') not in {'prepared','running','rolled-back','rollback-failed','installed','uninstalled-data-retained'}:
             raise TransactionError('Unknown recovery state')
         return value
 

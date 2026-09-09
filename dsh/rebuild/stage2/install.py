@@ -12,7 +12,7 @@ import socket
 import signal
 import subprocess
 import time
-from transaction import Transaction,TransactionError,atomic_json
+from transaction import Transaction,TransactionError,atomic_json,atomic_json
 from render import validate_request,realm,caddyfile
 
 SERVICES={'postgresql','keycloak','memory-v4','hermes','unify-core','uniui','caddy'}
@@ -130,6 +130,23 @@ class Installer:
         if (self.root/'compose.json').exists():
             self.compose('stop','--timeout','30')
             if any(c['State']['Running'] for c in self.owned()):raise TransactionError('Candidate did not stop')
+    def uninstall(self):
+        self.operator()
+        if self.tx.inspect()['state']=='absent':raise TransactionError('Installation does not exist')
+        with self.tx.locked():
+            old=self.tx.inspect();self.owned()
+            if old['state'] in {'installed','uninstalled-data-retained'}:self.prepare()
+            def resources(kind):
+                names=self.docker(kind,'ls','-q','--filter','label=com.docker.compose.project='+self.r['cell']).split()
+                rows=json.loads(self.docker(kind,'inspect',*names)) if names else []
+                if any((row.get('Labels') or {}).get('com.alica.stage2')!=self.r['cell'] for row in rows):raise TransactionError('Foreign '+kind+' in candidate namespace')
+                return {row['Name'] for row in rows}
+            retained=resources('volume');resources('network')
+            if (self.root/'compose.json').exists():self.compose('down','--timeout','30')
+            if self.records() or resources('network'):raise TransactionError('Candidate resources remain after uninstall')
+            if resources('volume')!=retained:raise TransactionError('Uninstall volume retention check failed')
+            atomic_json(self.tx.journal,{'state':'uninstalled-data-retained','completed':old.get('completed',[])})
+            return {'state':'uninstalled-data-retained','containers_removed':True,'networks_removed':True,'data_retained':True,'retained_volume_count':len(retained)}
     def load_images(self):
         missing=self.plan()['images_to_load']
         if missing:self.docker('load','--input',str(self.bundle/'images.tar'))
@@ -141,18 +158,19 @@ class Installer:
             if path.exists() and (path.stat().st_uid!=0 or path.stat().st_mode&0o022):raise TransactionError('Root-owned non-writable installation ancestry required')
     def start(self):
         self.operator();self.plan()
-        if self.tx.inspect()['state']!='installed':raise TransactionError('Completed installation required; use install to recover a failed transaction')
+        if self.tx.inspect()['state'] not in {'installed','uninstalled-data-retained'}:raise TransactionError('Completed installation required; use install to recover a failed transaction')
         with self.tx.locked():
             try:
                 self.prepare();self.compose('up','-d','--wait','--wait-timeout','240')
                 records=[c for c in self.owned() if c['Config']['Labels'].get('com.alica.component') in SERVICES]
                 if len(records)!=7 or any(not c['State']['Running'] or c['State'].get('Health',{}).get('Status')!='healthy' for c in records):raise TransactionError('Candidate joint health failed')
+                old=self.tx.inspect();atomic_json(self.tx.journal,{'state':'installed','completed':old.get('completed',[])})
             except BaseException:
                 self.stop();raise
         return {'state':'installed','runtime_health':'healthy','model_setup':'not_evaluated','production_ready':False}
     def install(self):
         self.operator()
-        if self.tx.inspect()['state']=='installed':return self.start()
+        if self.tx.inspect()['state'] in {'installed','uninstalled-data-retained'}:return self.start()
         self.plan()
         steps=[('images',self.load_images),('prepare',self.prepare),('config',lambda:self.compose('config','--quiet')),
           ('database',lambda:self.compose('up','-d','--wait','--wait-timeout','120','postgresql')),
@@ -165,11 +183,12 @@ class Installer:
         return {**result,'model_setup':'required','production_ready':False}
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('action',choices=['plan','install','start','stop']);p.add_argument('--bundle',required=True);p.add_argument('--release-sha256',required=True);p.add_argument('--root',required=True);p.add_argument('--request',required=True);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('action',choices=['plan','install','start','stop','uninstall']);p.add_argument('--bundle',required=True);p.add_argument('--release-sha256',required=True);p.add_argument('--root',required=True);p.add_argument('--request',required=True);a=p.parse_args()
     i=Installer(a.bundle,a.release_sha256,a.root,json.loads(Path(a.request).read_text()))
     if a.action=='plan':result=i.plan()
     elif a.action=='install':result=i.install()
     elif a.action=='start':result=i.start()
+    elif a.action=='uninstall':result=i.uninstall()
     else:
         if os.geteuid()!=0:raise TransactionError('Root operator required')
         with i.tx.locked():i.stop()

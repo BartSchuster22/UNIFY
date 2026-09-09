@@ -66,6 +66,6 @@ def realm(r,client_secret,owner_password):
 
 def caddyfile(r):
     u=validate_request(r)
-    return ('https://'+u.hostname+':8443 {\n tls /run/secrets/edge.crt /run/secrets/edge.key\n'
+    return ('https://'+u.hostname+':8443 {\n request_body {\n  max_size 1MB\n }\n tls /run/secrets/edge.crt /run/secrets/edge.key\n'
       ' @private path /identity/admin /identity/admin/* /identity/realms/master /identity/realms/master/*\n respond @private 404\n'
       ' handle /identity/* {\n  reverse_proxy keycloak:8080\n }\n handle {\n  reverse_proxy uniui:3000\n }\n}\n')

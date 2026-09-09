@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+base=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+if [[ ${1:-} == recover-owner ]]; then
+ shift
+ exec python3 "$base/recover_owner.py" "$@"
+fi
+exec python3 "$base/install.py" "$@"
