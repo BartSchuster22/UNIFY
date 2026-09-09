@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import pg from 'pg';
+import { startUpdateDiscovery } from './update-discovery.js';
 import { deploymentImages } from './deployment-images.js';
 import { buildApp } from './app.js';
 import { PostgresAuthStore } from './auth/postgres-store.js';
@@ -60,19 +61,21 @@ const deployedVersion = requiredEnvironment('HERMES_DEPLOYED_FRAMEWORK_VERSION')
 const deployedCommit = requiredEnvironment('HERMES_DEPLOYED_FRAMEWORK_COMMIT');
 if (!/^[a-f0-9]{40}$/.test(deployedCommit))
   throw new Error('HERMES_DEPLOYED_FRAMEWORK_COMMIT must be a full Git commit');
-const deploymentInputs: DeploymentMetadataInput[] = Object.entries(deployedImages).map(([frameworkId, deployedImage]) => {
-  const deployedDigest = deployedImage.match(/@(sha256:[a-f0-9]{64})$/)?.[1];
-  if (!deployedDigest)
-    throw new Error(`${frameworkId} runtime image must be pinned by sha256 digest`);
-  return {
-    frameworkId,
-    releaseId: process.env.RELEASE_ID ?? 'development',
-    imageReference: deployedImage,
-    imageDigest: deployedDigest,
-    frameworkVersion: deployedVersion,
-    frameworkCommit: deployedCommit,
-  };
-});
+const deploymentInputs: DeploymentMetadataInput[] = Object.entries(deployedImages).map(
+  ([frameworkId, deployedImage]) => {
+    const deployedDigest = deployedImage.match(/@(sha256:[a-f0-9]{64})$/)?.[1];
+    if (!deployedDigest)
+      throw new Error(`${frameworkId} runtime image must be pinned by sha256 digest`);
+    return {
+      frameworkId,
+      releaseId: process.env.RELEASE_ID ?? 'development',
+      imageReference: deployedImage,
+      imageDigest: deployedDigest,
+      frameworkVersion: deployedVersion,
+      frameworkCommit: deployedCommit,
+    };
+  },
+);
 const frameworkUpdates = new FrameworkUpdateVisibilityService({
   sourceId: 'hermes-agent',
   repository: updateRepository,
@@ -125,14 +128,9 @@ if (!Number.isFinite(configuredPollInterval) || configuredPollInterval < 1_000)
   throw new Error('HERMES_EVENT_POLL_MS must be at least 1000');
 const poll = setInterval(() => void hermesGateway.ingestAll(), configuredPollInterval);
 poll.unref();
-const updateDiscoveryInterval = Number(
-  process.env.HERMES_UPDATE_DISCOVERY_INTERVAL_MS ?? 6 * 60 * 60 * 1_000,
+const updatePoll = await startUpdateDiscovery(process.env.HERMES_UPDATE_DISCOVERY_INTERVAL_MS, () =>
+  frameworkUpdates.refresh(),
 );
-if (!Number.isFinite(updateDiscoveryInterval) || updateDiscoveryInterval < 60_000)
-  throw new Error('HERMES_UPDATE_DISCOVERY_INTERVAL_MS must be at least 60000');
-await frameworkUpdates.refresh();
-const updatePoll = setInterval(() => void frameworkUpdates.refresh(), updateDiscoveryInterval);
-updatePoll.unref();
 app.addHook('onClose', async () => {
   clearInterval(poll);
   clearInterval(updatePoll);
