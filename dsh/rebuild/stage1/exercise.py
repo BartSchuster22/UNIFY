@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import secrets
+from render import CPUS, CAPS_MIB
 import shutil
 import signal
 import subprocess
@@ -85,25 +86,33 @@ def prepare(package,d,lock):
     (ROOT/'images.lock.json').write_text(json.dumps(lock,indent=2))
 
 
-def candidate_ids():
+def candidate_ids(steady_only=False):
     # Setup jobs are --rm; observing their removal races with docker inspect.
     # Their own synchronous exit status is checked by compose().
-    return run(['docker','ps','-aq','--filter',f'label=com.docker.compose.project={PROJECT}','--filter','label=com.docker.compose.oneoff=False']).split()
+    args=['docker','ps','-aq','--filter',f'label=com.docker.compose.project={PROJECT}']
+    if steady_only:args.extend(['--filter','label=com.docker.compose.oneoff=False'])
+    return run(args).split()
 
 
-def state():
-    ids=candidate_ids()
+def state(steady_only=False):
+    ids=candidate_ids(steady_only)
     return json.loads(run(['docker','inspect',*ids])) if ids else []
 
 
 def check_runtime():
-    records=state()
+    records=state(steady_only=True)
     live=[c for c in records if c['State']['Running']]
     REPORT['checks']['seven_healthy_services']=len(live)==7 and all(c['State'].get('Health',{}).get('Status')=='healthy' for c in live)
     assert REPORT['checks']['seven_healthy_services'], 'not all seven services healthy'
     for c in live:
         assert c['HostConfig']['ReadonlyRootfs'] and not c['HostConfig']['Privileged']
         assert c['HostConfig']['Memory']>0 and c['HostConfig']['MemorySwap']==c['HostConfig']['Memory']
+        service=c['Config']['Labels']['com.docker.compose.service']
+        assert c['HostConfig']['Memory']==CAPS_MIB[service]*1024**2
+        assert c['HostConfig']['NanoCpus']==int(CPUS[service]*10**9)
+        assert 0<c['HostConfig']['PidsLimit']<=192
+        assert 'ALL' in c['HostConfig']['CapDrop']
+        assert 'no-new-privileges:true' in c['HostConfig']['SecurityOpt']
         assert not c['State']['OOMKilled']
         for m in c['Mounts']:
             assert (m['Type']=='volume' and m['Name'].startswith(PROJECT+'_')) or (m['Type']=='bind' and m['Source'].startswith(str(ROOT)+'/')), m
@@ -111,7 +120,7 @@ def check_runtime():
         for bindings in (c['HostConfig'].get('PortBindings') or {}).values():
             assert all(p['HostIp']=='127.0.0.1' and p['HostPort']=='18443' for p in bindings)
     REPORT['checks']['effective_isolation_and_caps']=True
-    REPORT['candidate_inventory']=[{'name':c['Name'],'image':c['Image'],'service':c['Config']['Labels']['com.docker.compose.service'],'memory_limit':c['HostConfig']['Memory'],'networks':sorted(c['NetworkSettings']['Networks']),'health':c['State'].get('Health',{}).get('Status')} for c in live]
+    REPORT['candidate_inventory']=[{'name':c['Name'],'image':c['Image'],'service':c['Config']['Labels']['com.docker.compose.service'],'memory_limit':c['HostConfig']['Memory'],'nano_cpus':c['HostConfig']['NanoCpus'],'pids_limit':c['HostConfig']['PidsLimit'],'networks':sorted(c['NetworkSettings']['Networks']),'health':c['State'].get('Health',{}).get('Status')} for c in live]
     return {c['Config']['Labels']['com.docker.compose.service']:c['Id'] for c in live}
 
 
@@ -137,7 +146,7 @@ def main(package):
             try:
                 if mem<GIB or disk<8*GIB or time.monotonic()-started>900:
                     raise RuntimeError('resource/TTL guard tripped')
-                if any(c['State'].get('OOMKilled') for c in state()):
+                if any(c['State'].get('OOMKilled') for c in state(steady_only=True)):
                     raise RuntimeError('candidate container exceeded memory cap')
                 if len(REPORT['samples']) % 5 == 0:
                     code=run(['curl','--max-time','8','--silent','--show-error','--output','/dev/null','--write-out','%{http_code}','https://uniui.aquiero.com/'],timeout=10)
@@ -163,9 +172,12 @@ def main(package):
         # check its native CLI agreement, UID drop, supervision and loopback binding.
         REPORT['native_adapter_acceptance']=run(['docker','exec',ids['hermes'],'/usr/local/bin/node','/run/acceptance-client.mjs'])
         REPORT['checks']['native_adapter_acceptance']=True
-        REPORT['native_profiles']=run(['docker','exec',ids['hermes'],'/opt/hermes/bin/hermes','profile','list'])
-        REPORT['native_cron']=run(['docker','exec',ids['hermes'],'/opt/hermes/bin/hermes','cron','list'])
-        REPORT['checks']['native_profile_cron_cli']=True
+        REPORT['native_profiles']=run(['docker','exec','--user','10000:10000',ids['hermes'],'/opt/hermes/bin/hermes','profile','list'])
+        REPORT['native_cron']=run(['docker','exec','--user','10000:10000',ids['hermes'],'/opt/hermes/bin/hermes','cron','list'])
+        REPORT['native_kanban']=run(['docker','exec','--user','10000:10000',ids['hermes'],'/opt/hermes/bin/hermes','kanban','list'])
+        REPORT['checks']['native_profile_cron_kanban_cli']=True
+        REPORT['memory_from_core']=run(['docker','exec',ids['unify-core'],'node','--input-type=module','-e',"const r=await fetch('http://memory-v4:8000/health',{signal:AbortSignal.timeout(5000)});if(!r.ok)throw Error('Memory health HTTP '+r.status);console.log(await r.text());"])
+        REPORT['checks']['private_core_memory_reachability']=True
         code=run(['curl','--silent','--show-error','--noproxy','*','--cacert',str(ROOT/'secrets/framework-ca.crt'),'--resolve','stage1.dsh.invalid:18443:127.0.0.1','--output','/dev/null','--write-out','%{http_code}','https://stage1.dsh.invalid:18443/'])
         assert code=='200',code
         REPORT['checks']['private_tls_ui_200']=True
@@ -184,6 +196,8 @@ def main(package):
         done.set();thread.join(timeout=5)
         REPORT['candidate_before_final_stop']=[{'name':c['Name'],'state':c['State']['Status'],'oom_killed':c['State'].get('OOMKilled'),'health':c['State'].get('Health',{}).get('Status')} for c in state()]
         compose('stop','--timeout','30')
+        remaining=[c['Id'] for c in state() if c['State']['Running']]
+        if remaining:run(['docker','stop','--time','30',*remaining])
         REPORT['checks']['final_candidate_stopped']=not any(c['State']['Running'] for c in state())
         after=inventory();REPORT['production_after']=after
         REPORT['checks']['existing_workloads_unchanged']=before==after

@@ -10,7 +10,7 @@ export API_SERVER_PORT="${HERMES_API_PORT:-8642}"
 /command/s6-svscanctl -a /run/service
 for attempt in {1..100}; do
   if /command/s6-svok /run/service/gateway-default; then
-    exec /command/s6-setuidgid hermes /opt/hermes/bin/hermes gateway run
+    exec /command/s6-setuidgid hermes /opt/hermes/bin/hermes gateway start
   fi
   sleep 0.1
 done

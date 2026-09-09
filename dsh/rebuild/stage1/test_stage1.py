@@ -61,7 +61,7 @@ class RuntimeWiring(unittest.TestCase):
         import exercise
         from unittest.mock import patch
         with patch.object(exercise,'run',return_value='abc\n') as run:
-            self.assertEqual(exercise.candidate_ids(),['abc'])
+            self.assertEqual(exercise.candidate_ids(steady_only=True),['abc'])
             self.assertIn('label=com.docker.compose.oneoff=False',run.call_args.args[0])
     def test_native_supervision_dependency_packaged(self):
         from pathlib import Path
@@ -72,6 +72,11 @@ class RuntimeWiring(unittest.TestCase):
             self.assertTrue((ROOT/rel/f).is_file())
             self.assertIn('COPY '+rel+f, docker)
         self.assertEqual((ROOT/rel/'type').read_text().strip(),'oneshot')
+        script=(ROOT/rel/'run').read_text()
+        self.assertIn('gateway start',script)
+        self.assertNotIn('gateway run',script)
+        self.assertIn('s6-svscanctl -a',script)
+        self.assertIn('s6-svok',script)
     def test_health_checks_actual_native_gateway(self):
         from render import ROOT
         text=(ROOT/'deploy/hermes-runtime/healthcheck.mjs').read_text()
