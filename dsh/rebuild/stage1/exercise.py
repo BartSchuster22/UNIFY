@@ -178,7 +178,7 @@ def main(package):
         REPORT['native_cron']=run(['docker','exec','--user','10000:10000',ids['hermes'],'/opt/hermes/bin/hermes','cron','list'])
         REPORT['native_kanban']=run(['docker','exec','--user','10000:10000',ids['hermes'],'/opt/hermes/bin/hermes','kanban','list'])
         REPORT['checks']['native_profile_cron_kanban_cli']=True
-        REPORT['memory_from_core']=run(['docker','exec',ids['unify-core'],'node','--input-type=module','-e',"const r=await fetch('http://memory-v4:8000/health',{signal:AbortSignal.timeout(5000)});if(!r.ok)throw Error('Memory health HTTP '+r.status);console.log(await r.text());"])
+        REPORT['memory_from_core']=run(['docker','exec',ids['unify-core'],'/nodejs/bin/node','--input-type=module','-e',"const r=await fetch('http://memory-v4:8000/health',{signal:AbortSignal.timeout(5000)});if(!r.ok)throw Error('Memory health HTTP '+r.status);console.log(await r.text());"])
         REPORT['checks']['private_core_memory_reachability']=True
         code=run(['curl','--silent','--show-error','--noproxy','*','--cacert',str(ROOT/'secrets/framework-ca.crt'),'--resolve','stage1.dsh.invalid:18443:127.0.0.1','--output','/dev/null','--write-out','%{http_code}','https://stage1.dsh.invalid:18443/'])
         assert code=='200',code
