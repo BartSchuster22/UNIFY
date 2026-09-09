@@ -48,7 +48,7 @@ def render():
     job.pop('healthcheck', None)
     s['reconcile-frameworks'] = job
     c = s['caddy']
-    c['networks'] = {'application': {'aliases': ['stage1.dsh.invalid']}}
+    c['networks'] = {'application': {'aliases': ['stage1.dsh.invalid']}, 'ingress': {}}
     c['volumes'] += ['./secrets/edge.crt:/run/secrets/edge.crt:ro', './secrets/edge.key:/run/secrets/edge.key:ro']
     c['ports'] = [{'target': 8443, 'published': '18443', 'host_ip': '127.0.0.1', 'protocol': 'tcp'}]
     for name, service in s.items():
@@ -65,6 +65,7 @@ def render():
     used = {v.split(':')[0] for service in s.values() for v in service.get('volumes', []) if not v.startswith('./')}
     d['volumes'] = {name: {'labels': {'com.alica.stage1': '${ALICA_CELL_ID}'}} for name in sorted(used)}
     d['networks'] = {name: {'internal': True, 'labels': {'com.alica.stage1': '${ALICA_CELL_ID}'}} for name in ['application', 'database', 'memory', 'control']}
+    d['networks']['ingress'] = {'internal': False, 'labels': {'com.alica.stage1': '${ALICA_CELL_ID}'}}
     return d
 
 
@@ -82,7 +83,8 @@ def validate(d):
         for v in service.get('volumes', []):
             src = v.split(':')[0]
             if src not in d['volumes'] and not re.fullmatch(r'\./(?:secrets/[A-Za-z0-9_.-]+|frameworks\.json|acceptance-client\.mjs|postgres-init\.sql|Caddyfile)', src): errors.append('mount:' + name)
-    if any(not v.get('internal') or v.get('external') for v in d['networks'].values()): errors.append('network')
+    if any(v.get('external') or (name != 'ingress' and not v.get('internal')) for name,v in d['networks'].items()): errors.append('network')
+    if d['networks'].get('ingress',{}).get('internal') is not False or {name for name,v in s.items() if 'ingress' in v.get('networks',[])} != {'caddy'}: errors.append('ingress-boundary')
     if any(v.get('external') or v.get('name') for v in d['volumes'].values()): errors.append('volume')
     if s['memory-v4']['networks'] != ['memory'] or any('backup' in v for v in s['memory-v4']['volumes']): errors.append('memory-boundary')
     members = {n for n, v in s.items() if 'memory' in v.get('networks', [])}

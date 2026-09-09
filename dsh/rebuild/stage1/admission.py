@@ -40,7 +40,7 @@ def admission(host, compose, lock):
             'pass': all(checks.values()), 'checks': checks, 'candidate_memory_cap_bytes_including_one_job': memory_cap,
             'candidate_cpu_cap_including_one_job': cpu_cap, 'host_memory_reserve_bytes': GIB,
             'image_size_sum_bytes': image_bytes, 'required_free_disk_bytes': disk_required,
-            'restrictions': ['one job at a time', 'no provider or channel credentials', 'internal-only networks',
+            'restrictions': ['one job at a time', 'no provider or channel credentials', 'internal backend networks; Caddy-only ingress bridge',
                              'loopback-only ingress', 'candidate-only stop on low resources', 'stop after exercise',
                              'no production mounts, credentials, routes, schedules or Docker socket']}
 

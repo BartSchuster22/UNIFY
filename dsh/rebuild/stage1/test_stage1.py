@@ -7,6 +7,12 @@ class Isolation(unittest.TestCase):
     def setUp(self): self.d=render()
     def test_baseline(self): self.assertEqual(validate(self.d), [])
     def test_single_framework(self): self.assertEqual([n for n in self.d['services'] if n in {'hermes','alica','herman'}], ['hermes'])
+    def test_backend_cannot_join_ingress(self):
+        self.d['services']['hermes']['networks']['ingress']={}
+        self.assertIn('ingress-boundary',validate(self.d))
+    def test_backend_network_cannot_gain_egress(self):
+        self.d['networks']['control']['internal']=False
+        self.assertIn('network',validate(self.d))
     def test_public_ingress_rejected(self):
         self.d['services']['caddy']['ports'][0]['host_ip']='0.0.0.0'; self.assertTrue(validate(self.d))
     def test_socket_rejected(self):
