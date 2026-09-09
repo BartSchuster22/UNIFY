@@ -9,6 +9,7 @@ from pathlib import Path
 import secrets
 import shutil
 import socket
+import signal
 import subprocess
 import time
 from transaction import Transaction,TransactionError,atomic_json
@@ -149,5 +150,7 @@ def main():
         result={'state':'stopped','data_retained':True}
     print(json.dumps(result))
 if __name__=='__main__':
+    def interrupted(*_):raise KeyboardInterrupt()
+    signal.signal(signal.SIGTERM,interrupted)
     try:main()
     except Exception as e:raise SystemExit(type(e).__name__+': '+str(e))
