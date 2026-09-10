@@ -4,8 +4,10 @@ This suite does NOT qualify provider/callback/business/reboot cases by itself.
 """
 import hashlib,json,os,socket,subprocess,time,uuid
 from pathlib import Path
-CELL='dsh2-stage5-qa1';ROOT=Path('/opt')/CELL
-OUT=Path('/var/lib/alica-stage5-qa/host-operations.json')
+CELL=os.environ.get('DSH_STAGE5_QA_CELL','dsh2-stage5-qa3')
+assert CELL in ('dsh2-stage5-qa1','dsh2-stage5-qa2','dsh2-stage5-qa3')
+ROOT=Path('/opt')/CELL
+OUT=Path('/var/lib/alica-stage5-'+CELL.rsplit('-',1)[-1]+'/host-operations.json')
 assert os.geteuid()==0 and socket.gethostname()=='dsh-stage5-disposable'
 assert json.loads((ROOT/'transaction.json').read_text())['state']=='installed'
 C=json.loads((ROOT/'operations/broker.json').read_text())
@@ -97,10 +99,11 @@ def recover(service):
   row=json.loads(cmd(['docker','inspect',name]))[0]
   if not row['State']['Running']:cmd(['docker','start',name])
  return {'exactlyOneBrokerRecovery':True,'containerIdentityPreserved':True,'readinessObservedAfterCommand':True,'persistentIncidentResolved':True}
-case('baseline',baseline)
-case('broker-denials-and-redaction',guardrails)
-case('maintenance-suppresses-recovery',maintenance)
-for service in ('unify-core','memory-v4','hermes'):
- case('unexpected-stop-'+service,lambda service=service:recover(service))
-RESULT['complete']=True;RESULT['remainingSuites']=['provider','callback','external-effect-deduplication','daemon','storage-pressure','broker-interruption','host-reboot','installed-browser'];save()
-print(json.dumps({'hostSuiteComplete':True,'wholeStage5Accepted':False}),flush=True)
+if __name__=='__main__':
+ case('baseline',baseline)
+ case('broker-denials-and-redaction',guardrails)
+ case('maintenance-suppresses-recovery',maintenance)
+ for service in ('unify-core','memory-v4','hermes'):
+  case('unexpected-stop-'+service,lambda service=service:recover(service))
+ RESULT['complete']=True;RESULT['remainingSuites']=['provider','callback','external-effect-deduplication','daemon','storage-pressure','broker-interruption','host-reboot','installed-browser'];save()
+ print(json.dumps({'hostSuiteComplete':True,'wholeStage5Accepted':False}),flush=True)

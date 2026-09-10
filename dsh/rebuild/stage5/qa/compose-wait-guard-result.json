@@ -1,0 +1,7 @@
+{
+  "schema": "stage5-compose-wait-guard-live/v1",
+  "nativeComposeExit": 0,
+  "falseSuccessRejected": true,
+  "observedHealth": "starting",
+  "candidateStopped": true
+}

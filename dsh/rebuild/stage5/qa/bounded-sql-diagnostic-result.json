@@ -1,0 +1,18 @@
+{
+  "schema": "stage5-bounded-sql-diagnostic/v1",
+  "acceptance": false,
+  "tcpConnected": true,
+  "tcpConnectSeconds": 0.0964759899998171,
+  "requiredNetworkProbe": {
+    "exit": 2,
+    "elapsedSeconds": 13.810565839999981,
+    "output": "psql: error: connection to server at \"postgresql\" (172.20.0.2), port 5432 failed: timeout expired\n"
+  },
+  "localSqlDiagnosticOnly": {
+    "exit": 2,
+    "elapsedSeconds": 11.29065644000002,
+    "output": "psql: error: connection to server at \"127.0.0.1\", port 5432 failed: timeout expired\n"
+  },
+  "nanoCpusUnchanged": true,
+  "candidateStopped": true
+}

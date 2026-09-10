@@ -1,7 +1,13 @@
 import http.cookiejar,json,os,secrets,socket,ssl,urllib.request,urllib.parse,urllib.error
 from html.parser import HTMLParser
 from pathlib import Path
-root=Path('/opt/dsh2-stage5-qa1');out=Path('/var/lib/alica-stage5-qa');origin='https://stage5.dsh.invalid';host='stage5.dsh.invalid'
+cell=os.environ.get('DSH_STAGE5_QA_CELL','dsh2-stage5-qa3')
+assert cell in ('dsh2-stage5-qa1','dsh2-stage5-qa2','dsh2-stage5-qa3')
+assert os.geteuid()==0 and socket.gethostname()=='dsh-stage5-disposable'
+root=Path('/opt')/cell;out=Path('/var/lib/alica-stage5-'+cell.rsplit('-',1)[-1])
+request=json.loads((root/'operations/request.json').read_text())
+origin=request['origin'];host=urllib.parse.urlsplit(origin).hostname;owner=request['owner']
+assert host=='stage5.qa.invalid'
 original=socket.getaddrinfo
 def resolve(name,*args,**kwargs):
  if name!=host:raise RuntimeError('Unexpected network destination')
@@ -52,10 +58,10 @@ def submit(form,fields,url):
 
 status,data,_=fetch('/api/v1/auth/method');assert json.loads(data)['method']=='oidc'
 status,body,url=fetch('/api/v1/auth/oidc/login')
-form=pick(body,'password');status,body,url=submit(form,{'username':'owner','password':'deliberately-wrong-fixture-password'},url)
+form=pick(body,'password');status,body,url=submit(form,{'username':owner,'password':'deliberately-wrong-fixture-password'},url)
 assert fetch('/api/v1/auth/me')[0]==401
 report['wrong_password_denied']=True
-form=pick(body,'password');status,body,url=submit(form,{'username':'owner','password':((out/'test-owner-password') if (out/'test-owner-password').exists() else (root/'secrets/owner-password')).read_text().strip()},url)
+form=pick(body,'password');status,body,url=submit(form,{'username':owner,'password':((out/'test-owner-password') if (out/'test-owner-password').exists() else (root/'secrets/owner-password')).read_text().strip()},url)
 if not (out/'test-owner-password').exists():
  form=pick(body,'password-new');new=secrets.token_urlsafe(40);(out/'test-owner-password').write_text(new)
  status,body,url=submit(form,{'password-new':new,'password-confirm':new},url);report['mandatory_password_change']=status==200
