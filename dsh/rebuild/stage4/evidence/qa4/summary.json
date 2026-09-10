@@ -1,0 +1,10 @@
+{
+  "qualifiedCandidate": "qa4",
+  "releaseSha256": "d9100e162ae07b75805b89841aae89cc580cabbdb44b352b9176ea26d23c03b6",
+  "archiveFormat": "gzip-compressed Docker save",
+  "archiveSha256": "6497c3f42a8aa17d115fff6048417b7a8d5b91399dba7e64fcb75fa8ba1235d9",
+  "dockerLoadAndInstallExercised": true,
+  "qa3Qualified": false,
+  "productionReady": false,
+  "scope": "Stage4 bounded recurring work only; later stages remain open"
+}

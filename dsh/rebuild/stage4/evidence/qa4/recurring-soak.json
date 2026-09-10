@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "allResultsCertainAndGoverned": true,
+  "clockOrOutcomeEdits": false,
+  "elapsedSeconds": 862.113,
+  "durationSource": "persisted native finishedAt minus saved wall-clock run startedAt; not reconstructed monotonic timing",
+  "successfulRecurringResults": 4,
+  "uniqueAppRequests": 4,
+  "uniqueCoreReceipts": 4,
+  "nativeRestartPreservedCheckpoint": true,
+  "nativeAuthority": {
+    "nativeTaskDone": true,
+    "nativeCronPaused": true,
+    "nativeCronRunCount": 8,
+    "nativeCapabilityRemoved": true,
+    "version": 17
+  },
+  "missedSlotsCoalesced": 9,
+  "estimatedReservedMicros": 4000,
+  "providerCost": null,
+  "providerCostIsMeasured": false,
+  "realModelInference": true,
+  "dayOrWeekSoakClaim": false,
+  "finalReadRecovery": "Original harness completed execution but its browser session expired. Separate reauthenticated closeout verified all four app/Core/native results. No execution data changed."
+}

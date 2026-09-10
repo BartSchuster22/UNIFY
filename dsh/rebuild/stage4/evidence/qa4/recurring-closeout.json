@@ -1,0 +1,37 @@
+{
+  "realCapabilityIsolation": true,
+  "foreignRevokeDenied": true,
+  "getCannotCancel": true,
+  "payloadRewriteDenied": true,
+  "serverBudgetIndependentlyEnforced": true,
+  "postCompletionReplayNoNewEffects": true,
+  "nativeOwnerConfirmsAllRecurringKnowledgeReuse": true,
+  "allRecurringResultsCertainAndGoverned": true,
+  "results": [
+    {
+      "requestId": "1d918bcf-b4e0-4578-b54d-45a1f51adb92",
+      "receiptId": "ecdd1d39-ea37-402a-8c6c-65a9cf7df11e",
+      "nativeEvidenceUsesGovernedKnowledge": true
+    },
+    {
+      "requestId": "82e28266-9e3b-48a6-a126-2301887f73b9",
+      "receiptId": "51f95895-d094-4eeb-9cd4-7d8ae0f39ea5",
+      "nativeEvidenceUsesGovernedKnowledge": true
+    },
+    {
+      "requestId": "211070f4-bac2-4d27-9550-8b6088e6d159",
+      "receiptId": "cb2a89c4-ca52-45b2-8cbd-8846daaa0dad",
+      "nativeEvidenceUsesGovernedKnowledge": true
+    },
+    {
+      "requestId": "917fd9ca-ddf0-4932-aa01-e46b04349ec1",
+      "receiptId": "6f078cf6-3a25-47bc-b335-71324d765cab",
+      "nativeEvidenceUsesGovernedKnowledge": true
+    }
+  ],
+  "realNativeDependencyWaiting": true,
+  "dependencyFailureBoundedWithoutModelCall": true,
+  "realDuplicateEventHasSingleAdmission": true,
+  "realNativeCancellationSettled": true,
+  "fixtureCapabilitiesRevoked": true
+}

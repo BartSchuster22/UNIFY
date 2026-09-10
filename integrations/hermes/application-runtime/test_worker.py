@@ -89,6 +89,21 @@ class FixtureStore(w.NativeStore):
         self.projects = NS(connect=lambda: Mock(), get_project=lambda c,s: NS(id='native-project-id', slug='fixture-project'))
 
 class SecurityUnit(unittest.TestCase):
+    def test_known_answer_keeps_governed_quote_and_original_provenance(self):
+        d=request();d['knowledge']=[dict(SOURCE,quote='fixture is blue',validated=True)]
+        a=agent_for();fetcher=Mock(side_effect=AssertionError('No refetch for sufficient knowledge'))
+        result=w.research(d,None,'fixture',factory=lambda *args:a,fetcher=fetcher)
+        shown=json.loads(a.run_conversation.call_args.kwargs['user_message'])['sources'][0]
+        self.assertEqual(shown['excerpt'],'fixture is blue')
+        self.assertEqual(shown['canonicalQuote'],'fixture is blue')
+        self.assertEqual(result['evidence'],[SOURCE])
+        self.assertTrue(result['findings'][0]['validated'])
+        fetcher.assert_not_called()
+
+    def test_known_subquote_cannot_be_passed_as_canonical(self):
+        a=agent_for();e=dict(SOURCE,canonicalQuote=SOURCE['excerpt'])
+        with self.assertRaises(w.Rejected):w.evaluate(a,request(),[e])
+
     def test_valid_request_and_strict_unknown_fields(self):
         self.assertEqual(w.validate(request(), 'execute'), request())
         for name in ['model', 'provider', 'api_key', 'profile', 'tools', 'shell', 'callback', 'workspace']:
@@ -166,7 +181,7 @@ class SecurityUnit(unittest.TestCase):
         a.run_conversation.assert_not_called()
 
     def test_knowledge_adequacy_no_fetch_and_fallback_only_operator_urls(self):
-        d=request();d['knowledge']=[SOURCE|{'quote':'blue','validated':True,'conflicting':True}]
+        d=request();d['knowledge']=[SOURCE|{'quote':'fixture is blue','validated':True,'conflicting':True}]
         fetcher=Mock(side_effect=AssertionError('network not allowed when adequate'))
         out=w.research(d,None,'s',lambda *_:agent_for(),fetcher)
         fetcher.assert_not_called();self.assertTrue(out['findings'][0]['conflicting'])

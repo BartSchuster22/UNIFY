@@ -1,0 +1,8 @@
+{
+  "unqualifiedQA3RetiredViaLifecycle": true,
+  "existingWorkloadsUnchanged": true,
+  "existingWorkloadCount": 77,
+  "borrowedAccessCredentialRemovedViaNativeAuthority": true,
+  "volumesAndEvidenceRetained": true,
+  "qa3RecurringClassification": "transport/restart passed; usable governed knowledge failed; NOT final Stage4 acceptance"
+}

@@ -1,0 +1,17 @@
+{
+  "nativeWorkflowCount": 4,
+  "allNativeWorkflowsTerminal": true,
+  "allWorkflowCronsPaused": true,
+  "nativeCapabilityFilesRemoved": true,
+  "allInferenceSettled": true,
+  "borrowedAccessCredentialRemovedViaNativeAuthority": true,
+  "runtimeSourceSha256": {
+    "worker.py": "d26488d1169137c1a331c7287a09ce493427afb5727994f92ad39d20b8a91609",
+    "workflow.py": "259914c3d519939b37e6121e59e41e790eb6d8222707d95ebe270f8afe2f6aba"
+  },
+  "existingWorkloadsUnchanged": true,
+  "originalWorkloadCount": 77,
+  "qa4BaselineWorkloadCount": 77,
+  "stage2Stage3ReleaseArtifactsModified": false,
+  "qualifiedOlderArtifactsRehashed": true
+}

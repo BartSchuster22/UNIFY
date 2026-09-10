@@ -1,0 +1,18 @@
+{
+  "restricted-worker-mocked": {
+    "passed": true,
+    "tests": 27,
+    "liveModelCalls": false
+  },
+  "reference-app-mocked": {
+    "passed": true,
+    "tests": 38,
+    "liveModelCalls": false
+  },
+  "native-sdk-workflow-mocked-transport": {
+    "passed": true,
+    "tests": 16,
+    "liveModelCalls": false
+  },
+  "totalTests": 81
+}
