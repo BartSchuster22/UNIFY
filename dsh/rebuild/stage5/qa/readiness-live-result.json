@@ -1,0 +1,16 @@
+{
+  "schema": "stage5-postgres-readiness-live/v1",
+  "imageImportRepeated": false,
+  "allSevenPinsPresent": true,
+  "wholeStage5Accepted": false,
+  "cases": {
+    "retainedPartialCluster": {"oldProbeExit": 0, "newProbeExit": 2, "falseGreenRejected": true},
+    "freshDatabase": {"dockerHealth": "healthy", "queryExit": 0, "originalHealthTimeout": "3s", "authHost": "scram-sha-256"},
+    "missingDatabase": {"oldProbeExit": 0, "newProbeExit": 2},
+    "wrongPassword": {"queryExit": 2, "rejected": true}
+  },
+  "complete": true,
+  "retainedOwnerTransactionComposeUnchanged": true,
+  "probeRemoved": true,
+  "retainedDatabaseStopped": true
+}

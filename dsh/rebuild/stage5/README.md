@@ -55,8 +55,8 @@ this attempt. No preflight bypass or application installation was performed.
   was OOM-killed (4.5 GiB RAM peak, 128 MiB swap peak). No live host-suite pass
   or successful installed candidate is claimed.
 - Releasing clean guest page cache temporarily restored host RAM headroom,
-  but was insufficient to prevent the VM OOM. The VM is now stopped. Ordinary
-  host monitoring passes; admission of another QA run currently fails the
+  but was insufficient to prevent the VM OOM. At that point the VM was stopped. Ordinary
+  host monitoring passed; admission of another QA run then failed the
   12 GiB free-disk floor. The physical host has a roughly 2 GiB zram swap
   device, not a large disk-backed swap reserve.
 - Doghouse's source branch was pushed and remotely verified at the revision
@@ -68,17 +68,58 @@ this attempt. No preflight bypass or application installation was performed.
   not provider authentication, a model run, or business-effect recovery.
 
 The initial seed mount issue and initial RAM-preflight issue are resolved.
-Safe sustained fixture capacity, application installation and application
-reboot recovery are not. The command-runner poweroff/reboot restriction still
+Application installation and application reboot recovery remain unaccepted.
+See the subsequent capacity/import and readiness results below.
+The command-runner poweroff/reboot restriction still
 applies; neither the operator's earlier tooling-only reboot nor the VM OOM
 counts as passing Stage 5 recovery acceptance.
 
-The scripts under `qa/` are test preparations; their live acceptance suite has
-not run successfully. They must not be presented as completed evidence.
+The full live acceptance suite has not run successfully. Only the explicitly
+reported readiness regression below is complete; other preparations are not
+completed acceptance evidence.
+
+## Subsequent import and PostgreSQL readiness regression
+
+Approved archive compression and verified QCOW compaction reclaimed capacity.
+With bounded emulator overhead and temporary disk-backed swap, image preload
+completed in 1186.49 seconds and verified all seven config-ID pins. Installation
+then failed at migrations. PostgreSQL logs showed interrupted initialization;
+the retained cluster lacked the `unify` database and completed network-auth
+initialization. `pg_isready` nevertheless returned success. The transaction
+remained rolled back; it was not manually marked installed.
+
+Stage 5 packaging now replaces that listener-only probe with a password-file
+backed TCP `psql` connection as `unify_bootstrap` to database `unify`, executing
+`SELECT 1` with `ON_ERROR_STOP`. It disables password prompts and psql startup
+files, bounds connection time, and suppresses command output. Existing health
+interval/timeout/retries, network isolation, and authentication policy are not
+loosened. The frozen original candidate is NOT rewritten: this correction is
+applied when generating the next checksummed Stage 5 package.
+
+Verification:
+
+- Four readiness unit tests passed, including SQL failure, missing secret,
+  exact query/identity and preserved security/time budgets.
+- Four existing Stage 2 installer preparation/security regressions passed.
+- `qa/readiness_live.py` executed inside `dsh-stage5-disposable`, with the
+  existing seven images; no image import was repeated.
+- Retained partial cluster: old probe exit 0, corrected probe exit 2.
+- Fresh, isolated, tmpfs-backed PostgreSQL: corrected Docker health check
+  reached healthy with the unchanged 3-second timeout and SCRAM host auth.
+- Missing database: old probe exit 0, corrected probe exit 2.
+- Wrong password: corrected probe exit 2.
+- Temporary probe container removed; retained PostgreSQL stopped; owner,
+  transaction and Compose file hashes unchanged. No retained database was
+  repaired, reset, or manually populated by this regression.
+
+Machine-readable live results: `qa/readiness-live-result.json`.
+The VM and temporary swap remain allocated; this is not final QA cleanup.
+Repackaging, safe handling of the retained partial cluster, successful full
+installation, and the remaining Stage 5 acceptance tests are still required.
 
 ## Remaining acceptance
 
-- Correct fixture sizing within safe existing-host capacity; install candidate.
+- Package the readiness correction and install within verified host capacity.
 - Exercise actual broker services and installed Core/UNIUI status.
 - Test lifecycle coordination, interruption, dependency, provider, callback,
   storage-pressure, uncertain-effect and bounded recovery behavior.

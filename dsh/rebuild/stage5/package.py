@@ -9,6 +9,19 @@ def sha(p):
   while b:=f.read(8*1024*1024):h.update(b)
  return h.hexdigest()
 def docker(*a):return subprocess.check_output(['sudo','-n','docker',*a],text=True)
+
+# A listening server is insufficient: pg_isready succeeds even when unify is
+# absent after interrupted initdb. Use the same TCP identity/database as migrations.
+POSTGRES_READINESS = (
+ 'IFS= read -r PGPASSWORD < /run/secrets/postgres-password && '
+ 'export PGPASSWORD PGCONNECT_TIMEOUT=2 && '
+ "psql -X -w -h postgresql -p 5432 -U unify_bootstrap -d unify "
+ "-v ON_ERROR_STOP=1 -Atqc 'SELECT 1' >/dev/null 2>&1"
+)
+def configure_postgres_readiness(compose):
+ # Preserve the existing interval, timeout, retries, auth, and network policy.
+ compose['services']['postgresql']['healthcheck']['test']=['CMD-SHELL',POSTGRES_READINESS]
+
 def main():
  p=argparse.ArgumentParser();p.add_argument('--stage4',type=Path,required=True);p.add_argument('--stage4-sha256',required=True);p.add_argument('--inputs',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--revision',required=True);a=p.parse_args()
  os.nice(10)
@@ -30,6 +43,7 @@ def main():
   if n!='images.tar':shutil.copyfile(a.stage4/n,a.output/n)
  shutil.copyfile(a.inputs/'ops.py',a.output/'ops.py');shutil.copyfile(a.inputs/'doghouse-dsh.tar',a.output/'doghouse-dsh.tar')
  compose=json.loads((a.output/'compose.template.json').read_text())
+ configure_postgres_readiness(compose)
  for name,s in compose['services'].items():
   if name in r['images']:s['restart']='no' if name in ('hermes','memory-v4','unify-core') else 'on-failure:3'
  compose['services']['unify-core']['environment'].update(ALICA_OPERATIONS_FILE='/run/alica-operations/status.json',ALICA_CELL_ID='${ALICA_CELL_ID}')
