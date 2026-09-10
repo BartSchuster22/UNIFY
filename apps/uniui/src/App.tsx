@@ -1,3 +1,4 @@
+import { HostOperations } from './HostOperations';
 import {
   ActionIcon,
   Alert,
@@ -992,6 +993,7 @@ function OperationsView() {
   const result = useData<Collection<Operation>>('/operations?limit=200');
   return (
     <>
+      <HostOperations />
       <PageHeading
         title="Operations"
         description="Evidence-linked operation lifecycle records. This console does not execute mutations."

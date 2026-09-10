@@ -27,7 +27,9 @@ import { FederationLeaseService, type FederationCreateBody } from './federation/
 import type { FederationLeaseStore } from './federation/types.js';
 import type { ApplicationService } from './applications/service.js';
 import { applicationRoutes } from './applications/routes.js';
+import { readOperations } from './operations/status.js';
 export interface AppOptions {
+  hostOperations?: { path: string; cell: string };
   applications?: ApplicationService;
   oidc?: OidcService;
   projectCredentials?: ProjectCredentialService;
@@ -175,6 +177,13 @@ export function buildApp(options: AppOptions) {
     );
     return current;
   }
+  app.get('/api/v1/host-operations', async (request) => {
+    const current = await session(request);
+    auth.requirePermission(current, 'operations.read');
+    if (!options.hostOperations)
+      throw new AuthError('OPERATIONS_UNAVAILABLE', 503, 'Host operations are not configured');
+    return readOperations(options.hostOperations.path, options.hostOperations.cell);
+  });
   const cookieOptions = {
     path: '/',
     secure: options.secureCookies ?? true,

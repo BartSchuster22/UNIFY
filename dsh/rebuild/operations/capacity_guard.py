@@ -28,6 +28,13 @@ def snapshot(root):
     prefix = [] if os.geteuid() == 0 else ['sudo', '-n']
     names = subprocess.check_output(prefix + ['docker', 'ps', '--format',
         '{{.Label "com.docker.compose.project"}}'], text=True, timeout=30).splitlines()
+    projects = set(n for n in names if n.startswith('dsh2-stage'))
+    vm = subprocess.run(['systemctl', 'show', 'dsh-stage5-qa-vm.service',
+                         '--property=ActiveState', '--value'], capture_output=True, text=True, timeout=10)
+    if vm.returncode != 0:
+        raise RuntimeError('cannot observe QA VM lifecycle')
+    if vm.stdout.strip() in ('active', 'activating', 'deactivating'):
+        projects.add('vm:dsh-stage5-qa')
     package = root / 'stage1-package'
     old = []
     if package.exists():
@@ -40,7 +47,7 @@ def snapshot(root):
         'diskAvailableBytes': shutil.disk_usage(root if root.exists() else Path('/')).free,
         'memoryAvailableBytes': mem['MemAvailable'],
         'swapUsedBytes': mem['SwapTotal'] - mem['SwapFree'],
-        'runningQaProjects': sorted(set(n for n in names if n.startswith('dsh2-stage'))),
+        'runningQaProjects': sorted(projects),
         'unreferencedStage1Archives': old}
 
 def main():

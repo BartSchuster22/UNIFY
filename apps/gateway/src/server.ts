@@ -153,6 +153,9 @@ const oidc =
       )
     : undefined;
 const app = buildApp({
+  ...(process.env.ALICA_OPERATIONS_FILE && process.env.ALICA_CELL_ID
+    ? { hostOperations: { path: process.env.ALICA_OPERATIONS_FILE, cell: process.env.ALICA_CELL_ID } }
+    : {}),
   ...(applications?{applications}:{}),
   ...(oidc
     ? {
