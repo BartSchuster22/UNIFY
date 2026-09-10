@@ -1,0 +1,44 @@
+{
+  "protectedContainersUnchanged": true,
+  "protectedContainerCount": 69,
+  "qaContainersStoppedAndRetained": 16,
+  "containerObjectsRetained": 85,
+  "runningContainers": 13,
+  "allMountIdentitiesPreserved": true,
+  "qualifiedReleasesVerified": [
+    {
+      "package": "stage2-package-v7",
+      "releaseSha256": "bcf5d5e2d063518923e2dc92068c7f467c57357e88ada1cc09b4b25a75581aa2",
+      "allDeclaredFileHashesVerified": true
+    },
+    {
+      "package": "stage3-package-qa4",
+      "releaseSha256": "08526a76412c37e2f203feb6bc50439b8abf68d0411da74e6586f98b83edb1a1",
+      "allDeclaredFileHashesVerified": true
+    },
+    {
+      "package": "stage4-package-qa4",
+      "releaseSha256": "d9100e162ae07b75805b89841aae89cc580cabbdb44b352b9176ea26d23c03b6",
+      "allDeclaredFileHashesVerified": true
+    }
+  ],
+  "stage1RetainedArchiveRehashed": true,
+  "diskAvailableBytes": 18780061696,
+  "memoryAvailableBytes": 5775093760,
+  "swapUsedBytes": 874823680,
+  "liveHealth": {
+    "/unify-web-unify-web-1": "healthy",
+    "/unify-unify-core-1": "healthy",
+    "/unify-herman-1": "healthy",
+    "/unify-alica-1": "healthy",
+    "/unify-caddy-1": "healthy",
+    "/unify-hermes-runtime-postgres-2334055-1786387147048": "not-defined",
+    "/unify-hermes-runtime-postgres-2316810-1786386620731": "not-defined",
+    "/unify-hermes-runtime-2225112-1786383051203": "unhealthy",
+    "/unify-hermes-runtime-postgres-2225112-1786383051203": "not-defined",
+    "/unify-hermes-runtime-postgres-2206170-1786382504575": "not-defined",
+    "/unify-local-registry": "not-defined",
+    "/memory-v4-memory-v4-1": "healthy",
+    "/unify-unify-postgres-1": "healthy"
+  }
+}

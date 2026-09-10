@@ -1,0 +1,8 @@
+{
+  "terminatedLanguageServers": 21,
+  "deletedWorktreeOnly": true,
+  "pidfdBoundSignals": true,
+  "forcedKill": false,
+  "protectedHermesAndListenerPidsUnchanged": true,
+  "profileConfigurationModified": false
+}

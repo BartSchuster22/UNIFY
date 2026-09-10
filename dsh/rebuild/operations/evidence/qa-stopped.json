@@ -1,0 +1,25 @@
+{
+  "stoppedContainerCount": 16,
+  "protectedContainerCount": 69,
+  "protectedContainersUnchanged": true,
+  "volumesRetained": true,
+  "targets": [
+    "0edc87d90fe4ab4ff7b0a9cb21533e2e39f467a9e4034fd087561ccf62e1ffc5",
+    "8da62dc86fc4acdcef2ce302ee3c9a55a498c47d10db6e414e4bb6367b801afc",
+    "1af8f64d031bb71ae819917f6ba6d606fab5d6db9836a0b52cb5e402a38cba13",
+    "0538191360ae0641f58dda04ab0189697187deee828f8aab0f644af8034aa8b3",
+    "54b6ec794bf93d83f81c48c2db0faf1638aca70dd8f2239ce47d86d4a3c8f615",
+    "39f386db6fdc63a44d2a6d0eb8eee6ef671a68c8eae0cbca1fcc3e5d9b6118b0",
+    "2d23bed64cd4dc8a34143913b0e08d0618fd5e6ba6c7ac2cf98ec5a13ffa0660",
+    "564e3fc518e0846c915bb4da18de78aeecc5670cb4407fb34b219326c0f87887",
+    "2e9755ac9fad63b88d65be4449b8d947cdb5056e43ac047807c94ac129b28a89",
+    "e850e2d2aee4016f3652c8f6a7baa6262ba49eddea5c1180dd6e5b9853faa060",
+    "932379dacc723ce191c0c58d17c58c8e45a14900b8f11309037b1ebee356231d",
+    "c7ee2762d414186ee5b6cedfc8311d7e0cbe031011ff3ce9004868c757498e58",
+    "3bcd46ad22a3d6cecc333474c40999de2c310f2b111409b0d94d4d4fd3a7a06e",
+    "bfe45232218b240c946a354ede04713fbd9774dcc22191c4487f840ad5fea5fa",
+    "c6dfb0d881cb18bc27ccfaafdfe1abf7194e40106433cfc2b29e7aa57d26ab8d",
+    "6255310a6cd16f6d38aa0c72550931e1485fd5cd5954c2800d7aa6e43a7d2293"
+  ],
+  "verificationNote": "Docker mount array order normalized; same mount objects retained"
+}

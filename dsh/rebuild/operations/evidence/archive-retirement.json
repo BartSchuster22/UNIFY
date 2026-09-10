@@ -1,0 +1,58 @@
+[
+  {
+    "path": "/srv/alica-dsh-development/stage1-package/images-fd4a483c0588c17d47fe2f81b96f4c91d68289dc8885ccd00e1f4cba43b93eae.tar",
+    "sha256": "fd4a483c0588c17d47fe2f81b96f4c91d68289dc8885ccd00e1f4cba43b93eae",
+    "bytes": 1519762944,
+    "allocatedBytes": 1519767552,
+    "reason": "Superseded Stage1 attempt; not the retained images.lock.json archive",
+    "removed": true
+  },
+  {
+    "path": "/srv/alica-dsh-development/stage1-package/images-bad84e759a597ca63c29afe842b867d2fcbf866769ff41282edd37fae97757b7.tar",
+    "sha256": "bad84e759a597ca63c29afe842b867d2fcbf866769ff41282edd37fae97757b7",
+    "bytes": 1519765504,
+    "allocatedBytes": 1519771648,
+    "reason": "Superseded Stage1 attempt; not the retained images.lock.json archive",
+    "removed": true
+  },
+  {
+    "path": "/srv/alica-dsh-development/stage1-package/images-beb3c8e12c7c634d3fc3f4ec0941d2bf436c27535e7df1f10846c54465d60fd3.tar",
+    "sha256": "beb3c8e12c7c634d3fc3f4ec0941d2bf436c27535e7df1f10846c54465d60fd3",
+    "bytes": 1519767040,
+    "allocatedBytes": 1519771648,
+    "reason": "Superseded Stage1 attempt; not the retained images.lock.json archive",
+    "removed": true
+  },
+  {
+    "path": "/srv/alica-dsh-development/stage1-package/images-78451ce3be6c976bce2a4ae7f2703ecba02b5656cf80ae2f42e42caab8155b99.tar",
+    "sha256": "78451ce3be6c976bce2a4ae7f2703ecba02b5656cf80ae2f42e42caab8155b99",
+    "bytes": 1018708992,
+    "allocatedBytes": 1018716160,
+    "reason": "Superseded Stage1 attempt; not the retained images.lock.json archive",
+    "removed": true
+  },
+  {
+    "path": "/srv/alica-dsh-development/stage1-package/images-5b77092de25b5e76cc3d4559c8efd9b27cfeae21b005e4a8668bcbbd926bd59e.tar",
+    "sha256": "5b77092de25b5e76cc3d4559c8efd9b27cfeae21b005e4a8668bcbbd926bd59e",
+    "bytes": 1519767040,
+    "allocatedBytes": 1519771648,
+    "reason": "Superseded Stage1 attempt; not the retained images.lock.json archive",
+    "removed": true
+  },
+  {
+    "path": "/srv/alica-dsh-development/stage1-package/images-739ff0aee52293737667d1a07851873311e2c661774307799dd58be4467b6337.tar",
+    "sha256": "739ff0aee52293737667d1a07851873311e2c661774307799dd58be4467b6337",
+    "bytes": 1519769088,
+    "allocatedBytes": 1519775744,
+    "reason": "Superseded Stage1 attempt; not the retained images.lock.json archive",
+    "removed": true
+  },
+  {
+    "path": "/srv/alica-dsh-development/stage1-package/images-fac4bfc0550ba5e69496074691db57873aaf6e589f28c1ed08dfe01d19a77180.tar",
+    "sha256": "fac4bfc0550ba5e69496074691db57873aaf6e589f28c1ed08dfe01d19a77180",
+    "bytes": 1519766016,
+    "allocatedBytes": 1519771648,
+    "reason": "Superseded Stage1 attempt; not the retained images.lock.json archive",
+    "removed": true
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "snapshot": {
+    "hostname": "ElioHermes1",
+    "diskAvailableBytes": 22431715328,
+    "memoryAvailableBytes": 2873638912,
+    "swapUsedBytes": 2629595136,
+    "runningQaProjects": [],
+    "unreferencedStage1Archives": []
+  },
+  "issues": [],
+  "admitted": true
+}
