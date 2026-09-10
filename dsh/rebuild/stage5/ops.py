@@ -8,12 +8,27 @@ def run(args):
     if r.returncode:raise RuntimeError('bounded command failed: '+args[0])
     return r.stdout
 
+def enforce_wait_readiness(installer):
+    """Do not trust a zero Compose exit as proof of readiness (observed on QA)."""
+    compose=installer.compose
+    def checked(*args):
+        result=compose(*args)
+        if args and args[0]=='up' and '--wait' in args:
+            expected=set(args)&set(installer.release['images'])
+            if not expected:expected=set(installer.release['images'])
+            rows={r['Config']['Labels'].get('com.docker.compose.service'):r for r in installer.owned()}
+            if any(s not in rows or not rows[s]['State']['Running'] or rows[s]['State'].get('Health',{}).get('Status')!='healthy' for s in expected):
+                raise RuntimeError('Compose returned without verified required-service readiness')
+        return result
+    installer.compose=checked
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('action',choices=['install','start','stop','uninstall','boot','enroll','maintenance-on','maintenance-off','ack','status']);p.add_argument('--bundle',required=True);p.add_argument('--release-sha256',required=True);p.add_argument('--root',required=True);p.add_argument('--request',required=True);p.add_argument('--service',choices=['hermes','unify-core','memory-v4']);a=p.parse_args()
     if os.geteuid()!=0:raise RuntimeError('root operator required')
     bundle=Path(a.bundle).resolve();sys.path.insert(0,str(bundle))
     from install import Installer
     i=Installer(bundle,a.release_sha256,a.root,json.loads(Path(a.request).read_text()))
+    enforce_wait_readiness(i)
     i.operator();root=i.root;cell=i.r['cell'];op=root/'operations';code=Path('/usr/local/lib/alica-dsh-ops')/cell
     config=op/'broker.json'
     if a.action=='install' and not config.exists():
