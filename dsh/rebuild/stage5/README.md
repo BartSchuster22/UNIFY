@@ -34,15 +34,47 @@ error, not a successful installation or evidence that the product fits that
 resource envelope. Guest Docker listed no images or container objects after
 this attempt. No preflight bypass or application installation was performed.
 
-The VM has no configured memory hotplug slots. Correcting its configuration
-requires a guest shutdown and relaunch. The agent command runner explicitly
-prohibits poweroff/reboot commands, including inside this guest. That boundary
-must not be bypassed. A manual operator shutdown is required; safe capacity
-must be reassessed before relaunch. No additional machine is presumed.
+## Subsequent live attempts on 2026-09-10
 
-The first cloud-init seed also had a malformed mount argument. The read-only
-QA share was mounted explicitly and added to guest fstab during tooling setup;
-fresh boot acceptance is still outstanding.
+- The operator manually shut down the guest. It was relaunched with 5120 MiB
+  guest RAM, a 4608 MiB host cgroup RAM cap and a 128 MiB swap cap. The guest
+  reported 4516 MiB available; cloud-init completed and the read-only share
+  mounted after boot. The original memory preflight was not weakened.
+- The native installation failed during image import and recorded rollback.
+  A separately checksum-verified image preload also hit its 1200-second limit.
+- Six images became visible in the guest's containerd store, using OCI
+  manifest identities rather than the config identities pinned for the
+  classic Docker backend. The build host uses classic `overlay2`.
+- With zero guest containers and volumes verified, the six failed-candidate
+  image records were removed and the guest was switched to classic `overlay2`.
+  Two specifically identified orphaned import leases were removed through
+  containerd's API; the retired store then occupied 1 MiB. Installed data and
+  the failed-install owner journal were not deleted.
+- A new, bounded 1800-second preload followed by installation and host tests
+  was launched. It did NOT complete: at journal time 16:34:08 the VM cgroup
+  was OOM-killed (4.5 GiB RAM peak, 128 MiB swap peak). No live host-suite pass
+  or successful installed candidate is claimed.
+- Releasing clean guest page cache temporarily restored host RAM headroom,
+  but was insufficient to prevent the VM OOM. The VM is now stopped. Ordinary
+  host monitoring passes; admission of another QA run currently fails the
+  12 GiB free-disk floor. The physical host has a roughly 2 GiB zram swap
+  device, not a large disk-backed swap reserve.
+- Doghouse's source branch was pushed and remotely verified at the revision
+  above. Browser dependencies installed successfully and Chromium launched;
+  this is NOT an installed UNIUI acceptance test.
+- The bounded QA provider transport was exercised from the guest over an SSH
+  Unix-socket tunnel, preserving end-to-end public TLS validation. The actual
+  unauthenticated HEAD request returned HTTP 405. This proves transport only,
+  not provider authentication, a model run, or business-effect recovery.
+
+The initial seed mount issue and initial RAM-preflight issue are resolved.
+Safe sustained fixture capacity, application installation and application
+reboot recovery are not. The command-runner poweroff/reboot restriction still
+applies; neither the operator's earlier tooling-only reboot nor the VM OOM
+counts as passing Stage 5 recovery acceptance.
+
+The scripts under `qa/` are test preparations; their live acceptance suite has
+not run successfully. They must not be presented as completed evidence.
 
 ## Remaining acceptance
 
