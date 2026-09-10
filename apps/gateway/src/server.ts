@@ -1,4 +1,9 @@
 import { readFile } from 'node:fs/promises';
+import {ApplicationStore} from './applications/store.js';
+import {ApplicationService} from './applications/service.js';
+import {NativeApplicationDriver} from './applications/native-driver.js';
+import {ApplicationKnowledge} from './applications/knowledge.js';
+import {applicationPump} from './applications/pump.js';
 import pg from 'pg';
 import { KeycloakOidcProvider, OidcService } from './auth/oidc.js';
 import { PostgresOidcStore } from './auth/oidc-store.js';
@@ -109,6 +114,24 @@ const memoryV4Adapter = memoryV4Url
       allowPrivateHttp: memoryV4AllowPrivateHttp === 'true',
     })
   : undefined;
+const applicationEnabled=process.env.APPLICATION_INTEGRATION_ENABLED??'false';
+if(!['true','false'].includes(applicationEnabled))throw new Error('APPLICATION_INTEGRATION_ENABLED must be true or false');
+let applications:ApplicationService|undefined;
+if(applicationEnabled==='true'){
+ if(!memoryV4Url||!memoryV4ScopePath)throw new Error('Applications require configured MemoryV4');
+ const token=await secret('MEMORY_V4_TOKEN');
+ let driver:NativeApplicationDriver;
+ const knowledge=new ApplicationKnowledge(scopePath=>new MemoryV4Adapter({baseUrl:memoryV4Url,bearerToken:token,scopePath,timeoutMs:8000,maxResponseBytes:262144,retries:0,allowPrivateHttp:memoryV4AllowPrivateHttp==='true'}),{
+  rootScope:memoryV4ScopePath,
+  verifyEvidence:(a,r,s)=>driver.verifyEvidence(a,r,s),
+  // Use the tested conservative unique exact-quote revalidation policy.
+ });
+ driver=new NativeApplicationDriver(frameworkRegistry,knowledge);
+ const pins:unknown=JSON.parse(process.env.APPLICATION_CALLBACK_PINS_JSON??'{}');
+ if(!pins||typeof pins!=='object'||Array.isArray(pins)||Object.keys(pins).length>16)throw new Error('Invalid callback pins');
+ for(const [url,ips]of Object.entries(pins))if(!url.startsWith('https://')||!Array.isArray(ips)||!ips.length||ips.length>8||ips.some(ip=>typeof ip!=='string'))throw new Error('Invalid callback pins');
+ applications=new ApplicationService(new ApplicationStore(pool),driver,authPepper,pins as Record<string,string[]>);
+}
 const authMode = process.env.AUTH_MODE ?? 'local';
 if (!['local', 'oidc'].includes(authMode)) throw new Error('Unsupported AUTH_MODE');
 if (authMode === 'local' && Object.keys(process.env).some((k) => k.startsWith('OIDC_')))
@@ -130,6 +153,7 @@ const oidc =
       )
     : undefined;
 const app = buildApp({
+  ...(applications?{applications}:{}),
   ...(oidc
     ? {
         oidc,
@@ -155,6 +179,7 @@ const app = buildApp({
 
   requestRateLimit: Number(process.env.REQUESTS_PER_MINUTE ?? 600),
 });
+const stopApplications=applications?applicationPump(applications,lane=>app.log.warn({lane},'application bridge lane unavailable; receipt retained')):undefined;
 const configuredPollInterval = Number(process.env.HERMES_EVENT_POLL_MS ?? 5_000);
 if (!Number.isFinite(configuredPollInterval) || configuredPollInterval < 1_000)
   throw new Error('HERMES_EVENT_POLL_MS must be at least 1000');
@@ -166,6 +191,7 @@ const updatePoll = await startUpdateDiscovery(process.env.HERMES_UPDATE_DISCOVER
 app.addHook('onClose', async () => {
   clearInterval(poll);
   clearInterval(updatePoll);
+  await stopApplications?.();
 });
 let shutdown: Promise<void> | undefined;
 const close = (signal: NodeJS.Signals): Promise<void> => {

@@ -26,7 +26,10 @@ import {
 import { IdempotencyBusyError, IdempotencyConflictError } from './event-store.js';
 import type { AdapterEventStore, AdapterSource, CapabilityFamily } from './types.js';
 
+import {ApplicationRuntime,validateApplicationRequest,type ApplicationAction} from './application-runtime.js';
+
 export interface HermesControlAdapterOptions {
+  applicationRuntime?: ApplicationRuntime;
   frameworkId: string;
   displayName: string;
   instanceId: string;
@@ -166,6 +169,20 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
       .status(status === 'healthy' ? 200 : 503)
       .send({ status, checks: { ...checks, eventStore } });
   });
+
+  if(options.applicationRuntime){
+    const applicationEnvelope=(data:unknown)=>({contractVersion:'alica-native-application/v1',frameworkId:options.frameworkId,frameworkCommit:options.frameworkCommit??PINNED_HERMES_COMMIT,frameworkVersion:options.frameworkRelease??PINNED_HERMES_RELEASE,instanceId:options.instanceId,data});
+    app.get('/control/v1/applications/capabilities',async()=>{if(!scopes.has('control:execute'))throw new AdapterError('forbidden',403,'Execution scope required');return applicationEnvelope({supported:true});});
+    for(const action of ['execute','lookup','cancel','erase'] as ApplicationAction[]){
+      app.post('/control/v1/applications/'+action,{bodyLimit:98304},async(request)=>{
+        if(!scopes.has('control:execute'))throw new AdapterError('forbidden',403,'Execution scope required');
+        try{validateApplicationRequest(action,request.body);}catch{throw new AdapterError('invalid_request',422,'Restricted application contract rejected');}
+        const result=await options.applicationRuntime!.run(action,request.body);
+        await options.events.audit({frameworkId:options.frameworkId,eventType:'hermes.adapter.application.'+action,outcome:'success',operationId:request.body.receiptId,requestId:request.id,correlationId:request.body.receiptId,safeMetadata:{state:result.state,applicationId:request.body.applicationId}});
+        return applicationEnvelope(result);
+      });
+    }
+  }
 
   app.get('/control/v1/identity', async () =>
     response(options, 'identity', {

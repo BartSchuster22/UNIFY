@@ -33,6 +33,7 @@ USER root
 COPY --from=adapter-build /usr/local/bin/node /usr/local/bin/node
 COPY --from=adapter-build --chown=10000:10001 /opt/unify-adapter /opt/unify-adapter
 COPY --chown=10000:10001 integrations/hermes/unify-memory /opt/hermes/plugins/unify_memory
+COPY --chown=10000:10001 integrations/hermes/application-runtime/worker.py /opt/unify-adapter/application-runtime/worker.py
 COPY deploy/hermes-runtime/rootfs/etc/cont-init.d/10-hermes-api-secret /etc/cont-init.d/10-hermes-api-secret
 COPY deploy/hermes-runtime/rootfs/etc/cont-init.d/15-unify-memory-plugin /etc/cont-init.d/15-unify-memory-plugin
 COPY deploy/hermes-runtime/rootfs/etc/s6-overlay/s6-rc.d/unify-hermes-gateway/run /etc/s6-overlay/s6-rc.d/unify-hermes-gateway/run

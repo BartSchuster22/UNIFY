@@ -1,0 +1,150 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "alica-application/v1",
+  "description": "Frozen syntactic schemas. CONTRACT-V1.md additionally governs authorization, HTTPS/DNS pinning, correction dependencies, evidence verification and lifecycle semantics.",
+  "definitions": {
+    "Manifest": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "contractVersion",
+        "name",
+        "frameworkId",
+        "projectId",
+        "subjects",
+        "operations",
+        "sourceUrls",
+        "retentionDays",
+        "promotionPolicy"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "alica-application/v1",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "maxLength": 100,
+          "type": "string"
+        },
+        "frameworkId": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$",
+          "type": "string"
+        },
+        "projectId": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$",
+          "type": "string"
+        },
+        "subjects": {
+          "minItems": 1,
+          "maxItems": 1000,
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$",
+            "type": "string"
+          }
+        },
+        "operations": {
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "const": "answer",
+                "type": "string"
+              },
+              {
+                "const": "research",
+                "type": "string"
+              },
+              {
+                "const": "refresh",
+                "type": "string"
+              },
+              {
+                "const": "correction",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "sourceUrls": {
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "minLength": 10,
+            "maxLength": 2048,
+            "type": "string"
+          }
+        },
+        "callbackUrl": {
+          "maxLength": 2048,
+          "type": "string"
+        },
+        "retentionDays": {
+          "minimum": 1,
+          "maximum": 30,
+          "type": "integer"
+        },
+        "promotionPolicy": {
+          "const": "verified-extract-v1",
+          "type": "string"
+        }
+      }
+    },
+    "Request": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "contractVersion",
+        "subject",
+        "operation",
+        "question"
+      ],
+      "properties": {
+        "contractVersion": {
+          "const": "alica-application/v1",
+          "type": "string"
+        },
+        "subject": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$",
+          "type": "string"
+        },
+        "operation": {
+          "anyOf": [
+            {
+              "const": "answer",
+              "type": "string"
+            },
+            {
+              "const": "research",
+              "type": "string"
+            },
+            {
+              "const": "refresh",
+              "type": "string"
+            },
+            {
+              "const": "correction",
+              "type": "string"
+            }
+          ]
+        },
+        "question": {
+          "minLength": 1,
+          "maxLength": 4000,
+          "type": "string"
+        },
+        "corrects": {
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

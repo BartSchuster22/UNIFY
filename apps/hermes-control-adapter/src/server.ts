@@ -1,5 +1,6 @@
 import { verifyPackagedBaseline } from './packaged-baseline.js';
 import { execFile } from 'node:child_process';
+import {ApplicationRuntime} from './application-runtime.js';
 import { randomBytes } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { promisify } from 'node:util';
@@ -96,6 +97,7 @@ const source = new HermesNativeSource({
   ...(managementToken ? { managementToken } : {}),
 });
 const app = buildHermesControlAdapter({
+  ...(process.env.HERMES_APPLICATION_WORKER_FILE ? {applicationRuntime:new ApplicationRuntime({workerPath:required('HERMES_APPLICATION_WORKER_FILE'),pythonPath:required('HERMES_APPLICATION_PYTHON')})} : {}),
   frameworkId: process.env.HERMES_FRAMEWORK_ID ?? 'hermes-dev',
   displayName: frameworkDisplayName,
   instanceId: process.env.HERMES_INSTANCE_ID ?? 'hermes-local',

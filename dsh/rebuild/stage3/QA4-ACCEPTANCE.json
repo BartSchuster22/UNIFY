@@ -1,0 +1,126 @@
+{
+  "stage": 3,
+  "gate": "bounded-engineering-pass",
+  "productionReady": false,
+  "candidate": "qa4",
+  "releaseSha256": "08526a76412c37e2f203feb6bc50439b8abf68d0411da74e6586f98b83edb1a1",
+  "installedRuntimeMatchesBuildSource": true,
+  "baseStage2ReleaseSha256": "bcf5d5e2d063518923e2dc92068c7f467c57357e88ada1cc09b4b25a75581aa2",
+  "images": {
+    "hermes": {
+      "id": "sha256:cea2ab6563169ca4364e387778c7c6a10b3792190603df6cd2db543954755865",
+      "base": "sha256:6dcfb52a1fdf81191ea2b9aba036c2127c0b3ba2837281c1c491d9640998aedc"
+    },
+    "unify-core": {
+      "id": "sha256:d974d789cba2d22b9acb2abd15ef221eac9279d3f8b66c1580f4c7cebaa5804b",
+      "base": "sha256:bae048ece0100b51f15a9f7dd1d29968debfba7cc410f9d0d32ca329ed6e2a14"
+    },
+    "memory-v4": {
+      "id": "sha256:ef7b8fcad3ba39f7369a0c4ae37b4b30c986c1a843aab512f0c9c698ae6f437a",
+      "base": "sha256:f75f26f19fde22e85826d0657e7a23546af85f76cf9a9e7cbc072e202c4c9c82"
+    }
+  },
+  "observedRegressionResults": {
+    "gatewayAndHermesAdapterTests": 314,
+    "memoryOwnerTests": 117,
+    "nativeWorkerTests": 25,
+    "referenceAppTests": 26,
+    "realPinnedSdkSchedulerRegression": true,
+    "gatewayAndAdapterTypechecks": true,
+    "memoryTargetedRuff": true,
+    "schemaMatchesGatewayValidators": true
+  },
+  "installedEvidence": {
+    "negative-acceptance.json": {
+      "crossCustomerAccessDenied": true,
+      "projectFrameworkProviderToolCallbackAndSubjectOverridesDenied": true,
+      "concurrentDurableReplayAndChangedPayloadDenied": true,
+      "installedRuntimeIsolationGuards": true
+    },
+    "extended-acceptance.json": {
+      "realCallbackReplayAndTamperProtection": true,
+      "canonicalKnowledgeReuse": true,
+      "freshRetrievalAndCanonicalSupersession": true,
+      "conservativeExactQuoteCorrectionSupersession": true,
+      "restartRecoveryAndDeliveryRetry": {
+        "attempts": 2,
+        "sameDeliveryId": true,
+        "sameNativeReference": true,
+        "sameAppOwnedAdmissionKey": true
+      },
+      "customerAndCoreExport": true
+    },
+    "browser-acceptance.json": {
+      "realChromiumUi": true,
+      "wrongPasswordDenied": true,
+      "loginResultRenderingCorrectionSelectionLogout": true,
+      "browserOnlyContactsApplication": true,
+      "backendSecretsAbsentFromDom": true,
+      "pageErrors": [],
+      "tls": "exact fixture leaf SPKI pin; independent Python TLS hostname/CA verification also passed",
+      "hostDependencies": "downloaded and extracted into isolated tooling; no host package install"
+    },
+    "conflict-acceptance.json": {
+      "realChangedQuoteCorrectionQuarantined": true,
+      "canonicalKnowledgeUnchanged": true,
+      "uncertaintyVisible": true,
+      "receiptId": "ea41320d-601f-4acf-8669-4d1c9e59ce11"
+    },
+    "privacy-acceptance.json": {
+      "nativeOwnerConfirmsKnowledgeReuse": true,
+      "actualNativeWorkerObservedRunning": true,
+      "runningCancellationSettledByNativeOwner": true,
+      "cancelledNativeAndCoreErasure": true,
+      "realOtherCustomerKnowledgeIsolated": true,
+      "newAdmissionsBlockedDuringAccountDeletion": true,
+      "coordinatedAppCoreMemoryNativeLiveStoreErasure": true,
+      "otherCustomerUnaffected": true,
+      "postDeletionExportScrubbedAndBackupLimitsExplicit": true
+    },
+    "retention-acceptance.json": {
+      "fixture": "timestamp-only expiration; wall clock and outcomes were not rewritten",
+      "elapsedDayClaim": false,
+      "onlyCoreExpiryInputChanged": true,
+      "automaticCoreRetentionAndOwnerErasure": true,
+      "automaticAppRetention": true,
+      "sameKeyCannotResurrectErasedRequest": true,
+      "logicalLiveStoreOnly": true,
+      "physicalBackupErasure": false
+    },
+    "abuse-acceptance.json": {
+      "realHostileQuestionCannotExpandApprovedSources": true,
+      "nativeSessionHasNoToolCalls": true,
+      "nativeEvidenceRemainsApprovedRfc": true,
+      "receiptId": "7a14c4dd-61a6-4c98-9ea9-cb7e0232419b",
+      "fixtureOwnerErasureComplete": true
+    },
+    "closeout-acceptance.json": {
+      "existingWorkloadsUnchanged": true,
+      "existingWorkloadCount": 69,
+      "allFixtureCoreReceiptsLogicallyScrubbed": true,
+      "fixtureMemoryRecordsAbsent": true,
+      "fixtureNativeTasksAbsent": true,
+      "borrowedAccessCredentialRemovedViaNativeAuthority": true,
+      "productionReady": false,
+      "physicalBackupErasure": false
+    }
+  },
+  "evidenceSha256": {
+    "negative-acceptance.json": "d25fa6e1e2f69d705c03832da4df175747ed174d695070663a64e79226b1b8a7",
+    "extended-acceptance.json": "e6c5fb772d7e1995924f009cb508acb778e17a709cf4ec8f45a0a9337ab4a411",
+    "browser-acceptance.json": "b16e7e334b0a7bec6ceb79113fb1a51302b05bf45874c473a4263f280ae2879c",
+    "conflict-acceptance.json": "e39be95299811df87b16e2ff7d754f12d3629bffcce1980d4fca1e59aef14e1b",
+    "privacy-acceptance.json": "2a0d76fd526e8f77f4e5ced761989518e6ecb0d9f07ca9752871b928ae43015e",
+    "retention-acceptance.json": "542e0a2b6e5efbb1c90f8e3fac2801182600d72c49609d6afd53487de45a812e",
+    "abuse-acceptance.json": "8c5d4a337fb9aa6e69d9b60c1f1c85099af88b85f951f7fcdd67faf370769f37",
+    "closeout-acceptance.json": "65f96eede1803b80e4484f84aed0739c0a2eca29171ea9b380eac721a398f9c7"
+  },
+  "limits": [
+    "Linux amd64 isolated installation; not Stage 7 or production approval",
+    "Retention uses explicit expired-timestamp fixtures, not elapsed-day or sustained soak evidence",
+    "Logical live-store erasure only; physical pages/WAL/backups/replicas and exported audit artifacts are not erased by this gate",
+    "Exact-source byte-exact quote revalidation only; semantic corrections quarantine",
+    "Borrowed access-only native credential removed after acceptance; no refresh token transferred",
+    "Mocked transports in unit tests are distinct from the recorded installed-stack and browser checks"
+  ]
+}

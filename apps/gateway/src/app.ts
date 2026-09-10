@@ -25,7 +25,10 @@ import { AgentManagementService, type AgentMutationBody } from './agents/service
 import { KanbanManagementService, type KanbanMutationBody } from './kanban/service.js';
 import { FederationLeaseService, type FederationCreateBody } from './federation/service.js';
 import type { FederationLeaseStore } from './federation/types.js';
+import type { ApplicationService } from './applications/service.js';
+import { applicationRoutes } from './applications/routes.js';
 export interface AppOptions {
+  applications?: ApplicationService;
   oidc?: OidcService;
   projectCredentials?: ProjectCredentialService;
   authStore: AuthStore;
@@ -415,6 +418,20 @@ export function buildApp(options: AppOptions) {
       },
     );
   }
+  if (options.applications)
+    applicationRoutes(
+      app,
+      options.applications,
+      async (request) => {
+        const current = await mutationSession(request);
+        auth.requirePermission(current, 'users.manage');
+        return current.userId;
+      },
+      async (frameworkId, projectId) => {
+        const projects = await requireHermesGateway().projects(frameworkId, { limit: 500 });
+        return projects.items.some((project) => project.id === projectId);
+      },
+    );
   app.get('/api/v1/auth/me', async (request) => {
     const current = await session(request);
     return {

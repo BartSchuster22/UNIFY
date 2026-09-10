@@ -19,3 +19,5 @@ deploy/alica-v1/secrets/
 deploy/alica-v1/backups/
 __pycache__/
 *.py[cod]
+
+/integrations/hermes/application-runtime/native/

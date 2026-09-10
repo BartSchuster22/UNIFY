@@ -100,4 +100,21 @@ describe('HermesControlClient', () => {
     });
     expect(fetchImpl).toHaveBeenCalledTimes(2);
   });
+
+  it('never blindly retries a POST after a connection loss', async () => {
+    const fetchImpl = vi.fn().mockRejectedValue(new Error('connection reset after commit'));
+    await expect(
+      client(fetchImpl as typeof fetch).work({
+        operation: 'task.run',
+        targetId: 'fixture-task',
+        mode: 'execute',
+        idempotencyKey: 'fixture-correlation-123',
+        requestId: 'fixture-request',
+        correlationId: 'fixture-request',
+        actor: { type: 'user', id: 'fixture-owner' },
+        payload: { profileId: 'default', prompt: 'Fixture' },
+      }),
+    ).rejects.toMatchObject({ code: 'FRAMEWORK_UNAVAILABLE' });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
 });

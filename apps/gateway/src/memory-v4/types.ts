@@ -41,6 +41,8 @@ export function memoryRoute(method: string, path: string): MemoryRoute | null {
         }
       : null;
   }
+  if (method === 'POST' && path === '/applications/knowledge/scrub')
+    return { permission: 'memory.admin', mutation: true, injectQueryScope: false, injectBodyScope: true };
   if (method === 'POST' && creates.test(path))
     return {
       permission: 'memory.write',

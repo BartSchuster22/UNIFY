@@ -249,7 +249,10 @@ export class HermesControlClient {
   ): Promise<Static<T>> {
     this.assertCircuit();
     let lastError: unknown;
-    for (let attempt = 0; attempt <= this.retries; attempt += 1) {
+    // A lost POST response can follow committed native effects. Reconcile by
+    // correlation before another dispatch; transport must never repeat execution.
+    const retryLimit = method === 'GET' ? this.retries : 0;
+    for (let attempt = 0; attempt <= retryLimit; attempt += 1) {
       try {
         const result = await this.once(method, path, schema, body, timeoutMs);
         this.failures = 0;
@@ -259,7 +262,7 @@ export class HermesControlClient {
         lastError = error;
         const retryable =
           error instanceof HermesControlClientError ? error.retryable : error instanceof Error;
-        if (!retryable || attempt === this.retries) break;
+        if (!retryable || attempt === retryLimit) break;
         await this.sleep(50 * 2 ** attempt);
       }
     }
