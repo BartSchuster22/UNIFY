@@ -34,8 +34,10 @@ def produce(base,reference,doghouse,output,revision,doghouse_revision):
  with tarfile.open(bundle/'doghouse-dsh.tar','w') as t:
   for p in sources:t.add(p,arcname='doghouse_dsh/'+p.name,recursive=False)
  old['release']='stage7-qa1-'+revision[:7]
- old['provenance']['stage7']={'sourceRevision':revision,'doghouseRevision':doghouse_revision,'baseReleaseSha256':BASE,'referenceArchiveSha256':REF,'runtimeImagesUnchanged':True,'observedAssemblyNotReproducibleBuild':True,'productionAccepted':False}
- old['hostOperations']['sourceRevision']=doghouse_revision
+ old['stage7_assembly']={'sourceRevision':revision,'doghouseRevision':doghouse_revision,'baseReleaseSha256':BASE,'referenceArchiveSha256':REF,'runtimeImagesUnchanged':True,'observedAssemblyNotReproducibleBuild':True,'productionAccepted':False}
+ old['source_revisions']['stage7_operations']=revision
+ old['source_revisions']['doghouse']=doghouse_revision
+ old['acceptance']='UNQUALIFIED Stage 7 QA candidate; independent acceptance pending'
  old['files']={p.name:sha(p) for p in sorted(bundle.iterdir()) if p.is_file()}
  (bundle/'release.json').write_text(json.dumps(old,indent=2)+'\n');release=sha(bundle/'release.json')
  (bundle/'release.sha256').write_text(release+'  release.json\n')
