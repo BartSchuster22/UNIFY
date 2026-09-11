@@ -1,0 +1,12 @@
+{
+  "schema": "stage7-candidate-build/v1",
+  "sourceRevision": "df5cccbb1618e2b8fa78bf3de44a7884a1345cfb",
+  "doghouseRevision": "585494dd0368bdc9ae0cc95586a0ead7e074bab6",
+  "archive": "dsh-stage7-qa1-df5cccb-linux-amd64.tar.gz",
+  "archiveSha256": "3b470828301348966ac2e00df37f01286b1e3547cfba8b9c15277a1e4eb47f83",
+  "archiveBytes": 1684901199,
+  "releaseSha256": "88e41963d6684a143a528467e580fb821ab91867cd59380b73181c3de1e3e7a2",
+  "fileCount": 15,
+  "stage7Accepted": false,
+  "productionAccepted": false
+}

@@ -44,7 +44,7 @@ def produce(base,reference,doghouse,output,revision,doghouse_revision):
  archive=output/('dsh-stage7-qa1-'+revision[:7]+'-linux-amd64.tar.gz')
  with tarfile.open(archive,'w:gz',compresslevel=1) as t:
   for p in sorted(bundle.iterdir()):
-   info=t.gettarinfo(p,arcname='bundle/'+p.name);info.uid=info.gid=0;info.uname=info.gname='root';info.mode=0o644
+   info=t.gettarinfo(p,arcname='bundle/'+p.name);info.uid=info.gid=0;info.uname=info.gname='root';info.mode=0o755 if p.name=='alicactl' else 0o644
    with p.open('rb') as f:t.addfile(info,f)
  receipt={'schema':'stage7-candidate-build/v1','sourceRevision':revision,'doghouseRevision':doghouse_revision,'archive':archive.name,'archiveSha256':sha(archive),'archiveBytes':archive.stat().st_size,'releaseSha256':release,'fileCount':len(old['files']),'stage7Accepted':False,'productionAccepted':False}
  (output/'build-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps(receipt),flush=True)

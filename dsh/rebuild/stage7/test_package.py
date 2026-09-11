@@ -1,5 +1,5 @@
 """Packaging unit fixtures only; not installation or independent acceptance."""
-import importlib.util,json,tempfile,unittest
+import importlib.util,json,tempfile,unittest,tarfile
 from pathlib import Path
 from unittest.mock import patch
 spec=importlib.util.spec_from_file_location('stage7_package',Path(__file__).with_name('package.py'));assert spec and spec.loader;m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
@@ -9,6 +9,7 @@ class Packaging(unittest.TestCase):
   self.base=self.root/'base';self.base.mkdir();self.ref=self.root/'reference.tar';self.ref.write_bytes(b'explicit unit fixture, not a real OCI image')
   ops=Path(__file__).parents[1]/'stage5/ops.py'
   (self.base/'ops.py').write_bytes(ops.read_bytes());(self.base/'images.tar').write_bytes(b'explicit unit fixture, not a real OCI image')
+  (self.base/'alicactl').write_text('#!/bin/sh\n# unit fixture only\nexit 0\n')
   release={'schema':'dsh-stage2-bundle/v1','source_revisions':{'installer':'original'},'files':{p.name:m.sha(p) for p in self.base.iterdir()}}
   (self.base/'release.json').write_text(json.dumps(release))
   self.dog=self.root/'doghouse';self.dog.mkdir()
@@ -20,6 +21,7 @@ class Packaging(unittest.TestCase):
  def test_real_ops_transform_and_manifest(self):
   self.build();b=self.out/'bundle';r=json.loads((b/'release.json').read_text());s=(b/'ops.py').read_text();compile(s,'ops.py','exec')
   self.assertIn("'signatureSchema':SCHEMA",s);self.assertIn('canonical_signature as signature',s)
+  with tarfile.open(next(self.out.glob('*.tar.gz'))) as archive:self.assertEqual(archive.getmember('bundle/alicactl').mode,0o755)
   self.assertIn('UNQUALIFIED',r['acceptance']);self.assertFalse(r['stage7_assembly']['productionAccepted'])
   for n,h in r['files'].items():self.assertEqual(m.sha(b/n),h)
   self.assertEqual((self.base/'images.tar').read_bytes(),(b/'images.tar').read_bytes())
