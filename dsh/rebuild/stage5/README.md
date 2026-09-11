@@ -5,6 +5,13 @@ Doghouse `5320831dbbdf9bfc62de1718bce97014ecc60cd8`, maintenance/lifecycle
 coordination, persistent incidents and authenticated read-only Core/UNIUI status.
 No Stage 5 live acceptance or production readiness is claimed.
 
+Latest continuation (2026-09-11): the existing TCG guest rebooted successfully,
+but retained QA3 again failed the unchanged SQL-readiness deadline. A separate,
+longer-deadline SQL diagnostic passed without modifying product configuration;
+it is not an installation pass. All 65 re-executed readiness/lifecycle/broker
+regressions passed. Live acceptance now requires suitable approved isolated QA
+capacity. See [the current blocker and recorded evidence](qa/READINESS-BLOCKER.md).
+
 ## Verified before live installation
 
 - Doghouse policy and broker tests: 32 passed.

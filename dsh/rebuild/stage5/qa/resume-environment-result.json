@@ -1,0 +1,20 @@
+{
+  "at": "2026-09-11T09:33:13.741839+00:00",
+  "kvmDevicePresent": false,
+  "hardwareVirtualizationFlagsPresent": false,
+  "capacity": {
+    "snapshot": {
+      "hostname": "ALICA-v1",
+      "diskAvailableBytes": 13378945024,
+      "memoryAvailableBytes": 4548558848,
+      "swapUsedBytes": 699146240,
+      "runningQaProjects": [
+        "vm:dsh-stage5-qa"
+      ],
+      "unreferencedStage1Archives": []
+    },
+    "issues": [],
+    "admitted": true
+  },
+  "vm": "ActiveState=active\nRuntimeMaxUSec=6h\nMemoryCurrent=1071448064\nMemorySwapCurrent=0\nCPUQuotaPerSecUSec=2s\nMemoryMax=3758096384\nMemorySwapMax=2684354560\n"
+}

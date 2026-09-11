@@ -1,0 +1,213 @@
+{
+  "schema": "stage5-resume-readiness/v1",
+  "at": "2026-09-11T09:26:27.788460+00:00",
+  "wholeStage5Accepted": false,
+  "coldOneShotPass": false,
+  "sameRetainedQa3": true,
+  "productNanoCpus": 250000000,
+  "healthTimeoutNs": 3000000000,
+  "healthObservations": [
+    {
+      "status": "starting",
+      "running": true,
+      "oomKilled": false,
+      "recentExitCodes": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ]
+    },
+    {
+      "status": "starting",
+      "running": true,
+      "oomKilled": false,
+      "recentExitCodes": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ]
+    },
+    {
+      "status": "starting",
+      "running": true,
+      "oomKilled": false,
+      "recentExitCodes": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ]
+    },
+    {
+      "status": "starting",
+      "running": true,
+      "oomKilled": false,
+      "recentExitCodes": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ]
+    },
+    {
+      "status": "starting",
+      "running": true,
+      "oomKilled": false,
+      "recentExitCodes": [
+        -1,
+        -1,
+        -1,
+        -1,
+        2
+      ]
+    },
+    {
+      "status": "starting",
+      "running": true,
+      "oomKilled": false,
+      "recentExitCodes": [
+        -1,
+        -1,
+        -1,
+        2,
+        -1
+      ]
+    },
+    {
+      "status": "starting",
+      "running": true,
+      "oomKilled": false,
+      "recentExitCodes": [
+        -1,
+        -1,
+        2,
+        -1,
+        -1
+      ]
+    },
+    {
+      "status": "starting",
+      "running": true,
+      "oomKilled": false,
+      "recentExitCodes": [
+        -1,
+        -1,
+        2,
+        -1,
+        -1
+      ]
+    },
+    {
+      "status": "starting",
+      "running": true,
+      "oomKilled": false,
+      "recentExitCodes": [
+        -1,
+        2,
+        -1,
+        -1,
+        -1
+      ]
+    },
+    {
+      "status": "starting",
+      "running": true,
+      "oomKilled": false,
+      "recentExitCodes": [
+        2,
+        -1,
+        -1,
+        -1,
+        -1
+      ]
+    },
+    {
+      "status": "starting",
+      "running": true,
+      "oomKilled": false,
+      "recentExitCodes": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ]
+    },
+    {
+      "status": "starting",
+      "running": true,
+      "oomKilled": false,
+      "recentExitCodes": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ]
+    },
+    {
+      "status": "starting",
+      "running": true,
+      "oomKilled": false,
+      "recentExitCodes": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ]
+    },
+    {
+      "status": "starting",
+      "running": true,
+      "oomKilled": false,
+      "recentExitCodes": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ]
+    },
+    {
+      "status": "starting",
+      "running": true,
+      "oomKilled": false,
+      "recentExitCodes": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ]
+    },
+    {
+      "status": "starting",
+      "running": true,
+      "oomKilled": false,
+      "recentExitCodes": [
+        -1,
+        -1,
+        -1,
+        -1,
+        2
+      ]
+    }
+  ],
+  "requiredDockerHealthPassed": false,
+  "requiredSqlProbe": {
+    "exit": 2,
+    "seconds": 9.784
+  },
+  "containerResourceCounters": "usage_usec 34202751\nuser_usec 15718210\nsystem_usec 18484540\ncore_sched.force_idle_usec 0\nnr_periods 1570\nnr_throttled 1312\nthrottled_usec 147893000\nnr_bursts 0\nburst_usec 0\nlow 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+  "resourceLimitsUnchanged": true,
+  "candidateStopped": true,
+  "preservationHashesUnchanged": true,
+  "noRunningGuestContainers": true
+}

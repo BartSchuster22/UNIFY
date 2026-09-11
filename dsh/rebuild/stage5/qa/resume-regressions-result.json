@@ -1,0 +1,31 @@
+{
+  "at": "2026-09-11T09:33:40.609116+00:00",
+  "liveAcceptance": false,
+  "suites": [
+    {
+      "suite": "stage5-readiness",
+      "command": "python3 -m unittest discover -s dsh/rebuild/stage5 -p 'test_*.py' -v",
+      "exit": 0,
+      "tests": 9,
+      "seconds": 0.148,
+      "output": "test_missing_secret_prevents_query (test_readiness.Readiness) ... ok\ntest_preserves_security_and_time_budgets (test_readiness.Readiness) ... ok\ntest_sql_errors_fail_closed (test_readiness.Readiness) ... ok\ntest_success_authenticates_and_queries_required_database (test_readiness.Readiness) ... ok\ntest_healthy_subset_passes (test_wait_readiness.WaitReadiness) ... ok\ntest_missing_stopped_unhealthy_rejected (test_wait_readiness.WaitReadiness) ... ok\ntest_stop_not_gated (test_wait_readiness.WaitReadiness) ... ok\ntest_whole_cell_requires_all (test_wait_readiness.WaitReadiness) ... ok\ntest_zero_exit_starting_rejected (test_wait_readiness.WaitReadiness) ... ok\n\n----------------------------------------------------------------------\nRan 9 tests in 0.148s\n\nOK"
+    },
+    {
+      "suite": "stage2-lifecycle-security",
+      "command": "python3 -m unittest discover -s dsh/rebuild/stage2 -p 'test_*.py' -v",
+      "exit": 0,
+      "tests": 24,
+      "seconds": 3.293,
+      "output": "test_changed_secret_rejected_without_rewriting_database_config (test_install.Preparation) ... ok\ntest_modified_compose_rejected (test_install.Preparation) ... ok\ntest_real_strict_pki_and_repeat_preserve_secrets (test_install.Preparation) ... ok\ntest_unsafe_secret_directory_rejected (test_install.Preparation) ... ok\ntest_edge_does_not_publish_admin (test_render.Render) ... ok\ntest_identity_boundary (test_render.Render) ... ok\ntest_no_password_grant_or_wildcard_redirect (test_render.Render) ... ok\ntest_no_silent_tls_bypass (test_render.Render) ... ok\ntest_private_graph_and_model_egress (test_render.Render) ... ok\ntest_reject_bad_request (test_render.Render) ... ok\ntest_runtime_database_role_is_not_bootstrap (test_render.Render) ... ok\ntest_conflicting_release_rejected (test_transaction.Transactions) ... ok\ntest_owner_substitution_rejected (test_transaction.Transactions) ... ok\ntest_parallel_writer_rejected (test_transaction.Transactions) ... ok\ntest_plan_read_only (test_transaction.Transactions) ... ok\ntest_reject_unowned (test_transaction.Transactions) ... ok\ntest_rollback_failure_truthful (test_transaction.Transactions) ... ok\ntest_rollback_retains_data_then_retry (test_transaction.Transactions) ... ok\ntest_success_idempotent (test_transaction.Transactions) ... ok\ntest_symlink_rejected (test_transaction.Transactions) ... ok\ntest_unsafe_permissions_rejected (test_transaction.Transactions) ... ok\ntest_foreign_resources_fail_before_removal (test_uninstall.Uninstall) ... ok\ntest_retains_data_and_journals_uninstall (test_uninstall.Uninstall) ... ok\ntest_retention_failure_is_not_success (test_uninstall.Uninstall) ... ok\n\n----------------------------------------------------------------------\nRan 24 tests in 3.293s\n\nOK"
+    },
+    {
+      "suite": "doghouse-broker-policy",
+      "command": "PYTHONPATH=dsh python3 -m unittest discover -s dsh/tests -v",
+      "exit": 0,
+      "tests": 32,
+      "seconds": 0.58,
+      "output": "test_added_host_mount_denied (test_broker.BrokerTests) ... ok\ntest_arbitrary_target_denied (test_broker.BrokerTests) ... ok\ntest_changed_command_or_restart_policy_denied (test_broker.BrokerTests) ... ok\ntest_cli_failure_is_unknown_not_success (test_broker.BrokerTests) ... ok\ntest_exact_owner_set (test_broker.BrokerTests) ... ok\ntest_foreign_cell_denied (test_broker.BrokerTests) ... ok\ntest_image_change_denied (test_broker.BrokerTests) ... ok\ntest_observer_cannot_ack_or_change_maintenance (test_broker.BrokerTests) ... ok\ntest_peer_uid_denied_before_any_effect (test_broker.BrokerTests) ... ok\ntest_raw_docker_secrets_never_projected (test_broker.BrokerTests) ... ok\ntest_recipe_and_shell_fields_denied (test_broker.BrokerTests) ... ok\ntest_active_running_hermes_not_killed (test_engine.EngineTests) ... ok\ntest_backoff_circuit_and_explicit_ack (test_engine.EngineTests) ... ok\ntest_budget_is_durable_before_effect (test_engine.EngineTests) ... ok\ntest_command_return_not_health (test_engine.EngineTests) ... ok\ntest_debounce (test_engine.EngineTests) ... ok\ntest_dependency_failure (test_engine.EngineTests) ... ok\ntest_docker_blocks (test_engine.EngineTests) ... ok\ntest_healthy_no_action (test_engine.EngineTests) ... ok\ntest_maintenance_persists (test_engine.EngineTests) ... ok\ntest_missing_active_unknown_not_zero (test_engine.EngineTests) ... ok\ntest_missing_custom_status_fails_closed (test_engine.EngineTests) ... ok\ntest_no_arbitrary_target (test_engine.EngineTests) ... ok\ntest_no_checks_unknown (test_engine.EngineTests) ... ok\ntest_owner_blocks (test_engine.EngineTests) ... ok\ntest_reboot_audit_persists (test_engine.EngineTests) ... ok\ntest_recurring_incident_retains_history (test_engine.EngineTests) ... ok\ntest_stale_blocks (test_engine.EngineTests) ... ok\ntest_stopped_executor_can_recover_without_business_replay (test_engine.EngineTests) ... ok\ntest_storage_blocks (test_engine.EngineTests) ... ok\ntest_unknown_not_failed (test_engine.EngineTests) ... ok\ntest_usage_not_fabricated (test_engine.EngineTests) ... ok\n\n----------------------------------------------------------------------\nRan 32 tests in 0.580s\n\nOK"
+    }
+  ],
+  "totalTests": 65
+}

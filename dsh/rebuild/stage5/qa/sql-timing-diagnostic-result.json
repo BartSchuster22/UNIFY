@@ -1,0 +1,15 @@
+{
+  "schema": "stage5-sql-timing-diagnostic/v1",
+  "at": "2026-09-11T09:31:27.734516+00:00",
+  "acceptance": false,
+  "productProbeModified": false,
+  "diagnosticConnectionTimeoutSeconds": 20,
+  "diagnosticSql": {
+    "exit": 0,
+    "seconds": 15.173
+  },
+  "productConfigUnchanged": true,
+  "candidateStopped": true,
+  "preservedFilesUnchanged": true,
+  "noRunningGuestContainers": true
+}
