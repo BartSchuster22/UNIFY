@@ -1,0 +1,30 @@
+{
+  "schema": "stage5-business-faults/v1",
+  "cases": [
+    {
+      "name": "callback-outage-and-no-duplicate-business-effect",
+      "passed": true,
+      "seconds": 88.382,
+      "actualCallbackReceiverStopped": true,
+      "deliveryRecovered": true,
+      "nativeTaskCount": 1,
+      "businessEffectCount": 1,
+      "sameKeyReplayDeduplicated": true,
+      "noBrokerRecoveryIssued": true,
+      "receiptId": "cfd093c1-c632-478a-8b5c-1f933e2af298"
+    },
+    {
+      "name": "provider-outage-no-runtime-restart",
+      "passed": true,
+      "seconds": 22.095,
+      "actualProviderEgressRejected": true,
+      "failureExplicit": true,
+      "healthyRuntimeNotRestarted": true,
+      "noBrokerRecoveryIssued": true,
+      "nativeTaskCount": 1,
+      "businessEffectCount": 0,
+      "receiptId": "144a2fc8-a534-45d0-9504-1ef530df4966"
+    }
+  ],
+  "complete": true
+}

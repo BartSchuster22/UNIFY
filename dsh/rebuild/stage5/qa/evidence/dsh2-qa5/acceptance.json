@@ -1,0 +1,43 @@
+{
+  "schema": "stage5-acceptance/v1",
+  "cell": "dsh2-stage5-qa5",
+  "releaseSha256": "1fde4fdfeea219bbad1e61e6bcce8046b2a7f9d880218d95a660624be08cd4f6",
+  "wholeStage5Accepted": true,
+  "scope": "Stage 5 isolated-host acceptance, not general production or fleet certification",
+  "gates": {
+    "installation": true,
+    "host-operations.json": true,
+    "extended-host.json": true,
+    "business-faults.json": true,
+    "ui-result.json": true,
+    "operations-api.json": true,
+    "reboot-result.json": true,
+    "post-boot-business.json": true,
+    "oidc": true,
+    "endToEnd": true,
+    "sharedPreservation": true,
+    "regressions": true,
+    "installedCandidateIdentity": true
+  },
+  "evidenceSha256": {
+    "business-faults.json": "3a780df15b550d4c5ff2c6f17725777a45058f8bc027a46b00d34dab2615bad6",
+    "candidate-release.json": "1fde4fdfeea219bbad1e61e6bcce8046b2a7f9d880218d95a660624be08cd4f6",
+    "dsh2-install.json": "8cfdef371f6742704a62e71db02e72779553977078737fe2383037dfc6619ff5",
+    "extended-host-attempt1.json": "09bf0f79d31bbaadff381b266965d1da7f354ecc1e9433177c6e3f4dee27b512",
+    "extended-host.json": "c920af8f68f6712f9eb4511993ef2e4ee4da5dab20521b91dd5cb11624c650e7",
+    "first-acceptance.json": "105cd262c68aee0d4bf8e9c91d34473761449b8ef13d63d6be45d01d7ed8c24d",
+    "host-operations.json": "7f5c4cc94d5bb14afc3e332efe3cb37d89bfffbb5ad465a83a62948b163c90f9",
+    "oidc-first-login.json": "9df375e2a2eb1884e3e0c9f4ab56bb7273bc0df0a26c9e76f4255f7fa8ac899e",
+    "oidc-result.json": "f8753426d5b15eca1667b1edac3ee913037de7abe8afb51349e9772f17402af1",
+    "operations-api.json": "a187bb65377f4f2b8a07a68bbcc2e6b9037e4e09f660af707505deea3e279aaf",
+    "operations-healthy.png": "53a2af5e35b5257fd8c34a585e749f50a389e098969879cadf2404a8bbcb9491",
+    "operations-stale.png": "4614e4ac67c453ec321199902018e1b462db52348ae54408368d9fca912f8d2b",
+    "post-boot-business.json": "0d6842725723d9bec5e3a94e5931b5deaf0d298dad2404616c0df7d188545d8c",
+    "reboot-result.json": "cb21ec652de6d3db4f46f88989b796fbe757a0d9a7b17bec0a246bea9bc552f7",
+    "runtime-identity.json": "3889d8809e687961bc6098f00058b415ceaef90d06249516a9ace63e1232cb0d",
+    "shared-preservation.json": "1932a17333e54f56375e9c79fd5bb65d24ce96f910cbd86284bd692e326d0980",
+    "ui-result.json": "9669777227d4dc0fd036c6ecb5e16ccae75b2104d5d8458e600398b538e68524",
+    "unit-tests.json": "662c7a3bec95a293de5fcba4467c9af27a90c0e4e5998a000d1c81aec3f10e65"
+  },
+  "historicalFailuresRetained": true
+}

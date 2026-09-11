@@ -1,0 +1,45 @@
+{
+  "schema": "stage5-extended-host/v1",
+  "cases": [
+    {
+      "name": "database-dependency-failure",
+      "passed": true,
+      "seconds": 15.801,
+      "databaseNotAutoRestarted": true,
+      "dependentRestartSuppressed": true,
+      "noRecoveryIssued": true
+    },
+    {
+      "name": "guest-docker-daemon-unavailable",
+      "passed": true,
+      "seconds": 77.672,
+      "actualGuestDaemonStopped": true,
+      "unknownNotHealthy": true,
+      "noRecoveryIssued": true,
+      "readinessReturned": true
+    },
+    {
+      "name": "real-storage-probe-pressure",
+      "passed": true,
+      "seconds": 2.26,
+      "actualStatvfsPressure": true,
+      "probe": "isolated-16MiB-tmpfs",
+      "originalThresholdUnchanged": true,
+      "dataFilesystemNotFilled": true,
+      "configurationRestoredExactly": true,
+      "noRecoveryIssued": true
+    },
+    {
+      "name": "broker-interrupted-during-issued-action",
+      "passed": true,
+      "seconds": 65.38,
+      "realIssuedActionInterrupted": true,
+      "uncertainPersistedAcrossBrokerRestart": true,
+      "blindReplayDenied": true,
+      "explicitOperatorAcknowledgement": true,
+      "noDatabaseRowsInjected": true
+    }
+  ],
+  "complete": true,
+  "testInducedSystemdLimitReset": true
+}

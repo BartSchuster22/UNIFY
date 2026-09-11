@@ -1,0 +1,78 @@
+{
+  "schema": "stage5-live-host-qa/v1",
+  "bootId": "0e7ea4db-4f5c-42e4-9f7b-7736a987c0a2",
+  "cases": [
+    {
+      "name": "baseline",
+      "passed": true,
+      "seconds": 0.048,
+      "services": [
+        "postgresql",
+        "keycloak",
+        "hermes",
+        "memory-v4",
+        "unify-core",
+        "uniui",
+        "caddy"
+      ],
+      "ownershipVerified": true,
+      "billingNotInferred": true
+    },
+    {
+      "name": "broker-denials-and-redaction",
+      "passed": true,
+      "seconds": 0.052,
+      "arbitraryCommandDenied": true,
+      "foreignTargetDenied": true,
+      "secretSentinelAbsent": true,
+      "candidateSecretsAbsent": true,
+      "noRecoveryIssued": true
+    },
+    {
+      "name": "maintenance-suppresses-recovery",
+      "passed": true,
+      "seconds": 22.64,
+      "manualStopNotResurrected": true,
+      "noRecoveryIssued": true,
+      "maintenanceClearedExplicitly": true
+    },
+    {
+      "name": "unexpected-stop-unify-core",
+      "passed": true,
+      "seconds": 12.469,
+      "exactlyOneBrokerRecovery": true,
+      "containerIdentityPreserved": true,
+      "readinessObservedAfterCommand": true,
+      "persistentIncidentResolved": true
+    },
+    {
+      "name": "unexpected-stop-memory-v4",
+      "passed": true,
+      "seconds": 30.63,
+      "exactlyOneBrokerRecovery": true,
+      "containerIdentityPreserved": true,
+      "readinessObservedAfterCommand": true,
+      "persistentIncidentResolved": true
+    },
+    {
+      "name": "unexpected-stop-hermes",
+      "passed": true,
+      "seconds": 45.903,
+      "exactlyOneBrokerRecovery": true,
+      "containerIdentityPreserved": true,
+      "readinessObservedAfterCommand": true,
+      "persistentIncidentResolved": true
+    }
+  ],
+  "complete": true,
+  "remainingSuites": [
+    "provider",
+    "callback",
+    "external-effect-deduplication",
+    "daemon",
+    "storage-pressure",
+    "broker-interruption",
+    "host-reboot",
+    "installed-browser"
+  ]
+}

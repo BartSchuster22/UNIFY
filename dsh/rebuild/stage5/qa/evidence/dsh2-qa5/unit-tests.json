@@ -1,0 +1,5 @@
+{
+  "command": "python3 -m unittest discover -s dsh/rebuild/stage5 -p test_*.py",
+  "exitCode": 0,
+  "passed": 24
+}

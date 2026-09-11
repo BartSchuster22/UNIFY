@@ -1,0 +1,20 @@
+{
+  "schema": "stage5-extended-host/v1",
+  "cases": [
+    {
+      "name": "database-dependency-failure",
+      "passed": true,
+      "seconds": 15.822,
+      "databaseNotAutoRestarted": true,
+      "dependentRestartSuppressed": true,
+      "noRecoveryIssued": true
+    },
+    {
+      "name": "guest-docker-daemon-unavailable",
+      "passed": false,
+      "errorType": "AssertionError",
+      "seconds": 14.484
+    }
+  ],
+  "complete": false
+}

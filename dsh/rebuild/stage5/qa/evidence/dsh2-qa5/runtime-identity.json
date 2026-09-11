@@ -1,0 +1,7 @@
+{
+  "releaseSha256": "1fde4fdfeea219bbad1e61e6bcce8046b2a7f9d880218d95a660624be08cd4f6",
+  "coreImage": "sha256:40156a00c8968ab082bd327bc16229f46834bd18305be2ab48f54076abadd5e2",
+  "uiImage": "sha256:5e981ddd106e7c591850f6c7bda25ebe667d96b71db14afc085898c0b7b7e064",
+  "operationsServicesActive": true,
+  "verifiedAfterRealReboot": true
+}

@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """Access-only provider setup; no refresh token and no changes to Herman."""
 import json,socket,subprocess,sys
-assert socket.gethostname()=='dsh-stage5-disposable'
-name='dsh2-stage5-qa3-hermes-1'
+from qa_host import assert_qa_host
+assert_qa_host()
+import os
+cell=os.environ.get('DSH_STAGE5_QA_CELL','dsh2-stage5-qa3')
+assert cell in ('dsh2-stage5-qa3','dsh2-stage5-qa4','dsh2-stage5-qa5')
+name=cell+'-hermes-1'
 r=json.loads(subprocess.check_output(['docker','inspect',name]))[0]
-assert r['Config']['Labels']['com.docker.compose.project']=='dsh2-stage5-qa3' and r['Image']=='sha256:96ed2f016fb159f48058f668a3baccd2d8154644dfd3519b9e683c4e7c636bd9'
+assert r['Config']['Labels']['com.docker.compose.project']==cell and r['Image']=='sha256:96ed2f016fb159f48058f668a3baccd2d8154644dfd3519b9e683c4e7c636bd9'
 credential=json.loads(sys.stdin.buffer.read(32768));assert set(credential)=={'access_token'}
 code="""import contextlib,json,os,sys
 raw=json.load(sys.stdin)

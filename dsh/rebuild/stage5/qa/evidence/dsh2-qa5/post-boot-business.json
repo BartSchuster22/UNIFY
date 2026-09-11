@@ -1,0 +1,7 @@
+{
+  "schema": "stage5-post-boot-business/v1",
+  "firstEffectCount": 1,
+  "callbackEffectCount": 1,
+  "providerFailureEffectCount": 0,
+  "passed": true
+}

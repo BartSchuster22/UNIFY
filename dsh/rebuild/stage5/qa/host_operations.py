@@ -5,10 +5,11 @@ This suite does NOT qualify provider/callback/business/reboot cases by itself.
 import hashlib,json,os,socket,subprocess,time,uuid
 from pathlib import Path
 CELL=os.environ.get('DSH_STAGE5_QA_CELL','dsh2-stage5-qa3')
-assert CELL in ('dsh2-stage5-qa1','dsh2-stage5-qa2','dsh2-stage5-qa3')
+assert CELL in ('dsh2-stage5-qa1','dsh2-stage5-qa2','dsh2-stage5-qa3','dsh2-stage5-qa4','dsh2-stage5-qa5')
 ROOT=Path('/opt')/CELL
 OUT=Path('/var/lib/alica-stage5-'+CELL.rsplit('-',1)[-1]+'/host-operations.json')
-assert os.geteuid()==0 and socket.gethostname()=='dsh-stage5-disposable'
+from qa_host import assert_qa_host
+assert_qa_host()
 assert json.loads((ROOT/'transaction.json').read_text())['state']=='installed'
 C=json.loads((ROOT/'operations/broker.json').read_text())
 assert C['cell']==CELL and C['root']==str(ROOT)
@@ -30,12 +31,17 @@ def request(op='snapshot',**kw):
    assert len(data)<1048576
   return json.loads(data)
 def snap():
- r=request();assert r['ok'];return r['status']
+ r=request()
+ if not r.get('ok') and r.get('error')=='BlockingIOError':
+  raise BlockingIOError('lifecycle-transaction-lock-held')
+ assert r['ok'];return r['status']
 def healthy(r):return r['snapshot']['ownershipVerified'] and all(s['state']=='healthy' for s in r['snapshot']['services'].values())
 def until(predicate,seconds=240):
  end=time.monotonic()+seconds
  while time.monotonic()<end:
-  r=snap()
+  try:r=snap()
+  except BlockingIOError:
+   time.sleep(3);continue
   if predicate(r):return r
   time.sleep(3)
  raise AssertionError('bounded-observation-timeout')

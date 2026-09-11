@@ -1,141 +1,101 @@
-# Stage 5 operations candidate — NOT ACCEPTED
+# Stage 5 — accepted on DSH2 (QA5)
 
-Source implements a bounded host broker and unprivileged observer from
-Doghouse `5320831dbbdf9bfc62de1718bce97014ecc60cd8`, maintenance/lifecycle
-coordination, persistent incidents and authenticated read-only Core/UNIUI status.
-No Stage 5 live acceptance or production readiness is claimed.
+Stage 5 isolated-host acceptance is complete for the checksummed QA5 candidate.
+This is not a general production/fleet certification or a claim that the earlier
+resource-constrained TCG fixture passed. Development/builds remained on ALICA-v1;
+destructive fault injection and the real host reboot ran on dedicated DSH2.
 
-Latest continuation (2026-09-11): the existing TCG guest rebooted successfully,
-but retained QA3 again failed the unchanged SQL-readiness deadline. A separate,
-longer-deadline SQL diagnostic passed without modifying product configuration;
-it is not an installation pass. All 65 re-executed readiness/lifecycle/broker
-regressions passed. Live acceptance now requires suitable approved isolated QA
-capacity. See [the current blocker and recorded evidence](qa/READINESS-BLOCKER.md).
+## Accepted artifact
 
-## Verified before live installation
+- Cell: `dsh2-stage5-qa5`, DSH2 `95.216.216.143`.
+- Release SHA-256: `1fde4fdfeea219bbad1e61e6bcce8046b2a7f9d880218d95a660624be08cd4f6`.
+- Build artifact: ALICA-v1 `/srv/alica-dsh-development/stage5-qa-vm/share/stage5-package-qa5`.
+- Installed bundle: DSH2 `/srv/alica-dsh-qa/stage5-package-qa5`.
+- Fresh installation: **180.249 seconds**. Existing framework images were reused;
+  the two corrected overlay images were imported. This was not an all-images-cold run.
+- Post-reboot inspection verified the release hash, exact Core/UI image IDs and
+  active lifecycle, broker and observer units.
+- Doghouse broker source: `5320831dbbdf9bfc62de1718bce97014ecc60cd8`.
 
-- Doghouse policy and broker tests: 32 passed.
-- Core gateway regression suite: 234 passed, including eight operations tests.
-- Capacity policy tests: eight passed.
-- Core and UNIUI type checks and builds passed.
-- Candidate overlay images and self-contained archive built successfully.
-- Candidate release SHA-256:
-  `4cd6454621983c5fe3904f52877d7dac3369497817697042a58e6836593e2a20`.
-- Candidate resides on ALICA-v1 at
-  `/srv/alica-dsh-development/stage5-qa-vm/share/stage5-package-qa1`.
+## Verified acceptance
 
-## Actual installation attempt: refused by memory preflight
+All links below are actual collected results, not generated service responses.
 
-On 2026-09-10 the candidate was invoked inside the existing disposable QEMU
-VM, not on the shared host. Guest kernel: `6.8.0-138-generic`; Docker:
-`29.1.3`; Compose: `2.40.3`. The installer exited 1 in `Installer.plan()`:
+| Gate | Result | Evidence |
+|---|---|---|
+| Fresh install and operations enrollment | Passed | [Installation](qa/evidence/dsh2-qa5/dsh2-install.json) |
+| Broker scope, denial/redaction, maintenance and exactly-one recovery | Six cases passed | [Host suite](qa/evidence/dsh2-qa5/host-operations.json) |
+| Dependency, actual Docker outage, real storage probe pressure, interrupted broker | Four cases passed | [Extended suite](qa/evidence/dsh2-qa5/extended-host.json) |
+| Real OIDC, wrong-password denial and required initial password change | Passed; fresh OIDC login also passed after reboot | [Initial OIDC](qa/evidence/dsh2-qa5/oidc-first-login.json), [post-boot login](qa/evidence/dsh2-qa5/oidc-result.json) |
+| Installed operations API | Anonymous denied, owner read allowed, no mutation route, actual installation secrets absent | [API](qa/evidence/dsh2-qa5/operations-api.json) |
+| Actual installed browser UI | Authenticated seven-service panel, billing provenance, real observer outage shown unknown/stale and restored | [Browser](qa/evidence/dsh2-qa5/ui-result.json), [healthy](qa/evidence/dsh2-qa5/operations-healthy.png), [stale](qa/evidence/dsh2-qa5/operations-stale.png) |
+| Real application/native/provider/callback flow | Result-ready in 33.64 seconds, callback delivered, customer isolation and idempotency passed | [End-to-end](qa/evidence/dsh2-qa5/first-acceptance.json) |
+| Callback receiver outage | Delivery recovered; one native task, one business effect, same-key deduplication | [Business faults](qa/evidence/dsh2-qa5/business-faults.json) |
+| Actual provider HTTPS-egress rejection | Explicit failure; one native task, zero business effects; no runtime/broker restart | [Business faults](qa/evidence/dsh2-qa5/business-faults.json) |
+| Real DSH2 host reboot | Boot ID changed; all seven services recovered automatically with identical container IDs | [Reboot](qa/evidence/dsh2-qa5/reboot-result.json) |
+| Post-reboot preservation | Owner, transaction, Compose and secret hashes unchanged; three native tasks and completed receipt preserved | [Reboot](qa/evidence/dsh2-qa5/reboot-result.json) |
+| Post-reboot business effects | First request = 1, callback test = 1, provider failure = 0 | [Business preservation](qa/evidence/dsh2-qa5/post-boot-business.json) |
+| Shared ALICA-v1 workloads | 69 baseline workloads unchanged | [Shared preservation](qa/evidence/dsh2-qa5/shared-preservation.json) |
+| Current Stage 5 regression suite | 24 passed | [Unit tests](qa/evidence/dsh2-qa5/unit-tests.json) |
 
+Browser and application clients verified TLS. No browser route mocks, fabricated
+provider responses, injected broker database rows, relaxed readiness deadlines,
+or filled data filesystem were used. Storage pressure used an isolated 16 MiB
+tmpfs while preserving the original minimum-free-space threshold.
+
+## Defects and test corrections retained in the record
+
+1. Real Docker-outage testing exposed missing Docker-return lifecycle wiring.
+   `ops.py` now enables the cell under both `multi-user.target` and `docker.service`,
+   and starts the lifecycle unit at enrollment.
+2. Installed UI testing exposed overlay copies into unused paths. The packager
+   now checks the base runtime entrypoint/working directory and copies Core to
+   `/app/dist`, UI to `/app/public`. QA5 is a new immutable candidate; earlier
+   candidates were not silently rewritten.
+3. Snapshot polling now treats only the known lifecycle transaction-lock response
+   as transient within its existing deadline. QA4's failed attempt is retained.
+4. Repeated deliberate observer restarts hit its three-starts-per-five-minutes
+   limit. The QA5 failed attempt is retained; the operator explicitly cleared
+   test-induced systemd limit state before rerunning the remaining two cases.
+   Production restart limits were not increased or disabled.
+5. The initial post-reboot verifier reached SSH before the ordered broker startup.
+   It was corrected to observe socket readiness within a bounded wait. No manual
+   start of any of the seven cell services was used to obtain the reboot pass.
+6. After fault-induced Core restarts, the fixture authenticated again through real
+   OIDC rather than bypassing the resulting 401. The API redaction test was corrected
+   to inspect actual secret files, not assume secret values lived in `.env`.
+
+See [historical attempts](qa/HISTORICAL-ATTEMPTS.md), and the retained
+[QA3](qa/evidence/dsh2-qa3/) and [QA4](qa/evidence/dsh2-qa4/) evidence.
+Individual component reports deliberately retain `wholeStage5Accepted: false`:
+no single test grants overall acceptance. The aggregate review below does.
+
+## Evidence review and reproduction
+
+```sh
+python3 -m unittest discover -s dsh/rebuild/stage5 -p 'test_*.py'
+python3 dsh/rebuild/stage5/qa/review_evidence.py
 ```
-transaction.TransactionError: Less than 4 GiB available memory
-```
 
-The fixture was configured with `-m 4096`; the guest reported 3914 MiB total
-and 3477 MiB available at the subsequent inspection. A 4 GiB-total VM cannot
-satisfy the unchanged 4 GiB-available preflight. This is a QA fixture sizing
-error, not a successful installation or evidence that the product fits that
-resource envelope. Guest Docker listed no images or container objects after
-this attempt. No preflight bypass or application installation was performed.
+The reviewer checks all acceptance gates, artifact hash and image pins, and emits
+[the aggregate verdict and evidence SHA-256 index](qa/evidence/dsh2-qa5/acceptance.json).
+Live scripts require explicitly enrolled QA authority and the correct cell selector.
+Do not execute destructive tests on shared ALICA-v1. `reboot_check.py snapshot`
+records the precondition, the operator separately issues the real DSH2 reboot,
+and `reboot_check.py verify` observes recovery without starting services.
 
-## Subsequent live attempts on 2026-09-10
+## Retention and scope
 
-- The operator manually shut down the guest. It was relaunched with 5120 MiB
-  guest RAM, a 4608 MiB host cgroup RAM cap and a 128 MiB swap cap. The guest
-  reported 4516 MiB available; cloud-init completed and the read-only share
-  mounted after boot. The original memory preflight was not weakened.
-- The native installation failed during image import and recorded rollback.
-  A separately checksum-verified image preload also hit its 1200-second limit.
-- Six images became visible in the guest's containerd store, using OCI
-  manifest identities rather than the config identities pinned for the
-  classic Docker backend. The build host uses classic `overlay2`.
-- With zero guest containers and volumes verified, the six failed-candidate
-  image records were removed and the guest was switched to classic `overlay2`.
-  Two specifically identified orphaned import leases were removed through
-  containerd's API; the retired store then occupied 1 MiB. Installed data and
-  the failed-install owner journal were not deleted.
-- A new, bounded 1800-second preload followed by installation and host tests
-  was launched. It did NOT complete: at journal time 16:34:08 the VM cgroup
-  was OOM-killed (4.5 GiB RAM peak, 128 MiB swap peak). No live host-suite pass
-  or successful installed candidate is claimed.
-- Releasing clean guest page cache temporarily restored host RAM headroom,
-  but was insufficient to prevent the VM OOM. At that point the VM was stopped. Ordinary
-  host monitoring passed; admission of another QA run then failed the
-  12 GiB free-disk floor. The physical host has a roughly 2 GiB zram swap
-  device, not a large disk-backed swap reserve.
-- Doghouse's source branch was pushed and remotely verified at the revision
-  above. Browser dependencies installed successfully and Chromium launched;
-  this is NOT an installed UNIUI acceptance test.
-- The bounded QA provider transport was exercised from the guest over an SSH
-  Unix-socket tunnel, preserving end-to-end public TLS validation. The actual
-  unauthenticated HEAD request returned HTTP 405. This proves transport only,
-  not provider authentication, a model run, or business-effect recovery.
+QA4 retirement retained five data volumes, installation secrets and reference-app
+files; see [retirement](qa/evidence/dsh2-qa4/retirement-summary.json).
+The superseded TCG QA VM was stopped and its disk retained. No image/volume pruning
+or production workload reset was performed. Borrowed QA provider access was imported
+through native authority without a refresh token; credentials, cookies, owner
+passwords and private keys are excluded from published evidence.
 
-The initial seed mount issue and initial RAM-preflight issue are resolved.
-Application installation and application reboot recovery remain unaccepted.
-See the subsequent capacity/import and readiness results below.
-The command-runner poweroff/reboot restriction still
-applies; neither the operator's earlier tooling-only reboot nor the VM OOM
-counts as passing Stage 5 recovery acceptance.
-
-The full live acceptance suite has not run successfully. Only the explicitly
-reported readiness regression below is complete; other preparations are not
-completed acceptance evidence.
-
-## Subsequent import and PostgreSQL readiness regression
-
-Approved archive compression and verified QCOW compaction reclaimed capacity.
-With bounded emulator overhead and temporary disk-backed swap, image preload
-completed in 1186.49 seconds and verified all seven config-ID pins. Installation
-then failed at migrations. PostgreSQL logs showed interrupted initialization;
-the retained cluster lacked the `unify` database and completed network-auth
-initialization. `pg_isready` nevertheless returned success. The transaction
-remained rolled back; it was not manually marked installed.
-
-Stage 5 packaging now replaces that listener-only probe with a password-file
-backed TCP `psql` connection as `unify_bootstrap` to database `unify`, executing
-`SELECT 1` with `ON_ERROR_STOP`. It disables password prompts and psql startup
-files, bounds connection time, and suppresses command output. Existing health
-interval/timeout/retries, network isolation, and authentication policy are not
-loosened. The frozen original candidate is NOT rewritten: this correction is
-applied when generating the next checksummed Stage 5 package.
-
-Verification:
-
-- Four readiness unit tests passed, including SQL failure, missing secret,
-  exact query/identity and preserved security/time budgets.
-- Four existing Stage 2 installer preparation/security regressions passed.
-- `qa/readiness_live.py` executed inside `dsh-stage5-disposable`, with the
-  existing seven images; no image import was repeated.
-- Retained partial cluster: old probe exit 0, corrected probe exit 2.
-- Fresh, isolated, tmpfs-backed PostgreSQL: corrected Docker health check
-  reached healthy with the unchanged 3-second timeout and SCRAM host auth.
-- Missing database: old probe exit 0, corrected probe exit 2.
-- Wrong password: corrected probe exit 2.
-- Temporary probe container removed; retained PostgreSQL stopped; owner,
-  transaction and Compose file hashes unchanged. No retained database was
-  repaired, reset, or manually populated by this regression.
-
-Machine-readable live results: `qa/readiness-live-result.json`.
-The VM and temporary swap remain allocated; this is not final QA cleanup.
-Repackaging, safe handling of the retained partial cluster, successful full
-installation, and the remaining Stage 5 acceptance tests are still required.
-
-## Remaining acceptance
-
-- Package the readiness correction and install within verified host capacity.
-- Exercise actual broker services and installed Core/UNIUI status.
-- Test lifecycle coordination, interruption, dependency, provider, callback,
-  storage-pressure, uncertain-effect and bounded recovery behavior.
-- Verify real guest reboot and Docker daemon failure, without shared-host disruption.
-- Verify native ownership, deduplicated business effects, scope/security and
-  final shared-workload preservation.
-- Publish live evidence and a truthful final verdict. Unit tests and built
-  images do not replace these gates.
-
-The Stage 2 installer remains the pinned underlying lifecycle driver;
-`ops.py` is the candidate operations-aware wrapper. Privileged operations are
-local root-operator actions, never arbitrary commands from Core or UNIUI.
+The seven-service cell does not own arbitrary third-party application containers.
+The external reference fixture's process lifecycle is not part of the cell's
+automatic reboot-recovery claim; its durable business ledger was verified directly.
+The Stage 2 installer remains the pinned lifecycle driver, with `ops.py` providing
+maintenance-aware coordination. Core/UNIUI expose authenticated read-only status,
+not arbitrary privileged host commands.

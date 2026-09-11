@@ -1,0 +1,9 @@
+{
+  "schema": "stage5-shared-workload-preservation/v1",
+  "host": "ALICA-v1",
+  "baseline": "/srv/alica-dsh-development/stage4-tests/installed-qa3/preservation-before.json",
+  "baselineWorkloadCount": 69,
+  "unchanged": true,
+  "changedNames": [],
+  "qualifiedStage4VerifiedByPackager": true
+}

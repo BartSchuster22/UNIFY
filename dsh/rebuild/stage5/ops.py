@@ -62,6 +62,22 @@ def main():
         else:result=i.uninstall()
         e.db.close();print(json.dumps(result))
 
+def lifecycle_unit(bundle, args):
+    """Start the cell at boot AND when Docker returns after a daemon outage."""
+    return f'''[Unit]
+Description=ALICA pinned cell lifecycle
+After=docker.service
+Requires=docker.service
+PartOf=docker.service
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/python3 {Path(bundle).resolve()}/ops.py boot {args}
+TimeoutStartSec=1000
+[Install]
+WantedBy=multi-user.target docker.service
+'''
+
 def enroll(a,i,code,op):
     if (op/'broker.json').exists():raise RuntimeError('operations already enrolled; use lifecycle wrapper')
     from transaction import atomic_json
@@ -99,19 +115,7 @@ def enroll(a,i,code,op):
         if path.exists():raise RuntimeError('unit already exists')
         path.write_text(content);path.chmod(0o644)
     base='alica-'+cell
-    unit(base+'-cell.service',f'''[Unit]
-Description=ALICA pinned cell lifecycle {cell}
-After=docker.service
-Requires=docker.service
-PartOf=docker.service
-[Service]
-Type=oneshot
-RemainAfterExit=yes
-ExecStart=/usr/bin/python3 {Path(a.bundle).resolve()}/ops.py boot {args}
-TimeoutStartSec=1000
-[Install]
-WantedBy=multi-user.target
-''')
+    unit(base+'-cell.service',lifecycle_unit(a.bundle,args))
     unit(base+'-broker.service',f'''[Unit]
 Description=Doghouse DSH bounded root broker {cell}
 StartLimitIntervalSec=300
@@ -164,7 +168,7 @@ WantedBy=multi-user.target
 ''')
     run(['/usr/bin/systemctl','daemon-reload'])
     run(['/usr/bin/systemctl','enable',base+'-cell.service',base+'-broker.service',base+'-observer.service'])
-    run(['/usr/bin/systemctl','start',base+'-broker.service',base+'-observer.service'])
+    run(['/usr/bin/systemctl','start',base+'-cell.service',base+'-broker.service',base+'-observer.service'])
     print(json.dumps({'operations':'enrolled','owner':'doghouse-dsh','cell':cell,'rebootAcceptance':'not yet verified'}))
 
 if __name__=='__main__':main()

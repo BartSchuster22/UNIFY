@@ -1,0 +1,5 @@
+{
+  "wrong_password_denied": true,
+  "real_core_identity_session": true,
+  "native_inventory_through_identity_session": true
+}

@@ -2,8 +2,9 @@ import http.cookiejar,json,os,secrets,socket,ssl,urllib.request,urllib.parse,url
 from html.parser import HTMLParser
 from pathlib import Path
 cell=os.environ.get('DSH_STAGE5_QA_CELL','dsh2-stage5-qa3')
-assert cell in ('dsh2-stage5-qa1','dsh2-stage5-qa2','dsh2-stage5-qa3')
-assert os.geteuid()==0 and socket.gethostname()=='dsh-stage5-disposable'
+assert cell in ('dsh2-stage5-qa1','dsh2-stage5-qa2','dsh2-stage5-qa3','dsh2-stage5-qa4','dsh2-stage5-qa5')
+from qa_host import assert_qa_host
+assert_qa_host()
 root=Path('/opt')/cell;out=Path('/var/lib/alica-stage5-'+cell.rsplit('-',1)[-1])
 request=json.loads((root/'operations/request.json').read_text())
 origin=request['origin'];host=urllib.parse.urlsplit(origin).hostname;owner=request['owner']

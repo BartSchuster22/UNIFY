@@ -22,6 +22,13 @@ def configure_postgres_readiness(compose):
  # Preserve the existing interval, timeout, retries, auth, and network policy.
  compose['services']['postgresql']['healthcheck']['test']=['CMD-SHELL',POSTGRES_READINESS]
 
+def overlay_target(service, metadata):
+ cfg=metadata['Config']
+ expected={'unify-core':(['dist/server.js'],'/app/dist'),'uniui':(['server.mjs'],'/app/public')}
+ command,target=expected[service]
+ assert cfg['WorkingDir']=='/app' and cfg['Cmd']==command,'Unrecognized base runtime layout'
+ return target
+
 def main():
  p=argparse.ArgumentParser();p.add_argument('--stage4',type=Path,required=True);p.add_argument('--stage4-sha256',required=True);p.add_argument('--inputs',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--revision',required=True);a=p.parse_args()
  os.nice(10)
@@ -30,8 +37,9 @@ def main():
  for n,h in r['files'].items():assert sha(a.stage4/n)==h,'Modified qualified Stage4 file'
  assert not a.output.exists();assert shutil.disk_usage(a.output.parent).free>6*1024**3
  a.output.mkdir();changed={}
- for service,folder,target in [('unify-core','gateway','/app/apps/gateway/dist'),('uniui','uniui','/app/apps/uniui/dist')]:
+ for service,folder in [('unify-core','gateway'),('uniui','uniui')]:
   base=r['images'][service]['id'];base_tag='alica-stage5-base-'+service+':'+a.revision
+  target=overlay_target(service,json.loads(docker('image','inspect',base))[0])
   docker('tag',base,base_tag)
   context=a.inputs/folder
   (context/'Dockerfile').write_text('FROM '+base_tag+'\nCOPY dist/ '+target+'/\nLABEL com.alica.operations-contract="alica-operations/v1"\n')

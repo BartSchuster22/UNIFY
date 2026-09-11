@@ -1,0 +1,8 @@
+{
+  "schema": "stage5-installed-operations-api/v1",
+  "anonymousDenied": true,
+  "realOwnerReadAllowed": true,
+  "mutationRouteAbsent": true,
+  "installationSecretsNotDisclosed": true,
+  "passed": true
+}

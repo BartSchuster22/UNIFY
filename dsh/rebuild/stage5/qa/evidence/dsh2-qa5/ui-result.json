@@ -1,0 +1,14 @@
+{
+  "schema": "stage5-installed-ui/v1",
+  "cell": "dsh2-stage5-qa5",
+  "tlsBypass": false,
+  "mockedResponses": false,
+  "wholeStage5Accepted": false,
+  "authenticatedPanel": true,
+  "sevenServiceRows": true,
+  "billingProvenanceExplicit": true,
+  "actualObserverOutageShownUnknown": true,
+  "liveObservationRestored": true,
+  "passed": true,
+  "browser": "153.0.8010.12"
+}

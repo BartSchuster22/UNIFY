@@ -1,8 +1,13 @@
 """Stage5 guest-only verified TLS clients. Never print cookies or credentials."""
 import json,socket,ssl,urllib.request,urllib.error
 from pathlib import Path
-assert socket.gethostname()=='dsh-stage5-disposable'
-OUT=Path('/var/lib/alica-stage5-qa3');ROOT=Path('/opt/dsh2-stage5-qa3')
+from typing import Any
+from qa_host import assert_qa_host
+assert_qa_host()
+import os
+CELL=os.environ.get('DSH_STAGE5_QA_CELL','dsh2-stage5-qa3')
+assert CELL in ('dsh2-stage5-qa3','dsh2-stage5-qa4','dsh2-stage5-qa5')
+OUT=Path('/var/lib/alica-stage5-'+CELL.rsplit('-',1)[-1]);ROOT=Path('/opt')/CELL
 CORE='https://stage5.qa.invalid';APP='https://notebook.dsh.invalid'
 _original=socket.getaddrinfo
 def resolve(host,*a,**kw):
@@ -13,7 +18,7 @@ context=ssl.create_default_context(cafile=str(ROOT/'secrets/framework-ca.crt'))
 class NoRedirect(urllib.request.HTTPRedirectHandler):
  def redirect_request(self,req,fp,code,msg,headers,newurl):return None
 client=urllib.request.build_opener(urllib.request.ProxyHandler({}),NoRedirect(),urllib.request.HTTPSHandler(context=context))
-def http(base,path,method='GET',body=None,headers=None,raw=None):
+def http(base,path,method='GET',body=None,headers=None,raw=None) -> tuple[int, Any, dict[str, str]]:
  h={'Accept':'application/json',**(headers or {})}
  if body is not None:h['Content-Type']='application/json';raw=json.dumps(body,separators=(',',':')).encode()
  req=urllib.request.Request(base+path,data=raw,headers=h,method=method)
@@ -23,6 +28,7 @@ def http(base,path,method='GET',body=None,headers=None,raw=None):
   data=r.read(262145);assert len(data)<=262144
   try:data=json.loads(data)
   except (ValueError,UnicodeError):data=data.decode(errors='replace')
+  assert isinstance(r.status,int)
   return r.status,data,dict(r.headers)
 def owner(path,method='GET',body=None):
  cookies=json.loads((OUT/'browser-cookies.json').read_text());values={c['name']:c['value'] for c in cookies if c['domain']=='stage5.qa.invalid'}

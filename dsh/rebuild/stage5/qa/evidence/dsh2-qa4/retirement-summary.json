@@ -1,0 +1,31 @@
+{
+  "retirement": {
+    "state": "uninstalled-data-retained",
+    "containers_removed": true,
+    "networks_removed": true,
+    "data_retained": true,
+    "retained_volume_count": 5
+  },
+  "secretsPreserved": true,
+  "referenceDataRetained": true,
+  "firstApplicationAcceptance": {
+    "independentCustomerLogin": true,
+    "anonymousAndMissingCsrfDenied": true,
+    "localRequestId": "0aa4f49c-6c0e-4efc-a06e-96c539bea0a5",
+    "appIdempotency": true,
+    "customerIsolation": true,
+    "finalState": "result-ready",
+    "elapsedSeconds": 33.78,
+    "realEndToEndResult": true,
+    "receiptId": "e5dd622e-7a57-4372-8be8-071d14789354",
+    "delivery": {
+      "id": "2e335051-af1b-41b7-b1d2-8a174ce6a386",
+      "state": "delivered",
+      "attempt": 1,
+      "next_attempt_at": "2026-09-11T11:16:11.198Z",
+      "last_error": null,
+      "delivered_at": "2026-09-11T11:16:11.607Z"
+    }
+  },
+  "wholeStage5Accepted": false
+}

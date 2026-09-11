@@ -1,0 +1,32 @@
+{
+  "schema": "stage5-dsh2-install/v1",
+  "releaseSha256": "ba4e80b92bab9130a8a0d456a3225d6cb910e37efc69c9efe734138cfcb79656",
+  "plan": {
+    "schema": "dsh-stage2-plan/v1",
+    "state": "absent",
+    "cell": "dsh2-stage5-qa4",
+    "release_sha256": "ba4e80b92bab9130a8a0d456a3225d6cb910e37efc69c9efe734138cfcb79656",
+    "mutations": false,
+    "images_to_load": []
+  },
+  "freshInstallAttempt": true,
+  "imagesPreexisting": true,
+  "wholeStage5Accepted": false,
+  "installExit": 0,
+  "seconds": 128.562,
+  "transaction": {
+    "completed": [
+      "images",
+      "prepare",
+      "config",
+      "database",
+      "migrate",
+      "runtime-grants",
+      "authorities",
+      "register",
+      "application"
+    ],
+    "state": "installed"
+  },
+  "operationsEnrolled": true
+}

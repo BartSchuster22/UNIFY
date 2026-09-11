@@ -1,0 +1,12 @@
+{
+  "schema": "stage5-real-reboot/v1",
+  "realBootIdChanged": true,
+  "allSevenServicesHealthy": true,
+  "containerIdentitiesPreserved": true,
+  "ownerTransactionAndSecretsPreserved": true,
+  "nativeTasksUnchanged": true,
+  "completedReceiptPreserved": true,
+  "noAutomaticBusinessReplay": true,
+  "passed": true,
+  "wholeStage5Accepted": false
+}
