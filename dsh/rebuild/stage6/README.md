@@ -1,4 +1,46 @@
-# Stage 6 — verified off-host backup checkpoint; NOT accepted
+# Stage 6 — backup and release-authentication checkpoints; NOT accepted
+
+## Additional executed checkpoint: QA release authentication
+
+`release_trust.py` now implements detached, domain-separated Ed25519 signatures,
+strict JSON/payload parsing, externally provisioned trust with scope separation
+and revocation, short validity windows, predecessor allowlisting, caller-supplied
+sequence checks, and exhaustive artifact-byte verification before any execution.
+Unsafe trust/key parents (including symlinked or group-writable parents) are
+rejected. Private signing material is NOT in Git or on DSH2.
+
+The real accepted QA5 release was independently matched against the recorded
+release fingerprint and its declared file hashes, then copied to a separate
+root-private artifact directory on DSH2. Fifteen real artifacts were signed and
+verified under an explicitly QA-only trust root. No release files in the original
+installation were changed and no services were started.
+
+Six denial cases were exercised against that real envelope: signature tampering,
+revocation, wrong predecessor, sequence replay, QA/production scope mismatch and
+expiry. The expiry case uses an explicit test-clock override, not elapsed-time
+acceptance. The final verifier was rerun on the actual artifact after hardening.
+Thirty release-authentication tests passed on DSH2; the combined local archive
+and authentication suite passed 49 tests.
+
+Evidence: `evidence/qa-release-authentication.json`,
+`qa-release-envelope.json`, `qa-release-public-trust.json`, and
+`release-trust-unit-tests.json`. The QA signature has a one-day validity window;
+it is a recorded test result, not a perpetual deployment authorization.
+
+Important boundaries: this is a verification primitive, NOT a transactional
+updater. The caller supplies installed sequence/predecessor; durable anti-replay
+state and lifecycle integration are not implemented here. A successful signature
+does not establish SBOM/provenance completeness, schema compatibility, rollback,
+or migration safety. No production signing root was provisioned and no update,
+rollback or live restore is claimed. `wholeStage6Accepted` remains false.
+
+`qa_release.py` is a one-run qualification harness. It refuses existing signing
+keys; it may reuse only a byte-identical previously staged artifact directory.
+The first signing attempt was correctly rejected because the initial key's
+ancestor was group-writable. A protected top-level private directory was used
+instead; the unused initial key was removed. No permission check was relaxed.
+
+## Earlier verified backup checkpoint
 
 The user authorized reusing DSH2 and storing its backup on ElioHermes1 and
 ALICA-v1. A new server is not required for this same-VPS recovery exercise.

@@ -1,0 +1,6 @@
+{
+  "passed": true,
+  "exitCode": 0,
+  "totalStage6Tests": 49,
+  "scope": "archive and release-authentication unit tests; no live update or restore acceptance"
+}

@@ -1,0 +1,21 @@
+{
+  "artifactsVerified": 15,
+  "installationPerformed": false,
+  "keyId": "9b02c8bc02a6b8081031519e192bd508f74d305d1dab9fe28af4440e8b833ac6",
+  "releaseSha256": "1fde4fdfeea219bbad1e61e6bcce8046b2a7f9d880218d95a660624be08cd4f6",
+  "sbomProvenanceGateComplete": false,
+  "schemaCompatibilityProven": false,
+  "scope": "qa",
+  "sequence": 1,
+  "signatureVerified": true,
+  "wholeStage6Accepted": false,
+  "realArtifactDenials": [
+    "signature",
+    "revoked",
+    "predecessor",
+    "replay",
+    "scope",
+    "expired"
+  ],
+  "runningContainersAfter": 0
+}
