@@ -1,0 +1,19 @@
+{
+  "schema": "alica-cold-backup/v1",
+  "ciphertextSha256": "151c953b147ab74d21e72886095f00af80bddabeda5817862adadd9210558818",
+  "encryptedBytes": 3370554203,
+  "entries": 9513,
+  "plaintextBytes": 5340464886,
+  "manifestSha256": "bbe41744ac13f32444f1783508ffbcb2ae21b7825939f0956578c911c7b18832",
+  "sourceLeftQuiesced": true,
+  "sourceHost": "DSH2",
+  "cells": [
+    "dsh2-stage5-qa3",
+    "dsh2-stage5-qa4",
+    "dsh2-stage5-qa5"
+  ],
+  "volumes": 15,
+  "allWritersStopped": true,
+  "elapsedSeconds": 118.916,
+  "wholeStage6Accepted": false
+}
