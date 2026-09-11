@@ -1,0 +1,13 @@
+{
+  "schema": "stage6-final-recovery-check/v1",
+  "compatibilityAndMappingGatesExercised": true,
+  "interruptedCandidateNeverCommitted": true,
+  "recoveredWithLifecycleLocksHeld": true,
+  "coldDataRestoredByteForByte": true,
+  "logicalAndSchemaPreserved": true,
+  "installedSequence": 5,
+  "highestAttempt": 6,
+  "phase": "rolled-back",
+  "passed": true,
+  "wholeStage6Accepted": false
+}

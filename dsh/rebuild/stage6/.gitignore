@@ -1,0 +1,3 @@
+# Raw scanner copies are staging inputs; the signed canonical copies are tracked.
+evidence/qualification/*.spdx.json
+__pycache__/

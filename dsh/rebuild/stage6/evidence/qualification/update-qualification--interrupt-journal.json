@@ -1,0 +1,223 @@
+{
+  "id": "tx-adcfc35f84ea4374b7a0b7af60a84ef4",
+  "phase": "rolled-back",
+  "before": {
+    "releaseSha256": "c0b66e1dafae9ed16c70e2b60733a0de613900634b3f7bb1992421a0d1ca8e8e",
+    "sequence": 1,
+    "highestAttempt": 2
+  },
+  "admission": {
+    "signatureVerified": true,
+    "artifactsVerified": 8,
+    "releaseSha256": "c0b66e1dafae9ed16c70e2b60733a0de613900634b3f7bb1992421a0d1ca8e8e",
+    "keyId": "9b02c8bc02a6b8081031519e192bd508f74d305d1dab9fe28af4440e8b833ac6",
+    "scope": "qa",
+    "sequence": 3,
+    "installationPerformed": false,
+    "schemaCompatibilityProven": false,
+    "sbomProvenanceGateComplete": false,
+    "wholeStage6Accepted": false
+  },
+  "snapshot": "/var/lib/alica-stage6-recovery/update-control/tx-adcfc35f84ea4374b7a0b7af60a84ef4",
+  "paths": {
+    "operations": "/opt/dsh2-stage5-qa5/operations",
+    "code": "/usr/local/lib/alica-dsh-ops/dsh2-stage5-qa5",
+    "reference-data": "/var/lib/alica-stage5-qa5/reference-data",
+    "alica-data": "/var/lib/docker/volumes/dsh2-stage5-qa5_alica-data/_data",
+    "caddy-config": "/var/lib/docker/volumes/dsh2-stage5-qa5_caddy-config/_data",
+    "caddy-data": "/var/lib/docker/volumes/dsh2-stage5-qa5_caddy-data/_data",
+    "memory-data": "/var/lib/docker/volumes/dsh2-stage5-qa5_memory-data/_data",
+    "postgresql-data": "/var/lib/docker/volumes/dsh2-stage5-qa5_postgresql-data/_data"
+  },
+  "logicalBefore": {
+    "schema": "stage6-logical-preservation/v1",
+    "databases": {
+      "native-state": {
+        "schemaSha256": "8a43d50dc0f75a126dda79d4bfbb855b72bf191b0b8085663f1cf7ee238c8bd8",
+        "integrity": "ok",
+        "tables": {
+          "sessions": {
+            "rows": 3,
+            "sha256": "95afdf1e9142b0c6781a6bbf9f7a2af70b85f66c34d906c1a4ec2c1732d6ac6d"
+          },
+          "messages": {
+            "rows": 4,
+            "sha256": "122515898cf463485f01f51a3812a518ffabf6c0b068ba2a563def80db16a654"
+          },
+          "system_prompts": {
+            "rows": 1,
+            "sha256": "f497a67cf3cd4113b7803bbdaf786f20d21effe778f6ddc28a59544909edaabf"
+          },
+          "session_model_usage": {
+            "rows": 2,
+            "sha256": "86531bb39bc786ba32c7df2de21243f2b72fdcc9a16eb30933e9ebd113225105"
+          },
+          "async_delegations": {
+            "rows": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "delivery_obligations": {
+            "rows": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        }
+      },
+      "native-kanban": {
+        "schemaSha256": "5cba123500d6ae0de3a6d6808b4cb0aa7c5c3797dc09f5f6bf950c507c627720",
+        "integrity": "ok",
+        "tables": {
+          "tasks": {
+            "rows": 3,
+            "sha256": "a1a83aa36b9e149be001db6283bb918800d4e96cf9d2bcb9ef25c975bd8063db"
+          },
+          "task_links": {
+            "rows": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "task_comments": {
+            "rows": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "task_events": {
+            "rows": 9,
+            "sha256": "ee012444cf695f5c9e3297ab4261e072aea753feb78d1c03f7f01adf7946fcf0"
+          },
+          "task_runs": {
+            "rows": 3,
+            "sha256": "02d3ed394cd871b071e5ae349b9a8c4f166ae1aa0626a091cb5e3643057c2755"
+          },
+          "task_attachments": {
+            "rows": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        }
+      },
+      "native-projects": {
+        "schemaSha256": "4c0e072d2a69e68df50876642161c68692ff0dc18af4041aed03e46049120230",
+        "integrity": "ok",
+        "tables": {
+          "projects": {
+            "rows": 1,
+            "sha256": "46eae90f01ef597c8f554514ab6e2ab3b9d59c27faa4553760df14445f463f4f"
+          },
+          "project_folders": {
+            "rows": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "project_meta": {
+            "rows": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        }
+      },
+      "native-response-store": {
+        "schemaSha256": "62b58b1521fbb7dabb50e36799d092b4bf72a1ebab9b33b28117285c962de23e",
+        "integrity": "ok",
+        "tables": {
+          "responses": {
+            "rows": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "conversations": {
+            "rows": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        }
+      },
+      "native-cron-executions": {
+        "schemaSha256": "ee3647f0011fe520415c708bc9daae2e2e4764152ada88dd29d53efb29be72df",
+        "integrity": "ok",
+        "tables": {
+          "executions": {
+            "rows": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        }
+      },
+      "memory-v4": {
+        "schemaSha256": "def867a1c6086e096e402890b0d34f9fbf7542a52830fabf64334482d792d80a",
+        "integrity": "ok",
+        "tables": {
+          "schema_migrations": {
+            "rows": 6,
+            "sha256": "d62c66e9429ef8ae05f35f855bc8181f292379a01abf54a00df7854c34c6f6bf"
+          },
+          "records": {
+            "rows": 10,
+            "sha256": "04f2cc96ac1043c332ac5aae845142543ca4a7c4cfdef697b16db6e178c7d5bd"
+          },
+          "idempotency_requests": {
+            "rows": 12,
+            "sha256": "305e7932c990c76fc08cfdeacfa2f1cccdf2d517b57f1c6f6ebf529c7bdb5cf6"
+          },
+          "entities": {
+            "rows": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "relations": {
+            "rows": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "artifacts": {
+            "rows": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "review_findings": {
+            "rows": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        }
+      },
+      "reference-application": {
+        "schemaSha256": "403f45b7c234906f08ee1901ed2b2b15ac899009267242a8f616bda98bb2a969",
+        "integrity": "ok",
+        "tables": {
+          "identity": {
+            "rows": 1,
+            "sha256": "ac5ac92ea7d13c96378ceb76acc6c54b2d7abbfc31b0ff4b991e0caf66c46472"
+          },
+          "accounts": {
+            "rows": 2,
+            "sha256": "459b716a53a08cf22825091f6623e2eb866ce54cdf6864bdf8722b7db9a6fbff"
+          },
+          "requests": {
+            "rows": 3,
+            "sha256": "c3a5bb4cfd964ddb1ad29ddb30204b83f10e9cc6b18d68add8163d6cc9a9ddfd"
+          },
+          "effects": {
+            "rows": 2,
+            "sha256": "f6fdff11052e0f77d3de46dbdd1e9d4be6485b1d31ee39eaa76ac66d0e570940"
+          },
+          "deliveries": {
+            "rows": 2,
+            "sha256": "2c9c11168eb61eed85f56fcb2133157b545a4ad7a0ebca6d7988889fca0ba324"
+          },
+          "recurring_grants": {
+            "rows": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "recurring_events": {
+            "rows": 0,
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        }
+      }
+    },
+    "postgresqlSchemaSha256": "3044793e7e1c07f513b10eff15d20ae782ec347e3deed6f983689b602e78e84d"
+  },
+  "startedAt": 1789151779.2955718,
+  "fault": "interrupt",
+  "wholeStage6Accepted": false,
+  "updatedAt": 1789151851.8515708,
+  "coldHashes": {
+    "operations": "576f348136b2977b3bf3df56fbd3c444e9c13aa9844b7df56e7c18c070bc167a",
+    "code": "6a85c3d6cbd87fe807f246c8ff3e975892dd14e05b2814d28b40ad85e414f660",
+    "reference-data": "2b046b5c60f0be58b7931d36ab33a05de3e958a165a4c2d5b8eaa1755bb92af0",
+    "alica-data": "f2e6636c624119c59582dc6fb3c3137ead592b69d0acbc42ebeed0b61ba7154e",
+    "caddy-config": "7c60daf9ef108bb2ba5b792cabd244f9f364426a4cf7c6ce2aa7453bed099dfb",
+    "caddy-data": "9221bf1eea4bcfc9bd77cb7e3cc46451e546fd5f0c08508fcbf714b399efbf79",
+    "memory-data": "975b17886361a8daf5b2d30133d8aca33150bf1d4d3fe53ca89dd43076306e12",
+    "postgresql-data": "4d8c01e2eb6d7be33712db33f1afe0f93181a43dcdd881fad65fea75cd2122f3"
+  },
+  "coldDataRestoredByteForByte": true
+}

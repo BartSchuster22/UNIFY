@@ -1,0 +1,83 @@
+{
+  "schema": "stage6-observed-image-sboms/v1",
+  "generator": {
+    "application": "syft",
+    "buildDate": "2026-08-27T16:55:02Z",
+    "compiler": "gc",
+    "gitCommit": "91a0032987d91b7411b52f6f5c185c5e7f775495",
+    "gitDescription": "v1.51.1",
+    "goVersion": "go1.26.3",
+    "platform": "linux/amd64",
+    "schemaVersion": "16.1.10",
+    "version": "1.51.1"
+  },
+  "generatorBinarySha256": "abca2def61de9952fa06d3977bb1e064818facb9badfce502b450d3d6846a91f",
+  "releaseSha256": "1fde4fdfeea219bbad1e61e6bcce8046b2a7f9d880218d95a660624be08cd4f6",
+  "sourceRevisionDeclarations": {
+    "runtime": "e44d8fc86849471869f10a1cb0f849cfb7c23c7b",
+    "installer": "72a4812610dbba7c0cd5a148b8eaa294b18559c9",
+    "keycloak": "1f66de17238cd310f56fc3a501750a417ecaecdc",
+    "application_bridge": "qa4",
+    "operations_bridge": "runtime-layout-qa5"
+  },
+  "provenanceScope": "Observed exact accepted QA5 release/image materials; not a claim of reproducible upstream builds or SLSA certification",
+  "images": {
+    "hermes": {
+      "imageId": "sha256:96ed2f016fb159f48058f668a3baccd2d8154644dfd3519b9e683c4e7c636bd9",
+      "file": "hermes.spdx.json",
+      "sha256": "6befb4754dda2a24a985e702c6bc4522cb22ce4d61673912bbbf66a6f4b0b4b3",
+      "packages": 2666,
+      "seconds": 73.759
+    },
+    "unify-core": {
+      "imageId": "sha256:40156a00c8968ab082bd327bc16229f46834bd18305be2ab48f54076abadd5e2",
+      "file": "unify-core.spdx.json",
+      "sha256": "9f62192df6a94e043a841b021b48c0375b2dfa992168db97d2818c1f18395f31",
+      "packages": 89,
+      "seconds": 9.86
+    },
+    "uniui": {
+      "imageId": "sha256:5e981ddd106e7c591850f6c7bda25ebe667d96b71db14afc085898c0b7b7e064",
+      "file": "uniui.spdx.json",
+      "sha256": "31b6cac149dea1f1afc87764c8b73fd69a940805fd0d41e1cb76f46755886c0b",
+      "packages": 15,
+      "seconds": 7.455
+    },
+    "memory-v4": {
+      "imageId": "sha256:17c114de04013eedaf12be909730bc27a76fb605478e1f23dab509953093356d",
+      "file": "memory-v4.spdx.json",
+      "sha256": "01626b93ec2c2cd308acf1ee75327f8ae85ff6fd64e4e77064bb814cbaa3b5a0",
+      "packages": 113,
+      "seconds": 5.656
+    },
+    "keycloak": {
+      "imageId": "sha256:b6fa492fadbe4b41fb70af150ccf665f6bae371c412bdeb4c27a0ee113158bec",
+      "file": "keycloak.spdx.json",
+      "sha256": "ce7d783f5a961926561e674b1420ba76310dcaf5419b9ec190677c7cfee9307d",
+      "packages": 490,
+      "seconds": 8.134
+    },
+    "caddy": {
+      "imageId": "sha256:6a107c5750be160c6b2b909d2329d73e6e4589b618dfcde00bc8145ddd20194f",
+      "file": "caddy.spdx.json",
+      "sha256": "5977f0405971d4d1bd2e92d3f72633adbba383cb8c976f4bb35f9e2f542f46f4",
+      "packages": 163,
+      "seconds": 2.95
+    },
+    "postgresql": {
+      "imageId": "sha256:5c773214aed7adab0900cd0a05dbc468348f76fe1e4c2ca5b0e222e9531f7811",
+      "file": "postgresql.spdx.json",
+      "sha256": "a0919b704d2495f8332eb0091dcff25d18b41ab46f6c009efc3da5ecac442d0d",
+      "packages": 52,
+      "seconds": 6.104
+    },
+    "reference-application": {
+      "imageId": "sha256:453f59474c73eda86bdb3dcdcaebb0928bf593c86700da9a9ad2449ed52dec61",
+      "file": "reference-application.spdx.json",
+      "sha256": "e43d1a77afb37c97084c1e24d72fc8165de8f2e2492f18b664d90caeefe98205",
+      "packages": 96,
+      "seconds": 3.65
+    }
+  },
+  "wholeStage6Accepted": false
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "stage6-final-offhost-recheck/v1",
+  "checkedAt": 1789153254.0294678,
+  "referenceImageCopiesHashVerified": true,
+  "hosts": {
+    "ElioHermes1": {
+      "ciphertextSha256": "151c953b147ab74d21e72886095f00af80bddabeda5817862adadd9210558818",
+      "manifestSha256": "bbe41744ac13f32444f1783508ffbcb2ae21b7825939f0956578c911c7b18832",
+      "entriesVerified": 9513,
+      "authenticationVerified": true,
+      "contentsVerified": true,
+      "extracted": false
+    },
+    "ALICA-v1": {
+      "ciphertextSha256": "151c953b147ab74d21e72886095f00af80bddabeda5817862adadd9210558818",
+      "manifestSha256": "bbe41744ac13f32444f1783508ffbcb2ae21b7825939f0956578c911c7b18832",
+      "entriesVerified": 9513,
+      "authenticationVerified": true,
+      "contentsVerified": true,
+      "extracted": false
+    }
+  },
+  "passed": true
+}

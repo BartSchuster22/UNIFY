@@ -1,0 +1,17 @@
+{
+  "schema": "stage6-live-restore-check/v1",
+  "checkedAt": 1789151243.6734433,
+  "allSevenServicesHealthy": true,
+  "ownerAndSecretsPreserved": true,
+  "nativeTaskSessionAndPausedSchedulePreserved": true,
+  "maintenanceOff": true,
+  "activeNativeWork": 0,
+  "existingApplicationReceiptReadable": true,
+  "originalCustomerCredentialsWork": true,
+  "customerIsolationPreserved": true,
+  "sameRequestReplayDeduplicated": true,
+  "noNewTaskOrBusinessEffect": true,
+  "logicalDatabasesUnchangedByReplay": 7,
+  "passed": true,
+  "wholeStage6Accepted": false
+}

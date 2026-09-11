@@ -1,0 +1,41 @@
+{
+  "schema": "stage6-update-fault-qualification/v1",
+  "cases": [
+    {
+      "fault": "health",
+      "exitCode": 1,
+      "phase": "rolled-back",
+      "coldPathsVerified": 8,
+      "coldDataRestoredByteForByte": true,
+      "logicalAndSchemaPreserved": true,
+      "installedSequence": 1,
+      "highestAttempt": 2,
+      "seconds": 149.554
+    },
+    {
+      "fault": "interrupt",
+      "exitCode": 99,
+      "phase": "rolled-back",
+      "coldPathsVerified": 8,
+      "coldDataRestoredByteForByte": true,
+      "logicalAndSchemaPreserved": true,
+      "installedSequence": 1,
+      "highestAttempt": 3,
+      "seconds": 75.458
+    },
+    {
+      "fault": "schema",
+      "exitCode": 1,
+      "phase": "rolled-back",
+      "coldPathsVerified": 8,
+      "coldDataRestoredByteForByte": true,
+      "logicalAndSchemaPreserved": true,
+      "installedSequence": 1,
+      "highestAttempt": 4,
+      "seconds": 149.273
+    }
+  ],
+  "passed": true,
+  "scope": "QA5 host-operations update; unchanged runtime images",
+  "wholeStage6Accepted": false
+}

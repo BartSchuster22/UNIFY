@@ -1,0 +1,10 @@
+{
+  "schema": "stage6-reference-topology-repair/v1",
+  "hostMapping": [
+    "stage5.qa.invalid:10.84.0.6"
+  ],
+  "hostConfigurationFieldsVerified": 42,
+  "coldDataUnchangedBeforeStart": true,
+  "logicalDataPreserved": true,
+  "imageId": "sha256:453f59474c73eda86bdb3dcdcaebb0928bf593c86700da9a9ad2449ed52dec61"
+}

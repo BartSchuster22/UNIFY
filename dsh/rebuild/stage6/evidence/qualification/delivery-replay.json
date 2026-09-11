@@ -1,0 +1,13 @@
+{
+  "schema": "stage6-real-delivery-replay/v1",
+  "originalDeliveryBytesHashVerified": true,
+  "sameDeliveryAndReceipt": true,
+  "freshAuthenticatedTransport": true,
+  "realTlsWithoutBypass": true,
+  "httpStatus": 200,
+  "duplicateAcknowledged": true,
+  "allSevenLogicalDatabasesUnchanged": true,
+  "noNewTaskOrEffect": true,
+  "passed": true,
+  "wholeStage6Accepted": false
+}

@@ -1,0 +1,67 @@
+{
+  "schema": "stage6-declared-migration-qualification/v1",
+  "selectedPredecessor": "Stage5 QA5 1fde4fdfeea219bbad1e61e6bcce8046b2a7f9d880218d95a660624be08cd4f6",
+  "sourceSignatureSchema": "legacy-v1",
+  "targetSignatureSchema": "alica-runtime-identity/v2",
+  "plan": {
+    "predecessor": "1fde4fdfeea219bbad1e61e6bcce8046b2a7f9d880218d95a660624be08cd4f6",
+    "mapping": {
+      "identities": [
+        [
+          "installation:106ad1c8a81a4d54eaf5c5ecc790e0af8b26d20d2e65c067bb36619730a439cb",
+          "installation:106ad1c8a81a4d54eaf5c5ecc790e0af8b26d20d2e65c067bb36619730a439cb"
+        ],
+        [
+          "application:c4ec5ee2-b472-4d14-90d2-a3bdfd2be3a4",
+          "application:c4ec5ee2-b472-4d14-90d2-a3bdfd2be3a4"
+        ],
+        [
+          "task:t_011b2434/session:alica-app-cfd093c1-c632-478a-8b5c-1f933e2af298",
+          "task:t_011b2434/session:alica-app-cfd093c1-c632-478a-8b5c-1f933e2af298"
+        ],
+        [
+          "task:t_682dc473/session:alica-app-144a2fc8-a534-45d0-9504-1ef530df4966",
+          "task:t_682dc473/session:alica-app-144a2fc8-a534-45d0-9504-1ef530df4966"
+        ],
+        [
+          "task:t_de0f39e5/session:alica-app-4557d086-00b6-4301-8eae-baaf41d562bd",
+          "task:t_de0f39e5/session:alica-app-4557d086-00b6-4301-8eae-baaf41d562bd"
+        ]
+      ],
+      "channels": [
+        [
+          "application-delivery:c4ec5ee2-b472-4d14-90d2-a3bdfd2be3a4",
+          "application-delivery:c4ec5ee2-b472-4d14-90d2-a3bdfd2be3a4"
+        ]
+      ],
+      "schedules": [
+        [
+          "native:cf0a5b824b7d",
+          "native:cf0a5b824b7d"
+        ]
+      ]
+    },
+    "mode": "preserve-only",
+    "rollback": "verified cold code AND data preimage; never image-only",
+    "nonportable": "OS process/boot/container/network identifiers regenerated; retired QA3/QA4 archived, not activated; expired sessions/credentials renewed normally"
+  },
+  "denials": [
+    "identities-foreign-occupant",
+    "identities-source-collision",
+    "channels-foreign-occupant",
+    "channels-source-collision",
+    "schedules-foreign-occupant",
+    "schedules-source-collision",
+    "unsupported-predecessor",
+    "live-work",
+    "unverified-backup",
+    "channel-rebinding"
+  ],
+  "denialTestsUseReadOnlyDerivedInventories": true,
+  "durableStateUnchangedByQualification": true,
+  "successfulMigrationTransaction": "tx-3d832829da5b446994334af45f047075",
+  "rollbackEvidence": "update-qualification/acceptance.json",
+  "supportedScope": "in-place host-operations ownership migration only; no cross-installation merges or runtime database schema upgrade",
+  "passed": true,
+  "wholeStage6Accepted": false
+}

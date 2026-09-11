@@ -1,0 +1,12 @@
+{
+  "schema": "stage6-signed-observed-provenance/v1",
+  "passed": true,
+  "images": 8,
+  "artifactsVerified": 13,
+  "signatureVerified": true,
+  "installable": false,
+  "attestationReleaseSha256": "b0c418c15ab2fbb08d1ced0498a40b3f796ac34ff4ac23af03862b2b6b6baddd",
+  "policyEnforcedBy": "update_ops.py before quiescence/candidate execution",
+  "claim": "Observed exact material/SBOM binding; not reproducible-build or upstream-builder provenance",
+  "wholeStage6Accepted": false
+}

@@ -1,0 +1,35 @@
+{
+  "phase": "fresh-os-ready",
+  "serverId": 165497729,
+  "ip": "95.216.216.143",
+  "imageId": 387894169,
+  "imageName": "ubuntu-26.04",
+  "before": {
+    "hostname": "DSH2",
+    "bootId": "c1e6b5aa-ce80-4e79-b4ad-cd848fa822c6"
+  },
+  "recoverySshKeyId": 118655571,
+  "hostKeyFingerprint": "256 SHA256:SewG4OB1/Rsz51A0+sgyUkvqcRqavBt632JAPVp8A9c DSH2-stage6-host (ED25519)",
+  "backupSha256": "151c953b147ab74d21e72886095f00af80bddabeda5817862adadd9210558818",
+  "referenceImageSha256": "51c522b717e99eb6bb1025c442e713e9f6a1827fbeecef7a70f2cdc12618fd7b",
+  "wholeStage6Accepted": false,
+  "startedAt": 1789144855.0180342,
+  "actionId": 654690461472700,
+  "after": {
+    "hostname": "DSH2",
+    "bootId": "eaa582a6-eece-4031-b7f6-6f6305c8a29b"
+  },
+  "elapsedSeconds": 331.674,
+  "pinnedSshVerified": true,
+  "emptyDockerVerified": true,
+  "oldInstallationAbsent": true,
+  "machineIdPreserved": true,
+  "bootstrapWarnings": {
+    "DEPRECATED": [
+      "Config key 'lists' is deprecated in 22.3 and scheduled to be removed in 27.3. Use 'users' instead.",
+      "The chpasswd multiline string is deprecated in 22.2 and scheduled to be removed in 27.2. Use string type instead.",
+      "Config key 'lists' is deprecated in 22.3 and scheduled to be removed in 27.3. Use 'users' instead.",
+      "The chpasswd multiline string is deprecated in 22.2 and scheduled to be removed in 27.2. Use string type instead."
+    ]
+  }
+}
