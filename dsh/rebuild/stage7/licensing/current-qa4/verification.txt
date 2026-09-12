@@ -1,0 +1,37 @@
+CHECK 1: exit=0
+test_changed_file (test_audit.AuditTests.test_changed_file) ... ok
+test_changed_image (test_audit.AuditTests.test_changed_image) ... ok
+test_matching_is_not_clearance (test_audit.AuditTests.test_matching_is_not_clearance) ... ok
+test_missing_file (test_audit.AuditTests.test_missing_file) ... ok
+test_missing_record (test_audit.AuditTests.test_missing_record) ... ok
+test_streaming_hash (test_audit.AuditTests.test_streaming_hash) ... ok
+test_guard (test_collectors.CollectorTests.test_guard) ... ok
+test_non_notice_names (test_collectors.CollectorTests.test_non_notice_names) ... ok
+test_notice_names (test_collectors.CollectorTests.test_notice_names) ... {"layers": 2, "noticeCandidates": 1, "uniqueContents": 1, "resolvedReferences": 1, "unresolvedExtractionItems": 1, "legalCoverageComplete": false}
+ok
+test_reference_and_whiteout_fixture (test_collectors.CollectorTests.test_reference_and_whiteout_fixture) ... ok
+test_rust_coordinate_guard (test_collectors.CollectorTests.test_rust_coordinate_guard) ... ok
+test_rust_exact_manifest_and_notice (test_collectors.CollectorTests.test_rust_exact_manifest_and_notice) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.006s
+
+OK
+
+CHECK 2: exit=0
+test_cannot_accept_legal_clearance (test_verify_export.ExportTests) ... ok
+test_changed_archive_digest_rejected (test_verify_export.ExportTests) ... ok
+test_changed_summary_rejected (test_verify_export.ExportTests) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.180s
+
+OK
+
+CHECK 3: exit=0
+{
+  "exportIntegrityVerified": true,
+  "imageSBOMs": 8,
+  "rustCoordinates": 444,
+  "stage74Accepted": false
+}

@@ -4,7 +4,24 @@
 
 Stage numbering follows PROJECT-ALICA's versioned rebuild master plan: 7.4 is commercial licence/source/enforcement and third-party compliance with appropriate legal review; the earlier conversational list numbered these differently.
 
-## Executed discovery
+## Current verified collection
+
+`current-qa4/summary.json` is the current technical observation, backed by two digest-bound archives and `verification.txt`:
+
+- Fresh SPDX SBOMs for **all eight exact QA4 images**, including Core and the reference application. All shipped layers were scanned using the retained, SHA-256-pinned Syft 1.51.1 binary. Online scanner enrichment was disabled.
+- **3,697 SPDX package occurrences / 3,689 software records**. These are not globally unique dependencies; eight SPDX image-envelope records are separate from software records.
+- **125 shipped layers**, **2,057 notice candidates**, **985 unique image-notice contents**, and **267 image-specific resolved references**. The final bounded extraction found zero unresolved extraction items. Filename matching, bounded nested archives and reference resolution do **not** prove full notice coverage or fulfilment of obligations.
+- **444 exact crates.io versions** fetched with public coordinates explicitly observed as registry-origin; source archives matched registry SHA-256 checksums and Cargo manifest name/version. Metadata and source/licence evidence are retained. This supplied licence metadata for **888 software occurrences**, reducing the fresh scan's missing-metadata count from **1,405 to 517**. The 122 non-registry Rust occurrences were not guessed or silently mapped to registry packages.
+- **511 heuristic copyleft-review signals**, not findings of incompatibility or source obligations. OR expressions and component/build context require review; no permissive branch was silently selected.
+- **13 delivered host-code files** individually hashed, with corrected complete Python import-root observations in the derived inventory. No legal grant is inferred from possession of their source.
+- Twelve collector/discovery fixture tests and three real-export negative tests passed. Independent local verification rehashed exported SBOMs, image notices, upstream source archives and registry metadata. Tampered summary/archive pins and asserted legal clearance are rejected.
+- Original manifest-bound bundle members and Docker container/image state were rechecked unchanged. QA remained quiesced. No candidate, EULA, entitlement, service or public route was modified.
+
+`review-evidence.tar.gz` contains SBOMs, receipts, candidate notice texts, a per-record review queue and derived host inventory. `rust-sources.tar.gz` preserves the exact fetched upstream archives and registry responses. These are **private review evidence**, not an approved product compliance package, a complete corresponding-source delivery, or a new release assembly. Private image configuration and owner/container snapshots are deliberately excluded.
+
+Collections were executed on DSH2 under `/var/lib/alica-stage74-licensing`: `run1`, initial `notices-run1`, refined `notices-run2`, final `notices-run3`, `rust-upstream-run1`, and `verified-run1`. Earlier attempts remain retained. Directory candidates were removed from gap accounting, larger Chromium licence text recovered, shared notice references resolved within authenticated image layers, and OCI whiteout handling fixture-tested before the final rerun.
+
+## Historical discovery (superseded for current SBOM coverage)
 
 `audit.py` verifies the actual retained QA4 downloadable archive, hashes every bundle member, verifies the release manifest, compares runtime images with fresh-OS evidence, preserves the accepted EULA hash, and only reuses prior observed SBOMs when both image identity and SBOM digest match. `discovery.json` is the resulting package-occurrence inventory. This is not a fresh scanner run or a legal assessment.
 
@@ -19,9 +36,9 @@ Stage numbering follows PROJECT-ALICA's versioned rebuild master plan: 7.4 is co
 | ID | Owner | Closure evidence |
 | --- | --- | --- |
 | L74-01 | Stakeholder + legal reviewer | Approve a newly versioned commercial/non-commercial definition, evaluation rules, agencies/client installations/hosting rights, licence unit/term, and transition preserving existing grants. DSH-1 already requires a commercial-use licence; exact terms remain undecided. |
-| L74-02 | Stakeholder + legal reviewer | Decide first-party repository source publication and actual delivered-source rights, including modification/redistribution and SDK/application-development grants. Preserve third-party rights and mandatory source availability. Confirm licensor/rightsholder authority rather than inferring ownership from repository access. |
-| L74-03 | Stakeholder + engineering | Approve enforcement design. Recommendation only: contractual compliance without mandatory central activation, telemetry, call-home or runtime kill switch; preserve independent DSH. Offline signed entitlement is an alternative with additional implementation/testing scope. No PSI commercial-service restriction is silently inherited or invented. |
-| L74-04 | Engineering/compliance | Scan exact QA4 Core, independently bind/reference-scan the application image, cover host-side installer/Doghouse and all delivered code; resolve package metadata using exact upstream/distributed materials, not guessed licences. |
+| L74-02 | Stakeholder + legal reviewer | Restricted first-party repository direction is approved. Finalize actual delivered-source modification/redistribution and SDK/application-development grants, preserve third-party rights, and confirm licensor/rightsholder authority. |
+| L74-03 | Stakeholder + engineering | APPROVED: contractual enforcement without mandatory activation, licensing call-home or runtime kill switch. Preserve independent DSH; no entitlement system or PSI-only hosting restriction is authorized. Integration verification remains tied to the future approved assembly. |
+| L74-04 | Engineering/compliance | Exact eight-image scans, reference binding and 13-file host inventory collected. Resolve the remaining 517 missing-metadata software records and assess scanner/asset coverage limits; no claim of a legally complete distribution bill of materials. |
 | L74-05 | Engineering/compliance + legal reviewer | Extract/review actual copyright/licence/NOTICE texts and corresponding-source/build/relink obligations as applicable; document every disposition; deliver legally sufficient sources/offers where required. An SBOM or upstream URL alone is not proof of compliance. |
 | L74-06 | Legal reviewer + stakeholder | Review the exact proposed terms and distribution bill of materials, record reviewer/date/version/digests/scope and unresolved exceptions. Automated inventory and AI drafting cannot stand in for this approval. |
 | L74-07 | Release engineering | Assemble immutable newly versioned legal materials and their manifest hashes after approval. Preserve existing archive/signatures/grants; do not silently rewrite a published release. Stage 7.5 publication and production cutover remain separate gates. |
@@ -30,11 +47,20 @@ Public QA downloads also require applicable distribution compliance; a QA label 
 
 ## Decisions requested
 
-Keep the accepted private/non-commercial-free and commercial-licence-required direction. Select a first-party source/enforcement policy and supply/arrange the appropriate legal review. Suggested starting point, **not accepted terms**: full repository source remains restricted, actual shipped readable code is expressly covered by the new grant, required third-party sources remain available under their licences, and enforcement is contractual/offline. Agency/managed hosting rights and commercial licence term/unit must be made explicit before drafting final grants.
+Keep the approved private/non-commercial-free and commercial-licence-required product direction, restricted first-party repository, and contractual enforcement without activation. Final agency/managed hosting rights, delivered-code permissions, licence term/unit and rightsholder authority still need explicit approval and appropriate legal review. Existing grants and third-party rights remain preserved.
 
 ## Reproduce
 
-From the UNIFY repository:
+For the current collected evidence, from UNIFY:
+
+```sh
+python3 -B dsh/rebuild/stage7/licensing/verify_export.py dsh/rebuild/stage7/licensing/current-qa4
+python3 -B -m unittest discover -s dsh/rebuild/stage7/licensing -p 'test_verify_export.py' -v
+```
+
+The Rust collector and its fixture tests require Python 3.11+ (`tomllib`); the recorded collector tests ran on DSH2's Python. Collectors are single-run, pinned QA audit recipes with fresh output directories, not production services. Do not rerun them against populated output directories or substitute an unverified SSH host key.
+
+To reproduce the **historical predecessor comparison**, not the current scan:
 
 ```sh
 python3 -B dsh/rebuild/stage7/licensing/audit.py --archive /path/to/dsh-stage7-qa4-72297c3-linux-amd64.tar.gz

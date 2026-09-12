@@ -1,0 +1,120 @@
+{
+  "schema": "stage74-verified-collection/v1",
+  "releaseSha256": "1486b3aa2dccb7a21941140508280b5125d816452e708e13c7640ea120a2e66c",
+  "scope": "exact QA4 images, all shipped layers, host code; discovery and upstream evidence, not legal clearance",
+  "images": {
+    "reference-application": {
+      "imageId": "sha256:453f59474c73eda86bdb3dcdcaebb0928bf593c86700da9a9ad2449ed52dec61",
+      "spdxPackageOccurrences": 98,
+      "softwareRecords": 97,
+      "missingOriginalMetadata": 7,
+      "missingMetadataAfterUpstreamEvidence": 7,
+      "upstreamMetadataAdded": 0,
+      "heuristicCopyleftReviewSignals": 74
+    },
+    "unify-core": {
+      "imageId": "sha256:86d47fdd52bf88cf8f91c9e2245ba6ebe69ed324955b9e157ebb676b83715f8a",
+      "spdxPackageOccurrences": 89,
+      "softwareRecords": 88,
+      "missingOriginalMetadata": 8,
+      "missingMetadataAfterUpstreamEvidence": 8,
+      "upstreamMetadataAdded": 0,
+      "heuristicCopyleftReviewSignals": 5
+    },
+    "caddy": {
+      "imageId": "sha256:6a107c5750be160c6b2b909d2329d73e6e4589b618dfcde00bc8145ddd20194f",
+      "spdxPackageOccurrences": 163,
+      "softwareRecords": 162,
+      "missingOriginalMetadata": 129,
+      "missingMetadataAfterUpstreamEvidence": 129,
+      "upstreamMetadataAdded": 0,
+      "heuristicCopyleftReviewSignals": 19
+    },
+    "hermes": {
+      "imageId": "sha256:96ed2f016fb159f48058f668a3baccd2d8154644dfd3519b9e683c4e7c636bd9",
+      "spdxPackageOccurrences": 2672,
+      "softwareRecords": 2671,
+      "missingOriginalMetadata": 1068,
+      "missingMetadataAfterUpstreamEvidence": 180,
+      "upstreamMetadataAdded": 888,
+      "heuristicCopyleftReviewSignals": 265
+    },
+    "keycloak": {
+      "imageId": "sha256:b6fa492fadbe4b41fb70af150ccf665f6bae371c412bdeb4c27a0ee113158bec",
+      "spdxPackageOccurrences": 493,
+      "softwareRecords": 492,
+      "missingOriginalMetadata": 176,
+      "missingMetadataAfterUpstreamEvidence": 176,
+      "upstreamMetadataAdded": 0,
+      "heuristicCopyleftReviewSignals": 47
+    },
+    "memory-v4": {
+      "imageId": "sha256:17c114de04013eedaf12be909730bc27a76fb605478e1f23dab509953093356d",
+      "spdxPackageOccurrences": 115,
+      "softwareRecords": 114,
+      "missingOriginalMetadata": 8,
+      "missingMetadataAfterUpstreamEvidence": 8,
+      "upstreamMetadataAdded": 0,
+      "heuristicCopyleftReviewSignals": 74
+    },
+    "postgresql": {
+      "imageId": "sha256:5c773214aed7adab0900cd0a05dbc468348f76fe1e4c2ca5b0e222e9531f7811",
+      "spdxPackageOccurrences": 52,
+      "softwareRecords": 51,
+      "missingOriginalMetadata": 5,
+      "missingMetadataAfterUpstreamEvidence": 5,
+      "upstreamMetadataAdded": 0,
+      "heuristicCopyleftReviewSignals": 22
+    },
+    "uniui": {
+      "imageId": "sha256:5e981ddd106e7c591850f6c7bda25ebe667d96b71db14afc085898c0b7b7e064",
+      "spdxPackageOccurrences": 15,
+      "softwareRecords": 14,
+      "missingOriginalMetadata": 4,
+      "missingMetadataAfterUpstreamEvidence": 4,
+      "upstreamMetadataAdded": 0,
+      "heuristicCopyleftReviewSignals": 5
+    }
+  },
+  "totals": {
+    "spdxPackageOccurrences": 3697,
+    "softwareRecords": 3689,
+    "missingOriginalMetadata": 1405,
+    "missingMetadataAfterUpstreamEvidence": 517,
+    "upstreamMetadataAdded": 888,
+    "heuristicCopyleftReviewSignals": 511
+  },
+  "unresolvedByCataloger": {
+    "pe-binary-package-cataloger": 27,
+    "binary-classifier-cataloger": 7,
+    "javascript-package-cataloger": 18,
+    "dpkg-db-cataloger": 6,
+    "go-module-binary-cataloger": 133,
+    "python-installed-package-cataloger": 27,
+    "cargo-auditable-binary-cataloger": 122,
+    "java-archive-cataloger": 176,
+    "apk-db-cataloger": 1
+  },
+  "noticeLayers": 125,
+  "noticeCandidates": 2057,
+  "uniqueImageNoticeContents": 985,
+  "resolvedImageLocalReferences": 267,
+  "noticeExtractionGaps": 0,
+  "noticeExtractionScopeComplete": false,
+  "rustCoordinates": 444,
+  "rustStatus": {
+    "verified-upstream-source-not-legal-clearance": 444
+  },
+  "rustNonRegistryOccurrencesUnfetched": 122,
+  "deliveredHostCodeFiles": 13,
+  "containersAndImagesUnchanged": true,
+  "originalBundleUnchanged": true,
+  "stage74Accepted": false,
+  "legalReviewComplete": false,
+  "requiredRemaining": [
+    "Final commercial/delivered-source terms and rightsholder authority",
+    "Resolve remaining metadata and review every applicable licence/attribution/source/build/relink obligation",
+    "Appropriate legal approval tied to exact materials",
+    "New immutable approved assembly and integrated release gate; Stage 7.5 separate"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schema": "stage74-evidence-export/v1",
+  "files": {
+    "review-evidence.tar.gz": {
+      "sha256": "85007cb518ad128b150661f4ff3ef7c66b683a010ab2e8270e836076d3f36eb8",
+      "bytes": 6889897
+    },
+    "rust-sources.tar.gz": {
+      "sha256": "8ebae4dffa3b638487ac6bec6bbc12bbcea39e184d4bb3a269ebef74451420da",
+      "bytes": 49835146
+    }
+  },
+  "summarySha256": "bccfba0c71c081f081f15f78bcbecb08f57b38182f64128c09e0b0dbbf2512b5",
+  "credentialPatternScan": "passed for allowlisted text evidence; not a general proof of absence",
+  "stage74Accepted": false
+}
