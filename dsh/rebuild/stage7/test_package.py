@@ -51,6 +51,21 @@ class Packaging(unittest.TestCase):
   (self.root/'link').symlink_to(self.root/'container-secret')
   with self.assertRaises(RuntimeError):ns['text']('link','fixture')
   with self.assertRaises(RuntimeError):ns['text']('container-secret','changed')
+ def test_operations_directories_under_restrictive_umask(self):
+  import ast,os
+  self.build();source=(self.out/'bundle/ops.py').read_text();tree=ast.parse(source)
+  fn=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='enroll')
+  selected=[]
+  for node in fn.body:
+   text=ast.get_source_segment(source,node) or ''
+   if text.startswith(('if code.parent.is_symlink()', 'code.mkdir(', 'code.parent.chmod(', 'code.chmod(', 'op.mkdir(', "(op/'public').mkdir(", "(op/'public').chmod(")):selected.append(node)
+  self.assertEqual(len(selected),7)
+  code=self.root/'ops-code'/'cell';op=self.root/'operations';ns={'code':code,'op':op,'RuntimeError':RuntimeError}
+  previous=os.umask(0o077)
+  try:exec(compile(ast.Module(body=selected,type_ignores=[]),'real-operations-directories','exec'),ns)
+  finally:os.umask(previous)
+  for path in [code.parent,code,op/'public']:self.assertEqual(path.stat().st_mode&0o777,0o755)
+  self.assertEqual(op.stat().st_mode&0o777,0o700)
  def test_tampered_file_denied(self):
   (self.base/'ops.py').write_text('tampered')
   with self.assertRaises(AssertionError):self.build()

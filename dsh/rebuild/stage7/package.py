@@ -19,6 +19,19 @@ def fix_installer(source):
  assert source.count(old)==1,'Unexpected installer write primitive'
  return source.replace(old,new)
 
+def fix_operations(source):
+ old='    code.mkdir(parents=True,mode=0o755)'
+ new='''    # These are non-secret executable-code directories. The unprivileged
+    # observer must traverse them even when the operator uses umask 077.
+    if code.parent.is_symlink() or code.parent.exists() and (code.parent.stat().st_uid!=0 or code.parent.stat().st_mode&0o022):raise RuntimeError('unsafe operations code parent')
+    code.mkdir(parents=True,mode=0o755)
+    code.parent.chmod(0o755);code.chmod(0o755)'''
+ assert source.count(old)==1,'Unexpected operations code preparation'
+ source=source.replace(old,new)
+ old="(op/'public').mkdir(exist_ok=True,mode=0o755)"
+ assert source.count(old)==1,'Unexpected public-status preparation'
+ return source.replace(old,old+";(op/'public').chmod(0o755)")
+
 def sha(p):
  h=hashlib.sha256()
  with Path(p).open('rb') as f:
@@ -43,7 +56,7 @@ def produce(base,reference,doghouse,output,revision,doghouse_revision):
  (bundle/'alicactl').write_text(LIFECYCLE_CLI)
  (bundle/'alicactl').chmod(0o755)
  (bundle/'install.py').write_text(fix_installer((bundle/'install.py').read_text()))
- ops=(bundle/'ops.py').read_text()
+ ops=fix_operations((bundle/'ops.py').read_text())
  assert ops.count('from doghouse_dsh.broker import signature')==1
  ops=ops.replace('from doghouse_dsh.broker import signature','from doghouse_dsh.identity import canonical_signature as signature, SCHEMA')
  assert ops.count("cfg={'root':str(root)")==1

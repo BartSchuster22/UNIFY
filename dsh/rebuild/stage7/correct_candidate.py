@@ -4,7 +4,7 @@ No runtime image change, no target build, no overwrite or inherited acceptance.
 """
 import argparse,json,tarfile,re
 from pathlib import Path
-from package import LIFECYCLE_CLI,sha,fix_installer
+from package import LIFECYCLE_CLI,sha,fix_installer,fix_operations
 PIN='9f7455f10e90e96b40c631a897354074e03d002720e71b02d4348cb41aba9d16'
 def produce(source,output,revision):
  assert re.fullmatch('[a-f0-9]{40}',revision)
@@ -22,6 +22,7 @@ def produce(source,output,revision):
  for n,h in old['files'].items():assert sha(bundle/n)==h
  (bundle/'alicactl').write_text(LIFECYCLE_CLI)
  (bundle/'install.py').write_text(fix_installer((bundle/'install.py').read_text()))
+ (bundle/'ops.py').write_text(fix_operations((bundle/'ops.py').read_text()))
  old['release']='stage7-qa1-'+revision[:7];old['source_revisions']['stage7_operations']=revision
  old['stage7_assembly'].update({'sourceRevision':revision,'correctedPublishedArchiveSha256':PIN,'correction':'CLI routes through ops.py; explicit file modes survive restrictive umask','runtimeImagesUnchanged':True})
  old['files']={n:sha(bundle/n) for n in old['files']}

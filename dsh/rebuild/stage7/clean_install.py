@@ -2,13 +2,13 @@
 """DSH2-only clean artifact admission and measured installation. No restored state."""
 import hashlib,json,os,socket,subprocess,tarfile,time,urllib.request
 from pathlib import Path
-BASE='https://github.com/BartSchuster22/Alica-DSH/releases/download/dsh-stage7-qa1-4273c86/'
-ARCHIVE='dsh-stage7-qa1-4273c86-linux-amd64.tar.gz'
-SHA='9f7455f10e90e96b40c631a897354074e03d002720e71b02d4348cb41aba9d16'
+BASE='https://github.com/BartSchuster22/Alica-DSH/releases/download/dsh-stage7-qa1-ed2f09b/'
+ARCHIVE='dsh-stage7-qa1-ed2f09b-linux-amd64.tar.gz'
+SHA='171bfef29467825548cba0c669f14bbe0620178ae546ff8c5dab288b3b334a88'
 TRUST='5af48e80bffa12df7921c2c688f4f2f2249c68032d04e6f7e10621668d264034'
 VERIFIER='62f39860a259a76721068b23140eca846def5acca5b728fbab26518576722547'
-RELEASE='2971e0b830542465e2d53d6f096bde2a4b8484523fc2753b1b4e8c08e4308937'
-HOME=Path('/srv/alica-stage7');OUT=Path('/var/lib/alica-stage7-qa1');ROOT=Path('/opt/dsh2-stage7-qa1')
+RELEASE='f3ce059a6e2c1b575ead2fb6e6dbededa4420505285ac9220d5a9ea2b13a9da3'
+HOME=Path('/srv/alica-stage7-ed2f09b');OUT=Path('/var/lib/alica-stage7-qa2');ROOT=Path('/opt/dsh2-stage7-qa2')
 def run(args):return subprocess.check_output(args,text=True,stderr=subprocess.PIPE).strip()
 def digest(p):
  h=hashlib.sha256()
@@ -61,7 +61,16 @@ def main():
  ids=run(['docker','ps','-aq','--filter','label=com.docker.compose.project='+ROOT.name]).split()
  rows=json.loads(run(['docker','inspect',*ids])) if ids else []
  report['containers']=[{'name':r['Name'],'image':r['Image'],'running':r['State']['Running'],'health':r['State'].get('Health',{}).get('Status'),'oomKilled':r['State']['OOMKilled'],'memoryLimit':r['HostConfig']['Memory'],'nanoCpus':r['HostConfig']['NanoCpus'],'pidsLimit':r['HostConfig']['PidsLimit']} for r in rows]
- report['passed']=p.returncode==0 and report['operationsEnrolled'] and len(rows)==7 and all(r['State']['Running'] and r['State'].get('Health',{}).get('Status')=='healthy' for r in rows)
+ report['operationsHealthy']=False
+ try:
+  units=['alica-'+ROOT.name+'-'+role+'.service' for role in ('cell','broker','observer')]
+  report['operationUnits']=run(['systemctl','is-active',*units]).splitlines()
+  code='/usr/local/lib/alica-dsh-ops/'+ROOT.name
+  probe="import json,sys;sys.path.insert(0,"+repr(code)+");from doghouse_dsh.observer import request;print(json.dumps(request('/run/alica-ops-"+ROOT.name+"/broker.sock',{'op':'snapshot'})))"
+  state=json.loads(run(['runuser','-u','alica-ops','--','python3','-c',probe]))
+  report['operationsHealthy']=report['operationUnits']==['active']*3 and state['ok'] and state['status']['snapshot']['ownershipVerified'] and all(v['state']=='healthy' for v in state['status']['snapshot']['services'].values())
+ except Exception as exc:report['operationsProbeError']=type(exc).__name__
+ report['passed']=p.returncode==0 and report['operationsEnrolled'] and report['operationsHealthy'] and len(rows)==7 and all(r['State']['Running'] and r['State'].get('Health',{}).get('Status')=='healthy' for r in rows)
  (OUT/'clean-install.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report),flush=True)
  assert report['passed'],'Clean-install gate failed; diagnostics retained'
 if __name__=='__main__':main()
