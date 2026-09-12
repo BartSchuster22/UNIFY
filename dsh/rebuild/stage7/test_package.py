@@ -25,6 +25,16 @@ class Packaging(unittest.TestCase):
   self.assertIn('UNQUALIFIED',r['acceptance']);self.assertFalse(r['stage7_assembly']['productionAccepted'])
   for n,h in r['files'].items():self.assertEqual(m.sha(b/n),h)
   self.assertEqual((self.base/'images.tar').read_bytes(),(b/'images.tar').read_bytes())
+ def test_cli_routes_through_operations(self):
+  import os,subprocess
+  self.build();b=self.out/'bundle';tools=self.root/'tools';tools.mkdir()
+  fake=tools/'python3';fake.write_text('#!/bin/sh\nprintf "%s\\n" "$@"\n');fake.chmod(0o755)
+  env={**os.environ,'PATH':str(tools)+':'+os.environ['PATH']}
+  for action in ['install','start','stop','uninstall','status','maintenance-on','maintenance-off']:
+   output=subprocess.check_output([str(b/'alicactl'),action,'--root','/opt/fixture'],env=env,text=True).splitlines()
+   self.assertEqual(output,[str(b/'ops.py'),action,'--root','/opt/fixture'])
+  self.assertEqual(subprocess.check_output([str(b/'alicactl'),'plan'],env=env,text=True).splitlines(),[str(b/'install.py'),'plan'])
+  self.assertEqual(subprocess.check_output([str(b/'alicactl'),'recover-owner','--help'],env=env,text=True).splitlines(),[str(b/'recover_owner.py'),'--help'])
  def test_tampered_file_denied(self):
   (self.base/'ops.py').write_text('tampered')
   with self.assertRaises(AssertionError):self.build()

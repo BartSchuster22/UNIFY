@@ -4,6 +4,15 @@ import argparse,hashlib,json,os,shutil,tarfile
 from pathlib import Path
 BASE='1fde4fdfeea219bbad1e61e6bcce8046b2a7f9d880218d95a660624be08cd4f6'
 REF='51c522b717e99eb6bb1025c442e713e9f6a1827fbeecef7a70f2cdc12618fd7b'
+LIFECYCLE_CLI='''#!/usr/bin/env bash
+set -euo pipefail
+base=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+case "${1:-}" in
+ recover-owner) shift; exec python3 "$base/recover_owner.py" "$@" ;;
+ plan) exec python3 "$base/install.py" "$@" ;;
+ *) exec python3 "$base/ops.py" "$@" ;;
+esac
+'''
 def sha(p):
  h=hashlib.sha256()
  with Path(p).open('rb') as f:
@@ -23,6 +32,10 @@ def produce(base,reference,doghouse,output,revision,doghouse_revision):
   if name=='images.tar':os.link(base/name,bundle/name)
   else:shutil.copyfile(base/name,bundle/name)
  shutil.copyfile(reference,bundle/'reference-image.tar')
+ # The public lifecycle entrypoint must enroll and use host operations, not
+ # bypass their locks, maintenance fencing and joint-readiness checks.
+ (bundle/'alicactl').write_text(LIFECYCLE_CLI)
+ (bundle/'alicactl').chmod(0o755)
  ops=(bundle/'ops.py').read_text()
  assert ops.count('from doghouse_dsh.broker import signature')==1
  ops=ops.replace('from doghouse_dsh.broker import signature','from doghouse_dsh.identity import canonical_signature as signature, SCHEMA')
