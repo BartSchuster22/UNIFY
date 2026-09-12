@@ -8,9 +8,17 @@ def login(who):
  s,d,h=http(APP,'/api/login','POST',{'username':who,'password':pw[who]},{'Origin':APP});assert s==200
  return {'Cookie':h['Set-Cookie'].split(';',1)[0],'X-CSRF-Token':d['csrf'],'Origin':APP}
 a=login('alice');b=login('bob')
+def customer_records(headers):
+ s,d,_=http(APP,'/api/state',headers=headers);assert s==200
+ return {r['id']:r['result'] for r in d['requests']}
+alice_before=customer_records(a);bob_before=customer_records(b)
+assert first['id'] in alice_before and set(alice_before).isdisjoint(bob_before)
+for operation in ('research','answer'):
+ saved=json.loads((OUT/('reuse-regression-'+operation+'-result.json')).read_text())
+ assert saved['id'] in bob_before and bob_before[saved['id']]==saved['result']
 assert http(APP,'/api/requests/'+first['id']+'/delete','POST',{},b)[0]==404
 assert http(APP,'/api/requests/'+first['id']+'/retry','POST',{},b)[0]==404
-assert http(APP,'/api/state',headers=b)[1]['requests']==[]
+assert customer_records(a)==alice_before and customer_records(b)==bob_before
 checks['crossCustomerAccessDenied']=True
 payload={'contractVersion':'alica-application/v1','subject':'customer-a','operation':'research','question':'Which top-level domains does RFC 2606 reserve?'}
 for key,value in {'projectId':'foreign','frameworkId':'foreign','model':'override','tools':['terminal'],'profile':'foreign','callbackUrl':'https://example.org','sourceUrls':['http://169.254.169.254/']}.items():

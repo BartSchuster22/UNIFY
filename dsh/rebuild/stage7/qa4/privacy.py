@@ -49,7 +49,7 @@ a=login('alice');b=login('bob')
 p=OUT/'bob-survivor-input.json'
 if p.exists():v=json.loads(p.read_text())
 else:
- v={'key':str(uuid.uuid4()),'operation':'research','question':'Which four top-level domains does RFC 2606 reserve?'};p.write_text(json.dumps(v))
+ v={'key':str(uuid.uuid4()),'operation':'answer','question':'Reuse the existing four verified RFC 2606 findings about .test, .example, .invalid and .localhost without fetching new evidence.'};p.write_text(json.dumps(v))
 s,other,_=http(APP,'/api/requests','POST',v,b);assert s==202
 deadline=time.monotonic()+220
 while time.monotonic()<deadline:

@@ -3,7 +3,7 @@ import json,hashlib
 from pathlib import Path
 from qa_common import OUT,ROOT,CELL
 import host_operations as h
-names=['oidc-result','first-acceptance','extended-host','qualification-credential-rotation','clean-install','reboot-result','hostile-boundary','qualified-recurring-soak','negative-acceptance','host-operations','isolation','application-lifecycle','business-faults','operations-api','credential-lifecycle','privacy-acceptance','update-suite','research-positive-control']
+names=['oidc-result','first-acceptance','extended-host','clean-install','reboot-result','hostile-boundary','qualified-recurring-soak','negative-acceptance','host-operations','isolation','application-lifecycle','business-faults','operations-api','credential-lifecycle','privacy-acceptance','update-suite','research-positive-control','multi-fact-reuse','browser-result']
 paths={n:OUT/(n+'.json') for n in names}
 rec=Path('/var/lib/alica-stage7-recovery-qa4')
 for n in ['backup-receipt','restore-result','cold-verified','extraction-receipt']:paths[n]=rec/(n+'.json')

@@ -30,7 +30,7 @@ evidence=observed['body']['result']['evidence'];assert len(evidence)==4
 size=lambda x:len(json.dumps(x,separators=(',',':'),ensure_ascii=False).encode())
 lower=sum(size(e) for e in evidence)+sum(size(k['source']) for k in first['result']['knowledge'])
 assert lower>65536,'Must exercise the formerly oversized plan, not a smaller substitute'
-assert answer['result']['knowledge']==first['result']['knowledge'],'Original canonical identity and full provenance must survive reuse'
+assert sorted(answer['result']['knowledge'],key=lambda k:k['recordId'])==sorted(first['result']['knowledge'],key=lambda k:k['recordId']),'Original canonical identity and full provenance must survive reuse; ordering is not a contract'
 assert native(first['receiptId'])==control and native(answer['receiptId'])==observed,'No native outcome rewrites'
 report={'schema':'stage7-live-multifact-reuse/v1','passed':True,'researchReceiptId':first['receiptId'],'answerReceiptId':answer['receiptId'],'canonicalFacts':4,'nativeEvidenceEntries':len(evidence),'uncompactedPlanSourceBytesLowerBound':lower,'existingPlanLimitBytes':65536,'customerResultReady':True,'originalProvenanceAndRecordIdentitiesPreserved':True,'applicationReplaySameRequest':True,'nativeOutcomesUnchanged':True,'nativeResultSha256':observed['sha256'],'syntheticNativeOutcomes':False,'stage7Accepted':False}
 (OUT/'multi-fact-reuse.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report))
