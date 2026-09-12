@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ ~  Copyright 2017 Red Hat, Inc.
+ ~
+ ~  Licensed under the Apache License, Version 2.0 (the "License");
+ ~  you may not use this file except in compliance with the License.
+ ~  You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~  Unless required by applicable law or agreed to in writing, software
+ ~  distributed under the License is distributed on an "AS IS" BASIS,
+ ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~  See the License for the specific language governing permissions and
+ ~  limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.smallrye</groupId>
+    <artifactId>smallrye-parent</artifactId>
+    <version>42</version>
+  </parent>
+
+  <artifactId>smallrye-health-parent</artifactId>
+  <version>4.1.0</version>
+
+  <packaging>pom</packaging>
+  <name>SmallRye Health: Parent</name>
+  <url>http://smallrye.io</url>
+
+  <properties>
+    <version.eclipse.microprofile.config>3.1</version.eclipse.microprofile.config>
+    <version.eclipse.microprofile.health>4.0.1</version.eclipse.microprofile.health>
+    <version.eclipse.parsson>1.1.5</version.eclipse.parsson>
+    <version.httpclient>4.5.14</version.httpclient>
+    <version.jakarta.servlet>6.0.0</version.jakarta.servlet>
+    <version.mutiny>2.5.3</version.mutiny>
+    <version.smallrye.config>3.5.1</version.smallrye.config>
+    <version.smallrye.common>2.2.0</version.smallrye.common>
+    <version.smallrye.testing>2.3.0</version.smallrye.testing>
+    <version.wildfly>28.0.1.Final</version.wildfly>
+
+    <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+    <sonar.coverage.exclusions>testsuite/tck/src/main/java/**/*Servlet.java</sonar.coverage.exclusions>
+  </properties>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/smallrye/smallrye-health/issues</url>
+  </issueManagement>
+
+  <developers>
+    <developer>
+      <id>xstefank</id>
+      <name>Martin Stefanko</name>
+      <email>xstefank[AT]redhat[DOT]com</email>
+      <url>https://github.com/xstefank</url>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git@github.com:smallrye/smallrye-health.git</connection>
+    <developerConnection>scm:git:git@github.com:smallrye/smallrye-health.git</developerConnection>
+    <url>https://github.com/smallrye/smallrye-health/</url>
+    <tag>4.1.0</tag>
+  </scm>
+
+  <modules>
+    <module>api</module>
+    <module>implementation</module>
+    <module>testsuite</module>
+    <module>ui</module>
+    <module>provided-checks</module>
+  </modules>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.eclipse.microprofile.health</groupId>
+        <artifactId>microprofile-health-api</artifactId>
+        <version>${version.eclipse.microprofile.health}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.annotation.versioning</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>jakarta.enterprise</groupId>
+            <artifactId>jakarta.enterprise.cdi-api</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.microprofile.health</groupId>
+        <artifactId>microprofile-health-tck</artifactId>
+        <version>${version.eclipse.microprofile.health}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>jakarta.enterprise</groupId>
+            <artifactId>jakarta.enterprise.cdi-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>jakarta.json</groupId>
+            <artifactId>jakarta.json-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>jakarta.mail</groupId>
+            <artifactId>jakarta.mail-api</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.microprofile.config</groupId>
+        <artifactId>microprofile-config-api</artifactId>
+        <version>${version.eclipse.microprofile.config}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>jakarta.servlet</groupId>
+        <artifactId>jakarta.servlet-api</artifactId>
+        <version>${version.jakarta.servlet}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.smallrye.config</groupId>
+        <artifactId>smallrye-config</artifactId>
+        <version>${version.smallrye.config}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.smallrye.common</groupId>
+        <artifactId>smallrye-common-annotation</artifactId>
+        <version>${version.smallrye.common}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.smallrye.common</groupId>
+        <artifactId>smallrye-common-bom</artifactId>
+        <version>${version.smallrye.common}</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
+
+      <!-- Test Dependencies -->
+      <dependency>
+        <groupId>io.smallrye.testing</groupId>
+        <artifactId>smallrye-testing-bom</artifactId>
+        <version>${version.smallrye.testing}</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
+
+      <dependency>
+        <groupId>io.smallrye.testing</groupId>
+        <artifactId>smallrye-testing-utilities</artifactId>
+        <version>${version.smallrye.testing}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <!-- Dependencies provided by the project -->
+      <dependency>
+        <groupId>io.smallrye</groupId>
+        <artifactId>smallrye-health-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.smallrye</groupId>
+        <artifactId>smallrye-health</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.smallrye</groupId>
+        <artifactId>smallrye-health-tck</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.smallrye</groupId>
+        <artifactId>smallrye-health-ui</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.asciidoctor</groupId>
+          <artifactId>asciidoctor-maven-plugin</artifactId>
+          <configuration>
+            <sourceHighlighter>coderay</sourceHighlighter>
+            <attributes>
+              <icons>font</icons>
+              <pagenums />
+              <version>${project.version}</version>
+              <idprefix />
+              <idseparator>-</idseparator>
+              <allow-uri-read>true</allow-uri-read>
+              <revnumber>${project.version}</revnumber>
+              <revdate>${maven.build.timestamp}</revdate>
+              <organization>${project.organization.name}</organization>
+            </attributes>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>prepare-agent</id>
+              <goals>
+                <goal>prepare-agent</goal>
+              </goals>
+              <phase>generate-test-resources</phase>
+              <configuration>
+                <destFile>${project.build.directory}/jacoco.exec</destFile>
+                <propertyName>jacocoArgLine</propertyName>
+                <append>true</append>
+              </configuration>
+            </execution>
+            <execution>
+              <id>generate-report</id>
+              <goals>
+                <goal>report</goal>
+              </goals>
+              <phase>verify</phase>
+              <configuration>
+                <outputDirectory>${project.build.directory}</outputDirectory>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <!-- TODO - to remve once these changes are in the Parent POM -->
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>${version.release.plugin}</version>
+        <configuration>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+          <tagNameFormat>@{project.version}</tagNameFormat>
+          <preparationGoals>verify</preparationGoals>
+          <pushChanges>false</pushChanges>
+          <localCheckout>true</localCheckout>
+          <remoteTagging>false</remoteTagging>
+          <arguments>-DskipTests ${release.arguments}</arguments>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>${version.gpg.plugin}</version>
+        <configuration>
+          <gpgArguments>
+            <arg>--pinentry-mode</arg>
+            <arg>loopback</arg>
+          </gpgArguments>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <activation>
+        <property>
+          <name>!release.maven.bug.always.be.active</name>
+        </property>
+      </activation>
+      <modules>
+        <module>release</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>coverage</id>
+      <properties>
+        <argLine>@{jacocoArgLine}</argLine>
+      </properties>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

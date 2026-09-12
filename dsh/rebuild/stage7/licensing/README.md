@@ -4,6 +4,19 @@
 
 Stage numbering follows PROJECT-ALICA's versioned rebuild master plan: 7.4 is commercial licence/source/enforcement and third-party compliance with appropriate legal review; the earlier conversational list numbered these differently.
 
+## Latest registry continuation — 2026-09-12
+
+`registry-review-v2/` supersedes the first registry attempt (`registry-review/`, retained for comparison), not the immutable image/Rust collection below. It queried 187 exact Maven/PyPI coordinates and recovered upstream declarations for **164 additional software records**, leaving **353** without metadata. Maven parent chains and PyPI responses are retained verbatim with URL/content hashes. Ten parser and real-evidence negative tests passed; offline verification rehashed 201 responses, replayed 152 successful/no-declaration results and checked the entire derived queue against the prior input.
+
+The first attempt exposed namespace-free Maven POMs and a concurrent content-cache rewrite hazard; both were corrected before a fresh run. Unresolvable/scanner-derived Maven coordinates remain explicit, not guessed. Registry declarations do not prove equality with shipped binaries, complete source delivery or legal clearance. First-party/local packages were not silently mapped to public packages. No QA-host access or runtime mutation was required for this continuation.
+
+```sh
+python3 -B dsh/rebuild/stage7/licensing/verify_registry_metadata.py dsh/rebuild/stage7/licensing/registry-review-v2
+python3 -B -m unittest discover -s dsh/rebuild/stage7/licensing -p test_registry_metadata.py -v
+```
+
+Stage 7.4 remains unaccepted: technical obligations, exact commercial terms/rightsholder authority, appropriate legal review and a new approved assembly remain required. The earlier counts below describe the preceding collection, not the latest unresolved count.
+
 ## Current verified collection
 
 `current-qa4/summary.json` is the current technical observation, backed by two digest-bound archives and `verification.txt`:

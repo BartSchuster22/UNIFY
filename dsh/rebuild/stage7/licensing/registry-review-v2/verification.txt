@@ -1,0 +1,27 @@
+python3 -B -m unittest discover -s dsh/rebuild/stage7/licensing -p test_registry_metadata.py -v
+exit=0
+test_entity_rejected (test_registry_metadata.RegistryTests) ... ok
+test_inherited (test_registry_metadata.RegistryTests) ... ok
+test_mismatch (test_registry_metadata.RegistryTests) ... ok
+test_namespaces (test_registry_metadata.RegistryTests) ... ok
+test_no_approval (test_registry_metadata.RegistryTests) ... ok
+test_pypi_identity (test_registry_metadata.RegistryTests) ... ok
+test_unsafe_coordinates (test_registry_metadata.RegistryTests) ... ok
+test_changed_object (test_registry_metadata.RetainedEvidenceTests) ... ok
+test_claimed_approval (test_registry_metadata.RetainedEvidenceTests) ... ok
+test_queue_approval (test_registry_metadata.RetainedEvidenceTests) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 1.469s
+
+OK
+
+python3 -B dsh/rebuild/stage7/licensing/verify_registry_metadata.py dsh/rebuild/stage7/licensing/registry-review-v2
+exit=0
+{
+  "sourcesRehashed": 201,
+  "declarationsReplayed": 152,
+  "addedMetadataOccurrences": 164,
+  "remainingMissingMetadata": 353,
+  "stage74Accepted": false
+}

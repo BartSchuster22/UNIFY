@@ -1,0 +1,3 @@
+# Exact upstream HTTP response bytes: preserve whitespace and line endings.
+registry-review/objects/* -text -diff
+registry-review-v2/objects/* -text -diff
