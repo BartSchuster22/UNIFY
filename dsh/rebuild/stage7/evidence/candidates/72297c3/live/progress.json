@@ -1,0 +1,205 @@
+{
+  "schema": "stage7-qa4-live-run/v1",
+  "releaseSha256": "1486b3aa2dccb7a21941140508280b5125d816452e708e13c7640ea120a2e66c",
+  "stages": [
+    {
+      "name": "stage_qa_tools",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 0.473
+    },
+    {
+      "name": "retire_archived_qa3",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 8.41
+    },
+    {
+      "name": "clean_install",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 296.021
+    },
+    {
+      "name": "oidc",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 10.142
+    },
+    {
+      "name": "native_provider",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 1.933
+    },
+    {
+      "name": "reference_image",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 0.657
+    },
+    {
+      "name": "setup_reference",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 7.3
+    },
+    {
+      "name": "first_request",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 35.743
+    },
+    {
+      "name": "operations_api",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 0.774
+    },
+    {
+      "name": "isolation",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 12.353
+    },
+    {
+      "name": "multi_fact_reuse",
+      "attempt": 1,
+      "exitCode": 1,
+      "seconds": 64.94
+    },
+    {
+      "name": "verify_multifact_existing",
+      "attempt": 1,
+      "exitCode": 1,
+      "seconds": 2.164
+    },
+    {
+      "name": "verify_multifact_existing",
+      "attempt": 2,
+      "exitCode": 0,
+      "seconds": 4.781
+    },
+    {
+      "name": "application_lifecycle",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 84.604
+    },
+    {
+      "name": "admission_negatives",
+      "attempt": 1,
+      "exitCode": 1,
+      "seconds": 1.216
+    },
+    {
+      "name": "admission_negatives",
+      "attempt": 2,
+      "exitCode": 0,
+      "seconds": 3.046
+    },
+    {
+      "name": "recurring_soak",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 1859.941
+    },
+    {
+      "name": "host_operations",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 123.377
+    },
+    {
+      "name": "extended_host",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 181.034
+    },
+    {
+      "name": "external_reference_start_after_daemon",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 1.19
+    },
+    {
+      "name": "business_faults",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 114.207
+    },
+    {
+      "name": "hostile_boundary",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 69.113
+    },
+    {
+      "name": "owner_recovery",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 10.282
+    },
+    {
+      "name": "owner_recovery_oidc",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 6.194
+    },
+    {
+      "name": "pre_reboot",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 1.672
+    },
+    {
+      "name": "real_reboot",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 86.479
+    },
+    {
+      "name": "cold_backup",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 72.62
+    },
+    {
+      "name": "cold_restore",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 81.685
+    },
+    {
+      "name": "signed_base_admission",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 30.3
+    },
+    {
+      "name": "signed_update_suite",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 465.743
+    },
+    {
+      "name": "privacy",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 147.008
+    },
+    {
+      "name": "post_privacy_safeguard",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 172.325
+    }
+  ],
+  "passed": false,
+  "productionAccepted": false,
+  "qa4RecurrenceExecuted": true,
+  "remaining": [
+    "final-evidence-review-and-publication"
+  ],
+  "runtimeRecoveryPrivacyGatesExecuted": true
+}

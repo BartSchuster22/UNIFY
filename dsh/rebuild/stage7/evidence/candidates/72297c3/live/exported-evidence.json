@@ -1,0 +1,602 @@
+{
+  "reports": {
+    "oidc-result": {
+      "wrong_password_denied": true,
+      "former_owner_password_denied_after_recovery": true,
+      "mandatory_password_change": true,
+      "real_core_identity_session": true,
+      "native_inventory_through_identity_session": true
+    },
+    "first-acceptance": {
+      "independentCustomerLogin": true,
+      "anonymousAndMissingCsrfDenied": true,
+      "localRequestId": "bd574bae-5e90-461c-82fd-e174b6d990c0",
+      "appIdempotency": true,
+      "customerIsolation": true,
+      "finalState": "result-ready",
+      "elapsedSeconds": 34.98,
+      "realEndToEndResult": true,
+      "result": {
+        "answer": "   To safely satisfy these needs, four domain names are reserved as\n   listed and described below.\n\n                   .test\n                .example\n                .invalid\n              .localhost\n\n      \".test\" is recommended for use in testing of current or new DNS\n      related code.\n\n      \".example\" is recommended for use in documentation or as examples.\n\n      \".invalid\" is intended for use in online construction of domain\n      names that are sure to be invalid and which it is obvious at a\n      glance are invalid.\n\n      The \".localhost\" TLD has traditionally been statically defined in\n      host DNS implementations as having an A record pointing to the\n      loop back IP address and is reserved for such use.  Any other use\n      would conflict with widely deployed code which assumes this use.",
+        "knowledge": [
+          {
+            "quote": "   To safely satisfy these needs, four domain names are reserved as\n   listed and described below.\n\n                   .test\n                .example\n                .invalid\n              .localhost\n\n      \".test\" is recommended for use in testing of current or new DNS\n      related code.\n\n      \".example\" is recommended for use in documentation or as examples.\n\n      \".invalid\" is intended for use in online construction of domain\n      names that are sure to be invalid and which it is obvious at a\n      glance are invalid.\n\n      The \".localhost\" TLD has traditionally been statically defined in\n      host DNS implementations as having an A record pointing to the\n      loop back IP address and is reserved for such use.  Any other use\n      would conflict with widely deployed code which assumes this use.",
+            "recordId": "rec_f19c1fd7985d419f94ae7d36779f98af",
+            "source": {
+              "excerpt": "\n\n\n\n\n\nNetwork Working Group                                     D. Eastlake\nRequest for Comments: 2606                                  A. Panitz\nBCP: 32                                                     June 1999\nCategory: Best Current Practice\n\n\n                      Reserved Top Level DNS Names\n\nStatus of this Memo\n\n   This document specifies an Internet Best Current Practices for the\n   Internet Community, and requests discussion and suggestions for\n   improvements.  Distribution of this memo is unlimited.\n\nCopyright Notice\n\n   Copyright (C) The Internet Society (1999).  All Rights Reserved.\n\nAbstract\n\n   To reduce the likelihood of conflict and confusion, a few top level\n   domain names are reserved for use in private testing, as examples in\n   documentation, and the like.  In addition, a few second level domain\n   names reserved for use as examples are documented.\n\nTable of Contents\n\n   1. Introduction............................................1\n   2. TLDs for Testing, & Documentation Examples..............2\n   3. Reserved Example Second Level Domain Names..............2\n   4. IANA Considerations.....................................3\n   5. Security Considerations.................................3\n   References.................................................3\n   Authors' Addresses.........................................4\n   Full Copyright Statement...................................5\n\n1. Introduction\n\n   The global Internet Domain Name System is documented in [RFC 1034,\n   1035, 1591] and numerous additional Requests for Comment.  It defines\n   a tree of names starting with root, \".\", immediately below which are\n   top level domain names such as \".com\" and \".us\". Below top level\n   domain names there are normally additional levels of names.\n\n\n\n\n\n\n\n\nEastlake & Panitz        Best Current Practice                  [Page 1]\n\f\nRFC 2606              Reserved Top Level DNS Names             June 1999\n\n\n2. TLDs for Testing, & Documentation Examples\n\n   There is a need for top level domain (TLD) names that can be used for\n   creating names which, without fear of conflicts with current or\n   future actual TLD names in the global DNS, can be used for private\n   testing of existing DNS related code, examples in documentation, DNS\n   related experimentation, invalid DNS names, or other similar uses.\n\n   For example, without guidance, a site might set up some local\n   additional unused top level domains for testing of its local DNS code\n   and configuration. Later, these TLDs might come into actual use on\n   the global Internet.  As a result, local attempts to reference the\n   real data in these zones could be thwarted by the local test\n   versions.  Or test or example code might be written that accesses a\n   TLD that is in use with the thought that the test code would only be\n   run in a restricted testbed net or the example never actually run.\n   Later, the test code could escape from the testbed or the example be\n   actually coded and run on the Internet. Depending on the nature of\n   the test or example, it might be best for it to be referencing a TLD\n   permanently reserved for such purposes.\n\n   To safely satisfy these needs, four domain names are reserved as\n   listed and described below.\n\n                   .test\n                .example\n                .invalid\n              .localhost\n\n      \".test\" is recommended for use in testing of current or new DNS\n      related code.\n\n      \".example\" is recommended for use in documentation or as examples.\n\n      \".invalid\" is intended for use in online construction of domain\n      names that are sure to be invalid and which it is obvious at a\n      glance are invalid.\n\n      The \".localhost\" TLD has traditionally been statically defined in\n      host DNS implementations as having an A record pointing to the\n      loop back IP address and is reserved for such use.  Any other use\n      would conflict with widely deployed code which assumes this use.\n\n3. Reserved Example Second Level Domain Names\n\n   The Internet Assigned Numbers Authority (IANA) also currently has the\n   following second level domain names reserved which can be used as\n   examples.\n\n\n\nEastlake & Panitz        Best Current Practice                  [Page 2]\n\f\nRFC 2606              Reserved Top Level DNS Names             June 1999\n\n\n        example.com\n        example.net\n        example.org\n\n4. IANA Considerations\n\n   IANA has agreed to the four top level domain name reservations\n   specified in this document and will reserve them for the uses\n   indicated.\n\n5. Security Considerations\n\n   Confusion and conflict can be caused by the use of a current or\n   future top level domain name in experimentation or testing, as an\n   example in documentation, to indicate invalid names, or as a synonym\n   for the loop back address.  Test and experimental software can escape\n   and end up being run against the global operational DNS.  Even\n   examples used \"only\" in documentation can end up being coded and\n   released or cause conflicts due to later real use and the possible\n   acquisition of intellectual property rights in such \"example\" names.\n\n   The reservation of several top level domain names for these purposes\n   will minimize such confusion and conflict.\n\nReferences\n\n   [RFC 1034] Mockapetris, P., \"Domain names - concepts and facilities\",\n              STD 13, RFC 1034, November 1987.\n\n   [RFC 1035] Mockapetris, P., \"Domain names - implementation and\n              specification\", STD 13, RFC 1035, November 1987.\n\n   [RFC 1591] Postel, J., \"Domain Name System Structure and Delegation\",\n              RFC 1591, March 1994.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEastlake & Panitz        Best Current Practice                  [Page 3]\n\f\nRFC 2606              Reserved Top Level DNS Names             June 1999\n\n\nAuthors' Addresses\n\n   Donald E. Eastlake 3rd\n   IBM\n   65 Shindegan Hill Road, RR #1\n   Carmel, NY 10512\n\n   Phone: +1 914-276-1668(h)\n          +1 914-784-7913(w)\n   FAX:   +1 914-784-3833(3)\n   EMail: dee3@us.ibm.com\n\n\n   Aliza R. Panitz\n   500 Stamford Dr. No. 310\n   Newark, DE 19711 USA\n\n   Phone: +1 302-738-1554\n   EMail: buglady@fuschia.net\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEastlake & Panitz        Best Current Practice                  [Page 4]\n\f\nRFC 2606              Reserved Top Level DNS Names             June 1999\n\n\nFull Copyright Statement\n\n   Copyright (C) The Internet Society (1999).  All Rights Reserved.\n\n   This document and translations of it may be copied and furnished to\n   others, and derivative works that comment on or otherwise explain it\n   or assist in its implementation may be prepared, copied, published\n   and distributed, in whole or in part, without restriction of any\n   kind, provided that the above copyright notice and this paragraph are\n   included on all such copies and derivative works.  However, this\n   document itself may not be modified in any way, such as by removing\n   the copyright notice or references to the Internet Society or other\n   Internet organizations, except as needed for the purpose of\n   developing Internet standards in which case the procedures for\n   copyrights defined in the Internet Standards process must be\n   followed, or as required to translate it into languages other than\n   English.\n\n   The limited permissions granted above are perpetual and will not be\n   revoked by the Internet Society or its successors or assigns.\n\n   This document and the information contained herein is provided on an\n   \"AS IS\" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING\n   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING\n   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION\n   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF\n   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.\n\nAcknowledgement\n\n   Funding for the RFC Editor function is currently provided by the\n   Internet Society.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEastlake & Panitz        Best Current Practice                  [Page 5]\n\f\n",
+              "metadata": {
+                "runId": "70c32383-a74f-4cc4-aa8f-59db7b0f6853",
+                "sourceId": "8a5e9b9a0bd7a38b54d9fd8602b105f9bbd2f25edbc0a46f29ac25a2cc522e33",
+                "toolName": "application-runtime.source-context/v1"
+              },
+              "retrievedAt": "2026-09-12T14:37:19.644043+00:00",
+              "sha256": "b6869c8984701701bc2e6973b6ffc750d497f845cc1a65a106e9301590a13ab0",
+              "url": "https://www.rfc-editor.org/rfc/rfc2606.txt"
+            }
+          }
+        ],
+        "quarantined": 0,
+        "receiptId": "70c32383-a74f-4cc4-aa8f-59db7b0f6853",
+        "uncertainty": false
+      },
+      "receiptId": "70c32383-a74f-4cc4-aa8f-59db7b0f6853",
+      "delivery": {
+        "id": "2c9f8e62-3b57-48c4-9b57-58607b99e094",
+        "state": "delivered",
+        "attempt": 1,
+        "next_attempt_at": "2026-09-12T14:37:39.221Z",
+        "last_error": null,
+        "delivered_at": "2026-09-12T14:37:39.412Z"
+      }
+    },
+    "extended-host": {
+      "schema": "stage7-extended-host/v1",
+      "cases": [
+        {
+          "name": "database-dependency-failure",
+          "passed": true,
+          "seconds": 17.993,
+          "databaseNotAutoRestarted": true,
+          "dependentRestartSuppressed": true,
+          "noRecoveryIssued": true
+        },
+        {
+          "name": "guest-docker-daemon-unavailable",
+          "passed": true,
+          "seconds": 90.578,
+          "actualGuestDaemonStopped": true,
+          "unknownNotHealthy": true,
+          "noRecoveryIssued": true,
+          "readinessReturned": true
+        },
+        {
+          "name": "real-storage-probe-pressure",
+          "passed": true,
+          "seconds": 3.282,
+          "actualStatvfsPressure": true,
+          "probe": "isolated-16MiB-tmpfs",
+          "originalThresholdUnchanged": true,
+          "dataFilesystemNotFilled": true,
+          "configurationRestoredExactly": true,
+          "noRecoveryIssued": true
+        },
+        {
+          "name": "broker-interrupted-during-issued-action",
+          "passed": true,
+          "seconds": 68.293,
+          "realIssuedActionInterrupted": true,
+          "uncertainPersistedAcrossBrokerRestart": true,
+          "blindReplayDenied": true,
+          "explicitOperatorAcknowledgement": true,
+          "noDatabaseRowsInjected": true
+        }
+      ],
+      "complete": true
+    },
+    "clean-install": {
+      "schema": "stage7-clean-install/v1",
+      "candidateSha256": "26f98d6ffc8ecc576628b061a9851b8cd40e1e917f070a8567b9fb48ee969553",
+      "releaseSha256": "1486b3aa2dccb7a21941140508280b5125d816452e708e13c7640ea120a2e66c",
+      "downloadedOnTarget": true,
+      "admission": {
+        "artifactsVerified": 17,
+        "installationPerformed": false,
+        "keyId": "9b02c8bc02a6b8081031519e192bd508f74d305d1dab9fe28af4440e8b833ac6",
+        "releaseSha256": "1486b3aa2dccb7a21941140508280b5125d816452e708e13c7640ea120a2e66c",
+        "sbomProvenanceGateComplete": false,
+        "schemaCompatibilityProven": false,
+        "scope": "qa",
+        "sequence": 1,
+        "signatureVerified": true,
+        "wholeStage6Accepted": false
+      },
+      "cleanDockerBefore": true,
+      "noStateRestored": true,
+      "cpuCount": 4,
+      "memoryTotalBytes": 8122314752,
+      "diskAvailableBeforeBytes": 55711649792,
+      "bootId": "12d5a1ff-de19-44e0-b684-a3e8f3e8ed89",
+      "stage7Accepted": false,
+      "installExit": 0,
+      "seconds": 199.087,
+      "peakHostNonAvailableBytes": 1825599488,
+      "operationsEnrolled": true,
+      "containers": [
+        {
+          "name": "/dsh2-stage7-qa4-caddy-1",
+          "image": "sha256:6a107c5750be160c6b2b909d2329d73e6e4589b618dfcde00bc8145ddd20194f",
+          "running": true,
+          "health": "healthy",
+          "oomKilled": false,
+          "memoryLimit": 67108864,
+          "nanoCpus": 50000000,
+          "pidsLimit": 128
+        },
+        {
+          "name": "/dsh2-stage7-qa4-uniui-1",
+          "image": "sha256:5e981ddd106e7c591850f6c7bda25ebe667d96b71db14afc085898c0b7b7e064",
+          "running": true,
+          "health": "healthy",
+          "oomKilled": false,
+          "memoryLimit": 134217728,
+          "nanoCpus": 100000000,
+          "pidsLimit": 128
+        },
+        {
+          "name": "/dsh2-stage7-qa4-unify-core-1",
+          "image": "sha256:86d47fdd52bf88cf8f91c9e2245ba6ebe69ed324955b9e157ebb676b83715f8a",
+          "running": true,
+          "health": "healthy",
+          "oomKilled": false,
+          "memoryLimit": 402653184,
+          "nanoCpus": 250000000,
+          "pidsLimit": 128
+        },
+        {
+          "name": "/dsh2-stage7-qa4-keycloak-1",
+          "image": "sha256:b6fa492fadbe4b41fb70af150ccf665f6bae371c412bdeb4c27a0ee113158bec",
+          "running": true,
+          "health": "healthy",
+          "oomKilled": false,
+          "memoryLimit": 805306368,
+          "nanoCpus": 750000000,
+          "pidsLimit": 128
+        },
+        {
+          "name": "/dsh2-stage7-qa4-hermes-1",
+          "image": "sha256:96ed2f016fb159f48058f668a3baccd2d8154644dfd3519b9e683c4e7c636bd9",
+          "running": true,
+          "health": "healthy",
+          "oomKilled": false,
+          "memoryLimit": 1073741824,
+          "nanoCpus": 750000000,
+          "pidsLimit": 192
+        },
+        {
+          "name": "/dsh2-stage7-qa4-memory-v4-1",
+          "image": "sha256:17c114de04013eedaf12be909730bc27a76fb605478e1f23dab509953093356d",
+          "running": true,
+          "health": "healthy",
+          "oomKilled": false,
+          "memoryLimit": 268435456,
+          "nanoCpus": 200000000,
+          "pidsLimit": 128
+        },
+        {
+          "name": "/dsh2-stage7-qa4-postgresql-1",
+          "image": "sha256:5c773214aed7adab0900cd0a05dbc468348f76fe1e4c2ca5b0e222e9531f7811",
+          "running": true,
+          "health": "healthy",
+          "oomKilled": false,
+          "memoryLimit": 268435456,
+          "nanoCpus": 250000000,
+          "pidsLimit": 128
+        }
+      ],
+      "operationsHealthy": true,
+      "operationUnits": [
+        "active",
+        "active",
+        "active"
+      ],
+      "passed": true
+    },
+    "reboot-result": {
+      "schema": "stage7-real-reboot/v1",
+      "realBootIdChanged": true,
+      "allSevenServicesHealthy": true,
+      "containerIdentitiesPreserved": true,
+      "ownerTransactionAndSecretsPreserved": true,
+      "nativeTasksUnchanged": true,
+      "completedReceiptPreserved": true,
+      "noAutomaticBusinessReplay": true,
+      "passed": true,
+      "wholeStage7Accepted": false
+    },
+    "hostile-boundary": {
+      "schema": "stage7-hostile-boundary/v1",
+      "passed": true,
+      "hostileReceiptId": "0260e5ed-3c06-4ff2-bf8a-141adee48809",
+      "hostileCustomerPhase": "rejected",
+      "nativeState": "failed",
+      "actualAttackTextInNativeSession": true,
+      "actualReadableSyntheticCanaryNotDisclosed": true,
+      "syntheticCanarySha256": "eac034953f30c14f7539b2ba0c180194df84ddc02aa9cd34e97df4b9c3e64090",
+      "nativeSessionToolCalls": 0,
+      "unapprovedEvidenceUrls": [],
+      "positiveControlReceiptId": "0354b50a-5427-4078-a4fb-1f03edc8a18b",
+      "positiveControlResultReady": true,
+      "notAUniversalPromptInjectionClaim": true,
+      "noNativeOutcomeEdits": true
+    },
+    "qualified-recurring-soak": {
+      "passed": true,
+      "clockOrOutcomeEdits": false,
+      "elapsedSeconds": 1859.02,
+      "completionElapsedSeconds": 1857.298,
+      "terminalDurabilityObservationIncluded": true,
+      "wallElapsedSeconds": 1859.02,
+      "successfulRecurringResults": 8,
+      "uniqueAppRequests": 8,
+      "uniqueCoreReceipts": 8,
+      "nativeRestartPreservedCheckpoint": true,
+      "nativeAuthority": {
+        "nativeTaskDone": true,
+        "nativeCronPaused": true,
+        "nativeCronRunCount": 16,
+        "nativeCapabilityRemoved": true
+      },
+      "missedSlotsCoalesced": 2,
+      "estimatedReservedMicros": 8000,
+      "providerCost": null,
+      "providerCostIsMeasured": false,
+      "realModelInference": true,
+      "dayOrWeekSoakClaim": false,
+      "allResultsCertainAndGoverned": true
+    },
+    "negative-acceptance": {
+      "crossCustomerAccessDenied": true,
+      "projectFrameworkProviderToolCallbackAndSubjectOverridesDenied": true,
+      "concurrentDurableReplayAndChangedPayloadDenied": true,
+      "installedRuntimeIsolationGuards": true
+    },
+    "host-operations": {
+      "schema": "stage7-live-host-qa/v1",
+      "bootId": "12d5a1ff-de19-44e0-b684-a3e8f3e8ed89",
+      "cases": [
+        {
+          "name": "baseline",
+          "passed": true,
+          "seconds": 0.168,
+          "services": [
+            "postgresql",
+            "keycloak",
+            "hermes",
+            "memory-v4",
+            "unify-core",
+            "uniui",
+            "caddy"
+          ],
+          "ownershipVerified": true,
+          "billingNotInferred": true
+        },
+        {
+          "name": "broker-denials-and-redaction",
+          "passed": true,
+          "seconds": 0.244,
+          "arbitraryCommandDenied": true,
+          "foreignTargetDenied": true,
+          "secretSentinelAbsent": true,
+          "candidateSecretsAbsent": true,
+          "noRecoveryIssued": true
+        },
+        {
+          "name": "maintenance-suppresses-recovery",
+          "passed": true,
+          "seconds": 24.504,
+          "manualStopNotResurrected": true,
+          "noRecoveryIssued": true,
+          "maintenanceClearedExplicitly": true
+        },
+        {
+          "name": "unexpected-stop-unify-core",
+          "passed": true,
+          "seconds": 13.486,
+          "exactlyOneBrokerRecovery": true,
+          "containerIdentityPreserved": true,
+          "readinessObservedAfterCommand": true,
+          "persistentIncidentResolved": true
+        },
+        {
+          "name": "unexpected-stop-memory-v4",
+          "passed": true,
+          "seconds": 32.432,
+          "exactlyOneBrokerRecovery": true,
+          "containerIdentityPreserved": true,
+          "readinessObservedAfterCommand": true,
+          "persistentIncidentResolved": true
+        },
+        {
+          "name": "unexpected-stop-hermes",
+          "passed": true,
+          "seconds": 51.578,
+          "exactlyOneBrokerRecovery": true,
+          "containerIdentityPreserved": true,
+          "readinessObservedAfterCommand": true,
+          "persistentIncidentResolved": true
+        }
+      ],
+      "complete": true,
+      "remainingSuites": [
+        "provider",
+        "callback",
+        "external-effect-deduplication",
+        "daemon",
+        "storage-pressure",
+        "broker-interruption",
+        "host-reboot",
+        "installed-browser"
+      ]
+    },
+    "isolation": {
+      "schema": "stage7-live-isolation/v1",
+      "candidateReleaseSha256": "1486b3aa2dccb7a21941140508280b5125d816452e708e13c7640ea120a2e66c",
+      "checks": {
+        "customerSessionIsolation": true,
+        "anonymousDenied": true,
+        "csrfRequired": true,
+        "unsignedCallbackDenied": true,
+        "invalidBackendCapabilityDenied": true,
+        "separateProjectCapabilityCannotReadReceipt": true,
+        "sourceUrlsDenial": {
+          "status": 422,
+          "code": "APPLICATION_URL_INVALID"
+        },
+        "callbackUrlDenial": {
+          "status": 403,
+          "code": "APPLICATION_DESTINATION_DENIED"
+        },
+        "privateAddressRegistrationDenied": true
+      },
+      "passed": true,
+      "productionAccepted": false
+    },
+    "application-lifecycle": {
+      "realCallbackReplayAndTamperProtection": true,
+      "canonicalKnowledgeReuse": true,
+      "freshRetrievalAndCanonicalSupersession": true,
+      "conservativeExactQuoteCorrectionSupersession": true,
+      "customerAndCoreExport": true
+    },
+    "business-faults": {
+      "schema": "stage7-business-faults/v1",
+      "cases": [
+        {
+          "name": "callback-outage-and-no-duplicate-business-effect",
+          "passed": true,
+          "seconds": 91.14,
+          "actualCallbackReceiverStopped": true,
+          "deliveryRecovered": true,
+          "nativeTaskCount": 1,
+          "businessEffectCount": 1,
+          "sameKeyReplayDeduplicated": true,
+          "noBrokerRecoveryIssued": true,
+          "receiptId": "dc118ed6-a986-4fe5-9dec-0f6dbd103669"
+        },
+        {
+          "name": "provider-outage-no-runtime-restart",
+          "passed": true,
+          "seconds": 22.438,
+          "actualProviderEgressRejected": true,
+          "failureExplicit": true,
+          "healthyRuntimeNotRestarted": true,
+          "noBrokerRecoveryIssued": true,
+          "nativeTaskCount": 1,
+          "businessEffectCount": 0,
+          "receiptId": "b1184f08-3b77-46ad-8f28-6675ba236699"
+        }
+      ],
+      "complete": true
+    },
+    "operations-api": {
+      "schema": "stage7-installed-operations-api/v1",
+      "anonymousDenied": true,
+      "realOwnerReadAllowed": true,
+      "mutationRouteAbsent": true,
+      "installationSecretsNotDisclosed": true,
+      "passed": true
+    },
+    "credential-lifecycle": {
+      "twoFreshScopedCredentialsWork": true,
+      "BrowserUseDenied": true,
+      "revocationEffectiveWithoutRevokingActiveCredential": true,
+      "realElapsedCredentialExpiry": true,
+      "elapsedSeconds": 63.888,
+      "createdCredentialsRevoked": true,
+      "passed": true
+    },
+    "privacy-acceptance": {
+      "nativeOwnerConfirmsKnowledgeReuse": true,
+      "actualNativeWorkerObservedRunning": true,
+      "runningCancellationSettledByNativeOwner": true,
+      "cancelledNativeAndCoreErasure": true,
+      "realOtherCustomerKnowledgeIsolated": true,
+      "newAdmissionsBlockedDuringAccountDeletion": true,
+      "coordinatedAppCoreMemoryNativeLiveStoreErasure": true,
+      "otherCustomerUnaffected": true,
+      "postDeletionExportScrubbedAndBackupLimitsExplicit": true
+    },
+    "update-suite": {
+      "schema": "stage7-signed-operations-update-suite/v1",
+      "cases": [
+        {
+          "name": "undeclared-payload-denied-before-mutation",
+          "unchangedControlState": true
+        },
+        {
+          "name": "real-failed-health-rollback",
+          "realColdRollback": true,
+          "schemaAndLogicalStatePreserved": true,
+          "highestAttempt": 2
+        },
+        {
+          "name": "consumed-attempt-replay-denied",
+          "highestAttemptPreserved": 2
+        },
+        {
+          "name": "real-schema-fault-rollback",
+          "realColdRollback": true,
+          "schemaAndLogicalStatePreserved": true,
+          "highestAttempt": 3
+        },
+        {
+          "name": "interrupted-transaction-explicit-recovery",
+          "realColdRollback": true,
+          "schemaAndLogicalStatePreserved": true,
+          "highestAttempt": 4
+        },
+        {
+          "name": "signed-successor-committed",
+          "newOperationsCodeExecuted": true,
+          "schemaAndLogicalStatePreserved": true,
+          "releaseSha256": "46dd5f09996f56640d4aa30d3cdedf7043080442a750ad5d9803ee28d83a0697",
+          "sequence": 5
+        }
+      ],
+      "complete": true,
+      "scope": "operations-only v2 identity; runtime images and application schemas unchanged",
+      "productionAccepted": false
+    },
+    "research-positive-control": {
+      "passed": true,
+      "receiptId": "7cc0b5bc-a433-4469-ac84-0f705af8672d",
+      "localRequestId": "f19de141-2c76-4dbe-9017-47bb766ef25b",
+      "canonicalRecordIds": [
+        "rec_ac8405cba63e449a98e6e2fd71e68318",
+        "rec_7a584d4d954e402db9b77ff0309a6639",
+        "rec_ae86ce2c4b8d4c0ab46fde68fa38a30a",
+        "rec_0db9a8c9086e46058d4ef7e69cf3f853"
+      ]
+    },
+    "multi-fact-reuse": {
+      "schema": "stage7-live-multifact-reuse/v1",
+      "passed": true,
+      "researchReceiptId": "7cc0b5bc-a433-4469-ac84-0f705af8672d",
+      "answerReceiptId": "14597d2b-5482-43d7-beee-09aaa2e4692e",
+      "canonicalFacts": 4,
+      "nativeEvidenceEntries": 4,
+      "uncompactedPlanSourceBytesLowerBound": 68852,
+      "existingPlanLimitBytes": 65536,
+      "customerAndCoreResultsReady": true,
+      "originalCompleteRecordsPreservedById": true,
+      "applicationReplaySameRequests": true,
+      "nativeOutcomesUnchangedAcrossReplay": true,
+      "nativeResultSha256": "b9a7eec64df271669b627b41244c515679cb41cbf83eb07f97a33b8f33d63cd4",
+      "nativeOrBusinessOutcomeEdits": false,
+      "resolves": "Original harness wrongly required record array ordering; no record fields differ",
+      "originalFailureRetained": true,
+      "stage7Accepted": false
+    },
+    "browser-result": {
+      "schema": "stage7-real-browser/v1",
+      "ownerOidcLogin": true,
+      "ownerDashboardReady": true,
+      "customerLogin": true,
+      "realModelResultVisible": true,
+      "separateStrictTlsProbesPassed": true,
+      "browserUsesQaSelfSignedException": true,
+      "productionRoutesChanged": false
+    },
+    "backup-receipt": {
+      "schema": "alica-cold-backup/v1",
+      "ciphertextSha256": "cf9655dd49924a49cf7fe7d278aa3fead0310bac249c3c6d659065991dc39cc1",
+      "encryptedBytes": 34816942,
+      "entries": 3230,
+      "plaintextBytes": 138220454,
+      "manifestSha256": "180f8de15f0b325b89e8b35fa6151151dd2b4deb4f2a0af01bde5c081287704c",
+      "sourceLeftQuiesced": true
+    },
+    "restore-result": {
+      "schema": "stage7-qa4-cold-restore-result/v1",
+      "releaseSha256": "1486b3aa2dccb7a21941140508280b5125d816452e708e13c7640ea120a2e66c",
+      "ciphertextSha256": "cf9655dd49924a49cf7fe7d278aa3fead0310bac249c3c6d659065991dc39cc1",
+      "allStagedAndRestoredBytesAndMetadataVerified": true,
+      "sevenContainersRecreated": true,
+      "nativeTasksAndSessionLinksPreserved": true,
+      "sevenServicesHealthy": true,
+      "existingCompletedReceiptReadable": true,
+      "nativeWorkObservedIdle": true,
+      "quarantineRetained": true,
+      "passed": true,
+      "productionAccepted": false
+    },
+    "cold-verified": {
+      "byteAndMetadataVerification": true,
+      "entries": 3230,
+      "releaseSha256": "1486b3aa2dccb7a21941140508280b5125d816452e708e13c7640ea120a2e66c",
+      "quarantineRetained": true
+    },
+    "extraction-receipt": {
+      "ciphertextSha256": "cf9655dd49924a49cf7fe7d278aa3fead0310bac249c3c6d659065991dc39cc1",
+      "manifestSha256": "180f8de15f0b325b89e8b35fa6151151dd2b4deb4f2a0af01bde5c081287704c",
+      "entriesVerified": 3230,
+      "authenticationVerified": true,
+      "contentsVerified": true,
+      "extracted": true
+    },
+    "update-control-state": {
+      "releaseSha256": "46dd5f09996f56640d4aa30d3cdedf7043080442a750ad5d9803ee28d83a0697",
+      "sequence": 5,
+      "highestAttempt": 5
+    },
+    "final-health": {
+      "passed": true,
+      "ownershipVerified": true,
+      "services": {
+        "postgresql": "healthy",
+        "keycloak": "healthy",
+        "hermes": "healthy",
+        "memory-v4": "healthy",
+        "unify-core": "healthy",
+        "uniui": "healthy",
+        "caddy": "healthy"
+      },
+      "nativeWork": {
+        "active": 0,
+        "counts": {
+          "done": 6
+        },
+        "source": "native-kanban-readonly",
+        "observed": true
+      },
+      "maintenance": false
+    }
+  },
+  "sourceSha256": {
+    "oidc-result": "017527f3df98f924b79b088e763d4caee2ed0c9f87b19896feaf1735ba7af3a4",
+    "first-acceptance": "9223c133cae0c4925da44395072fb5962e5e04e00b5005bc6db92e5d21677455",
+    "extended-host": "b83447493fbbc3130004d8db4132a1bd35ea845dfe6a159f9dd326fb0d884851",
+    "clean-install": "cccb4e76713fd63a6ebf27ac914417d4bdebf814abf98ce6f27c8562792c15b2",
+    "reboot-result": "2bd05f9c42d5192b69ce596049ea1f974bc417a460dbbeff379a181c05ec33df",
+    "hostile-boundary": "15f48cf09b98c60c0958bfeea34f2c0ad1c9831ff34b32d3cf6365470785b8d3",
+    "qualified-recurring-soak": "65a8128acd5c147c8e972ca5f59b740c64b5141b429929eb713eb5dc3bde6ed4",
+    "negative-acceptance": "d25fa6e1e2f69d705c03832da4df175747ed174d695070663a64e79226b1b8a7",
+    "host-operations": "85f1ea1400ba5ee5c210b91471a3f3de69774ece6df469c3a000f0d301f29235",
+    "isolation": "5466ef1f1c007419733005771c609e5ea3dc15370308e787f453a1b3825a351e",
+    "application-lifecycle": "3192d3e300adf13558d12f9fbc65b4f339576435b8f77fe5697d47c025c2fdb9",
+    "business-faults": "2f4dc9443e136e1840958a70dc082bdfb50ba140acc64ca45eb9ca7aebb8d70e",
+    "operations-api": "a81a4a87c08f576b8d82506e210653b72795233a2e74d3ed3b66d191036fdf3b",
+    "credential-lifecycle": "893ee27d8a2c02bcae5f67f3f89e65d9301b41cfa710fd26d631b91b636c76cc",
+    "privacy-acceptance": "2a0d76fd526e8f77f4e5ced761989518e6ecb0d9f07ca9752871b928ae43015e",
+    "update-suite": "9a475dbbf2153ac877b2cdf2af464f6fa53f901438369a4d2e35806fa853d2da",
+    "research-positive-control": "5ae43fb1ddf8a15aaab09c1d4f9b9d73e474dc25fccdfa5767abfb42fddb1242",
+    "multi-fact-reuse": "125e98906052f6e0dd5c01a56eeff253c1347e5d39244b77d0407e64fd3371ac",
+    "browser-result": "115176242acce9d7686d32d471cb3cf827b5bd3b22f5dae4febf7e38a433daed",
+    "backup-receipt": "1ff1dc7c7293a81082573c72f7d7f8dcf273e2a715ac2f36ece28a777ef59fd0",
+    "restore-result": "68e997cb2317349a07052bddc6696a09dff49c6cf1a052c84b4fc93532ab8e4e",
+    "cold-verified": "6c72abc00362975911e7145c679fe68e92618a134bac8b7d91b45a7d9f201a1b",
+    "extraction-receipt": "f9a31de869bc4de7c9a077b5e6844295895ca8851e152e9178e03a145e77ba14",
+    "update-control-state": "d87d6edd08bf2341cfd53f3d93f5b65fbbc576fc33662ea934dbe3452a9b9f00"
+  },
+  "redactedFields": []
+}

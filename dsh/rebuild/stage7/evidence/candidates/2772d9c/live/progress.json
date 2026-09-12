@@ -102,6 +102,156 @@
       "attempt": 3,
       "exitCode": 0,
       "seconds": 111.282
+    },
+    {
+      "name": "qualified_recurring_soak",
+      "attempt": 1,
+      "exitCode": 1,
+      "seconds": 3446.206
+    },
+    {
+      "name": "qualified_recurring_soak",
+      "attempt": 2,
+      "exitCode": 1,
+      "seconds": 1868.114
+    },
+    {
+      "name": "qualified_recurring_final_read",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 3.11
+    },
+    {
+      "name": "admission_negatives",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 2.969
+    },
+    {
+      "name": "hostile_question",
+      "attempt": 1,
+      "exitCode": 1,
+      "seconds": 20.624
+    },
+    {
+      "name": "hostile_boundary",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 7.514
+    },
+    {
+      "name": "application_lifecycle",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 77.846
+    },
+    {
+      "name": "owner_recovery",
+      "attempt": 1,
+      "exitCode": 2,
+      "seconds": 0.895
+    },
+    {
+      "name": "owner_recovery",
+      "attempt": 2,
+      "exitCode": 0,
+      "seconds": 4.094
+    },
+    {
+      "name": "owner_recovery_oidc",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 2.709
+    },
+    {
+      "name": "pre_reboot",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 1.606
+    },
+    {
+      "name": "real_reboot",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 70.526
+    },
+    {
+      "name": "cold_backup",
+      "attempt": 1,
+      "exitCode": 1,
+      "seconds": 33.089
+    },
+    {
+      "name": "cold_backup",
+      "attempt": 2,
+      "exitCode": 1,
+      "seconds": 66.923
+    },
+    {
+      "name": "cold_backup",
+      "attempt": 3,
+      "exitCode": 1,
+      "seconds": 1.97
+    },
+    {
+      "name": "cold_backup",
+      "attempt": 4,
+      "exitCode": 0,
+      "seconds": 68.566
+    },
+    {
+      "name": "cold_restore",
+      "attempt": 1,
+      "exitCode": 1,
+      "seconds": 165.724
+    },
+    {
+      "name": "cold_restore_final_read",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 2.27
+    },
+    {
+      "name": "initialize_update",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 8.202
+    },
+    {
+      "name": "update_suite",
+      "attempt": 1,
+      "exitCode": 1,
+      "seconds": 333.021
+    },
+    {
+      "name": "update_resume_interruption",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 122.796
+    },
+    {
+      "name": "privacy",
+      "attempt": 1,
+      "exitCode": 1,
+      "seconds": 47.625
+    },
+    {
+      "name": "privacy_after_cancellation",
+      "attempt": 1,
+      "exitCode": 1,
+      "seconds": 221.529
+    },
+    {
+      "name": "privacy_existing_governed_control",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 222.58
+    },
+    {
+      "name": "post_privacy_safeguard",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 76.279
     }
   ],
   "passed": false,
@@ -109,5 +259,8 @@
   "fixtureCorrection": "Raw id and OIDC renewal corrected. Callback denial requires exact APPLICATION_DESTINATION_DENIED/403, not an authentication error. Prior failed fixture attempts retained.",
   "scope": "Partial runtime gates only; overall Stage 7 acceptance requires independent final verdict",
   "rehearsalDisposition": "Four-result recurrence is rehearsal only. Qualified run requires fresh eight results and >=1800 actual elapsed seconds.",
-  "externalAppFixtureDisposition": "Reference app is outside seven-service owner, restart=no; explicitly restarted after Docker-daemon disruption before business tests."
+  "externalAppFixtureDisposition": "Reference app is outside seven-service owner, restart=no; explicitly restarted after Docker-daemon disruption before business tests.",
+  "qualifiedAttempt1Disposition": "FAIL: initial backend credential expired; native no-progress cancellation completed. Original native final state and grant/start/restart files retained with hashes. Supported owner API issued replacement credential for a fresh independent run; no native outcome edits.",
+  "qualifiedRecurrenceExecuted": true,
+  "qualifiedAttempt2Disposition": "Native runtime completed eight events over >=1800 real seconds. Initial final aggregate-state read hit QA client size bound; failed log retained. Separate read-only verifier rechecked unchanged native and Core outcomes and all eight governed customer results with bounded aggregate reader."
 }

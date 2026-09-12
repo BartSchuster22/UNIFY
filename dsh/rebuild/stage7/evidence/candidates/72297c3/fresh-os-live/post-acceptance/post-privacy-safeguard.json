@@ -1,0 +1,30 @@
+{
+  "schema": "stage7-post-privacy-safeguard/v1",
+  "receipt": {
+    "schema": "alica-cold-backup/v1",
+    "ciphertextSha256": "db01f583fafa1a6c891cb3cbaa8caa0ef79b075cc8821aa148f7aaa037bbf8ef",
+    "encryptedBytes": 1972834984,
+    "entries": 22335,
+    "plaintextBytes": 5228979640,
+    "manifestSha256": "0af96a7c9e1422edd6d2ead28df6d728d011cbe9ab45b3d940fafc83ddfc4da0",
+    "sourceLeftQuiesced": true
+  },
+  "elioVerification": {
+    "ciphertextSha256": "db01f583fafa1a6c891cb3cbaa8caa0ef79b075cc8821aa148f7aaa037bbf8ef",
+    "manifestSha256": "0af96a7c9e1422edd6d2ead28df6d728d011cbe9ab45b3d940fafc83ddfc4da0",
+    "entriesVerified": 22335,
+    "authenticationVerified": true,
+    "contentsVerified": true,
+    "extracted": false
+  },
+  "developmentVerification": {
+    "ciphertextSha256": "db01f583fafa1a6c891cb3cbaa8caa0ef79b075cc8821aa148f7aaa037bbf8ef",
+    "manifestSha256": "0af96a7c9e1422edd6d2ead28df6d728d011cbe9ab45b3d940fafc83ddfc4da0",
+    "entriesVerified": 22335,
+    "authenticationVerified": true,
+    "contentsVerified": true,
+    "extracted": false
+  },
+  "sourceLeftQuiesced": true,
+  "doesNotRestoreDeletedCustomers": true
+}

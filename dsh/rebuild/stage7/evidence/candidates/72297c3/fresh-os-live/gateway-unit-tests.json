@@ -1,0 +1,7 @@
+{
+  "kind": "Unit regression tests; labelled mocks, not live qualification",
+  "gatewaySourceRevision": "72297c3",
+  "testFilesPassed": 29,
+  "testsPassed": 238,
+  "logSha256": "7ca686c842f2d3b1c2864fc98cdd8677575fa5eb637bf75107294849934ee26c"
+}

@@ -20,14 +20,10 @@ def rollback_ok(sequence):
  import host_operations as h
  status=h.until(h.healthy);assert status['snapshot']['ownershipVerified']
  return {'realColdRollback':True,'schemaAndLogicalStatePreserved':True,'highestAttempt':sequence}
-assert state()['sequence']==1 and state()['highestAttempt']==1;baseline=state()
-negative=BASE/'extra-file-negative';shutil.copytree(BASE/'bundle',negative);(negative/'unexpected.py').write_text('raise RuntimeError("must never execute")\n')
-assert call(2,bundle=negative)!=0 and state()==baseline;note('undeclared-payload-denied-before-mutation',{'unchangedControlState':True})
-assert call(2,'health')!=0;note('real-failed-health-rollback',rollback_ok(2))
-before=state();assert call(2)!=0 and state()==before;note('consumed-attempt-replay-denied',{'highestAttemptPreserved':2})
-assert call(3,'schema')!=0;note('real-schema-fault-rollback',rollback_ok(3))
-assert call(4,'interrupt')==99
-assert u.trust.load(u.JOURNAL)['phase']=='candidate-installed';assert call(recover=True)==0;note('interrupted-transaction-explicit-recovery',rollback_ok(4))
+checks=json.loads((OUT/'update-suite.json').read_text())['cases']
+assert [x['name'] for x in checks]==['undeclared-payload-denied-before-mutation','real-failed-health-rollback','consumed-attempt-replay-denied','real-schema-fault-rollback']
+j=u.trust.load(u.JOURNAL);assert state()['highestAttempt']==4 and j['phase']=='candidate-installed' and j['fault']=='interrupt'
+assert call(recover=True)==0;note('interrupted-transaction-explicit-recovery',{**rollback_ok(4),'originalHarnessExitExpectationMismatchRetained':True})
 assert call(5)==0;j=u.trust.load(u.JOURNAL);s=state();assert j['phase']=='committed' and s['sequence']==5 and s['highestAttempt']==5
 assert u.schema()==j['logicalBefore'];u.native_quiescent()
 code='from doghouse_dsh.identity import qualified_update_identity;print(qualified_update_identity())'

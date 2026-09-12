@@ -1,6 +1,8 @@
 # Stage 7.1–7.3 — independent acceptance
 
-**IN PROGRESS. No Stage 7 acceptance or production approval.**
+**Stage 7.1–7.3 independently qualified on fresh OS. No production or Stage 7.4–7.6 approval.**
+
+The current scoped verdict and measured evidence are in [FINAL-QA4.md](FINAL-QA4.md). Earlier QA3 preparation is preserved in [QUALIFICATION-QA3.md](QUALIFICATION-QA3.md); no predecessor PASS is inherited.
 
 Authorized by the user's request to start and complete 7.1–7.3. Production routes, PSI, licences and Stage 7.4–7.6 are outside this task.
 
@@ -15,7 +17,7 @@ Authorized by the user's request to start and complete 7.1–7.3. Production rou
 - Repeat recovery plus authenticated off-host restore and signed update/rollback against this run's actual source identities. A stage-specific earlier PASS is not an independent rerun.
 - Every blocker or conflicting historical PASS receives a traceable disposition and real rerun. Mark unexecuted/failed gates explicitly; no aggregate PASS with missing evidence.
 
-## Prerequisites found
+## Prerequisites found during original preparation (historical)
 
 - The live public release listing exposes Stage 2 and historical D6 artifacts only.
 - DSH2 provider identity was reverified through the live API; its accepted QA5 services remain running during preparation.

@@ -25,7 +25,10 @@ def http(base,path,method='GET',body=None,headers=None,raw=None) -> tuple[int, A
  try:r=client.open(req,timeout=30)
  except urllib.error.HTTPError as e:r=e
  with r:
-  data=r.read(262145);assert len(data)<=262144
+  # The aggregate state/export contains multiple individually bounded results.
+  # Keep other responses at 256 KiB; never change product request/result limits.
+  limit=4*1024*1024 if base==APP and method=='GET' and path in ('/api/state','/api/export') else 262144
+  data=r.read(limit+1);assert len(data)<=limit
   try:data=json.loads(data)
   except (ValueError,UnicodeError):data=data.decode(errors='replace')
   assert isinstance(r.status,int)

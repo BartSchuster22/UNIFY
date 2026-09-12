@@ -1,0 +1,193 @@
+{
+  "schema": "stage7-qa4-live-run/v1",
+  "releaseSha256": "1486b3aa2dccb7a21941140508280b5125d816452e708e13c7640ea120a2e66c",
+  "stages": [
+    {
+      "name": "stage_qa_tools",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 0.523
+    },
+    {
+      "name": "clean_install",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 253.604
+    },
+    {
+      "name": "oidc",
+      "attempt": 1,
+      "exitCode": 1,
+      "seconds": 1.261
+    },
+    {
+      "name": "oidc",
+      "attempt": 2,
+      "exitCode": 0,
+      "seconds": 12.16
+    },
+    {
+      "name": "native_provider",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 2.187
+    },
+    {
+      "name": "reference_image",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 0.736
+    },
+    {
+      "name": "setup_reference",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 7.509
+    },
+    {
+      "name": "first_request",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 35.573
+    },
+    {
+      "name": "operations_api",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 0.809
+    },
+    {
+      "name": "isolation",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 12.227
+    },
+    {
+      "name": "multi_fact_reuse",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 66.064
+    },
+    {
+      "name": "application_lifecycle",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 87.331
+    },
+    {
+      "name": "admission_negatives",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 3.569
+    },
+    {
+      "name": "recurring_soak",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 1853.923
+    },
+    {
+      "name": "stage_browser_evidence_and_signed_update",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 0.514
+    },
+    {
+      "name": "credential_lifecycle",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 63.485
+    },
+    {
+      "name": "host_operations",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 135.17
+    },
+    {
+      "name": "extended_host",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 179.892
+    },
+    {
+      "name": "external_reference_start_after_daemon",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 1.183
+    },
+    {
+      "name": "business_faults",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 113.264
+    },
+    {
+      "name": "hostile_boundary",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 68.536
+    },
+    {
+      "name": "owner_recovery",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 10.633
+    },
+    {
+      "name": "owner_recovery_oidc",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 6.311
+    },
+    {
+      "name": "pre_reboot",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 1.592
+    },
+    {
+      "name": "real_reboot",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 82.4
+    },
+    {
+      "name": "cold_backup",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 72.813
+    },
+    {
+      "name": "cold_restore",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 79.891
+    },
+    {
+      "name": "signed_base_admission",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 30.852
+    },
+    {
+      "name": "signed_update_suite",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 456.102
+    },
+    {
+      "name": "privacy",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 143.587
+    }
+  ],
+  "passed": false,
+  "productionAccepted": false,
+  "qa4RecurrenceExecuted": true,
+  "remaining": [
+    "final-evidence-review-and-publication"
+  ],
+  "runtimeRecoveryPrivacyGatesExecuted": true
+}

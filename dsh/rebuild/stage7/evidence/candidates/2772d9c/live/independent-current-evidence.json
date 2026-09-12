@@ -1,0 +1,592 @@
+{
+  "reports": {
+    "oidc-result": {
+      "wrong_password_denied": true,
+      "former_owner_password_denied_after_recovery": true,
+      "mandatory_password_change": true,
+      "real_core_identity_session": true,
+      "native_inventory_through_identity_session": true
+    },
+    "first-acceptance": {
+      "independentCustomerLogin": true,
+      "anonymousAndMissingCsrfDenied": true,
+      "localRequestId": "0f31e3d5-1db3-4f95-828e-7a8b7708a23e",
+      "appIdempotency": true,
+      "customerIsolation": true,
+      "finalState": "result-ready",
+      "elapsedSeconds": 35.88,
+      "realEndToEndResult": true,
+      "result": {
+        "answer": "   To safely satisfy these needs, four domain names are reserved as\n   listed and described below.\n\n                   .test\n                .example\n                .invalid\n              .localhost\n\n      \".test\" is recommended for use in testing of current or new DNS\n      related code.\n\n      \".example\" is recommended for use in documentation or as examples.\n\n      \".invalid\" is intended for use in online construction of domain\n      names that are sure to be invalid and which it is obvious at a\n      glance are invalid.\n\n      The \".localhost\" TLD has traditionally been statically defined in\n      host DNS implementations as having an A record pointing to the\n      loop back IP address and is reserved for such use.  Any other use\n      would conflict with widely deployed code which assumes this use.",
+        "knowledge": [
+          {
+            "quote": "   To safely satisfy these needs, four domain names are reserved as\n   listed and described below.\n\n                   .test\n                .example\n                .invalid\n              .localhost",
+            "recordId": "rec_0546d0395e88454988b8292cae02700e",
+            "source": {
+              "excerpt": "\n\n\n\n\n\nNetwork Working Group                                     D. Eastlake\nRequest for Comments: 2606                                  A. Panitz\nBCP: 32                                                     June 1999\nCategory: Best Current Practice\n\n\n                      Reserved Top Level DNS Names\n\nStatus of this Memo\n\n   This document specifies an Internet Best Current Practices for the\n   Internet Community, and requests discussion and suggestions for\n   improvements.  Distribution of this memo is unlimited.\n\nCopyright Notice\n\n   Copyright (C) The Internet Society (1999).  All Rights Reserved.\n\nAbstract\n\n   To reduce the likelihood of conflict and confusion, a few top level\n   domain names are reserved for use in private testing, as examples in\n   documentation, and the like.  In addition, a few second level domain\n   names reserved for use as examples are documented.\n\nTable of Contents\n\n   1. Introduction............................................1\n   2. TLDs for Testing, & Documentation Examples..............2\n   3. Reserved Example Second Level Domain Names..............2\n   4. IANA Considerations.....................................3\n   5. Security Considerations.................................3\n   References.................................................3\n   Authors' Addresses.........................................4\n   Full Copyright Statement...................................5\n\n1. Introduction\n\n   The global Internet Domain Name System is documented in [RFC 1034,\n   1035, 1591] and numerous additional Requests for Comment.  It defines\n   a tree of names starting with root, \".\", immediately below which are\n   top level domain names such as \".com\" and \".us\". Below top level\n   domain names there are normally additional levels of names.\n\n\n\n\n\n\n\n\nEastlake & Panitz        Best Current Practice                  [Page 1]\n\f\nRFC 2606              Reserved Top Level DNS Names             June 1999\n\n\n2. TLDs for Testing, & Documentation Examples\n\n   There is a need for top level domain (TLD) names that can be used for\n   creating names which, without fear of conflicts with current or\n   future actual TLD names in the global DNS, can be used for private\n   testing of existing DNS related code, examples in documentation, DNS\n   related experimentation, invalid DNS names, or other similar uses.\n\n   For example, without guidance, a site might set up some local\n   additional unused top level domains for testing of its local DNS code\n   and configuration. Later, these TLDs might come into actual use on\n   the global Internet.  As a result, local attempts to reference the\n   real data in these zones could be thwarted by the local test\n   versions.  Or test or example code might be written that accesses a\n   TLD that is in use with the thought that the test code would only be\n   run in a restricted testbed net or the example never actually run.\n   Later, the test code could escape from the testbed or the example be\n   actually coded and run on the Internet. Depending on the nature of\n   the test or example, it might be best for it to be referencing a TLD\n   permanently reserved for such purposes.\n\n   To safely satisfy these needs, four domain names are reserved as\n   listed and described below.\n\n                   .test\n                .example\n                .invalid\n              .localhost\n\n      \".test\" is recommended for use in testing of current or new DNS\n      related code.\n\n      \".example\" is recommended for use in documentation or as examples.\n\n      \".invalid\" is intended for use in online construction of domain\n      names that are sure to be invalid and which it is obvious at a\n      glance are invalid.\n\n      The \".localhost\" TLD has traditionally been statically defined in\n      host DNS implementations as having an A record pointing to the\n      loop back IP address and is reserved for such use.  Any other use\n      would conflict with widely deployed code which assumes this use.\n\n3. Reserved Example Second Level Domain Names\n\n   The Internet Assigned Numbers Authority (IANA) also currently has the\n   following second level domain names reserved which can be used as\n   examples.\n\n\n\nEastlake & Panitz        Best Current Practice                  [Page 2]\n\f\nRFC 2606              Reserved Top Level DNS Names             June 1999\n\n\n        example.com\n        example.net\n        example.org\n\n4. IANA Considerations\n\n   IANA has agreed to the four top level domain name reservations\n   specified in this document and will reserve them for the uses\n   indicated.\n\n5. Security Considerations\n\n   Confusion and conflict can be caused by the use of a current or\n   future top level domain name in experimentation or testing, as an\n   example in documentation, to indicate invalid names, or as a synonym\n   for the loop back address.  Test and experimental software can escape\n   and end up being run against the global operational DNS.  Even\n   examples used \"only\" in documentation can end up being coded and\n   released or cause conflicts due to later real use and the possible\n   acquisition of intellectual property rights in such \"example\" names.\n\n   The reservation of several top level domain names for these purposes\n   will minimize such confusion and conflict.\n\nReferences\n\n   [RFC 1034] Mockapetris, P., \"Domain names - concepts and facilities\",\n              STD 13, RFC 1034, November 1987.\n\n   [RFC 1035] Mockapetris, P., \"Domain names - implementation and\n              specification\", STD 13, RFC 1035, November 1987.\n\n   [RFC 1591] Postel, J., \"Domain Name System Structure and Delegation\",\n              RFC 1591, March 1994.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEastlake & Panitz        Best Current Practice                  [Page 3]\n\f\nRFC 2606              Reserved Top Level DNS Names             June 1999\n\n\nAuthors' Addresses\n\n   Donald E. Eastlake 3rd\n   IBM\n   65 Shindegan Hill Road, RR #1\n   Carmel, NY 10512\n\n   Phone: +1 914-276-1668(h)\n          +1 914-784-7913(w)\n   FAX:   +1 914-784-3833(3)\n   EMail: dee3@us.ibm.com\n\n\n   Aliza R. Panitz\n   500 Stamford Dr. No. 310\n   Newark, DE 19711 USA\n\n   Phone: +1 302-738-1554\n   EMail: buglady@fuschia.net\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEastlake & Panitz        Best Current Practice                  [Page 4]\n\f\nRFC 2606              Reserved Top Level DNS Names             June 1999\n\n\nFull Copyright Statement\n\n   Copyright (C) The Internet Society (1999).  All Rights Reserved.\n\n   This document and translations of it may be copied and furnished to\n   others, and derivative works that comment on or otherwise explain it\n   or assist in its implementation may be prepared, copied, published\n   and distributed, in whole or in part, without restriction of any\n   kind, provided that the above copyright notice and this paragraph are\n   included on all such copies and derivative works.  However, this\n   document itself may not be modified in any way, such as by removing\n   the copyright notice or references to the Internet Society or other\n   Internet organizations, except as needed for the purpose of\n   developing Internet standards in which case the procedures for\n   copyrights defined in the Internet Standards process must be\n   followed, or as required to translate it into languages other than\n   English.\n\n   The limited permissions granted above are perpetual and will not be\n   revoked by the Internet Society or its successors or assigns.\n\n   This document and the information contained herein is provided on an\n   \"AS IS\" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING\n   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING\n   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION\n   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF\n   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.\n\nAcknowledgement\n\n   Funding for the RFC Editor function is currently provided by the\n   Internet Society.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEastlake & Panitz        Best Current Practice                  [Page 5]\n\f\n",
+              "metadata": {
+                "runId": "6080568f-df1b-4324-b30a-e92a90151555",
+                "sourceId": "8a5e9b9a0bd7a38b54d9fd8602b105f9bbd2f25edbc0a46f29ac25a2cc522e33",
+                "toolName": "application-runtime.source-context/v1"
+              },
+              "retrievedAt": "2026-09-12T10:11:46.448668+00:00",
+              "sha256": "b6869c8984701701bc2e6973b6ffc750d497f845cc1a65a106e9301590a13ab0",
+              "url": "https://www.rfc-editor.org/rfc/rfc2606.txt"
+            }
+          },
+          {
+            "quote": "      \".test\" is recommended for use in testing of current or new DNS\n      related code.\n\n      \".example\" is recommended for use in documentation or as examples.\n\n      \".invalid\" is intended for use in online construction of domain\n      names that are sure to be invalid and which it is obvious at a\n      glance are invalid.\n\n      The \".localhost\" TLD has traditionally been statically defined in\n      host DNS implementations as having an A record pointing to the\n      loop back IP address and is reserved for such use.  Any other use\n      would conflict with widely deployed code which assumes this use.",
+            "recordId": "rec_b8b195f9782048b69a5eae1f4e5338bf",
+            "source": {
+              "excerpt": "\n\n\n\n\n\nNetwork Working Group                                     D. Eastlake\nRequest for Comments: 2606                                  A. Panitz\nBCP: 32                                                     June 1999\nCategory: Best Current Practice\n\n\n                      Reserved Top Level DNS Names\n\nStatus of this Memo\n\n   This document specifies an Internet Best Current Practices for the\n   Internet Community, and requests discussion and suggestions for\n   improvements.  Distribution of this memo is unlimited.\n\nCopyright Notice\n\n   Copyright (C) The Internet Society (1999).  All Rights Reserved.\n\nAbstract\n\n   To reduce the likelihood of conflict and confusion, a few top level\n   domain names are reserved for use in private testing, as examples in\n   documentation, and the like.  In addition, a few second level domain\n   names reserved for use as examples are documented.\n\nTable of Contents\n\n   1. Introduction............................................1\n   2. TLDs for Testing, & Documentation Examples..............2\n   3. Reserved Example Second Level Domain Names..............2\n   4. IANA Considerations.....................................3\n   5. Security Considerations.................................3\n   References.................................................3\n   Authors' Addresses.........................................4\n   Full Copyright Statement...................................5\n\n1. Introduction\n\n   The global Internet Domain Name System is documented in [RFC 1034,\n   1035, 1591] and numerous additional Requests for Comment.  It defines\n   a tree of names starting with root, \".\", immediately below which are\n   top level domain names such as \".com\" and \".us\". Below top level\n   domain names there are normally additional levels of names.\n\n\n\n\n\n\n\n\nEastlake & Panitz        Best Current Practice                  [Page 1]\n\f\nRFC 2606              Reserved Top Level DNS Names             June 1999\n\n\n2. TLDs for Testing, & Documentation Examples\n\n   There is a need for top level domain (TLD) names that can be used for\n   creating names which, without fear of conflicts with current or\n   future actual TLD names in the global DNS, can be used for private\n   testing of existing DNS related code, examples in documentation, DNS\n   related experimentation, invalid DNS names, or other similar uses.\n\n   For example, without guidance, a site might set up some local\n   additional unused top level domains for testing of its local DNS code\n   and configuration. Later, these TLDs might come into actual use on\n   the global Internet.  As a result, local attempts to reference the\n   real data in these zones could be thwarted by the local test\n   versions.  Or test or example code might be written that accesses a\n   TLD that is in use with the thought that the test code would only be\n   run in a restricted testbed net or the example never actually run.\n   Later, the test code could escape from the testbed or the example be\n   actually coded and run on the Internet. Depending on the nature of\n   the test or example, it might be best for it to be referencing a TLD\n   permanently reserved for such purposes.\n\n   To safely satisfy these needs, four domain names are reserved as\n   listed and described below.\n\n                   .test\n                .example\n                .invalid\n              .localhost\n\n      \".test\" is recommended for use in testing of current or new DNS\n      related code.\n\n      \".example\" is recommended for use in documentation or as examples.\n\n      \".invalid\" is intended for use in online construction of domain\n      names that are sure to be invalid and which it is obvious at a\n      glance are invalid.\n\n      The \".localhost\" TLD has traditionally been statically defined in\n      host DNS implementations as having an A record pointing to the\n      loop back IP address and is reserved for such use.  Any other use\n      would conflict with widely deployed code which assumes this use.\n\n3. Reserved Example Second Level Domain Names\n\n   The Internet Assigned Numbers Authority (IANA) also currently has the\n   following second level domain names reserved which can be used as\n   examples.\n\n\n\nEastlake & Panitz        Best Current Practice                  [Page 2]\n\f\nRFC 2606              Reserved Top Level DNS Names             June 1999\n\n\n        example.com\n        example.net\n        example.org\n\n4. IANA Considerations\n\n   IANA has agreed to the four top level domain name reservations\n   specified in this document and will reserve them for the uses\n   indicated.\n\n5. Security Considerations\n\n   Confusion and conflict can be caused by the use of a current or\n   future top level domain name in experimentation or testing, as an\n   example in documentation, to indicate invalid names, or as a synonym\n   for the loop back address.  Test and experimental software can escape\n   and end up being run against the global operational DNS.  Even\n   examples used \"only\" in documentation can end up being coded and\n   released or cause conflicts due to later real use and the possible\n   acquisition of intellectual property rights in such \"example\" names.\n\n   The reservation of several top level domain names for these purposes\n   will minimize such confusion and conflict.\n\nReferences\n\n   [RFC 1034] Mockapetris, P., \"Domain names - concepts and facilities\",\n              STD 13, RFC 1034, November 1987.\n\n   [RFC 1035] Mockapetris, P., \"Domain names - implementation and\n              specification\", STD 13, RFC 1035, November 1987.\n\n   [RFC 1591] Postel, J., \"Domain Name System Structure and Delegation\",\n              RFC 1591, March 1994.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEastlake & Panitz        Best Current Practice                  [Page 3]\n\f\nRFC 2606              Reserved Top Level DNS Names             June 1999\n\n\nAuthors' Addresses\n\n   Donald E. Eastlake 3rd\n   IBM\n   65 Shindegan Hill Road, RR #1\n   Carmel, NY 10512\n\n   Phone: +1 914-276-1668(h)\n          +1 914-784-7913(w)\n   FAX:   +1 914-784-3833(3)\n   EMail: dee3@us.ibm.com\n\n\n   Aliza R. Panitz\n   500 Stamford Dr. No. 310\n   Newark, DE 19711 USA\n\n   Phone: +1 302-738-1554\n   EMail: buglady@fuschia.net\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEastlake & Panitz        Best Current Practice                  [Page 4]\n\f\nRFC 2606              Reserved Top Level DNS Names             June 1999\n\n\nFull Copyright Statement\n\n   Copyright (C) The Internet Society (1999).  All Rights Reserved.\n\n   This document and translations of it may be copied and furnished to\n   others, and derivative works that comment on or otherwise explain it\n   or assist in its implementation may be prepared, copied, published\n   and distributed, in whole or in part, without restriction of any\n   kind, provided that the above copyright notice and this paragraph are\n   included on all such copies and derivative works.  However, this\n   document itself may not be modified in any way, such as by removing\n   the copyright notice or references to the Internet Society or other\n   Internet organizations, except as needed for the purpose of\n   developing Internet standards in which case the procedures for\n   copyrights defined in the Internet Standards process must be\n   followed, or as required to translate it into languages other than\n   English.\n\n   The limited permissions granted above are perpetual and will not be\n   revoked by the Internet Society or its successors or assigns.\n\n   This document and the information contained herein is provided on an\n   \"AS IS\" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING\n   TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING\n   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION\n   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF\n   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.\n\nAcknowledgement\n\n   Funding for the RFC Editor function is currently provided by the\n   Internet Society.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEastlake & Panitz        Best Current Practice                  [Page 5]\n\f\n",
+              "metadata": {
+                "runId": "6080568f-df1b-4324-b30a-e92a90151555",
+                "sourceId": "8a5e9b9a0bd7a38b54d9fd8602b105f9bbd2f25edbc0a46f29ac25a2cc522e33",
+                "toolName": "application-runtime.source-context/v1"
+              },
+              "retrievedAt": "2026-09-12T10:11:46.448668+00:00",
+              "sha256": "b6869c8984701701bc2e6973b6ffc750d497f845cc1a65a106e9301590a13ab0",
+              "url": "https://www.rfc-editor.org/rfc/rfc2606.txt"
+            }
+          }
+        ],
+        "quarantined": 0,
+        "receiptId": "6080568f-df1b-4324-b30a-e92a90151555",
+        "uncertainty": false
+      },
+      "receiptId": "6080568f-df1b-4324-b30a-e92a90151555",
+      "delivery": {
+        "id": "75bb3b98-6600-485d-bcfa-8a47109f4c26",
+        "state": "delivered",
+        "attempt": 1,
+        "next_attempt_at": "2026-09-12T10:12:08.133Z",
+        "last_error": null,
+        "delivered_at": "2026-09-12T10:12:08.455Z"
+      }
+    },
+    "extended-host": {
+      "schema": "stage7-extended-host/v1",
+      "cases": [
+        {
+          "name": "database-dependency-failure",
+          "passed": true,
+          "seconds": 14.454,
+          "databaseNotAutoRestarted": true,
+          "dependentRestartSuppressed": true,
+          "noRecoveryIssued": true
+        },
+        {
+          "name": "guest-docker-daemon-unavailable",
+          "passed": true,
+          "seconds": 78.214,
+          "actualGuestDaemonStopped": true,
+          "unknownNotHealthy": true,
+          "noRecoveryIssued": true,
+          "readinessReturned": true
+        },
+        {
+          "name": "real-storage-probe-pressure",
+          "passed": true,
+          "seconds": 3.095,
+          "actualStatvfsPressure": true,
+          "probe": "isolated-16MiB-tmpfs",
+          "originalThresholdUnchanged": true,
+          "dataFilesystemNotFilled": true,
+          "configurationRestoredExactly": true,
+          "noRecoveryIssued": true
+        },
+        {
+          "name": "broker-interrupted-during-issued-action",
+          "passed": true,
+          "seconds": 67.839,
+          "realIssuedActionInterrupted": true,
+          "uncertainPersistedAcrossBrokerRestart": true,
+          "blindReplayDenied": true,
+          "explicitOperatorAcknowledgement": true,
+          "noDatabaseRowsInjected": true
+        }
+      ],
+      "complete": true
+    },
+    "qualification-credential-rotation": {
+      "supportedOwnerCredentialRotation": true,
+      "expiredCredentialDenied": true,
+      "newCredentialWorks": true,
+      "oldCredentialRevoked": true,
+      "ttlSeconds": 14400,
+      "businessOutcomeEdits": false,
+      "failedRunNotAccepted": true
+    },
+    "clean-install": {
+      "schema": "stage7-clean-install/v1",
+      "candidateSha256": "43a98d80cb49223e76be72b040913826552ba82cdd209e065d9e18162d4c68c6",
+      "releaseSha256": "26ccaff3c5539288dda0a0e9b60fa7187fb64b70c772f104e1c0068efbed2b01",
+      "downloadedOnTarget": true,
+      "admission": {
+        "artifactsVerified": 17,
+        "installationPerformed": false,
+        "keyId": "9b02c8bc02a6b8081031519e192bd508f74d305d1dab9fe28af4440e8b833ac6",
+        "releaseSha256": "26ccaff3c5539288dda0a0e9b60fa7187fb64b70c772f104e1c0068efbed2b01",
+        "sbomProvenanceGateComplete": false,
+        "schemaCompatibilityProven": false,
+        "scope": "qa",
+        "sequence": 1,
+        "signatureVerified": true,
+        "wholeStage6Accepted": false
+      },
+      "cleanDockerBefore": true,
+      "noStateRestored": true,
+      "cpuCount": 4,
+      "memoryTotalBytes": 8122310656,
+      "diskAvailableBeforeBytes": 64370683904,
+      "bootId": "b7ef7ed6-55f7-4720-bf16-080adb41a35b",
+      "stage7Accepted": false,
+      "installExit": 0,
+      "seconds": 209.102,
+      "peakHostNonAvailableBytes": 1984163840,
+      "operationsEnrolled": true,
+      "containers": [
+        {
+          "name": "/dsh2-stage7-qa3-caddy-1",
+          "image": "sha256:6a107c5750be160c6b2b909d2329d73e6e4589b618dfcde00bc8145ddd20194f",
+          "running": true,
+          "health": "healthy",
+          "oomKilled": false,
+          "memoryLimit": 67108864,
+          "nanoCpus": 50000000,
+          "pidsLimit": 128
+        },
+        {
+          "name": "/dsh2-stage7-qa3-uniui-1",
+          "image": "sha256:5e981ddd106e7c591850f6c7bda25ebe667d96b71db14afc085898c0b7b7e064",
+          "running": true,
+          "health": "healthy",
+          "oomKilled": false,
+          "memoryLimit": 134217728,
+          "nanoCpus": 100000000,
+          "pidsLimit": 128
+        },
+        {
+          "name": "/dsh2-stage7-qa3-unify-core-1",
+          "image": "sha256:40156a00c8968ab082bd327bc16229f46834bd18305be2ab48f54076abadd5e2",
+          "running": true,
+          "health": "healthy",
+          "oomKilled": false,
+          "memoryLimit": 402653184,
+          "nanoCpus": 250000000,
+          "pidsLimit": 128
+        },
+        {
+          "name": "/dsh2-stage7-qa3-keycloak-1",
+          "image": "sha256:b6fa492fadbe4b41fb70af150ccf665f6bae371c412bdeb4c27a0ee113158bec",
+          "running": true,
+          "health": "healthy",
+          "oomKilled": false,
+          "memoryLimit": 805306368,
+          "nanoCpus": 750000000,
+          "pidsLimit": 128
+        },
+        {
+          "name": "/dsh2-stage7-qa3-hermes-1",
+          "image": "sha256:96ed2f016fb159f48058f668a3baccd2d8154644dfd3519b9e683c4e7c636bd9",
+          "running": true,
+          "health": "healthy",
+          "oomKilled": false,
+          "memoryLimit": 1073741824,
+          "nanoCpus": 750000000,
+          "pidsLimit": 192
+        },
+        {
+          "name": "/dsh2-stage7-qa3-memory-v4-1",
+          "image": "sha256:17c114de04013eedaf12be909730bc27a76fb605478e1f23dab509953093356d",
+          "running": true,
+          "health": "healthy",
+          "oomKilled": false,
+          "memoryLimit": 268435456,
+          "nanoCpus": 200000000,
+          "pidsLimit": 128
+        },
+        {
+          "name": "/dsh2-stage7-qa3-postgresql-1",
+          "image": "sha256:5c773214aed7adab0900cd0a05dbc468348f76fe1e4c2ca5b0e222e9531f7811",
+          "running": true,
+          "health": "healthy",
+          "oomKilled": false,
+          "memoryLimit": 268435456,
+          "nanoCpus": 250000000,
+          "pidsLimit": 128
+        }
+      ],
+      "operationsHealthy": true,
+      "operationUnits": [
+        "active",
+        "active",
+        "active"
+      ],
+      "passed": true
+    },
+    "reboot-result": {
+      "schema": "stage7-real-reboot/v1",
+      "realBootIdChanged": true,
+      "allSevenServicesHealthy": true,
+      "containerIdentitiesPreserved": true,
+      "ownerTransactionAndSecretsPreserved": true,
+      "nativeTasksUnchanged": true,
+      "completedReceiptPreserved": true,
+      "noAutomaticBusinessReplay": true,
+      "passed": true,
+      "wholeStage7Accepted": false
+    },
+    "hostile-boundary": {
+      "passed": true,
+      "hostileReceiptId": "e5a9146f-c0f8-4097-ad28-1d5eee61ac60",
+      "positiveControlReceiptId": "d829fce7-3984-4190-87c6-62af7148f9a2",
+      "hostileInputOutcome": "rejected-without-result",
+      "hostileTaskTerminal": true,
+      "hostileNativeRecordedToolCalls": 0,
+      "hostileNoEvidenceOrPromotion": true,
+      "freshBenignResearchControlPassed": true,
+      "controlEvidenceRestrictedToApprovedRfc": true,
+      "modelRefusalAttributed": false,
+      "universalPromptInjectionResistanceClaim": false,
+      "originalAnswerOnlyProbeRetainedAsFailed": true,
+      "hostileFixtureErasedViaOwnerApi": true
+    },
+    "qualified-recurring-soak": {
+      "passed": true,
+      "qualifiedAttempt": 2,
+      "elapsedSeconds": 1865.48,
+      "wallCompletionSeconds": 1862.719,
+      "successfulRecurringResults": 8,
+      "uniqueAppRequests": 8,
+      "uniqueCoreReceipts": 8,
+      "nativeRestartPreservedCheckpoint": true,
+      "nativeAuthority": {
+        "nativeTaskDone": true,
+        "nativeCronPaused": true,
+        "nativeCronRunCount": 16,
+        "nativeCapabilityRemoved": true
+      },
+      "allResultsCertainAndGoverned": true,
+      "nativeFinalUnchanged": true,
+      "coreResultsUnchanged": true,
+      "clockOrOutcomeEdits": false,
+      "originalFinalProbeFailed": true,
+      "resolution": "Read-only final verification with a bounded 4 MiB aggregate-state reader; original failed log retained",
+      "providerCost": null,
+      "providerCostIsMeasured": false,
+      "dayOrWeekSoakClaim": false
+    },
+    "negative-acceptance": {
+      "crossCustomerAccessDenied": true,
+      "projectFrameworkProviderToolCallbackAndSubjectOverridesDenied": true,
+      "concurrentDurableReplayAndChangedPayloadDenied": true,
+      "installedRuntimeIsolationGuards": true
+    },
+    "host-operations": {
+      "schema": "stage7-live-host-qa/v1",
+      "bootId": "b7ef7ed6-55f7-4720-bf16-080adb41a35b",
+      "cases": [
+        {
+          "name": "baseline",
+          "passed": true,
+          "seconds": 0.241,
+          "services": [
+            "postgresql",
+            "keycloak",
+            "hermes",
+            "memory-v4",
+            "unify-core",
+            "uniui",
+            "caddy"
+          ],
+          "ownershipVerified": true,
+          "billingNotInferred": true
+        },
+        {
+          "name": "broker-denials-and-redaction",
+          "passed": true,
+          "seconds": 0.207,
+          "arbitraryCommandDenied": true,
+          "foreignTargetDenied": true,
+          "secretSentinelAbsent": true,
+          "candidateSecretsAbsent": true,
+          "noRecoveryIssued": true
+        },
+        {
+          "name": "maintenance-suppresses-recovery",
+          "passed": true,
+          "seconds": 23.78,
+          "manualStopNotResurrected": true,
+          "noRecoveryIssued": true,
+          "maintenanceClearedExplicitly": true
+        },
+        {
+          "name": "unexpected-stop-unify-core",
+          "passed": true,
+          "seconds": 13.263,
+          "exactlyOneBrokerRecovery": true,
+          "containerIdentityPreserved": true,
+          "readinessObservedAfterCommand": true,
+          "persistentIncidentResolved": true
+        },
+        {
+          "name": "unexpected-stop-memory-v4",
+          "passed": true,
+          "seconds": 32.04,
+          "exactlyOneBrokerRecovery": true,
+          "containerIdentityPreserved": true,
+          "readinessObservedAfterCommand": true,
+          "persistentIncidentResolved": true
+        },
+        {
+          "name": "unexpected-stop-hermes",
+          "passed": true,
+          "seconds": 52.87,
+          "exactlyOneBrokerRecovery": true,
+          "containerIdentityPreserved": true,
+          "readinessObservedAfterCommand": true,
+          "persistentIncidentResolved": true
+        }
+      ],
+      "complete": true,
+      "remainingSuites": [
+        "provider",
+        "callback",
+        "external-effect-deduplication",
+        "daemon",
+        "storage-pressure",
+        "broker-interruption",
+        "host-reboot",
+        "installed-browser"
+      ]
+    },
+    "isolation": {
+      "schema": "stage7-live-isolation/v1",
+      "candidateReleaseSha256": "26ccaff3c5539288dda0a0e9b60fa7187fb64b70c772f104e1c0068efbed2b01",
+      "checks": {
+        "customerSessionIsolation": true,
+        "anonymousDenied": true,
+        "csrfRequired": true,
+        "unsignedCallbackDenied": true,
+        "invalidBackendCapabilityDenied": true,
+        "separateProjectCapabilityCannotReadReceipt": true,
+        "sourceUrlsDenial": {
+          "status": 422,
+          "code": "APPLICATION_URL_INVALID"
+        },
+        "callbackUrlDenial": {
+          "status": 403,
+          "code": "APPLICATION_DESTINATION_DENIED"
+        },
+        "privateAddressRegistrationDenied": true
+      },
+      "passed": true,
+      "productionAccepted": false
+    },
+    "application-lifecycle": {
+      "realCallbackReplayAndTamperProtection": true,
+      "canonicalKnowledgeReuse": true,
+      "freshRetrievalAndCanonicalSupersession": true,
+      "conservativeExactQuoteCorrectionSupersession": true,
+      "customerAndCoreExport": true
+    },
+    "business-faults": {
+      "schema": "stage7-business-faults/v1",
+      "cases": [
+        {
+          "name": "callback-outage-and-no-duplicate-business-effect",
+          "passed": true,
+          "seconds": 88.173,
+          "actualCallbackReceiverStopped": true,
+          "deliveryRecovered": true,
+          "nativeTaskCount": 1,
+          "businessEffectCount": 1,
+          "sameKeyReplayDeduplicated": true,
+          "noBrokerRecoveryIssued": true,
+          "receiptId": "e4ab405b-5123-4860-806d-01a0709f0cae"
+        },
+        {
+          "name": "provider-outage-no-runtime-restart",
+          "passed": true,
+          "seconds": 22.516,
+          "actualProviderEgressRejected": true,
+          "failureExplicit": true,
+          "healthyRuntimeNotRestarted": true,
+          "noBrokerRecoveryIssued": true,
+          "nativeTaskCount": 1,
+          "businessEffectCount": 0,
+          "receiptId": "60671ef9-2160-4f9d-ab02-0215cb5e3362"
+        }
+      ],
+      "complete": true
+    },
+    "operations-api": {
+      "schema": "stage7-installed-operations-api/v1",
+      "anonymousDenied": true,
+      "realOwnerReadAllowed": true,
+      "mutationRouteAbsent": true,
+      "installationSecretsNotDisclosed": true,
+      "passed": true
+    },
+    "credential-lifecycle": {
+      "twoFreshScopedCredentialsWork": true,
+      "BrowserUseDenied": true,
+      "revocationEffectiveWithoutRevokingActiveCredential": true,
+      "realElapsedCredentialExpiry": true,
+      "elapsedSeconds": 70.056,
+      "createdCredentialsRevoked": true,
+      "passed": true
+    },
+    "privacy-acceptance": {
+      "nativeOwnerConfirmsKnowledgeReuse": true,
+      "actualNativeWorkerObservedRunning": true,
+      "runningCancellationSettledByNativeOwner": true,
+      "cancelledNativeAndCoreErasure": true,
+      "sameCandidateExistingGovernedControl": true,
+      "realOtherCustomerKnowledgeIsolated": true,
+      "newAdmissionsBlockedDuringAccountDeletion": true,
+      "coordinatedAppCoreMemoryNativeLiveStoreErasure": true,
+      "otherCustomerUnaffected": true,
+      "postDeletionExportScrubbedAndBackupLimitsExplicit": true
+    },
+    "update-suite": {
+      "schema": "stage7-signed-operations-update-suite/v1",
+      "cases": [
+        {
+          "name": "undeclared-payload-denied-before-mutation",
+          "unchangedControlState": true
+        },
+        {
+          "name": "real-failed-health-rollback",
+          "realColdRollback": true,
+          "schemaAndLogicalStatePreserved": true,
+          "highestAttempt": 2
+        },
+        {
+          "name": "consumed-attempt-replay-denied",
+          "highestAttemptPreserved": 2
+        },
+        {
+          "name": "real-schema-fault-rollback",
+          "realColdRollback": true,
+          "schemaAndLogicalStatePreserved": true,
+          "highestAttempt": 3
+        },
+        {
+          "name": "interrupted-transaction-explicit-recovery",
+          "realColdRollback": true,
+          "schemaAndLogicalStatePreserved": true,
+          "highestAttempt": 4,
+          "originalHarnessExitExpectationMismatchRetained": true
+        },
+        {
+          "name": "signed-successor-committed",
+          "newOperationsCodeExecuted": true,
+          "schemaAndLogicalStatePreserved": true,
+          "releaseSha256": "875989c7bfe8fd1939e12670f05bb5797cbac6921536b82b1fc4461bac02c157",
+          "sequence": 5
+        }
+      ],
+      "complete": true,
+      "scope": "operations-only v2 identity; runtime images and application schemas unchanged",
+      "productionAccepted": false
+    },
+    "research-positive-control": {
+      "receiptId": "d829fce7-3984-4190-87c6-62af7148f9a2",
+      "phase": "result-ready",
+      "errorCode": null,
+      "passed": true
+    },
+    "backup-receipt": {
+      "schema": "alica-cold-backup/v1",
+      "ciphertextSha256": "728d370b2d4b1a6e2b510578f69b1140e4efcec5e321cd2591043aa68d3a17d2",
+      "encryptedBytes": 35877687,
+      "entries": 3302,
+      "plaintextBytes": 142882931,
+      "manifestSha256": "c01e92e51f2aba518e1ecead7426ac38155d6278cb02f27a91c3c21e5e4de338",
+      "sourceLeftQuiesced": true
+    },
+    "restore-result": {
+      "schema": "stage7-qa3-cold-restore-result/v1",
+      "releaseSha256": "26ccaff3c5539288dda0a0e9b60fa7187fb64b70c772f104e1c0068efbed2b01",
+      "ciphertextSha256": "728d370b2d4b1a6e2b510578f69b1140e4efcec5e321cd2591043aa68d3a17d2",
+      "allStagedAndRestoredBytesAndMetadataVerified": true,
+      "sevenContainersRecreated": true,
+      "nativeTasksAndSessionLinksPreserved": true,
+      "sevenServicesHealthy": true,
+      "existingCompletedReceiptReadable": true,
+      "nativeWorkObservedIdle": true,
+      "quarantineRetained": true,
+      "passed": true,
+      "productionAccepted": false
+    },
+    "cold-verified": {
+      "byteAndMetadataVerification": true,
+      "entries": 3302,
+      "releaseSha256": "26ccaff3c5539288dda0a0e9b60fa7187fb64b70c772f104e1c0068efbed2b01",
+      "quarantineRetained": true
+    },
+    "extraction-receipt": {
+      "ciphertextSha256": "728d370b2d4b1a6e2b510578f69b1140e4efcec5e321cd2591043aa68d3a17d2",
+      "manifestSha256": "c01e92e51f2aba518e1ecead7426ac38155d6278cb02f27a91c3c21e5e4de338",
+      "entriesVerified": 3302,
+      "authenticationVerified": true,
+      "contentsVerified": true,
+      "extracted": true
+    },
+    "update-control-state": {
+      "releaseSha256": "875989c7bfe8fd1939e12670f05bb5797cbac6921536b82b1fc4461bac02c157",
+      "sequence": 5,
+      "highestAttempt": 5
+    },
+    "final-health": {
+      "passed": true,
+      "ownershipVerified": true,
+      "services": {
+        "postgresql": "healthy",
+        "keycloak": "healthy",
+        "hermes": "healthy",
+        "memory-v4": "healthy",
+        "unify-core": "healthy",
+        "uniui": "healthy",
+        "caddy": "healthy"
+      },
+      "nativeWork": {
+        "active": 0,
+        "counts": {
+          "done": 6
+        },
+        "source": "native-kanban-readonly",
+        "observed": true
+      },
+      "maintenance": false
+    }
+  },
+  "sourceSha256": {
+    "oidc-result": "017527f3df98f924b79b088e763d4caee2ed0c9f87b19896feaf1735ba7af3a4",
+    "first-acceptance": "fad38e87f91825d0d9c9c89a9782f23e41dd72bf1f266cd77660e3a74293b3be",
+    "extended-host": "98f1f8259ec3b6d895eefa561bc85e22b0c8bb833e4689e67d8893da5336efdd",
+    "qualification-credential-rotation": "f53c11376ec0f58c32d776ef27fb4d9c7075d2ada9770960c37bf6b3d4c108a4",
+    "clean-install": "d11ec992eb84d301065bdc99d4050df121619ece2916e3631c455d9b62382fe8",
+    "reboot-result": "2bd05f9c42d5192b69ce596049ea1f974bc417a460dbbeff379a181c05ec33df",
+    "hostile-boundary": "1b51ad583b4e3bfe3d7880d38a9566338a4e48efffcc09122edbbe8dae73ca4f",
+    "qualified-recurring-soak": "97cf546f742bd40f8597c767b366ddd67fd554e2193ef68b2114560d2342cc5a",
+    "negative-acceptance": "d25fa6e1e2f69d705c03832da4df175747ed174d695070663a64e79226b1b8a7",
+    "host-operations": "ae47c1d9548b9a1949bb5ce8c919d348ef3ff67658705ed0f8856ac239fb40a9",
+    "isolation": "b6e026bb12afc65f3d4b878b845a4507e9aedc0bd1861dbc3a41f65d84162a6c",
+    "application-lifecycle": "3192d3e300adf13558d12f9fbc65b4f339576435b8f77fe5697d47c025c2fdb9",
+    "business-faults": "7da2a35b41ed0a14d8e954d732dfd0de29b32b605e363632be173c308af43730",
+    "operations-api": "a81a4a87c08f576b8d82506e210653b72795233a2e74d3ed3b66d191036fdf3b",
+    "credential-lifecycle": "9915e37e8cffdcafa71fbb610aa66ed9b25572be70e3e141fb99ceba142c771d",
+    "privacy-acceptance": "64f4157b7f9c8e2989c1941334b0cdf9992fb030f6f8af54a8708fc185a32ba9",
+    "update-suite": "7a218581ff2c1b7fd3987ef056cdfbde161c79513efde557b7712f752209d920",
+    "research-positive-control": "a7df59e3fb9fffebf952abd807d6c865d7b4d793d2562e57deea585db1fb9958",
+    "backup-receipt": "746fa3c11f4e2d7b746fa9a50c804a465fdc24e52ff56324e1a829c5933b645e",
+    "restore-result": "0e17c23a92360e96f2429d23032dad5b273238087e6e25ca1c9a2e78c0f4c35d",
+    "cold-verified": "3c2f8e679d14a7fa8735e9334acc72858ce702a00eec15500cf160ebdc8f8968",
+    "extraction-receipt": "f0183f1cc5efd054e18b8d4321a44005e42ad13be6b5ed980785a717451faad2",
+    "update-control-state": "091555a9c24e38da87e4bb444809951909547bca03b93f3f21a77f7cd1bf13ea"
+  },
+  "redactedFields": []
+}

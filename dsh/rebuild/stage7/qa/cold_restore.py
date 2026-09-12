@@ -43,13 +43,17 @@ def native_tasks():
 def backup(recipient):
  guard();installer();assert not OUT.exists();OUT.mkdir(mode=0o700)
  import host_operations as h
- snapshot=h.snap();assert h.healthy(snapshot) and snapshot['snapshot']['nativeWork']['observed'] and snapshot['snapshot']['nativeWork']['active']==0
+ snapshot=h.until(lambda s:h.healthy(s) and s['snapshot']['nativeWork']['observed'] and s['snapshot']['nativeWork']['active']==0)
  before=json.loads(run(['docker','inspect',*NAMES,REFERENCE]));assert len(before)==8
  v=volumes();tasks=native_tasks();assert all(row[2] in ('done','cancelled','failed','archived') for row in tasks)
- # This invokes the published owner-aware CLI through the real cell unit.
- run(['systemctl','stop','alica-'+CELL+'-cell.service'])
+ # Stopping the oneshot boot unit does not stop the cell: it has no ExecStop.
+ # Use the published owner-aware lifecycle command, then verify scoped writers.
+ run(['bash',str(BUNDLE/'alicactl'),'stop','--bundle',str(BUNDLE),'--release-sha256',RELEASE,'--root',str(ROOT),'--request',str(ROOT/'operations/request.json')])
+ run(['systemctl','stop','alica-'+CELL+'-observer.service','alica-'+CELL+'-broker.service','alica-'+CELL+'-cell.service'])
+ for role in ('observer','broker','cell'):
+  p=subprocess.run(['systemctl','is-active','alica-'+CELL+'-'+role+'.service'],capture_output=True,text=True);assert p.stdout.strip()=='inactive'
  run(['docker','stop','--time','30',REFERENCE])
- assert not run(['docker','ps','-q'])
+ stopped=json.loads(run(['docker','inspect',*NAMES,REFERENCE]));assert len(stopped)==8 and all(not r['State']['Running'] for r in stopped)
  with lock(ROOT/'operations/operation.lock'),lock(ROOT.parent/('.'+CELL+'.install.lock')):
   e=Engine(ROOT/'operations/ops.db');e.maintenance(True);e.db.close()
   paths={'root':ROOT,'operations-code':CODE,'qa-state':q.OUT}
@@ -69,7 +73,7 @@ def apply():
  guard();receipt=json.loads((OUT/'backup-receipt.json').read_text());stage=OUT/'verified';assert (stage/'VERIFIED').read_text().strip()==receipt['ciphertextSha256']
  assert archive.digest(stage/'manifest.json')==receipt['manifestSha256'];m=json.loads((stage/'manifest.json').read_text());archive.validate_manifest(m)
  md=m['metadata'];assert md['cell']==CELL and md['releaseSha256']==RELEASE
- assert not run(['docker','ps','-q'])
+ assert all(not r['State']['Running'] for r in json.loads(run(['docker','inspect',*NAMES,REFERENCE])))
  # Revalidate every staged entry immediately before destructive QA actions.
  for row in m['entries']:assert archive.entry(stage/row['name'],row['name'])==row
  current=volumes();assert current==md['volumes'];admitted_installer=installer();quarantine=OUT/'pre-restore';quarantine.mkdir(mode=0o700)
@@ -89,7 +93,7 @@ def apply():
  # Existing signed v2 ownership must admit newly created runtime containers.
  admitted_installer.start()
  e=Engine(ROOT/'operations/ops.db');e.maintenance(False);e.db.close()
- run(['systemctl','start','alica-'+CELL+'-cell.service']);run(['docker','start',REFERENCE])
+ run(['systemctl','start',*['alica-'+CELL+'-'+role+'.service' for role in ('cell','broker','observer')]]);run(['docker','start',REFERENCE])
  import host_operations as h
  end=time.monotonic()+90
  while time.monotonic()<end:
