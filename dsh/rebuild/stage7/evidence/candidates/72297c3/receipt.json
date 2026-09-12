@@ -1,0 +1,14 @@
+{
+  "schema": "stage7-core-correction-build/v1",
+  "sourceRevision": "72297c3d303c9278b9fb44f951e4050805c76885",
+  "baseArchiveSha256": "43a98d80cb49223e76be72b040913826552ba82cdd209e065d9e18162d4c68c6",
+  "archive": "dsh-stage7-qa4-72297c3-linux-amd64.tar.gz",
+  "archiveSha256": "26f98d6ffc8ecc576628b061a9851b8cd40e1e917f070a8567b9fb48ee969553",
+  "releaseSha256": "1486b3aa2dccb7a21941140508280b5125d816452e708e13c7640ea120a2e66c",
+  "newCoreImage": "sha256:86d47fdd52bf88cf8f91c9e2245ba6ebe69ed324955b9e157ebb676b83715f8a",
+  "modules": {
+    "knowledge.js": "7f8fd1856d1b29600a12f9043a061d9f6a6a3a3c7064bfddd12c6586cc2cbc66",
+    "service.js": "d6485a6fc576f98c79f619511fd5ef4fc835d8ff95c6e83c2d600178cc09bd66"
+  },
+  "stage7Accepted": false
+}
