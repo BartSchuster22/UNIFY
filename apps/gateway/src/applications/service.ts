@@ -126,6 +126,11 @@ export class ApplicationService {
         const result=await this.native.finalize(app,current,observed.result);
         if(Buffer.byteLength(JSON.stringify(result))>65536)throw new Error('Application result limit');
         await this.store.complete(receipt.id,result);
+      }catch(error){
+        // A deterministic size rejection cannot converge through polling. Preserve
+        // native ownership and evidence; reject the governed projection, not the run.
+        if(!(error instanceof Error && ['KNOWLEDGE_SIZE_LIMIT','Application result limit'].includes(error.message)))throw error;
+        await owner.query("UPDATE application_receipts SET phase='rejected',error_code='GOVERNED_RESULT_LIMIT',updated_at=now() WHERE id=$1 AND phase='native-linked'",[receipt.id]);
       }finally{if(locked)await owner.query('SELECT pg_advisory_unlock(hashtextextended($1,0))',[key]);owner.release();}
     } else if (observed.state === 'failed' || observed.state === 'cancelled')
       await this.store.pool.query(

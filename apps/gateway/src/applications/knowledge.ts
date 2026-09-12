@@ -44,6 +44,36 @@ function bounded(x: unknown): string {
   if (!s || Buffer.byteLength(s) > 65536) throw new Error('KNOWLEDGE_SIZE_LIMIT');
   return s;
 }
+// Intern only byte-identical excerpts inside the immutable plan. Original source
+// timestamps, digests, metadata, quotes and record identities remain untouched.
+// Input, stored-plan and public-result bounds remain 64 KiB.
+function encodePlan(plan: Plan): string {
+  return bounded({ ...plan, reuses: plan.reuses?.map(reuse => {
+    if (!reuse) return null;
+    const index = plan.evidence.findIndex(source => source.excerpt === reuse.source.excerpt);
+    if (index < 0) return reuse;
+    const { excerpt: _excerpt, ...source } = reuse.source;
+    return { ...reuse, source: { ...source, excerptFromEvidence: index } };
+  }) });
+}
+function decodePlan(content: string): Plan {
+  if (Buffer.byteLength(content) > 65536) throw new Error('KNOWLEDGE_SIZE_LIMIT');
+  const plan = JSON.parse(content) as Plan;
+  if (!Array.isArray(plan.evidence) || plan.evidence.length > 4 ||
+      (plan.reuses && (!Array.isArray(plan.reuses) || plan.reuses.length > 8)))
+    throw new Error('KNOWLEDGE_INVALID');
+  for (const reuse of plan.reuses ?? []) {
+    if (!reuse) continue;
+    const source = object(reuse.source);
+    if (!Object.hasOwn(source, 'excerptFromEvidence')) continue; // Existing plans.
+    const index = source.excerptFromEvidence;
+    if (Object.hasOwn(source, 'excerpt') || !Number.isInteger(index) || Number(index) < 0 ||
+        Number(index) >= plan.evidence.length) throw new Error('KNOWLEDGE_INVALID');
+    source.excerpt = text(plan.evidence[Number(index)]!.excerpt, 12000);
+    delete source.excerptFromEvidence;
+  }
+  return plan;
+}
 function stored(x: unknown, scope: string): Stored {
   const r = object(x);
   if (r.scope_path !== scope || !/^rec_[a-f0-9]{32}$/.test(String(r.id)) ||
@@ -144,7 +174,7 @@ export class ApplicationKnowledge {
     if (plans.length > 1) throw new Error('KNOWLEDGE_DUPLICATE_PLAN');
     let plan: Plan;
     if (plans[0]) {
-      plan = JSON.parse(plans[0].content) as Plan;
+      plan = decodePlan(plans[0].content);
       if (plan.inputHash !== inputHash) throw new Error('KNOWLEDGE_FINALIZE_MISMATCH');
       if (completed[0]) return JSON.parse(completed[0].content) as unknown;
     } else {
@@ -206,8 +236,8 @@ export class ApplicationKnowledge {
         eligible.push(approved);
       }
       plan = { inputHash, evidence, findings, eligible, replacements, reuses, priorIds: prior.map(row => row.id), uncertainty };
-      const saved = await this.create(c, app, r, 'plan', bounded(plan), 'exhaust', { kind: 'plan' });
-      plan = JSON.parse(saved.content) as Plan;
+      const saved = await this.create(c, app, r, 'plan', encodePlan(plan), 'exhaust', { kind: 'plan' });
+      plan = decodePlan(saved.content);
     }
     const quotes: ValidatedKnowledge[] = [];
     for (let i = 0; i < plan.evidence.length; i++) {

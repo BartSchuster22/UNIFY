@@ -83,6 +83,28 @@ function harness(options: Partial<ApplicationKnowledgeOptions> = {}) {
     escape: () => { escape = true; }, truncate: () => { truncated = true; } };
 }
 describe('ApplicationKnowledge (mock transport, no live evidence)', () => {
+  it('completes multi-fact reuse with compact immutable plans and unchanged bounds', async()=>{
+    const h=harness(), first=result();
+    first.evidence[0]!.excerpt='Synthetic quote. Changed quote. Third quote. Fourth quote.'+'x'.repeat(10000);
+    for(const quote of ['Changed quote.','Third quote.','Fourth quote.'])first.findings.push({quote,sourceIndex:0,validated:true,conflicting:false});
+    const initial=await h.knowledge.finalize(app,receipt,first) as any;
+    const next={...receipt,id:'33333333-3333-4333-8333-333333333333',payload:{...receipt.payload!,operation:'answer'}} as Receipt;
+    const reuse=structuredClone(first);
+    for(let i=1;i<4;i++){reuse.evidence.push(structuredClone(reuse.evidence[0]!));reuse.findings[i]!.sourceIndex=i;}
+    reuse.evidence.forEach(source=>{source.metadata.runId='new-run';source.retrievedAt='2021-01-01T00:00:00Z';});
+    expect(Buffer.byteLength(JSON.stringify(reuse))).toBeLessThan(65536);
+    h.interruptResult();
+    await expect(h.knowledge.finalize(app,next,reuse)).rejects.toThrow();
+    const answer=await h.knowledge.finalize(app,next,reuse) as any;
+    expect(answer.knowledge).toEqual(initial.knowledge);
+    expect(answer.uncertainty).toBe(false);
+    const count=h.rows.length;
+    expect(await h.knowledge.finalize(app,next,reuse)).toEqual(answer);
+    expect(h.rows).toHaveLength(count);
+    const plan=h.rows.find(r=>r.attrs.kind==='plan'&&r.attrs.receiptId===next.id)!;
+    expect(Buffer.byteLength(plan.content)).toBeLessThan(65536);
+    expect(JSON.parse(plan.content).reuses[0].source.excerptFromEvidence).toBe(0);
+  });
   it('bounds reused knowledge to the native four-record and 2000-character contract', async () => {
     const h=harness();await h.knowledge.finalize(app,receipt,result());
     const row=h.rows.find(r=>r.role==='canonical')!;
