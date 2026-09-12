@@ -1,0 +1,11 @@
+{
+  "schema": "stage7-public-download/v1",
+  "anonymousHttpsDownload": true,
+  "archiveSha256Verified": true,
+  "sha256": "26f98d6ffc8ecc576628b061a9851b8cd40e1e917f070a8567b9fb48ee969553",
+  "artifact": "dsh-stage7-qa4-72297c3-linux-amd64.tar.gz",
+  "workflowCommit": "50f7788c54dbda6d354f9bdbafbe29c9ca8e444c",
+  "checkedAt": "2026-09-12T14:25:20.856343+00:00",
+  "stage7Accepted": false,
+  "productionAccepted": false
+}

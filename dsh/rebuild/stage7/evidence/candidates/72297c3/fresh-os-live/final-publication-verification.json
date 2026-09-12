@@ -1,0 +1,54 @@
+{
+  "schema": "stage7-final-publication-verification/v1",
+  "releaseUrl": "https://github.com/BartSchuster22/Alica-DSH/releases/tag/dsh-stage7-qa4-72297c3",
+  "releaseId": 387594872,
+  "qaPrereleaseRetained": true,
+  "allOriginalAssetsUnchanged": true,
+  "workflowId": 34709789877,
+  "workflowConclusion": "success",
+  "publicationCommit": "73af16ff3d0c0fe4ef956369c32503b52b85cd0e",
+  "sourceCommit": "5368439e6b34abf7ee5c58ce2291fbaf1995a842",
+  "sourcePushVerified": true,
+  "anonymousDownloads": [
+    {
+      "name": "stage7-qa4-evidence.json",
+      "sha256": "c5df66129fc60bd159455a684b1beeb97ddba308394d4b811f9b8b13807707d9",
+      "anonymousHttpsVerified": true
+    },
+    {
+      "name": "stage7-qa4-failures.json",
+      "sha256": "211605c97a75106a813b1b7296fb49c61ac0059c4a66334d73b27e65171c7d5b",
+      "anonymousHttpsVerified": true
+    },
+    {
+      "name": "stage7-qa4-fresh-os.json",
+      "sha256": "9351b3608b4c0a6b8f6bb931c2aaef3dd022dc3d79f4ff38e7c4672444cb1366",
+      "anonymousHttpsVerified": true
+    },
+    {
+      "name": "stage7-qa4-input-hashes.json",
+      "sha256": "813ce2ae38035599e0ae867e02baed7fade29120d9ff302760a6f0d165482254",
+      "anonymousHttpsVerified": true
+    },
+    {
+      "name": "stage7-qa4-progress.json",
+      "sha256": "c8b829fbca97c4c9fb275db8e6f6173ed0a7742cedfde1223fb34fc7eca15f5b",
+      "anonymousHttpsVerified": true
+    },
+    {
+      "name": "stage7-qa4-safeguard.json",
+      "sha256": "e3dfa9bc4c005a32f29668232c5097ce198ab74212c0479f6875d762016f7bab",
+      "anonymousHttpsVerified": true
+    },
+    {
+      "name": "stage7-qa4-verdict.json",
+      "sha256": "061893c37a92d5245d9add8d8a082f40415bf8c8fffcc7f263c6330cfc9547cd",
+      "anonymousHttpsVerified": true
+    },
+    {
+      "name": "stage7-qa4-verdict.md",
+      "sha256": "14e71c94434f9ba605903e2755ca9de05bfceba2fe342ffbcec101887ec3ab28",
+      "anonymousHttpsVerified": true
+    }
+  ]
+}
