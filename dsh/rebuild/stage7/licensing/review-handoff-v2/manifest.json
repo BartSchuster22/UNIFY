@@ -1,0 +1,14 @@
+{
+  "pending-dispositions.csv": {
+    "sha256": "7a6e03f592834ffc718458a943bad047d422fceeaafb8f2414fa83742d5b0f71",
+    "bytes": 2301369
+  },
+  "GO-NOTICE-CANDIDATES.txt": {
+    "sha256": "3aa4ad4e206508aaf730dc328148a86d44072658bb98c8a499798ef5f513fc77",
+    "bytes": 751836
+  },
+  "status.json": {
+    "sha256": "e98d21cc3cd63e36b7705c3817fb7cee8e2ff933a6861ba842018191aaf763d5",
+    "bytes": 1198
+  }
+}

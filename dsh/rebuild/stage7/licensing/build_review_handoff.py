@@ -13,10 +13,13 @@ import collect_uv_workspace as uv
 BASE = Path(__file__).resolve().parent
 
 
-def render():
+def render(go_text=False):
     go.verify(BASE/'go-notice-review')
     uv.verify(BASE/'uv-workspace-review')
-    queue_bytes = (BASE/'uv-workspace-review/review-queue.json').read_bytes()
+    if go_text:
+        import match_go_licence_texts as matcher
+        matcher.verify(BASE/'go-text-review')
+    queue_bytes = (BASE/('go-text-review/review-queue.json' if go_text else 'uv-workspace-review/review-queue.json')).read_bytes()
     queue = json.loads(queue_bytes)
     out = io.StringIO(newline='')
     writer = csv.writer(out)
@@ -50,8 +53,9 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('output', type=Path)
     p.add_argument('--verify', action='store_true')
+    p.add_argument('--go-text', action='store_true', help='Use the later exact-text-matched queue; preserve original handoff by default')
     a = p.parse_args()
-    files = render()
+    files = render(a.go_text)
     manifest = {name: {'sha256': hashlib.sha256(data).hexdigest(), 'bytes': len(data)} for name, data in files.items()}
     files['manifest.json'] = (json.dumps(manifest, indent=2)+'\n').encode()
     if a.verify:

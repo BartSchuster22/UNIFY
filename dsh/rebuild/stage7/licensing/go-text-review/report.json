@@ -1,0 +1,1174 @@
+{
+  "inputSha256": "c0f5852627da15d9d9ff4465b3a290b5f44227f2c0c1e1e53ab8ef69a15011d9",
+  "templates": {
+    "MIT": {
+      "url": "https://raw.githubusercontent.com/spdx/license-list-data/main/text/MIT.txt",
+      "sha256": "b05785f9f18e6716bab63424b11454513b9943a222595b70411009202fc592b5",
+      "bytes": 1078
+    },
+    "Apache-2.0": {
+      "url": "https://raw.githubusercontent.com/spdx/license-list-data/main/text/Apache-2.0.txt",
+      "sha256": "074e6e32c86a4c0ef8b3ed25b721ca23aca83df277cd88106ef7177c354615ff",
+      "bytes": 10280
+    }
+  },
+  "results": [
+    {
+      "purl": "pkg:golang/cel.dev/expr@v0.24.0",
+      "archiveSha256": "4456189315133136b72bfb40312d731c8957cce38a2807ac21d09f5158259bb7",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/cloud.google.com/go/auth/oauth2adapt@v0.2.8",
+      "archiveSha256": "4cd64264bafc4dd05f645452d6e1485adf92309130bd82b4c595db10cd534963",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/cloud.google.com/go/auth@v0.16.2",
+      "archiveSha256": "38f4f9fb94b864bff2e7852c826ae6605a9fda6510cc6b6b3e02a047dd4243cd",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/cloud.google.com/go/compute/metadata@v0.7.0",
+      "archiveSha256": "89c19841bf87fe53034aed53505c527fe6674d3bf0f21c0e972374f94fb08eb4",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/BurntSushi/toml@v1.5.0",
+      "archiveSha256": "a10c8d3d6c4a9b73dc885464245eec6b27d64f430d6979389cd9c58adde15855",
+      "matches": [
+        {
+          "path": "COPYING",
+          "sha256": "d21cb1c60785d6d3a84a7059323ccafc45c645b1bbda281c76a62d66ad2d7dc3",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/KimMachineGun/automemlimit@v0.7.4",
+      "archiveSha256": "acb33173fa9199811271871235f0e97f04c9222e4d07bc4492f7f201bce1eba1",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "28576a98c02916f720f05aa4a9e30dabfb91cc153efeecd63d34616694d9ff60",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/Masterminds/goutils@v1.1.1",
+      "archiveSha256": "ef8778a20c37e98a92e3b1db5ab027cc201743a2f5bfb26ba228bf0515e20b48",
+      "matches": [
+        {
+          "path": "LICENSE.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/Masterminds/semver/v3@v3.3.0",
+      "archiveSha256": "b492e8f6fa4c8240234a6d5095521f75d9e2e7c52672b90b5afde533281b540f",
+      "matches": [
+        {
+          "path": "LICENSE.txt",
+          "sha256": "2db9097f7b3750c1c9426996d21fe443d339131fb758c2167d2d5fabe8e6cbf9",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/Masterminds/sprig/v3@v3.3.0",
+      "archiveSha256": "c731370f7601711d1df9b4b0c9bb8488fc381b32fd3e7de97a03673e8287b719",
+      "matches": [
+        {
+          "path": "LICENSE.txt",
+          "sha256": "dbad9a1f3fee465db42b92cb8a41ddaae028248fdcc54f46f1e72f7707d21dc2",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/alecthomas/chroma/v2@v2.20.0",
+      "archiveSha256": "ff549a1706f8d23a7120053a4eac0013d77d2dfedbff7c94b5dcfbd0018065ff",
+      "matches": [
+        {
+          "path": "COPYING",
+          "sha256": "e7bf754e7153012a3a8ff697d21acd6c12e590d6a55f2aef8ee83616aa9a795f",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/aryann/difflib@v0.0.0-20210328193216-ff5ff6dc229b",
+      "archiveSha256": "6006b57876fe494a5da95ed06c4180d9f3e6380bfdb28579b706597d9f133877",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "949aa74c306e61ac17d96a8c4eb52d69f803722fa5b5009dec83c37b65c730ec",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/beorn7/perks@v1.0.1",
+      "archiveSha256": "25bd9e2d94aca770e6dbc1f53725f84f6af4432f631d35dd2c46f96ef0512f1a",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "0db7c9ebb3717e526f34f87dd1ee8bc77d36846e29cb0cec9246f7138fbe962b",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/caddyserver/caddy/v2@v2.10.2",
+      "archiveSha256": "8024a9d8afed63353ad502616f34ceae89980c40a5a36913885b55d2709483c6",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/caddyserver/zerossl@v0.1.3",
+      "archiveSha256": "773d36c57cc620e91d439b1c73abf1e4e83fdc99da877f8dc1e834d5663ae9be",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "1ef7b0f3816510e2c4727a6e45b770ddb5ab123d73074e7f0b424767db0f9f7b",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/ccoveille/go-safecast@v1.6.1",
+      "archiveSha256": "2cc6d2edae3f92e20a398d524cb40d042f56b6a4dc8ff1218f9dbdd0ec5e722c",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "ceb4a97e3600dc270b6b15cb8c1a42158efbdcd23f0e1256143ebd72f1d5fb56",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/cenkalti/backoff/v5@v5.0.2",
+      "archiveSha256": "f0a60104b32b055c149200f9fbcce8fb09eb2279d7d12b989200787078fade87",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "5c0476add4c38b55d0ed5ac11b85e00c38f26e1caee20dfe3ab58190103d1fbc",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/cespare/xxhash/v2@v2.3.0",
+      "archiveSha256": "145a26cdc7c49db566017b807c4989ee7f7ddeb569423e9cb99f995fac3621d3",
+      "matches": [
+        {
+          "path": "LICENSE.txt",
+          "sha256": "f566a9f97bacdaf00d9f21dd991e81dc11201c4e016c86b470799429a1c9a79c",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/chzyer/readline@v1.5.1",
+      "archiveSha256": "ce25854a8beae5c20bdde840d5142e6fbd1f86f0e58442705b8fb21dfce48501",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "3e07c02046bf3c2a73f060636997e0323dbe92a2d4ba43ef9e6b05a1031ae4c4",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/cpuguy83/go-md2man/v2@v2.0.7",
+      "archiveSha256": "9ad5f2cbc644c0bb648a9b182d6b70f92e7ac4dfab5cf0ef746bbeef944fda59",
+      "matches": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "a55959c4e3e8917bfa857359bb641115336276a6cc97408fd8197e079fb18470",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/dlclark/regexp2@v1.11.5",
+      "archiveSha256": "cb2418e33b59eaaf5f57874db895cb620833e7a5e6eaf5a2c2deef7d47b70610",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "9be5d04bb4d706914d5bf943710da4afeb42048f7c529902fb57c82762a991a9",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/felixge/httpsnoop@v1.0.4",
+      "archiveSha256": "75aa471311265e9860df0e523400b4650ed0c1a33262786a421f07226792e494",
+      "matches": [
+        {
+          "path": "LICENSE.txt",
+          "sha256": "8108e14b5cb2b6bcd51583d3849ef0c2b5c4de61758256c20308bc70d1775dbb",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/francoispqt/gojay@v1.2.13",
+      "archiveSha256": "f41e3e4f3086400448dbce1c06c59f5848a6c5983e5466689965e3a2cabcba7c",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "4e9fc4c749d560e8329be521d0e7c373521b368f96eaeb00d2fedfb5a31f1f2b",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/fxamacker/cbor/v2@v2.8.0",
+      "archiveSha256": "e23970f36b39f6939c01ccc3955e74336da1121cdb20b7ee2ce3056b83f62967",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "78cad457d5ea7318230f3d969d4cdf29cef45524a1fc8ca3a97646da1ad7a841",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/go-chi/chi/v5@v5.2.2",
+      "archiveSha256": "6e3e840dc3d612a165cdba6c8d237f040b6cf83fd3708fca7ecf3eb6ba1e5834",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "a2d51b7515acfaff2f7a88688650f2fc4fd99561383e72bba2305e3db59a1647",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/go-jose/go-jose/v3@v3.0.4",
+      "archiveSha256": "85dcb2e0486d1bc2e51f07452ee1a47d6a96d6e2b98d1385cba5beebce910bb5",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/go-jose/go-jose/v4@v4.0.5",
+      "archiveSha256": "7bb0205c235a4bc2bbca729a08d2d86f31ac0199cfc1c70b2d780f7594366407",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/go-logr/stdr@v1.2.2",
+      "archiveSha256": "9dd6893bf700198485ae699640b49bc1efbc6c73b37cb5792a0476e1fd8f7fef",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/google/certificate-transparency-go@v1.1.8-0.20240110162603-74a5dd331745",
+      "archiveSha256": "cc512c2fc870ef1acdac97b5b7411516f2a3d2f5fcfbf152ab3384521a575f0e",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/google/go-tpm@v0.9.5",
+      "archiveSha256": "2792c4829bfae42a44f4ca383e7980b761f0b97201e41dcfe535853f8aea7982",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/google/s2a-go@v0.1.9",
+      "archiveSha256": "bf8f4b159d3fc201477822ed2514e4f05f58c764b78ffed73ec0accce5fb7f07",
+      "matches": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/googleapis/enterprise-certificate-proxy@v0.3.6",
+      "archiveSha256": "6c44108f588c97a6a08b5ed907c3cc47dce31913f219a6d02b13e463d355603c",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/huandu/xstrings@v1.5.0",
+      "archiveSha256": "74bd0e897e5c35b1fd0e598cb8d9dfcebcb820b6edf3abf850d5404bfaaca6a2",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "d298ca9d57c94e16547637f1d7122481ecdb83932c9b901fac349c4c382b82eb",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/klauspost/cpuid/v2@v2.3.0",
+      "archiveSha256": "e6766f75ecfadf12fd045e4bdd9383f2a5bd3f9bd4c88a6db72861c84cf41486",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "5d966570d7a442d4e969892860a914e542c97f262c873baee8f0aa48e1f40212",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/libdns/libdns@v1.1.0",
+      "archiveSha256": "f8b285022ae038f2f6f2fbeba4797ee353114d528661fadfc9a76623c5f50f4f",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "e75b5c81dc881b74f84c306c2d0b7db1affbe78d9c0feb5722eb432fd534bea5",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/mattn/go-colorable@v0.1.13",
+      "archiveSha256": "08be322dcc584a9fcfde5caf0cf878b4e11cd98f252e32bc704e92c5a4ba9d15",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "88a2379b3ca34bf5c57127aff9dcb802bbb60ece0805cdbda65b3bd115f971d9",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/mattn/go-isatty@v0.0.20",
+      "archiveSha256": "f2d5f89ca451577e17464b9bb596dc0d0ecececb5eaa63622c41b57cd0b7b8cc",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "08eab1118c80885fa1fa6a6dd7303f65a379fcb3733e063d20d1bbc2c76e6fa1",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/mgutz/ansi@v0.0.0-20200706080929-d51e80ef957d",
+      "archiveSha256": "2e0c063f9597cb225904292981732f10298e95aa22a1b815297e318ba103dc1d",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "66e8a6491399ee36b111ba6df0af68ee82b375fb6fbfd54c8382c9dc3fbd9c9a",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/mholt/acmez/v3@v3.1.2",
+      "archiveSha256": "931bafc63d654c77cd3f289900e62ab59919f238c421047e83918862a56fee8d",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/mitchellh/copystructure@v1.2.0",
+      "archiveSha256": "4a1ce1f3c66bf99883e55da50fe1b3122299b79ad1d11c5407abbd74ace12550",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "3c377fad2e5ae1d7081c7c2f16da867a87cca1d1f5f1aa7ed0b8a16bb553142a",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/mitchellh/go-ps@v1.0.0",
+      "archiveSha256": "f2f0400b1d5e136419daed275c27a930b0f5447ac12bb8acd3ddbe39547b2834",
+      "matches": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "3c377fad2e5ae1d7081c7c2f16da867a87cca1d1f5f1aa7ed0b8a16bb553142a",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/mitchellh/reflectwalk@v1.0.2",
+      "archiveSha256": "c96eed6b50f00b1acdc79224e8e55f66ef3e98e3f7c6373afa3e3b8c6ef440d1",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "22adc4abdece712a737573672f082fd61ac2b21df878efb87ffcff4354a07f26",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/moby/sys/user@v0.1.0",
+      "archiveSha256": "85178932dc13b1c404c32e1b9f68fe88bf0b43e57dda39f24c45113e0bcf00ee",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/prometheus/client_golang@v1.23.0",
+      "archiveSha256": "f104d43e35b9217845792ec8eabbde59e31a11aaba64c47408cff8bafde2aa9e",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/prometheus/client_model@v0.6.2",
+      "archiveSha256": "67017b19f220c6ab91ecfdd10a93824e2a8b09fcb6390054dbdc49df3354a9ca",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/prometheus/common@v0.65.0",
+      "archiveSha256": "c97b1ab4d2c723923b367dbe48c283eafc0b94eb14faf8c98d81746b015242a9",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/prometheus/procfs@v0.16.1",
+      "archiveSha256": "e4b74815566cbf5aa372d23e1de32f16ac5c3c4c80bc94a31fdee60a1de6074a",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/quic-go/qpack@v0.5.1",
+      "archiveSha256": "d895558cd31fe1432b7d738c9977e5c0853f86087ca923d0a30e55b24480a8a5",
+      "matches": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "1b6a897efd39b20b3cdce8cd306160d115dbded39d855ceeffe21dc11e4d53df",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/quic-go/quic-go@v0.54.0",
+      "archiveSha256": "4ca06f3bdd4cb79b5fddd19543bdad542edefb5139cc3750e7ccfdbefcef3338",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "77d0b7b53e8abb84cf4dd3f9945a7fdf27044240d2e8023966a721a9a46fe96e",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/rs/xid@v1.6.0",
+      "archiveSha256": "395b1caa8a7e835e4721291e629dac4f6608db3918d6fe1eb2ed5e7561b62eb2",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c480873f0ff2b7e2c539bdd84fb4da4178d8d02479c94924f7bffeafb7add358",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/shurcooL/sanitized_anchor_name@v1.0.0",
+      "archiveSha256": "0af034323e0627a9e94367f87aa50ce29e5b165d54c8da2926cbaffd5834f757",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c8024e31c1de453fea90f22a221968835cc7af9d520274a2576c9ec9976055b0",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/sirupsen/logrus@v1.9.3",
+      "archiveSha256": "4501f4e6b858bfdd997671fcdd2f647a3178b29b6b4d1344caa7c07517121dd0",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "51a0c9ec7f8b7634181b8d4c03e5b5d204ac21d6e72f46c313973424664b2e6b",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/slackhq/nebula@v1.9.5",
+      "archiveSha256": "0c5e3ecfa4f62f0b9d1732474dbaa8f38659a643b6a448bb24746018f9221471",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "aefd0cce553f24945ce1c692c3c4f9fda581f078ba82977845715cd18565b3bd",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/smallstep/cli-utils@v0.12.1",
+      "archiveSha256": "3c8568f3ae15fdfab61d4fbd9721c8bc1340a3a7c85fd060f6cd546c20b8af9d",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/smallstep/go-attestation@v0.4.4-0.20241119153605-2306d5b464ca",
+      "archiveSha256": "7db2032e4eab652a8db5f305a13af9e0cfcfbb8b63bed5dfabee0f123acfdca3",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/smallstep/linkedca@v0.23.0",
+      "archiveSha256": "07da6ba9182e9c6cbb0df22426d948259c1459a66ab9b6e21073d18155c51324",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/smallstep/pkcs7@v0.2.1",
+      "archiveSha256": "300c4f1e05f962c86d0c1092b85af8d57a7560873a1b812184ba77e967b47b48",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "d01c6d371866b3c7a1a7e20994d88d2ce83f22974ec6d3596a6125b44495813d",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/smallstep/scep@v0.0.0-20240926084937-8cf1ca453101",
+      "archiveSha256": "253a6086ad2fd2aa16c013718452efb09a56cb0a72e40f360832bd006d560e0e",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "6a0d712ff4c257b13183759363dce13459da5b6cd938b082c2401c02914ca4c6",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/smallstep/truststore@v0.13.0",
+      "archiveSha256": "4429c54c1687d5def87727602b24b5c44e1e58a166fbe72c7f87ca3f5a709d66",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/spf13/cast@v1.7.0",
+      "archiveSha256": "7b24198857474e3f3c9c368fdec153b06003d06863a182c77c0605c3e51002c1",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "feb6d17a0e7a64e5ab0f7e2b0e0ee3e69c1a6396626fd554dc0cddaa06851b44",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/stoewer/go-strcase@v1.2.0",
+      "archiveSha256": "8f24d2c36a4bc9d78cb8aa046183c098e8acad1d812adb7dafc9c29f4e2affd0",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "73524a55beda60fc1a5fcdb2a790652154a6d1e6a090e15f61c92e7dd9360438",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/urfave/cli@v1.22.17",
+      "archiveSha256": "eb2629ff4d93a527036f0ebb57cf67caa10e97fdd9181740f8877936528bf6a9",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "2be6c75f36f3022ea015fea7b1b7135ce67d477ee721d0fc6c98678badb13b8b",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/x448/float16@v0.8.4",
+      "archiveSha256": "73b24a41037ea999ab66851e3798a0973dbb1f214925915b01f0820f7b2f1500",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "a555f1194fdac34da70fb416968f7e2217b02352c26c1eac2fa45fcb4290ae8d",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/yuin/goldmark-highlighting/v2@v2.0.0-20230729083705-37449abec8cc",
+      "archiveSha256": "2e5d685d24d3d3c156bb5d0be095c93ca202a928d7b52aa016788b1b15e2bcf3",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c1d6f653c38c80294dc7994647ba0dcc508ce64a86996303c804efa2f7982bff",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/github.com/yuin/goldmark@v1.7.13",
+      "archiveSha256": "88a6178916d7196838692fc41facc5429ab3bcc75d6270c180dfee36e14e6a94",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c1d6f653c38c80294dc7994647ba0dcc508ce64a86996303c804efa2f7982bff",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.etcd.io/bbolt@v1.3.10",
+      "archiveSha256": "ede5613b5c996a912a75032463a696e3be4220ff7e150e66c8464f7f2510fe2f",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c15d721c37e277a11584547de6d618541501f7aa10c4e32a945a4f9ff36cb0f6",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.opentelemetry.io/auto/sdk@v1.1.0",
+      "archiveSha256": "006d3a5a7292d11f093ce65fcd5a15d15fb7bd11d0e066503f91bd64c4bffe2c",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp@v0.61.0",
+      "archiveSha256": "0009120ed94c4279573eea0f01841f7c9ff51cafd1c9559fc09820c9f870f399",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.opentelemetry.io/contrib/propagators/autoprop@v0.62.0",
+      "archiveSha256": "10908adb0a251a95e4086f33a66731b6da97a4f81a8a595e632c0efea5eb5854",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.opentelemetry.io/contrib/propagators/aws@v1.37.0",
+      "archiveSha256": "bb2119ffd7b18e4ba307a885475699bb7876acd873517a7bcb63658312ad025c",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.opentelemetry.io/contrib/propagators/b3@v1.37.0",
+      "archiveSha256": "dc5d76c6743067753c07ee2b7c6a08a5ea0865f090d9b8e777a7182ceae9f576",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.opentelemetry.io/contrib/propagators/jaeger@v1.37.0",
+      "archiveSha256": "a9467384fee1042026661a44d32069771d20618892b334b09d63b7bc9ce29919",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.opentelemetry.io/contrib/propagators/ot@v1.37.0",
+      "archiveSha256": "a85c69a73b50e832bd93fda17974ac171805eb1e1dc9cd6358831d9eb7c45cd7",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc@v1.37.0",
+      "archiveSha256": "ca1d4d2a5537b0f8ae9e7685225d50a9429ee0a17bc846e013e1806e820298c9",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.opentelemetry.io/otel/exporters/otlp/otlptrace@v1.37.0",
+      "archiveSha256": "afede97849dcf99a5917b54d3679b1c90a6a7b4da463d8f10eafbf60f74992c4",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.opentelemetry.io/otel/metric@v1.37.0",
+      "archiveSha256": "9ddd1ea623ee64d23c269590b7b6df7d369b43388bc495d5c4343a939f4a29bd",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.opentelemetry.io/otel/sdk@v1.37.0",
+      "archiveSha256": "268f0baa1e9855633a0ace9ea3e95e1cb4c545f51062a4581586f54b1712c853",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.opentelemetry.io/otel/trace@v1.37.0",
+      "archiveSha256": "1b473d9aee628902b4597925e282f8db8ebf123f70a76b8fc7939592132b0286",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.opentelemetry.io/otel@v1.37.0",
+      "archiveSha256": "04ca68e693cdb8b4409ef8eec9eaf035128dd78c52275e465d95e1a604b08a61",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.opentelemetry.io/proto/otlp@v1.7.0",
+      "archiveSha256": "5bb44d35ffad7464fbc863193c10b3fa9b967a8913db3ab518beac712d59f506",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.step.sm/crypto@v0.67.0",
+      "archiveSha256": "031b4349b5f3835bae90663475620c51df73a4036fdd255268896d492b34f70b",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.uber.org/automaxprocs@v1.6.0",
+      "archiveSha256": "964c6f548f7ee6df9fa3a9080d722c7950060bda0cb84ff9e2ae065f078813c4",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "5d7e88625cbc52ce4a5da7902d7afb09255635b5a60de640e202b1af943b9a19",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.uber.org/multierr@v1.11.0",
+      "archiveSha256": "2249b5d2fdce61f6ee661a679d8552599af084a761cbbc871da77641bddce0c3",
+      "matches": [
+        {
+          "path": "LICENSE.txt",
+          "sha256": "dcdabe03bef2382a130640d1c3a4cd5ec42aba1035095c38272fde694eb72405",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.uber.org/zap/exp@v0.3.0",
+      "archiveSha256": "1a71ce6ea8df554dc002af9d18d6f1083a9b2782ee0c971b929314e86e8aebd3",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "c2b97b3281be272711909076c8402499b4b5a3216196af47a25b1d3674d86152",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/go.uber.org/zap@v1.27.0",
+      "archiveSha256": "b994b96ff0bb504a3d58288ab88b9f3c6604689ea1afb69d25b509769705a6c2",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "7de716e70addb64f9305298ef32a9dd68e40d5b3095a5d868ba4461404dbfbcf",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/google.golang.org/genproto/googleapis/api@v0.0.0-20250603155806-513f23925822",
+      "archiveSha256": "ec9d0cf0e96082fc6eef3a8beeb4cb74951294a57dac0d501b25a37e64df2594",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/google.golang.org/genproto/googleapis/rpc@v0.0.0-20250603155806-513f23925822",
+      "archiveSha256": "3b43fafd95300765d08eb0d0137b699c5ee9c105b6af93c4916e7081c97b3a75",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/google.golang.org/grpc@v1.73.0",
+      "archiveSha256": "7d628abd6c4c133205db6b72e374bbd2f438b12a2a5f838f34fd8d95d91f8c0b",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "observedTextId": "Apache-2.0"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    },
+    {
+      "purl": "pkg:golang/gopkg.in/natefinch/lumberjack.v2@v2.2.1",
+      "archiveSha256": "e28804b050e7debf4f5b2dd8d241d804f5d592d0519b6e7a3dc9d4cce6f075b3",
+      "matches": [
+        {
+          "path": "LICENSE",
+          "sha256": "9622cbfd055d92991dcf523a256840424cc6356eab93beb4a93a973dec046492",
+          "observedTextId": "MIT"
+        }
+      ],
+      "binaryIdentityProven": false,
+      "legalDispositionApproved": false
+    }
+  ],
+  "summary": {
+    "addedTextMetadataOccurrences": 88,
+    "remainingMissingMetadata": 143,
+    "stage74Accepted": false,
+    "legalReviewComplete": false
+  },
+  "limitations": [
+    "Normalized exact text matching is evidence, not a legal opinion.",
+    "MIT comparison permits customary title/copyright header variation; Apache requires full normalized equality.",
+    "Template URLs are mutable; retained bytes are hash-bound, not authenticated signatures.",
+    "Nested notices, file-specific exceptions, modifications and shipped-binary/source obligations remain unreviewed.",
+    "No SPDX AND/OR expression for the complete module is inferred from matching a root file."
+  ]
+}

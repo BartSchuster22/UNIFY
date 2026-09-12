@@ -5,3 +5,6 @@ go-notice-review/objects/* -text -diff
 uv-workspace-review/objects/* -text -diff
 review-handoff/GO-NOTICE-CANDIDATES.txt -text -diff
 review-handoff/pending-dispositions.csv -text -diff
+go-text-review/objects/* -text -diff
+review-handoff-v2/GO-NOTICE-CANDIDATES.txt -text -diff
+review-handoff-v2/pending-dispositions.csv -text -diff

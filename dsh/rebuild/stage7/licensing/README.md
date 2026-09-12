@@ -4,7 +4,20 @@
 
 Stage numbering follows PROJECT-ALICA's versioned rebuild master plan: 7.4 is commercial licence/source/enforcement and third-party compliance with appropriate legal review; the earlier conversational list numbered these differently.
 
-## Latest continuation — 2026-09-12, 22:13:05 UTC
+## Latest continuation — 2026-09-12, 22:24:28 UTC
+
+`go-text-review/` adds conservative exact normalized text matching against retained, hash-bound SPDX MIT/Apache-2.0 templates. Apache requires whole-text equality; MIT permits customary copyright/title header variation and requires exact normalized grant/conditions/disclaimer text. Added restrictions, changed bodies and headings alone are rejected. **88 additional inventory records now have observed upstream licence-text metadata; 143 remain missing metadata.** No module-wide AND/OR expression, binary equality or legal clearance is inferred; nested exceptions and obligations remain unreviewed.
+
+`review-handoff-v2/` uses this later queue. The original review handoff remains reproducible without the new flag. All **54 tests pass** on Python 3.11; exact-text verifier and both handoff replays pass. Actual output: `verification-go-text.txt`.
+
+```sh
+python3.11 -B dsh/rebuild/stage7/licensing/match_go_licence_texts.py dsh/rebuild/stage7/licensing/go-text-review --verify
+python3.11 -B dsh/rebuild/stage7/licensing/build_review_handoff.py dsh/rebuild/stage7/licensing/review-handoff-v2 --go-text --verify
+```
+
+Stage 7.4 is not accepted. Engineering dispositions, final legal identity/contact and appropriate legal review remain outstanding. No runtime or existing-grant mutation.
+
+## Preceding continuation — 2026-09-12, 22:13:05 UTC
 
 - `uv-workspace-review/`: 68 retained sources at upstream commit `65950801cc3c609b65be34938bb407ab6e30a9fe` (observed tag `0.11.6`). Exact crate name/version and workspace/direct declarations recovered for **122 records**. Current missing metadata: **231**. `uv-pep440` and `uv-pep508` declare `Apache-2.0 OR BSD-2-Clause`, not the workspace's `MIT OR Apache-2.0`; their local texts are retained and tested.
 - `go-notice-review/`: 133 exact coordinates assessed; 127 full upstream archives retained with 150 notice candidates. Three archives exceed the bounded 8 MiB collector limit; three coordinates are missing versions/non-public. No guessed coordinate substitution. Filename-based candidates do not reduce the metadata gap or prove distribution compliance.
