@@ -1,0 +1,12 @@
+{
+  "addedShippedTextMetadataOccurrences": 2,
+  "remainingMissingMetadata": 141,
+  "engineeringComplete": false,
+  "engineeringBlockers": [
+    "Remaining metadata gaps",
+    "Shipped-identity and package-specific notice/source/build/relink dispositions incomplete",
+    "Original-artifact reinspection not present in this evidence set"
+  ],
+  "legalIdentityAndReview": "outside-this-engineering-scope",
+  "stage74Accepted": false
+}

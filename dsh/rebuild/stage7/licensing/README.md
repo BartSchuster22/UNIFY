@@ -4,7 +4,17 @@
 
 Stage numbering follows PROJECT-ALICA's versioned rebuild master plan: 7.4 is commercial licence/source/enforcement and third-party compliance with appropriate legal review; the earlier conversational list numbered these differently.
 
-## Latest continuation — 2026-09-12, 22:24:28 UTC
+## Engineering-only continuation — 2026-09-12, 22:41:15 UTC
+
+Legal identity/reviewer selection is explicitly outside this requested engineering scope. `shipped-python-review/` binds two `agent-client-protocol` occurrences to an exact Apache licence text in their shipped `.dist-info` directory and authenticated layer, including the exported image-local hardlink resolution. Missing metadata: **141**. The matcher checks distribution name/version, image/layer membership, path boundaries and text hashes. **63 tests pass**, full exported-evidence/shipped-text replay passes, and an asserted `engineeringComplete=true` is rejected. Actual output: `verification-shipped-python.txt`.
+
+```sh
+python3.11 -B dsh/rebuild/stage7/licensing/match_shipped_python.py dsh/rebuild/stage7/licensing/shipped-python-review --verify
+```
+
+**Engineering is not complete.** Original-artifact reinspection and remaining package-specific provenance/notice/source/build/relink dispositions remain outstanding. On this continuation strict SSH to QA `95.216.216.143` using `/home/herman/.ssh/dsh2_known_hosts` failed (exit 255): the endpoint presented ED25519 fingerprint `SHA256:tmJYI0gPITiGFQ9vRcEbacVu5jBsh24YtJic/1ICiFg`, which does not match that file or the other available test-host trust record. This is an observed, **not authenticated**, fingerprint. No host-key bypass, trust-record replacement, remote writes or workload changes occurred. The prior fresh-OS trusted connection described in historical records has not been re-established in this continuation. A verified console fingerprint or verified original release archive is needed for that access path; offline evidence recovery is not a substitute for original-artifact inspection.
+
+## Preceding continuation — 2026-09-12, 22:24:28 UTC
 
 `go-text-review/` adds conservative exact normalized text matching against retained, hash-bound SPDX MIT/Apache-2.0 templates. Apache requires whole-text equality; MIT permits customary copyright/title header variation and requires exact normalized grant/conditions/disclaimer text. Added restrictions, changed bodies and headings alone are rejected. **88 additional inventory records now have observed upstream licence-text metadata; 143 remain missing metadata.** No module-wide AND/OR expression, binary equality or legal clearance is inferred; nested exceptions and obligations remain unreviewed.
 
