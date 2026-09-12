@@ -22,6 +22,13 @@ if not p.exists():
  assert status==201,(status,data)
  p.write_text(json.dumps(data));p.chmod(0o600)
 registration=json.loads(p.read_text())
+# The full qualification exceeds the registration endpoint's one-hour default.
+# Issue a bounded QA credential through the owner API; expiry remains enforced.
+previous=registration['credential']
+status,credential,_=owner('/api/v1/applications/'+registration['applicationId']+'/credentials','POST',{'ttlSeconds':14400})
+assert status==201
+registration['credential']=credential;p.write_text(json.dumps(registration));p.chmod(0o600)
+status,_,_=owner('/api/v1/applications/'+registration['applicationId']+'/credentials/'+previous['id'],'DELETE');assert status==204
 config=OUT/'reference-secrets';config.mkdir(mode=0o700,exist_ok=True)
 passwords={n:secrets.token_urlsafe(24) for n in ['alice','bob']};p=OUT/'customer-passwords.json'
 if p.exists():passwords=json.loads(p.read_text())

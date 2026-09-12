@@ -1,0 +1,9 @@
+{
+  "schema": "stage7-independent-public-download/v1",
+  "url": "https://github.com/BartSchuster22/Alica-DSH/releases/download/dsh-stage7-qa1-2772d9c/dsh-stage7-qa1-2772d9c-linux-amd64.tar.gz",
+  "anonymous": true,
+  "bytes": 1684901487,
+  "sha256": "43a98d80cb49223e76be72b040913826552ba82cdd209e065d9e18162d4c68c6",
+  "elapsedSeconds": 49.817,
+  "passed": true
+}
