@@ -9,6 +9,7 @@ class Packaging(unittest.TestCase):
   self.base=self.root/'base';self.base.mkdir();self.ref=self.root/'reference.tar';self.ref.write_bytes(b'explicit unit fixture, not a real OCI image')
   ops=Path(__file__).parents[1]/'stage5/ops.py'
   (self.base/'ops.py').write_bytes(ops.read_bytes());(self.base/'images.tar').write_bytes(b'explicit unit fixture, not a real OCI image')
+  (self.base/'install.py').write_text((Path(__file__).parents[1]/'stage2/install.py').read_text())
   (self.base/'alicactl').write_text('#!/bin/sh\n# unit fixture only\nexit 0\n')
   release={'schema':'dsh-stage2-bundle/v1','source_revisions':{'installer':'original'},'files':{p.name:m.sha(p) for p in self.base.iterdir()}}
   (self.base/'release.json').write_text(json.dumps(release))
@@ -35,6 +36,21 @@ class Packaging(unittest.TestCase):
    self.assertEqual(output,[str(b/'ops.py'),action,'--root','/opt/fixture'])
   self.assertEqual(subprocess.check_output([str(b/'alicactl'),'plan'],env=env,text=True).splitlines(),[str(b/'install.py'),'plan'])
   self.assertEqual(subprocess.check_output([str(b/'alicactl'),'recover-owner','--help'],env=env,text=True).splitlines(),[str(b/'recover_owner.py'),'--help'])
+ def test_explicit_secret_modes_under_restrictive_umask(self):
+  import ast,os,types
+  self.build();source=(self.out/'bundle/install.py').read_text()
+  node=next(n for n in ast.walk(ast.parse(source)) if isinstance(n,ast.FunctionDef) and n.name=='text')
+  ns={'self':types.SimpleNamespace(root=self.root),'os':os,'TransactionError':RuntimeError}
+  exec(compile(ast.Module(body=[node],type_ignores=[]),'real-preparation-text','exec'),ns)
+  previous=os.umask(0o077)
+  try:
+   ns['text']('container-secret','fixture',0o444);ns['text']('owner-only','fixture',0o400)
+  finally:os.umask(previous)
+  self.assertEqual((self.root/'container-secret').stat().st_mode&0o777,0o444)
+  self.assertEqual((self.root/'owner-only').stat().st_mode&0o777,0o400)
+  (self.root/'link').symlink_to(self.root/'container-secret')
+  with self.assertRaises(RuntimeError):ns['text']('link','fixture')
+  with self.assertRaises(RuntimeError):ns['text']('container-secret','changed')
  def test_tampered_file_denied(self):
   (self.base/'ops.py').write_text('tampered')
   with self.assertRaises(AssertionError):self.build()

@@ -13,6 +13,12 @@ case "${1:-}" in
  *) exec python3 "$base/ops.py" "$@" ;;
 esac
 '''
+def fix_installer(source):
+ old="with os.fdopen(fd,'w') as f:f.write(value);f.flush();os.fsync(f.fileno())"
+ new="with os.fdopen(fd,'w') as f:f.write(value);f.flush();os.fchmod(f.fileno(),mode);os.fsync(f.fileno())"
+ assert source.count(old)==1,'Unexpected installer write primitive'
+ return source.replace(old,new)
+
 def sha(p):
  h=hashlib.sha256()
  with Path(p).open('rb') as f:
@@ -36,6 +42,7 @@ def produce(base,reference,doghouse,output,revision,doghouse_revision):
  # bypass their locks, maintenance fencing and joint-readiness checks.
  (bundle/'alicactl').write_text(LIFECYCLE_CLI)
  (bundle/'alicactl').chmod(0o755)
+ (bundle/'install.py').write_text(fix_installer((bundle/'install.py').read_text()))
  ops=(bundle/'ops.py').read_text()
  assert ops.count('from doghouse_dsh.broker import signature')==1
  ops=ops.replace('from doghouse_dsh.broker import signature','from doghouse_dsh.identity import canonical_signature as signature, SCHEMA')
