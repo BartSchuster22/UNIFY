@@ -2,13 +2,13 @@
 """DSH2-only clean artifact admission and measured installation. No restored state."""
 import hashlib,json,os,socket,subprocess,tarfile,time,urllib.request
 from pathlib import Path
-BASE='https://github.com/BartSchuster22/Alica-DSH/releases/download/dsh-stage7-qa1-ed2f09b/'
-ARCHIVE='dsh-stage7-qa1-ed2f09b-linux-amd64.tar.gz'
-SHA='171bfef29467825548cba0c669f14bbe0620178ae546ff8c5dab288b3b334a88'
+BASE='https://github.com/BartSchuster22/Alica-DSH/releases/download/dsh-stage7-qa1-2772d9c/'
+ARCHIVE='dsh-stage7-qa1-2772d9c-linux-amd64.tar.gz'
+SHA='43a98d80cb49223e76be72b040913826552ba82cdd209e065d9e18162d4c68c6'
 TRUST='5af48e80bffa12df7921c2c688f4f2f2249c68032d04e6f7e10621668d264034'
 VERIFIER='62f39860a259a76721068b23140eca846def5acca5b728fbab26518576722547'
-RELEASE='f3ce059a6e2c1b575ead2fb6e6dbededa4420505285ac9220d5a9ea2b13a9da3'
-HOME=Path('/srv/alica-stage7-ed2f09b');OUT=Path('/var/lib/alica-stage7-qa2');ROOT=Path('/opt/dsh2-stage7-qa2')
+RELEASE='26ccaff3c5539288dda0a0e9b60fa7187fb64b70c772f104e1c0068efbed2b01'
+HOME=Path('/srv/alica-stage7-2772d9c');OUT=Path('/var/lib/alica-stage7-qa3');ROOT=Path('/opt/dsh2-stage7-qa3')
 def run(args):return subprocess.check_output(args,text=True,stderr=subprocess.PIPE).strip()
 def digest(p):
  h=hashlib.sha256()

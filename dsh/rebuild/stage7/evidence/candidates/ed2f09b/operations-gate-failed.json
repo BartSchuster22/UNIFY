@@ -1,0 +1,108 @@
+{
+  "schema": "stage7-clean-install/v1",
+  "candidateSha256": "171bfef29467825548cba0c669f14bbe0620178ae546ff8c5dab288b3b334a88",
+  "releaseSha256": "f3ce059a6e2c1b575ead2fb6e6dbededa4420505285ac9220d5a9ea2b13a9da3",
+  "downloadedOnTarget": true,
+  "admission": {
+    "artifactsVerified": 17,
+    "installationPerformed": false,
+    "keyId": "9b02c8bc02a6b8081031519e192bd508f74d305d1dab9fe28af4440e8b833ac6",
+    "releaseSha256": "f3ce059a6e2c1b575ead2fb6e6dbededa4420505285ac9220d5a9ea2b13a9da3",
+    "sbomProvenanceGateComplete": false,
+    "schemaCompatibilityProven": false,
+    "scope": "qa",
+    "sequence": 1,
+    "signatureVerified": true,
+    "wholeStage6Accepted": false
+  },
+  "cleanDockerBefore": true,
+  "noStateRestored": true,
+  "cpuCount": 4,
+  "memoryTotalBytes": 8122310656,
+  "diskAvailableBeforeBytes": 67865735168,
+  "bootId": "b7ef7ed6-55f7-4720-bf16-080adb41a35b",
+  "stage7Accepted": false,
+  "installExit": 0,
+  "seconds": 210.101,
+  "peakHostNonAvailableBytes": 1841614848,
+  "operationsEnrolled": true,
+  "containers": [
+    {
+      "name": "/dsh2-stage7-qa2-caddy-1",
+      "image": "sha256:6a107c5750be160c6b2b909d2329d73e6e4589b618dfcde00bc8145ddd20194f",
+      "running": true,
+      "health": "healthy",
+      "oomKilled": false,
+      "memoryLimit": 67108864,
+      "nanoCpus": 50000000,
+      "pidsLimit": 128
+    },
+    {
+      "name": "/dsh2-stage7-qa2-uniui-1",
+      "image": "sha256:5e981ddd106e7c591850f6c7bda25ebe667d96b71db14afc085898c0b7b7e064",
+      "running": true,
+      "health": "healthy",
+      "oomKilled": false,
+      "memoryLimit": 134217728,
+      "nanoCpus": 100000000,
+      "pidsLimit": 128
+    },
+    {
+      "name": "/dsh2-stage7-qa2-unify-core-1",
+      "image": "sha256:40156a00c8968ab082bd327bc16229f46834bd18305be2ab48f54076abadd5e2",
+      "running": true,
+      "health": "healthy",
+      "oomKilled": false,
+      "memoryLimit": 402653184,
+      "nanoCpus": 250000000,
+      "pidsLimit": 128
+    },
+    {
+      "name": "/dsh2-stage7-qa2-hermes-1",
+      "image": "sha256:96ed2f016fb159f48058f668a3baccd2d8154644dfd3519b9e683c4e7c636bd9",
+      "running": true,
+      "health": "healthy",
+      "oomKilled": false,
+      "memoryLimit": 1073741824,
+      "nanoCpus": 750000000,
+      "pidsLimit": 192
+    },
+    {
+      "name": "/dsh2-stage7-qa2-memory-v4-1",
+      "image": "sha256:17c114de04013eedaf12be909730bc27a76fb605478e1f23dab509953093356d",
+      "running": true,
+      "health": "healthy",
+      "oomKilled": false,
+      "memoryLimit": 268435456,
+      "nanoCpus": 200000000,
+      "pidsLimit": 128
+    },
+    {
+      "name": "/dsh2-stage7-qa2-keycloak-1",
+      "image": "sha256:b6fa492fadbe4b41fb70af150ccf665f6bae371c412bdeb4c27a0ee113158bec",
+      "running": true,
+      "health": "healthy",
+      "oomKilled": false,
+      "memoryLimit": 805306368,
+      "nanoCpus": 750000000,
+      "pidsLimit": 128
+    },
+    {
+      "name": "/dsh2-stage7-qa2-postgresql-1",
+      "image": "sha256:5c773214aed7adab0900cd0a05dbc468348f76fe1e4c2ca5b0e222e9531f7811",
+      "running": true,
+      "health": "healthy",
+      "oomKilled": false,
+      "memoryLimit": 268435456,
+      "nanoCpus": 250000000,
+      "pidsLimit": 128
+    }
+  ],
+  "containerInstallGatePassed": true,
+  "observerImportExit": 1,
+  "operationsDirectories": {
+    "/usr/local/lib/alica-dsh-ops": "0o700",
+    "/usr/local/lib/alica-dsh-ops/dsh2-stage7-qa2": "0o700"
+  },
+  "passed": false
+}

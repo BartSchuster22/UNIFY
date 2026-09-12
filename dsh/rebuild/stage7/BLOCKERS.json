@@ -16,14 +16,17 @@
       "affectedCandidate": "df5cccbb1618e2b8fa78bf3de44a7884a1345cfb",
       "disposition": "Preserve executable entrypoint mode 0755 and assert it in the packaging regression test.",
       "sourceFixTested": true,
-      "rebuiltArtifactVerified": false,
-      "resolved": false
+      "rebuiltArtifactVerified": true,
+      "correctedCandidate": "4273c8662bc93c03597dcc8a2ed6104cb1c989b9",
+      "actualArchiveMode": "0755",
+      "resolved": true
     },
     {
       "id": "S7-DIST-001",
       "finding": "Public releases contain Stage 2/D6 only; they are not the assembled Stage 7 candidate.",
-      "disposition": "Publish an immutable QA prerelease through the existing GitHub Actions pattern, then independently download and verify it.",
-      "resolved": false
+      "disposition": "Published immutable QA prerelease; GitHub Actions independently downloaded it over anonymous HTTPS and verified SHA-256.",
+      "workflowRun": "https://github.com/BartSchuster22/Alica-DSH/actions/runs/34654360265",
+      "resolved": true
     }
   ]
 }

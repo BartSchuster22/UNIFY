@@ -1,0 +1,19 @@
+{
+  "alicactl": "21be75e32fbffcc1135d7b615e14293d5d197d5e639ef234f02ead553bfc8c81",
+  "compose.template.json": "f7f095007962c245f8b94d4726d4bf2b2cbc5455771bad4d4183237406b40405",
+  "doghouse-dsh.tar": "99bb56ef3c395995ce562aca79256e61f9049b481e4498d7945843906a0700b4",
+  "frameworks.json": "f6fe746b780e05ac0714f5463347fbca04f0917501f30359b93dfdfbafee9f16",
+  "hermes.oci-manifest.json": "811e2112d82d2e015ef41b03c7c8b92ca64bfb27f06f3657b521ee21661cd16d",
+  "images.tar": "b7aa67e0abdeff3c0d24a62a09fffed90de8ec06f31372fe02d0c267d0b13ed1",
+  "install.py": "a6d782383239a75f1c221e1c9f09340da4fb5538ede44e7a7c31a185e1202b65",
+  "memory-v4.oci-manifest.json": "244782c68654f5f72485857f1e599d83950c0db1495157f954662501a1aae730",
+  "ops.py": "1932555a10a396caffb93153baecf2b8d0b3e969bc62d94ca2b3655d1a817b8f",
+  "recover_owner.py": "81442e613828ee5efca4459d6063cd94bd381028afb05c00a278914e6d58beef",
+  "reference-image.tar": "51c522b717e99eb6bb1025c442e713e9f6a1827fbeecef7a70f2cdc12618fd7b",
+  "render.py": "fa876619d3719f7ec29ab50ac49a8428ab7bd565f5d2c835ac0a79b8d49d82c3",
+  "transaction.py": "2866b6a6e0c75dae98029f191c2983cddce9428fd91c21c1060eb6d4ee9456a7",
+  "unify-core.oci-manifest.json": "ad17d7ef08c9deb09d642867561f13ebd448b9e950b9a01bddc8814f2cf59a2b",
+  "uniui.oci-manifest.json": "5aa6f18bdf134c4882235e607fce3d702b312eff85d1d4c8a85f29a37abc39ad",
+  "release.json": "2971e0b830542465e2d53d6f096bde2a4b8484523fc2753b1b4e8c08e4308937",
+  "release.sha256": "29d91f64f7e93d44f3703f51c56caabb8fab12b89937a77e6fc81c482ffd2db7"
+}

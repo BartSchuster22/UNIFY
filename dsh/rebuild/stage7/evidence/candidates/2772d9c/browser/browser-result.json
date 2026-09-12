@@ -1,0 +1,15 @@
+{
+  "schema": "stage7-real-browser/v1",
+  "ownerOidcLogin": true,
+  "ownerDashboardReady": true,
+  "customerLogin": true,
+  "realModelResultVisible": true,
+  "separateStrictTlsProbesPassed": true,
+  "browserUsesQaSelfSignedException": true,
+  "productionRoutesChanged": false,
+  "candidateReleaseSha256": "26ccaff3c5539288dda0a0e9b60fa7187fb64b70c772f104e1c0068efbed2b01",
+  "screenshots": {
+    "owner-console.png": "07022be8e7e32e9bb53474c168c1df954f9ed292cac1fc34ea62010884e1966c",
+    "customer-result.png": "0b4c68849c0be1b89dce0d15a3b7fd7388da62d20d6eb6035fe87bcb3da48edb"
+  }
+}

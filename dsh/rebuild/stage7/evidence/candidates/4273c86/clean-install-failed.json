@@ -1,0 +1,42 @@
+{
+  "schema": "stage7-clean-install/v1",
+  "candidateSha256": "9f7455f10e90e96b40c631a897354074e03d002720e71b02d4348cb41aba9d16",
+  "releaseSha256": "2971e0b830542465e2d53d6f096bde2a4b8484523fc2753b1b4e8c08e4308937",
+  "downloadedOnTarget": true,
+  "admission": {
+    "artifactsVerified": 17,
+    "installationPerformed": false,
+    "keyId": "9b02c8bc02a6b8081031519e192bd508f74d305d1dab9fe28af4440e8b833ac6",
+    "releaseSha256": "2971e0b830542465e2d53d6f096bde2a4b8484523fc2753b1b4e8c08e4308937",
+    "sbomProvenanceGateComplete": false,
+    "schemaCompatibilityProven": false,
+    "scope": "qa",
+    "sequence": 1,
+    "signatureVerified": true,
+    "wholeStage6Accepted": false
+  },
+  "cleanDockerBefore": true,
+  "noStateRestored": true,
+  "cpuCount": 4,
+  "memoryTotalBytes": 8122310656,
+  "diskAvailableBeforeBytes": 71326564352,
+  "bootId": "b7ef7ed6-55f7-4720-bf16-080adb41a35b",
+  "stage7Accepted": false,
+  "installExit": 1,
+  "seconds": 74.028,
+  "peakHostNonAvailableBytes": 717287424,
+  "operationsEnrolled": false,
+  "containers": [
+    {
+      "name": "/dsh2-stage7-qa1-postgresql-1",
+      "image": "sha256:5c773214aed7adab0900cd0a05dbc468348f76fe1e4c2ca5b0e222e9531f7811",
+      "running": false,
+      "health": "unhealthy",
+      "oomKilled": false,
+      "memoryLimit": 268435456,
+      "nanoCpus": 250000000,
+      "pidsLimit": 128
+    }
+  ],
+  "passed": false
+}

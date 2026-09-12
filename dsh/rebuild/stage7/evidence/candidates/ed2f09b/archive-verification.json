@@ -1,0 +1,10 @@
+{
+  "schema": "stage7-archive-verification/v1",
+  "archiveSha256": "171bfef29467825548cba0c669f14bbe0620178ae546ff8c5dab288b3b334a88",
+  "allArchiveMembersIndependentlyVerified": true,
+  "membersVerified": 17,
+  "qaSignatureVerified": true,
+  "keyId": "9b02c8bc02a6b8081031519e192bd508f74d305d1dab9fe28af4440e8b833ac6",
+  "trustFileSha256": "5af48e80bffa12df7921c2c688f4f2f2249c68032d04e6f7e10621668d264034",
+  "stage7Accepted": false
+}

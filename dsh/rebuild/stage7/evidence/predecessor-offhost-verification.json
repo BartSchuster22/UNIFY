@@ -1,0 +1,26 @@
+{
+  "schema": "stage7-predecessor-offhost-verification/v1",
+  "checkedAt": 1789204635.5222287,
+  "ciphertextSha256": "7ea6a5900cf3dd4fd289f2d93b438bed1fae78fe8d1a819d4d8052bcfc0ec5d9",
+  "manifestSha256": "349e113c2abe7941bc8340e92767d695c8b8ada821e54043edfb7d4f4bb9d210",
+  "hosts": {
+    "ElioHermes1": {
+      "ciphertextSha256": "7ea6a5900cf3dd4fd289f2d93b438bed1fae78fe8d1a819d4d8052bcfc0ec5d9",
+      "manifestSha256": "349e113c2abe7941bc8340e92767d695c8b8ada821e54043edfb7d4f4bb9d210",
+      "entriesVerified": 28204,
+      "authenticationVerified": true,
+      "contentsVerified": true,
+      "extracted": false
+    },
+    "ALICA-v1": {
+      "ciphertextSha256": "7ea6a5900cf3dd4fd289f2d93b438bed1fae78fe8d1a819d4d8052bcfc0ec5d9",
+      "manifestSha256": "349e113c2abe7941bc8340e92767d695c8b8ada821e54043edfb7d4f4bb9d210",
+      "entriesVerified": 28204,
+      "authenticationVerified": true,
+      "contentsVerified": true,
+      "extracted": false
+    }
+  },
+  "passed": true,
+  "stage7Accepted": false
+}

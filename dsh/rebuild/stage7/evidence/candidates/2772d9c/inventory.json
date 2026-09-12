@@ -1,0 +1,19 @@
+{
+  "uniui.oci-manifest.json": "5aa6f18bdf134c4882235e607fce3d702b312eff85d1d4c8a85f29a37abc39ad",
+  "doghouse-dsh.tar": "99bb56ef3c395995ce562aca79256e61f9049b481e4498d7945843906a0700b4",
+  "compose.template.json": "f7f095007962c245f8b94d4726d4bf2b2cbc5455771bad4d4183237406b40405",
+  "reference-image.tar": "51c522b717e99eb6bb1025c442e713e9f6a1827fbeecef7a70f2cdc12618fd7b",
+  "memory-v4.oci-manifest.json": "244782c68654f5f72485857f1e599d83950c0db1495157f954662501a1aae730",
+  "release.json": "26ccaff3c5539288dda0a0e9b60fa7187fb64b70c772f104e1c0068efbed2b01",
+  "images.tar": "b7aa67e0abdeff3c0d24a62a09fffed90de8ec06f31372fe02d0c267d0b13ed1",
+  "frameworks.json": "f6fe746b780e05ac0714f5463347fbca04f0917501f30359b93dfdfbafee9f16",
+  "recover_owner.py": "81442e613828ee5efca4459d6063cd94bd381028afb05c00a278914e6d58beef",
+  "alicactl": "ec2b007be54690417eacff4114082a8f1857b4260e47f61c93110d9755fdd8d7",
+  "hermes.oci-manifest.json": "811e2112d82d2e015ef41b03c7c8b92ca64bfb27f06f3657b521ee21661cd16d",
+  "transaction.py": "2866b6a6e0c75dae98029f191c2983cddce9428fd91c21c1060eb6d4ee9456a7",
+  "unify-core.oci-manifest.json": "ad17d7ef08c9deb09d642867561f13ebd448b9e950b9a01bddc8814f2cf59a2b",
+  "render.py": "fa876619d3719f7ec29ab50ac49a8428ab7bd565f5d2c835ac0a79b8d49d82c3",
+  "release.sha256": "149bde3af90c796debf80173dd99b7d7003e7fc9752205c3c98db1ca68f5d0d8",
+  "ops.py": "a307216dedbfc6b3fe7adfdd38a32f7b8df7130194817432a3b1de295ec04011",
+  "install.py": "e8f63a1a752154a0950fbee7b0f7b179e5b7a5f8ca1a10d8ab0ee4a161b52198"
+}

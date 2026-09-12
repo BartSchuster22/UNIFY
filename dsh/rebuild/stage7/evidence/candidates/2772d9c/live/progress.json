@@ -1,0 +1,113 @@
+{
+  "schema": "stage7-qa3-live-run/v1",
+  "releaseSha256": "26ccaff3c5539288dda0a0e9b60fa7187fb64b70c772f104e1c0068efbed2b01",
+  "stages": [
+    {
+      "name": "oidc",
+      "exitCode": 0,
+      "seconds": 9.815
+    },
+    {
+      "name": "native-provider",
+      "exitCode": 0,
+      "seconds": 2.421
+    },
+    {
+      "name": "reference-image",
+      "exitCode": 0,
+      "seconds": 0.726
+    },
+    {
+      "name": "setup_reference",
+      "exitCode": 0,
+      "seconds": 6.407
+    },
+    {
+      "name": "first_request",
+      "exitCode": 0,
+      "seconds": 36.703
+    },
+    {
+      "name": "operations_api",
+      "exitCode": 0,
+      "seconds": 1.201
+    },
+    {
+      "name": "isolation",
+      "exitCode": 1,
+      "seconds": 0.815
+    },
+    {
+      "name": "isolation",
+      "attempt": 2,
+      "exitCode": 1,
+      "seconds": 0.838
+    },
+    {
+      "name": "isolation",
+      "attempt": 3,
+      "exitCode": 1,
+      "seconds": 1.592
+    },
+    {
+      "name": "isolation",
+      "attempt": 4,
+      "exitCode": 1,
+      "seconds": 9.081
+    },
+    {
+      "name": "isolation",
+      "attempt": 5,
+      "exitCode": 1,
+      "seconds": 7.698
+    },
+    {
+      "name": "isolation",
+      "attempt": 6,
+      "exitCode": 0,
+      "seconds": 9.177
+    },
+    {
+      "name": "recurring_soak",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 901.096
+    },
+    {
+      "name": "host_operations",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 123.296
+    },
+    {
+      "name": "extended_host",
+      "attempt": 1,
+      "exitCode": 0,
+      "seconds": 164.494
+    },
+    {
+      "name": "business_faults",
+      "attempt": 1,
+      "exitCode": 1,
+      "seconds": 4.175
+    },
+    {
+      "name": "business_faults",
+      "attempt": 2,
+      "exitCode": 1,
+      "seconds": 0.786
+    },
+    {
+      "name": "business_faults",
+      "attempt": 3,
+      "exitCode": 0,
+      "seconds": 111.282
+    }
+  ],
+  "passed": false,
+  "productionAccepted": false,
+  "fixtureCorrection": "Raw id and OIDC renewal corrected. Callback denial requires exact APPLICATION_DESTINATION_DENIED/403, not an authentication error. Prior failed fixture attempts retained.",
+  "scope": "Partial runtime gates only; overall Stage 7 acceptance requires independent final verdict",
+  "rehearsalDisposition": "Four-result recurrence is rehearsal only. Qualified run requires fresh eight results and >=1800 actual elapsed seconds.",
+  "externalAppFixtureDisposition": "Reference app is outside seven-service owner, restart=no; explicitly restarted after Docker-daemon disruption before business tests."
+}
