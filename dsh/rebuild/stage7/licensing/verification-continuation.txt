@@ -1,0 +1,88 @@
+/home/herman/.local/bin/python3.11 -B -m unittest discover -s dsh/rebuild/stage7/licensing -p test_*.py -v
+exit=0
+test_changed_file (test_audit.AuditTests.test_changed_file) ... ok
+test_changed_image (test_audit.AuditTests.test_changed_image) ... ok
+test_matching_is_not_clearance (test_audit.AuditTests.test_matching_is_not_clearance) ... ok
+test_missing_file (test_audit.AuditTests.test_missing_file) ... ok
+test_missing_record (test_audit.AuditTests.test_missing_record) ... ok
+test_streaming_hash (test_audit.AuditTests.test_streaming_hash) ... ok
+test_guard (test_collectors.CollectorTests.test_guard) ... ok
+test_non_notice_names (test_collectors.CollectorTests.test_non_notice_names) ... ok
+test_notice_names (test_collectors.CollectorTests.test_notice_names) ... ok
+test_reference_and_whiteout_fixture (test_collectors.CollectorTests.test_reference_and_whiteout_fixture) ... {"layers": 2, "noticeCandidates": 1, "uniqueContents": 1, "resolvedReferences": 1, "unresolvedExtractionItems": 1, "legalCoverageComplete": false}
+ok
+test_rust_coordinate_guard (test_collectors.CollectorTests.test_rust_coordinate_guard) ... ok
+test_rust_exact_manifest_and_notice (test_collectors.CollectorTests.test_rust_exact_manifest_and_notice) ... ok
+test_case_escape (test_go_notices.ArchiveTests.test_case_escape) ... ok
+test_duplicate (test_go_notices.ArchiveTests.test_duplicate) ... ok
+test_exact_notice_bytes (test_go_notices.ArchiveTests.test_exact_notice_bytes) ... ok
+test_missing_coordinate (test_go_notices.ArchiveTests.test_missing_coordinate) ... ok
+test_redirect (test_go_notices.ArchiveTests.test_redirect) ... ok
+test_traversal (test_go_notices.ArchiveTests.test_traversal) ... ok
+test_wrong_identity (test_go_notices.ArchiveTests.test_wrong_identity) ... ok
+test_approval (test_go_notices.VerificationTests.test_approval) ... ok
+test_binary_claim (test_go_notices.VerificationTests.test_binary_claim) ... ok
+test_positive (test_go_notices.VerificationTests.test_positive) ... ok
+test_removed_coordinate (test_go_notices.VerificationTests.test_removed_coordinate) ... ok
+test_tampered_bytes (test_go_notices.VerificationTests.test_tampered_bytes) ... ok
+test_tampered_notice (test_go_notices.VerificationTests.test_tampered_notice) ... ok
+test_entity_rejected (test_registry_metadata.RegistryTests.test_entity_rejected) ... ok
+test_inherited (test_registry_metadata.RegistryTests.test_inherited) ... ok
+test_mismatch (test_registry_metadata.RegistryTests.test_mismatch) ... ok
+test_namespaces (test_registry_metadata.RegistryTests.test_namespaces) ... ok
+test_no_approval (test_registry_metadata.RegistryTests.test_no_approval) ... ok
+test_pypi_identity (test_registry_metadata.RegistryTests.test_pypi_identity) ... ok
+test_unsafe_coordinates (test_registry_metadata.RegistryTests.test_unsafe_coordinates) ... ok
+test_changed_object (test_registry_metadata.RetainedEvidenceTests.test_changed_object) ... ok
+test_claimed_approval (test_registry_metadata.RetainedEvidenceTests.test_claimed_approval) ... ok
+test_queue_approval (test_registry_metadata.RetainedEvidenceTests.test_queue_approval) ... ok
+test_excluded (test_uv_workspace.WorkspaceTests.test_excluded) ... ok
+test_inheritance (test_uv_workspace.WorkspaceTests.test_inheritance) ... ok
+test_local_override_not_inherited (test_uv_workspace.WorkspaceTests.test_local_override_not_inherited) ... ok
+test_mismatch (test_uv_workspace.WorkspaceTests.test_mismatch) ... ok
+test_missing_override_text (test_uv_workspace.WorkspaceTests.test_missing_override_text) ... ok
+test_queue_approval (test_uv_workspace.WorkspaceTests.test_queue_approval) ... ok
+test_replay_and_tamper (test_uv_workspace.WorkspaceTests.test_replay_and_tamper) ... ok
+test_cannot_accept_legal_clearance (test_verify_export.ExportTests.test_cannot_accept_legal_clearance) ... ok
+test_changed_archive_digest_rejected (test_verify_export.ExportTests.test_changed_archive_digest_rejected) ... ok
+test_changed_summary_rejected (test_verify_export.ExportTests.test_changed_summary_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 45 tests in 1.578s
+
+OK
+
+/home/herman/.local/bin/python3.11 -B dsh/rebuild/stage7/licensing/collect_go_notices.py dsh/rebuild/stage7/licensing/go-notice-review --verify
+exit=0
+{
+  "coordinates": 133,
+  "archivesRetained": 127,
+  "coordinatesWithNoticeCandidates": 127,
+  "inventoryOccurrencesWithNoticeCandidates": 127,
+  "noticeFiles": 150,
+  "remainingMissingMetadata": 353,
+  "stage74Accepted": false,
+  "legalReviewComplete": false
+}
+
+/home/herman/.local/bin/python3.11 -B dsh/rebuild/stage7/licensing/collect_uv_workspace.py dsh/rebuild/stage7/licensing/uv-workspace-review --verify
+exit=0
+{
+  "sourcesRehashed": 68,
+  "addedMetadataOccurrences": 122,
+  "remainingMissingMetadata": 231,
+  "stage74Accepted": false,
+  "legalReviewComplete": false
+}
+
+/home/herman/.local/bin/python3.11 -B dsh/rebuild/stage7/licensing/build_review_handoff.py dsh/rebuild/stage7/licensing/review-handoff --verify
+exit=0
+PASS: full handoff replay; acceptance remains BLOCKED
+
+Real handoff tamper test: rejected changed CSV as expected.
+Traceback (most recent call last):
+  File "/home/herman/stage3-publication/repos/UNIFY/dsh/rebuild/stage7/licensing/build_review_handoff.py", line 72, in <module>
+    main()
+  File "/home/herman/stage3-publication/repos/UNIFY/dsh/rebuild/stage7/licensing/build_review_handoff.py", line 62, in main
+    raise ValueError('Changed handoff: '+name)
+ValueError: Changed handoff: pending-dispositions.csv

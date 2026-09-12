@@ -1,0 +1,358 @@
+{
+  "commit": "65950801cc3c609b65be34938bb407ab6e30a9fe",
+  "tagObserved": "0.11.6",
+  "inputSha256": "e01cfc450fd11788a46ce0cfa8fa57d09d49e1a7bc50e35030c0cc4e024da435",
+  "sources": {
+    "Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/Cargo.toml",
+      "sha256": "6f38c84bef550bcd5baf71202e81ce927505050a6fb0e1c7a014e30321daa46f",
+      "bytes": 16360
+    },
+    "LICENSE-APACHE": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/LICENSE-APACHE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "bytes": 11357
+    },
+    "LICENSE-MIT": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/LICENSE-MIT",
+      "sha256": "860e3d7a86b84e6a7012c7a635fc64df475cebc6cce34dfeb73a5982ec58176c",
+      "bytes": 1077
+    },
+    "crates/uv-audit/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-audit/Cargo.toml",
+      "sha256": "4c25554f20a28e337cc97ad2eaf4a197ba1b755fa07c0a41d680e830c8def9d1",
+      "bytes": 1456
+    },
+    "crates/uv-auth/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-auth/Cargo.toml",
+      "sha256": "d04c52b7054a5f66153017de4f3e294954fee4275256d5e49beb39128d5273da",
+      "bytes": 1734
+    },
+    "crates/uv-bin-install/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-bin-install/Cargo.toml",
+      "sha256": "9bcea67a4f820d62bdc6296011a80ec87c1a67ee54c32e2036cf3a56b4214157",
+      "bytes": 1113
+    },
+    "crates/uv-build-backend/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-build-backend/Cargo.toml",
+      "sha256": "d668145f5a217a2a7de16b8e85723c812551e8ad351e9f50a9a6d4bf7aa0a4e0",
+      "bytes": 1847
+    },
+    "crates/uv-build-frontend/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-build-frontend/Cargo.toml",
+      "sha256": "f121897caa4cc5360316da2d8efa2f86936d30885915bfc39b653c39a192cd7b",
+      "bytes": 1431
+    },
+    "crates/uv-cache-info/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-cache-info/Cargo.toml",
+      "sha256": "955f64c75679cb440f03cf3861eb09864463deba0141331ff44169b2afd8488a",
+      "bytes": 768
+    },
+    "crates/uv-cache-key/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-cache-key/Cargo.toml",
+      "sha256": "3e7935bcab99cbff5f429f36385db333484fe65f1fc8b13f8db9bae481277d36",
+      "bytes": 560
+    },
+    "crates/uv-cache/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-cache/Cargo.toml",
+      "sha256": "828161dd0d27f02f5e8a9da50bf0994169a0d0ed24b998d0bf5f4a9447e457c5",
+      "bytes": 1143
+    },
+    "crates/uv-cli/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-cli/Cargo.toml",
+      "sha256": "a94203f28c59a8febedb596511a30dfdcefff7361358d89f361c9f685cf3f9c3",
+      "bytes": 1641
+    },
+    "crates/uv-client/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-client/Cargo.toml",
+      "sha256": "7d1bb544f27c8ce36a4c2e7f11dd48b5d5db52b9641a849bceaaf553a6c44f90",
+      "bytes": 2689
+    },
+    "crates/uv-configuration/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-configuration/Cargo.toml",
+      "sha256": "011943c4695cfd2f220814821dc7588f26785ce83442a4825d0ebe44ea3a517e",
+      "bytes": 1413
+    },
+    "crates/uv-console/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-console/Cargo.toml",
+      "sha256": "f5e79f353a0fbc91d0d73c572d5e2ccd6c5e2165d063c6404a321646a93c62c5",
+      "bytes": 411
+    },
+    "crates/uv-dirs/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-dirs/Cargo.toml",
+      "sha256": "3a34d779b233ebbfc77f40d75118dc54f442ccfee43882540e03c39a31b06863",
+      "bytes": 573
+    },
+    "crates/uv-dispatch/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-dispatch/Cargo.toml",
+      "sha256": "40c18bdae2d4778b17d60638a616d2e796e1b7f3181fe7f002704f279c419703",
+      "bytes": 1308
+    },
+    "crates/uv-distribution-filename/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-distribution-filename/Cargo.toml",
+      "sha256": "1480c148d6bf798fb01ee01cbe5e2368c19d8f84553b96a25f348e957f7f6b9a",
+      "bytes": 791
+    },
+    "crates/uv-distribution-types/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-distribution-types/Cargo.toml",
+      "sha256": "0d2b0dd5621d154ea8f1b3dfd6015b9a1adcc464b0908a872e00a8e153d99b7a",
+      "bytes": 1671
+    },
+    "crates/uv-distribution/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-distribution/Cargo.toml",
+      "sha256": "c3e8672f9bebdc5dad1c3a0fcf788ecdbe39b32ab08cf084eac3e9627f52cea0",
+      "bytes": 2053
+    },
+    "crates/uv-extract/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-extract/Cargo.toml",
+      "sha256": "931656a47a47cf3bb0dd8f8fc8e0f118ebe5a5706597c1e9296d2ff7b9cb0b45",
+      "bytes": 1401
+    },
+    "crates/uv-flags/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-flags/Cargo.toml",
+      "sha256": "193698a9cbb3c5587cf3a0f86d390b9df1f7964ae790af886acc6146de6ea4e9",
+      "bytes": 435
+    },
+    "crates/uv-fs/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-fs/Cargo.toml",
+      "sha256": "34ada6e422edd83bad4b3ad3777fb040c91e1a4fc21e373cc1bcfcb5cb17c64e",
+      "bytes": 1373
+    },
+    "crates/uv-git-types/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-git-types/Cargo.toml",
+      "sha256": "bf00925cc9c19267e5135878d1e800898f42c0765a933557807d5cfc3f69fd59",
+      "bytes": 594
+    },
+    "crates/uv-git/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-git/Cargo.toml",
+      "sha256": "c743bdd744e7ffc63acdf85a395ac68e394fe9d2409866e188b436d579b857d3",
+      "bytes": 1069
+    },
+    "crates/uv-globfilter/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-globfilter/Cargo.toml",
+      "sha256": "d3e3f2ed812a8ef0df85acec9be53d9b777920d236a6fe549a959b115c7e4455",
+      "bytes": 761
+    },
+    "crates/uv-install-wheel/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-install-wheel/Cargo.toml",
+      "sha256": "abbba031c0104484320fc84a61b670610e3723fbe547d5b14527238a65809240",
+      "bytes": 1624
+    },
+    "crates/uv-installer/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-installer/Cargo.toml",
+      "sha256": "626e29cb20ecae356e96b8c2e4b8904d3455a5398177792f970e228a44774e23",
+      "bytes": 1681
+    },
+    "crates/uv-keyring/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-keyring/Cargo.toml",
+      "sha256": "07d923a700cd8a201ed4dca8376594e7252e43f125d45c0901ae3fcbcb341a77",
+      "bytes": 1576
+    },
+    "crates/uv-logging/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-logging/Cargo.toml",
+      "sha256": "4d215f51060ce254c2a9b2ffe34efb1ca0f0566688d7faf27e42f686d2e08ddd",
+      "bytes": 515
+    },
+    "crates/uv-metadata/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-metadata/Cargo.toml",
+      "sha256": "c9072c1f811208ad186eb9a630b37fd1dbd5a244ff520887feecafdf6f297016",
+      "bytes": 738
+    },
+    "crates/uv-normalize/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-normalize/Cargo.toml",
+      "sha256": "a4d780519de6cc1351d4d88dd9272636fa7af2ecfc0a152c640859c37ec53418",
+      "bytes": 600
+    },
+    "crates/uv-once-map/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-once-map/Cargo.toml",
+      "sha256": "83a41e6557ae1af324f74574d0cf887229d83fe908f9222c642fae22f3c13db0",
+      "bytes": 472
+    },
+    "crates/uv-options-metadata/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-options-metadata/Cargo.toml",
+      "sha256": "e5818b850fdb267f52ab98e12d1cbfd55e82b332ed98adc73b9505a46dd08567",
+      "bytes": 405
+    },
+    "crates/uv-pep440/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-pep440/Cargo.toml",
+      "sha256": "d43609d002c281dc2d91af560e2c145aeb19803261878d64939ed41c142deb87",
+      "bytes": 993
+    },
+    "crates/uv-pep440/License-Apache": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-pep440/License-Apache",
+      "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9",
+      "bytes": 10173
+    },
+    "crates/uv-pep440/License-BSD": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-pep440/License-BSD",
+      "sha256": "349881bddbe385d3febd5ab50e36ea781aefee73bda4b0610918fe73fda29322",
+      "bytes": 1293
+    },
+    "crates/uv-pep508/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-pep508/Cargo.toml",
+      "sha256": "50a133a5b8d615678caeb7755faa91d3a3361d1a34e9220dfe911cca79ad2d7e",
+      "bytes": 2098
+    },
+    "crates/uv-pep508/License-Apache": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-pep508/License-Apache",
+      "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9",
+      "bytes": 10173
+    },
+    "crates/uv-pep508/License-BSD": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-pep508/License-BSD",
+      "sha256": "349881bddbe385d3febd5ab50e36ea781aefee73bda4b0610918fe73fda29322",
+      "bytes": 1293
+    },
+    "crates/uv-performance-memory-allocator/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-performance-memory-allocator/Cargo.toml",
+      "sha256": "bb16b6eb1fc9494d036466e62e1cc8b936a868774182349cc75e71b6a51f1d9e",
+      "bytes": 691
+    },
+    "crates/uv-platform-tags/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-platform-tags/Cargo.toml",
+      "sha256": "28ccf5aad70536d376fdde395a2d5be941422fa3d0620a14dad89d0422e81c9b",
+      "bytes": 644
+    },
+    "crates/uv-platform/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-platform/Cargo.toml",
+      "sha256": "c2d82b2b0a7aca4080ec7493270c492a724b35267f6453a0bc5711b14298a92b",
+      "bytes": 1008
+    },
+    "crates/uv-preview/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-preview/Cargo.toml",
+      "sha256": "e7c619c53a0421bc28732d5f55a737699f401f4489dfe41b59b67cd1d0098cd1",
+      "bytes": 670
+    },
+    "crates/uv-publish/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-publish/Cargo.toml",
+      "sha256": "b58684fcce24bc48f8b41b54ac0d57ddefa153bd2ce4dfaa0b1bcc4d838ecb2b",
+      "bytes": 1763
+    },
+    "crates/uv-pypi-types/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-pypi-types/Cargo.toml",
+      "sha256": "fd595756d99f852cd229eea7fa6ba6dc17614fd82711c1125655d2aeaddd13c8",
+      "bytes": 1429
+    },
+    "crates/uv-python/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-python/Cargo.toml",
+      "sha256": "3d3c985f32b2b82642fd3e1335b5cb7c1c4cef7b8c194295b47c4edd130ce493",
+      "bytes": 2643
+    },
+    "crates/uv-redacted/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-redacted/Cargo.toml",
+      "sha256": "51494f77c09d26319aca1c2d003f465f359409f50354d7273d23c41158e695a7",
+      "bytes": 555
+    },
+    "crates/uv-requirements-txt/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-requirements-txt/Cargo.toml",
+      "sha256": "91a5fc3c4d200bfb4febf3da329b9de6853e19639fcf096989adfd06829e601c",
+      "bytes": 1374
+    },
+    "crates/uv-requirements/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-requirements/Cargo.toml",
+      "sha256": "bc2c9aea3d1ac7e40dfee39efc682bb177be084b425eda7b3adc485bfdaa4086",
+      "bytes": 1415
+    },
+    "crates/uv-resolver/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-resolver/Cargo.toml",
+      "sha256": "1a97e6b5fe4f408453c5116969141f86efb2778a638e8763a0ff3e2e99b6402c",
+      "bytes": 2596
+    },
+    "crates/uv-scripts/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-scripts/Cargo.toml",
+      "sha256": "81a32a3d865c45e1f0955bc7f2c7a60925da29e987cd024ceb744f479e32a00b",
+      "bytes": 1045
+    },
+    "crates/uv-settings/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-settings/Cargo.toml",
+      "sha256": "9b114ec65a6536165584cfaab18a9355d3f02c57efcb4cb7335092fcdaa3eb44",
+      "bytes": 1766
+    },
+    "crates/uv-shell/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-shell/Cargo.toml",
+      "sha256": "96c3a153cc662ad18aa3b11f72b920241405a961e6bf9efde34ce32545454063",
+      "bytes": 837
+    },
+    "crates/uv-small-str/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-small-str/Cargo.toml",
+      "sha256": "422554f52b96ff930d19a6583f750a993aff01fcfbfa5522a800b8580a306743",
+      "bytes": 518
+    },
+    "crates/uv-state/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-state/Cargo.toml",
+      "sha256": "30b086aa035120e269eb00b621c1d3933e3a2362770991245f564722491474fa",
+      "bytes": 471
+    },
+    "crates/uv-static/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-static/Cargo.toml",
+      "sha256": "03c387ae59321675dc394a64538e48a78d0e527294d24b0bb509849d3646cc98",
+      "bytes": 446
+    },
+    "crates/uv-test/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-test/Cargo.toml",
+      "sha256": "b67403fc09ffae8cfc52cd00bac83cb3fbe8eeebaa8e02e62436df017227e833",
+      "bytes": 1375
+    },
+    "crates/uv-tool/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-tool/Cargo.toml",
+      "sha256": "9dcbcde8fedcfc189eabc8eedfc6538220917decf9bcc5fde88016f851ce2252",
+      "bytes": 1150
+    },
+    "crates/uv-torch/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-torch/Cargo.toml",
+      "sha256": "fbe867237a7d86718fe0981c8836de1b0036a5ce75fc2f11012d11eb898dd6ab",
+      "bytes": 911
+    },
+    "crates/uv-trampoline-builder/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-trampoline-builder/Cargo.toml",
+      "sha256": "4feb2fd5f2d881ed12a2d32ea5b1db7a5c99e5f9b4f3a104da6e2f507430517f",
+      "bytes": 1146
+    },
+    "crates/uv-types/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-types/Cargo.toml",
+      "sha256": "ca253d44a0e49260bc372ea4d92b43e7a98b67a7b57fe5e34cb0456faaddc992",
+      "bytes": 959
+    },
+    "crates/uv-unix/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-unix/Cargo.toml",
+      "sha256": "11bc0c0998a52190fc6dd2ddd525d54111268aac00c59915826cde7b71da2f93",
+      "bytes": 449
+    },
+    "crates/uv-version/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-version/Cargo.toml",
+      "sha256": "7f47fddc8842ec262bbbcf3313869be477c886daee1b75f1d14c13c013f6ad78",
+      "bytes": 367
+    },
+    "crates/uv-virtualenv/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-virtualenv/Cargo.toml",
+      "sha256": "6e27786e17968332146ffb6d6b876ce04240de21762cd2846d5e80567f2e094b",
+      "bytes": 980
+    },
+    "crates/uv-warnings/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-warnings/Cargo.toml",
+      "sha256": "014bda46be9f43257c4e8c646542cae11b2f9976cc9a14ddcc3a1e189610b634",
+      "bytes": 576
+    },
+    "crates/uv-workspace/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv-workspace/Cargo.toml",
+      "sha256": "c4217261a9aa4d5c5c3f68e38d917b80875117b52003d09c50abea7b424ce990",
+      "bytes": 1725
+    },
+    "crates/uv/Cargo.toml": {
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/65950801cc3c609b65be34938bb407ab6e30a9fe/crates/uv/Cargo.toml",
+      "sha256": "e0fdf83edb5415bd7e6fce14bf718a9f8c09a036adf15b99e646c085c537bf8e",
+      "bytes": 7818
+    }
+  },
+  "summary": {
+    "addedMetadataOccurrences": 122,
+    "remainingMissingMetadata": 231,
+    "stage74Accepted": false,
+    "legalReviewComplete": false
+  },
+  "limitations": [
+    "Git tag resolved with git ls-remote; retained bytes pinned to commit.",
+    "Matching package name/version and workspace inheritance are upstream evidence, not proof of shipped binary identity.",
+    "Licence texts retained; corresponding source/build/relink completeness and legal obligations remain unapproved."
+  ]
+}

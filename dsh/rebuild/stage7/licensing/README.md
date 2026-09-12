@@ -4,7 +4,24 @@
 
 Stage numbering follows PROJECT-ALICA's versioned rebuild master plan: 7.4 is commercial licence/source/enforcement and third-party compliance with appropriate legal review; the earlier conversational list numbered these differently.
 
-## Latest registry continuation — 2026-09-12
+## Latest continuation — 2026-09-12, 22:13:05 UTC
+
+- `uv-workspace-review/`: 68 retained sources at upstream commit `65950801cc3c609b65be34938bb407ab6e30a9fe` (observed tag `0.11.6`). Exact crate name/version and workspace/direct declarations recovered for **122 records**. Current missing metadata: **231**. `uv-pep440` and `uv-pep508` declare `Apache-2.0 OR BSD-2-Clause`, not the workspace's `MIT OR Apache-2.0`; their local texts are retained and tested.
+- `go-notice-review/`: 133 exact coordinates assessed; 127 full upstream archives retained with 150 notice candidates. Three archives exceed the bounded 8 MiB collector limit; three coordinates are missing versions/non-public. No guessed coordinate substitution. Filename-based candidates do not reduce the metadata gap or prove distribution compliance.
+- `review-handoff/`: reproducible 3,689-record pending-disposition worksheet, Go notice candidates, status and integrity manifest. This is **not** an approved product NOTICE/source bundle or release gate clearance. Local npm/workspace names are not mapped to public name collisions. Shipped identity, complete source/build/relink requirements and legal review remain open.
+- Verification: **45 tests pass on Python 3.11**, all three offline replays pass, and actual handoff CSV tampering is rejected. Output: `verification-continuation.txt`. The initial full-suite run on system Python 3.10 failed on the existing Rust collector's `tomllib` import; rerunning with installed Python 3.11 succeeded. The uv collector's initial inheritance-only assumption failed closed on the two crate overrides; explicit declarations and local texts were then supported and regression-tested.
+- No QA-host access, runtime mutation, existing grant change or Stage 7.5 publication. Personal ownership and prospective institutional succession are addressed in PROJECT-ALICA's substantive review draft; no future institution is represented as an existing owner.
+
+```sh
+python3.11 -B -m unittest discover -s dsh/rebuild/stage7/licensing -p 'test_*.py' -v
+python3.11 -B dsh/rebuild/stage7/licensing/collect_go_notices.py dsh/rebuild/stage7/licensing/go-notice-review --verify
+python3.11 -B dsh/rebuild/stage7/licensing/collect_uv_workspace.py dsh/rebuild/stage7/licensing/uv-workspace-review --verify
+python3.11 -B dsh/rebuild/stage7/licensing/build_review_handoff.py dsh/rebuild/stage7/licensing/review-handoff --verify
+```
+
+Earlier counts below are historical. Stage 7.4 remains unaccepted, not merely waiting for an institutional body to exist.
+
+## Preceding registry continuation — 2026-09-12
 
 `registry-review-v2/` supersedes the first registry attempt (`registry-review/`, retained for comparison), not the immutable image/Rust collection below. It queried 187 exact Maven/PyPI coordinates and recovered upstream declarations for **164 additional software records**, leaving **353** without metadata. Maven parent chains and PyPI responses are retained verbatim with URL/content hashes. Ten parser and real-evidence negative tests passed; offline verification rehashed 201 responses, replayed 152 successful/no-declaration results and checked the entire derived queue against the prior input.
 

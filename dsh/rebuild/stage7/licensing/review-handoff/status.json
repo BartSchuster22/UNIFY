@@ -1,0 +1,34 @@
+{
+  "reviewOnly": true,
+  "stage74Accepted": false,
+  "legalReviewComplete": false,
+  "inputQueueSha256": "c0f5852627da15d9d9ff4465b3a290b5f44227f2c0c1e1e53ab8ef69a15011d9",
+  "inventoryOccurrences": 3689,
+  "remainingMissingMetadataByType": {
+    "apk": 1,
+    "binary": 34,
+    "deb": 6,
+    "go-module": 133,
+    "java-archive": 35,
+    "npm": 18,
+    "python": 4
+  },
+  "remainingMissingMetadata": 231,
+  "goNoticeCandidates": {
+    "coordinates": 133,
+    "archivesRetained": 127,
+    "coordinatesWithNoticeCandidates": 127,
+    "inventoryOccurrencesWithNoticeCandidates": 127,
+    "noticeFiles": 150,
+    "remainingMissingMetadata": 353,
+    "stage74Accepted": false,
+    "legalReviewComplete": false
+  },
+  "blockers": [
+    "Package-specific provenance and complete licence obligation dispositions remain open.",
+    "Local npm workspace packages must not be mapped to name-colliding public registry packages.",
+    "Three oversized Go archives and three invalid/missing coordinates remain uncollected.",
+    "Full legal name/contact and appropriate completed agreement review are outstanding.",
+    "Final approved immutable assembly has not been produced; this is a review handoff."
+  ]
+}
