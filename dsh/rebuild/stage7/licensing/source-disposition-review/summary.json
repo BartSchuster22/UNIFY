@@ -1,0 +1,24 @@
+{
+  "schema": "stage74-source-dispositions/v1",
+  "packageOccurrences": 3689,
+  "metadataGaps": 52,
+  "occurrencesWithObservedNoticeDocuments": 3091,
+  "uniqueNoticeDocuments": 1280,
+  "upstreamSourceArchivesReferenced": 571,
+  "engineeringComplete": false,
+  "qaExecutionRequiredOrPerformed": false,
+  "sourceCorrespondenceOrDeliveryInferred": false,
+  "legalIdentityAndReview": "outside-this-engineering-scope",
+  "stage74Accepted": false,
+  "productionDistributionCleared": false,
+  "boundedMitEngineeringDispositions": 613,
+  "blockers": {
+    "metadata": 52,
+    "noticeDeliveryDispositions": 2656,
+    "sourceBuildRelinkApplicabilityAndEvidenceDispositions": 2656
+  },
+  "interpretation": "Unresolved source/build/relink counts are unassessed dispositions, not a claim that every package requires source or relinking.",
+  "newSourceNoticeOccurrences": 888,
+  "newExplicitMitSourceDispositions": 420,
+  "totalBoundedEngineeringDispositions": 1033
+}

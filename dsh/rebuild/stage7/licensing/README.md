@@ -4,7 +4,52 @@
 
 Stage numbering follows PROJECT-ALICA's versioned rebuild master plan: 7.4 is commercial licence/source/enforcement and third-party compliance with appropriate legal review; the earlier conversational list numbered these differently.
 
-## Current engineering continuation — package context and evidence gate
+## Current engineering continuation — source-archive dispositions
+
+**Stage7.4 remains incomplete.** Latest package-level handoff:
+`source-disposition-review/`; the metadata queue remains
+`go-origin-review/review-queue.json` with **52 unresolved metadata gaps**.
+
+`build_source_dispositions.py` replays the earlier handoff and independently
+checks all **444 retained registry crate archives**, their registry checksums,
+Cargo coordinates/declarations and complete candidate-notice lists. It attaches
+source notices to **888 authenticated registry-origin scanner occurrences**.
+The new deterministic sidecar contains **1,280 distinct real notice documents**,
+with observed documents for **3,091 of 3,689 occurrences**, and references
+**571 upstream source archives**. References are not a claim of complete
+corresponding source or proven binary/source equivalence.
+
+**420 additional bounded engineering dispositions** select MIT only where the
+registry and Cargo declarations agree and explicitly offer MIT alone or as a
+literal `OR` alternative. The exact MIT text and all other observed notices are
+included. The original expression and the explicit selection are recorded.
+Slash syntax is not converted to OR, AND is not weakened, exception/parenthesis
+syntax is not guessed, and nested/extra/unrecognized licence documents prevent
+this bounded rule from closing the occurrence. Binary, metadata and notice
+verification cannot be exempted by this rule. These are technical dispositions,
+not legal approvals or rights over dependencies.
+
+Total bounded dispositions are now **1,033**; **2,656** occurrences still need
+notice/source/build/relink applicability and evidence dispositions. Counts of
+unassessed dispositions do not imply that every package needs source/relinking.
+The preserved candidate has not been rebuilt or modified.
+
+```sh
+python3.11 -m unittest discover -s . -p 'test_*.py' -q
+python3.11 build_source_dispositions.py --verify
+python3.11 build_source_dispositions.py --verify --require-complete
+# Actual result: 161 tests pass; replay passes; completion must exit 2.
+```
+
+Actual execution is retained in `verification-source-dispositions.txt`, including
+a fresh read-only comparison of the original 125 layers/package context and
+unchanged stopped QA state. Historical handoffs remain unchanged and verifiable.
+The master plan additionally requires approved materials bound to a new immutable
+compliance assembly, without changing preserved QA/recovery artifacts.
+Assembling a new archive would not itself resolve the remaining technical
+evidence or the separately required legal review.
+
+## Previous engineering continuation — package context and evidence gate
 
 **Current missing metadata: 52. Stage7.4 engineering remains incomplete.**
 The archive, all 125 layers and QA stopped-state were rechecked read-only again.

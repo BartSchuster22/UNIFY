@@ -1,0 +1,30 @@
+{
+  "package-evidence.json": {
+    "sha256": "5c84849aabfa4d13c99cb8ba47809ad733de98dd3a94c29a49fd693ade2db71c",
+    "bytes": 8168950
+  },
+  "notice-manifest.json": {
+    "sha256": "39511e8cf44dbbd7cf27e70b18a83be225ddb5f38306daf97f61ddea2ab9dbcd",
+    "bytes": 339217
+  },
+  "source-archive-references.json": {
+    "sha256": "f2306b5942259d6134d36b65356de2c20090f27377ab59502f745639bea3ddbf",
+    "bytes": 226193
+  },
+  "summary.json": {
+    "sha256": "77e4229772dad2d4629041ff20e10a4ec96aaf2ce64d9e090f60b5a8d8fe8471",
+    "bytes": 954
+  },
+  "crate-ledger.json": {
+    "sha256": "aa8eab99ad6b972a78fcf3731656ce67dbfb10b77729e157cfa36d0a7bedb636",
+    "bytes": 126988
+  },
+  "inputs.json": {
+    "sha256": "74dd2956e880f8f09ec4f9d939a42de7c6b6edae01b7732d4dcb231dde3e1dcd",
+    "bytes": 302
+  },
+  "notice-evidence.tar": {
+    "sha256": "03417b7f65cd10a90e6eb7908ba3788c3a15d9533089e0992dabb19014033746",
+    "bytes": 16005120
+  }
+}

@@ -16,3 +16,4 @@ review-handoff-v3/pending-dispositions.csv -text -diff
 distlib-review/objects/* -text -diff
 go-origin-review/objects/* -text -diff
 engineering-review/notice-evidence.tar -text -diff
+source-disposition-review/notice-evidence.tar -text -diff
