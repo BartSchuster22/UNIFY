@@ -1,0 +1,27 @@
+test_archive_tampering_before_extract (test_setup.SetupTests.test_archive_tampering_before_extract) ... ok
+test_bundle_tampering_denied_on_reverification (test_setup.SetupTests.test_bundle_tampering_denied_on_reverification) ... ok
+test_disk_reserve (test_setup.SetupTests.test_disk_reserve) ... ok
+test_existing_destination_not_reused (test_setup.SetupTests.test_existing_destination_not_reused) ... ok
+test_existing_installation_never_gets_zero_predecessor_install (test_setup.SetupTests.test_existing_installation_never_gets_zero_predecessor_install) ... ok
+test_expansion_limit (test_setup.SetupTests.test_expansion_limit) ... ok
+test_expired_signed_envelope (test_setup.SetupTests.test_expired_signed_envelope) ... ok
+test_generic_request (test_setup.SetupTests.test_generic_request) ... ok
+test_http_and_credentials_denied (test_setup.SetupTests.test_http_and_credentials_denied) ... ok
+test_installer_failure_not_reported_as_success (test_setup.SetupTests.test_installer_failure_not_reported_as_success) ... ok
+test_installer_fixture_exit_is_not_onboarding_acceptance (test_setup.SetupTests.test_installer_fixture_exit_is_not_onboarding_acceptance) ... ok
+test_invalid_signature (test_setup.SetupTests.test_invalid_signature) ... ok
+test_modified_bundle_never_reaches_lifecycle (test_setup.SetupTests.test_modified_bundle_never_reaches_lifecycle) ... ok
+test_modified_external_trust_denied (test_setup.SetupTests.test_modified_external_trust_denied) ... ok
+test_qa_hostname_and_port_mismatch_denied (test_setup.SetupTests.test_qa_hostname_and_port_mismatch_denied) ... ok
+test_real_signature_and_safe_extract (test_setup.SetupTests.test_real_signature_and_safe_extract) ... ok
+test_redirect_downgrade_denied (test_setup.SetupTests.test_redirect_downgrade_denied) ... ok
+test_symlink_destination (test_setup.SetupTests.test_symlink_destination) ... ok
+test_unsafe_archive_types_paths_duplicates (test_setup.SetupTests.test_unsafe_archive_types_paths_duplicates) ... ok
+test_verifier_pin_before_network (test_setup.SetupTests.test_verifier_pin_before_network) ... ok
+test_writable_ancestor (test_setup.SetupTests.test_writable_ancestor) ... ok
+test_wrong_scope (test_setup.SetupTests.test_wrong_scope) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 1.358s
+
+OK

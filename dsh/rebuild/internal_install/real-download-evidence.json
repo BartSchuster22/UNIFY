@@ -1,0 +1,32 @@
+{
+  "admission": {
+    "artifactsVerified": 17,
+    "installationPerformed": false,
+    "keyId": "9b02c8bc02a6b8081031519e192bd508f74d305d1dab9fe28af4440e8b833ac6",
+    "releaseSha256": "1486b3aa2dccb7a21941140508280b5125d816452e708e13c7640ea120a2e66c",
+    "sbomProvenanceGateComplete": false,
+    "schemaCompatibilityProven": false,
+    "scope": "qa",
+    "sequence": 1,
+    "signatureVerified": true,
+    "wholeStage6Accepted": false
+  },
+  "archive": "dsh-stage7-qa4-72297c3-linux-amd64.tar.gz",
+  "archiveSha256": "26f98d6ffc8ecc576628b061a9851b8cd40e1e917f070a8567b9fb48ee969553",
+  "distributionApproved": false,
+  "downloadedBytes": 1694482377,
+  "extraction": {
+    "expandedBytes": 4227361320,
+    "members": 17
+  },
+  "installationPerformed": false,
+  "prepared": true,
+  "releaseBase": "https://github.com/BartSchuster22/Alica-DSH/releases/download/dsh-stage7-qa4-72297c3",
+  "schema": "alica-user-preparation/v1",
+  "scope": "qa",
+  "trust": "/var/lib/alica-dsh-internal/trust/candidate-trust.json",
+  "trustSha256": "5af48e80bffa12df7921c2c688f4f2f2249c68032d04e6f7e10621668d264034",
+  "userJourneyAccepted": false,
+  "verifier": "/var/lib/alica-dsh-internal/trust/release_trust.py",
+  "verifierSha256": "62f39860a259a76721068b23140eca846def5acca5b728fbab26518576722547"
+}
