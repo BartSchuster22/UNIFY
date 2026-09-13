@@ -1,0 +1,874 @@
+[
+  {
+    "image": "reference-application",
+    "artifactId": "faa85af46f96a055",
+    "type": "binary",
+    "name": "python",
+    "version": "3.12.14",
+    "locations": [
+      {
+        "path": "/usr/local/bin/python3.12",
+        "layerID": "sha256:3d664d274420a79749a26f9e5115b2120d46037264011773ca4c52e22780b2ca"
+      },
+      {
+        "path": "/usr/local/lib/libpython3.12.so.1.0",
+        "layerID": "sha256:3d664d274420a79749a26f9e5115b2120d46037264011773ca4c52e22780b2ca"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "unify-core",
+    "artifactId": "055b0b7f0842a128",
+    "type": "npm",
+    "name": "@aquiero/contracts",
+    "version": "0.1.0",
+    "locations": [
+      {
+        "path": "/app/node_modules/.pnpm/@aquiero+contracts@file+packages+contracts/node_modules/@aquiero/contracts/package.json",
+        "layerID": "sha256:0eec546842eb2bb3d30d9fcaee50dcd5e0230bbecceaf8853218dc970e2f6a8a"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "unify-core",
+    "artifactId": "33675c3940251a41",
+    "type": "npm",
+    "name": "@aquiero/gateway",
+    "version": "0.1.0",
+    "locations": [
+      {
+        "path": "/app/package.json",
+        "layerID": "sha256:0eec546842eb2bb3d30d9fcaee50dcd5e0230bbecceaf8853218dc970e2f6a8a"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "unify-core",
+    "artifactId": "7745134583913f62",
+    "type": "deb",
+    "name": "libgcc-s1",
+    "version": "14.2.0-19",
+    "locations": [
+      {
+        "path": "/var/lib/dpkg/status.d/libgcc-s1",
+        "layerID": "sha256:c16b2ec4b1493bad1b1de23d659c899e60abb166bda756d02792f0a03ba54a43"
+      },
+      {
+        "path": "/var/lib/dpkg/status.d/libgcc-s1.md5sums",
+        "layerID": "sha256:c16b2ec4b1493bad1b1de23d659c899e60abb166bda756d02792f0a03ba54a43"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "unify-core",
+    "artifactId": "c65f4e8ea077136e",
+    "type": "deb",
+    "name": "libgomp1",
+    "version": "14.2.0-19",
+    "locations": [
+      {
+        "path": "/var/lib/dpkg/status.d/libgomp1",
+        "layerID": "sha256:1f5d28bd51650f429293f7730ede274b81dc0744aa918bc887133c4ad610258c"
+      },
+      {
+        "path": "/var/lib/dpkg/status.d/libgomp1.md5sums",
+        "layerID": "sha256:1f5d28bd51650f429293f7730ede274b81dc0744aa918bc887133c4ad610258c"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "unify-core",
+    "artifactId": "4e9ceeddb7c62ff7",
+    "type": "deb",
+    "name": "libstdc++6",
+    "version": "14.2.0-19",
+    "locations": [
+      {
+        "path": "/var/lib/dpkg/status.d/libstdc++6",
+        "layerID": "sha256:6e18ad80f3d64a8cbbcd1ff2e8a0d5ce7282cf664e816b86183a59d30a618e8a"
+      },
+      {
+        "path": "/var/lib/dpkg/status.d/libstdc++6.md5sums",
+        "layerID": "sha256:6e18ad80f3d64a8cbbcd1ff2e8a0d5ce7282cf664e816b86183a59d30a618e8a"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "unify-core",
+    "artifactId": "53496684038ceb5f",
+    "type": "binary",
+    "name": "node",
+    "version": "22.23.2",
+    "locations": [
+      {
+        "path": "/nodejs/bin/node",
+        "layerID": "sha256:1401d568f9711097c33fdd59d4175c678bc68702b16309b2dfaca9fe99e4b609"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "caddy",
+    "artifactId": "948b704c27397904",
+    "type": "go-module",
+    "name": "caddy",
+    "version": "v0.0.0-20250822212934-551f793700fe",
+    "locations": [
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:0c3ed47d1e80ab755e312649e1777a324e85401671d88025b804c3a6c8685d35"
+      },
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:fa0839096611cbc17cd9b005c89472f4e6bdb1d89ff25c57e4e37a32803a9e23"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "caddy",
+    "artifactId": "52bc4586ef22a868",
+    "type": "go-module",
+    "name": "github.com/antlr4-go/antlr/v4",
+    "version": "v4.13.0",
+    "locations": [
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:0c3ed47d1e80ab755e312649e1777a324e85401671d88025b804c3a6c8685d35"
+      },
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:fa0839096611cbc17cd9b005c89472f4e6bdb1d89ff25c57e4e37a32803a9e23"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "caddy",
+    "artifactId": "cd97832ab16a5c2f",
+    "type": "go-module",
+    "name": "github.com/caddyserver/certmagic",
+    "version": "v0.24.0",
+    "locations": [
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:0c3ed47d1e80ab755e312649e1777a324e85401671d88025b804c3a6c8685d35"
+      },
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:fa0839096611cbc17cd9b005c89472f4e6bdb1d89ff25c57e4e37a32803a9e23"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "caddy",
+    "artifactId": "877a806ebf57e2ef",
+    "type": "go-module",
+    "name": "github.com/cloudflare/circl",
+    "version": "v1.6.1",
+    "locations": [
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:0c3ed47d1e80ab755e312649e1777a324e85401671d88025b804c3a6c8685d35"
+      },
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:fa0839096611cbc17cd9b005c89472f4e6bdb1d89ff25c57e4e37a32803a9e23"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "caddy",
+    "artifactId": "3f0b77508aaee303",
+    "type": "go-module",
+    "name": "github.com/coreos/go-oidc/v3",
+    "version": "v3.14.1",
+    "locations": [
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:0c3ed47d1e80ab755e312649e1777a324e85401671d88025b804c3a6c8685d35"
+      },
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:fa0839096611cbc17cd9b005c89472f4e6bdb1d89ff25c57e4e37a32803a9e23"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "caddy",
+    "artifactId": "e8a1ce1c799a0126",
+    "type": "go-module",
+    "name": "github.com/dustin/go-humanize",
+    "version": "v1.0.1",
+    "locations": [
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:0c3ed47d1e80ab755e312649e1777a324e85401671d88025b804c3a6c8685d35"
+      },
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:fa0839096611cbc17cd9b005c89472f4e6bdb1d89ff25c57e4e37a32803a9e23"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "caddy",
+    "artifactId": "783487354d8c2a0f",
+    "type": "go-module",
+    "name": "github.com/go-logr/logr",
+    "version": "v1.4.3",
+    "locations": [
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:0c3ed47d1e80ab755e312649e1777a324e85401671d88025b804c3a6c8685d35"
+      },
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:fa0839096611cbc17cd9b005c89472f4e6bdb1d89ff25c57e4e37a32803a9e23"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "caddy",
+    "artifactId": "c7242c912e4a02f0",
+    "type": "go-module",
+    "name": "github.com/google/cel-go",
+    "version": "v0.26.0",
+    "locations": [
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:0c3ed47d1e80ab755e312649e1777a324e85401671d88025b804c3a6c8685d35"
+      },
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:fa0839096611cbc17cd9b005c89472f4e6bdb1d89ff25c57e4e37a32803a9e23"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "caddy",
+    "artifactId": "3351194736e767bc",
+    "type": "go-module",
+    "name": "github.com/google/go-tspi",
+    "version": "v0.3.0",
+    "locations": [
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:0c3ed47d1e80ab755e312649e1777a324e85401671d88025b804c3a6c8685d35"
+      },
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:fa0839096611cbc17cd9b005c89472f4e6bdb1d89ff25c57e4e37a32803a9e23"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "caddy",
+    "artifactId": "7a65e90a74c6bdd3",
+    "type": "go-module",
+    "name": "github.com/grpc-ecosystem/grpc-gateway/v2",
+    "version": "v2.27.1",
+    "locations": [
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:0c3ed47d1e80ab755e312649e1777a324e85401671d88025b804c3a6c8685d35"
+      },
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:fa0839096611cbc17cd9b005c89472f4e6bdb1d89ff25c57e4e37a32803a9e23"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "caddy",
+    "artifactId": "799d7d87601f5386",
+    "type": "go-module",
+    "name": "github.com/klauspost/compress",
+    "version": "v1.18.0",
+    "locations": [
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:0c3ed47d1e80ab755e312649e1777a324e85401671d88025b804c3a6c8685d35"
+      },
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:fa0839096611cbc17cd9b005c89472f4e6bdb1d89ff25c57e4e37a32803a9e23"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "caddy",
+    "artifactId": "1eff95415d0a4c88",
+    "type": "go-module",
+    "name": "github.com/munnerz/goautoneg",
+    "version": "v0.0.0-20191010083416-a7dc8b61c822",
+    "locations": [
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:0c3ed47d1e80ab755e312649e1777a324e85401671d88025b804c3a6c8685d35"
+      },
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:fa0839096611cbc17cd9b005c89472f4e6bdb1d89ff25c57e4e37a32803a9e23"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "caddy",
+    "artifactId": "f812beb1e8db1a85",
+    "type": "go-module",
+    "name": "github.com/pires/go-proxyproto",
+    "version": "v0.8.1",
+    "locations": [
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:0c3ed47d1e80ab755e312649e1777a324e85401671d88025b804c3a6c8685d35"
+      },
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:fa0839096611cbc17cd9b005c89472f4e6bdb1d89ff25c57e4e37a32803a9e23"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "caddy",
+    "artifactId": "c1d98cbce7016709",
+    "type": "go-module",
+    "name": "github.com/russross/blackfriday/v2",
+    "version": "v2.1.0",
+    "locations": [
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:0c3ed47d1e80ab755e312649e1777a324e85401671d88025b804c3a6c8685d35"
+      },
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:fa0839096611cbc17cd9b005c89472f4e6bdb1d89ff25c57e4e37a32803a9e23"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "caddy",
+    "artifactId": "12a6bb94d9e44380",
+    "type": "go-module",
+    "name": "github.com/shopspring/decimal",
+    "version": "v1.4.0",
+    "locations": [
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:0c3ed47d1e80ab755e312649e1777a324e85401671d88025b804c3a6c8685d35"
+      },
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:fa0839096611cbc17cd9b005c89472f4e6bdb1d89ff25c57e4e37a32803a9e23"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "caddy",
+    "artifactId": "e539d7c05ecc6ea4",
+    "type": "go-module",
+    "name": "github.com/zeebo/blake3",
+    "version": "v0.2.4",
+    "locations": [
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:0c3ed47d1e80ab755e312649e1777a324e85401671d88025b804c3a6c8685d35"
+      },
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:fa0839096611cbc17cd9b005c89472f4e6bdb1d89ff25c57e4e37a32803a9e23"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "caddy",
+    "artifactId": "25be583d1f518d85",
+    "type": "go-module",
+    "name": "golang.org/x/text",
+    "version": "v0.27.0",
+    "locations": [
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:0c3ed47d1e80ab755e312649e1777a324e85401671d88025b804c3a6c8685d35"
+      },
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:fa0839096611cbc17cd9b005c89472f4e6bdb1d89ff25c57e4e37a32803a9e23"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "caddy",
+    "artifactId": "72d1aea9c80f8d3e",
+    "type": "go-module",
+    "name": "google.golang.org/api",
+    "version": "v0.240.0",
+    "locations": [
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:0c3ed47d1e80ab755e312649e1777a324e85401671d88025b804c3a6c8685d35"
+      },
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:fa0839096611cbc17cd9b005c89472f4e6bdb1d89ff25c57e4e37a32803a9e23"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "caddy",
+    "artifactId": "36a4e38fe477b839",
+    "type": "go-module",
+    "name": "gopkg.in/yaml.v3",
+    "version": "v3.0.1",
+    "locations": [
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:0c3ed47d1e80ab755e312649e1777a324e85401671d88025b804c3a6c8685d35"
+      },
+      {
+        "path": "/usr/bin/caddy",
+        "layerID": "sha256:fa0839096611cbc17cd9b005c89472f4e6bdb1d89ff25c57e4e37a32803a9e23"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "hermes",
+    "artifactId": "3ad0ccddf1b6e8c6",
+    "type": "npm",
+    "name": "@aquiero/contracts",
+    "version": "0.1.0",
+    "locations": [
+      {
+        "path": "/opt/unify-adapter/node_modules/.pnpm/@aquiero+contracts@file+packages+contracts/node_modules/@aquiero/contracts/package.json",
+        "layerID": "sha256:d7b4cee978411821594bf5ed2e1d2776176d881cc0255efec5444c300b840047"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "hermes",
+    "artifactId": "2b43b8db6abc5517",
+    "type": "npm",
+    "name": "@aquiero/hermes-control-adapter",
+    "version": "0.1.0",
+    "locations": [
+      {
+        "path": "/opt/unify-adapter/package.json",
+        "layerID": "sha256:d7b4cee978411821594bf5ed2e1d2776176d881cc0255efec5444c300b840047"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "hermes",
+    "artifactId": "6060687c657da771",
+    "type": "npm",
+    "name": "@hermes-agent/photon-sidecar",
+    "version": "0.4.0",
+    "locations": [
+      {
+        "path": "/opt/hermes/plugins/platforms/photon/sidecar/package.json",
+        "layerID": "sha256:1c8d185a0b7f8d2e3816b825d6d3f05285c47aae7bd4a02f4e039dd30a65d56e"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "hermes",
+    "artifactId": "f9b278e80cff5f49",
+    "type": "npm",
+    "name": "@photon-ai/slack",
+    "version": "0.2.0",
+    "locations": [
+      {
+        "path": "/opt/hermes/plugins/platforms/photon/sidecar/node_modules/@photon-ai/slack/package.json",
+        "layerID": "sha256:1b447ea46427896456e862171d94199398fabe9869cb2ffa2225342b54228292"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "hermes",
+    "artifactId": "934d9cb9939f0372",
+    "type": "npm",
+    "name": "@photon-ai/whatsapp-business",
+    "version": "0.1.1",
+    "locations": [
+      {
+        "path": "/opt/hermes/plugins/platforms/photon/sidecar/node_modules/@photon-ai/whatsapp-business/package.json",
+        "layerID": "sha256:1b447ea46427896456e862171d94199398fabe9869cb2ffa2225342b54228292"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "hermes",
+    "artifactId": "1f61e05554810e3c",
+    "type": "binary",
+    "name": "agent-browser-win32-x64",
+    "version": "UNKNOWN",
+    "locations": [
+      {
+        "path": "/opt/hermes/node_modules/agent-browser/bin/agent-browser-win32-x64.exe",
+        "layerID": "sha256:12491aabd35a399561337cd825c95410ed4d31fb05541454452bd1ebaddef346"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "hermes",
+    "artifactId": "6776bdd9447ae163",
+    "type": "binary",
+    "name": "ed25519_32",
+    "version": "UNKNOWN",
+    "locations": [
+      {
+        "path": "/root/.cache/uv/sdists-v9/pypi/python-olm/3.2.16/rAtAhGqYBwypHHIWixRN-/src/libolm/lib/ed25519/ed25519_32.dll",
+        "layerID": "sha256:d6d9922d0f43b33229b49540e663aa2f9842084508e12ce9c7c680c467598100"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "hermes",
+    "artifactId": "4ac038c60e156840",
+    "type": "binary",
+    "name": "ed25519_64",
+    "version": "UNKNOWN",
+    "locations": [
+      {
+        "path": "/root/.cache/uv/sdists-v9/pypi/python-olm/3.2.16/rAtAhGqYBwypHHIWixRN-/src/libolm/lib/ed25519/ed25519_64.dll",
+        "layerID": "sha256:d6d9922d0f43b33229b49540e663aa2f9842084508e12ce9c7c680c467598100"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "hermes",
+    "artifactId": "85c1a1d5545cca6a",
+    "type": "go-module",
+    "name": "github.com/docker/cli/cmd/docker",
+    "version": "UNKNOWN",
+    "locations": [
+      {
+        "path": "/usr/bin/docker",
+        "layerID": "sha256:6cdb59b4c2ee2ce67c3e7e8259fcdecdda853eb545116d06764ff820b50fd49a"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "hermes",
+    "artifactId": "94ea8e260480223e",
+    "type": "npm",
+    "name": "hermes-whatsapp-bridge",
+    "version": "1.0.0",
+    "locations": [
+      {
+        "path": "/opt/hermes/scripts/whatsapp-bridge/package.json",
+        "layerID": "sha256:9d3164501f38b61b6efe55dcca136588c34efdafe49cd1d0f3425fc36ce8f062"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "hermes",
+    "artifactId": "944a02cefeef02c9",
+    "type": "python",
+    "name": "hindsight-client",
+    "version": "0.6.1",
+    "locations": [
+      {
+        "path": "/opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client-0.6.1.dist-info/METADATA",
+        "layerID": "sha256:d6d9922d0f43b33229b49540e663aa2f9842084508e12ce9c7c680c467598100"
+      },
+      {
+        "path": "/opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client-0.6.1.dist-info/RECORD",
+        "layerID": "sha256:d6d9922d0f43b33229b49540e663aa2f9842084508e12ce9c7c680c467598100"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "hermes",
+    "artifactId": "9f73d2fd21754cdb",
+    "type": "python",
+    "name": "hindsight-client",
+    "version": "0.6.1",
+    "locations": [
+      {
+        "path": "/root/.cache/uv/archive-v0/6j5-TennmgQNCulSUnX4I/hindsight_client-0.6.1.dist-info/METADATA",
+        "layerID": "sha256:d6d9922d0f43b33229b49540e663aa2f9842084508e12ce9c7c680c467598100"
+      },
+      {
+        "path": "/root/.cache/uv/archive-v0/6j5-TennmgQNCulSUnX4I/hindsight_client-0.6.1.dist-info/RECORD",
+        "layerID": "sha256:d6d9922d0f43b33229b49540e663aa2f9842084508e12ce9c7c680c467598100"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "hermes",
+    "artifactId": "b6e2c4da03edb381",
+    "type": "binary",
+    "name": "libopus-0.x64",
+    "version": "UNKNOWN",
+    "locations": [
+      {
+        "path": "/opt/hermes/.venv/lib/python3.13/site-packages/discord/bin/libopus-0.x64.dll",
+        "layerID": "sha256:d6d9922d0f43b33229b49540e663aa2f9842084508e12ce9c7c680c467598100"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "hermes",
+    "artifactId": "c8e1299d606687b5",
+    "type": "binary",
+    "name": "libopus-0.x64",
+    "version": "UNKNOWN",
+    "locations": [
+      {
+        "path": "/root/.cache/uv/archive-v0/u46vIi0JDRxkC5XxoaKBS/discord/bin/libopus-0.x64.dll",
+        "layerID": "sha256:d6d9922d0f43b33229b49540e663aa2f9842084508e12ce9c7c680c467598100"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "hermes",
+    "artifactId": "dfb87fc6310dfd43",
+    "type": "binary",
+    "name": "libopus-0.x86",
+    "version": "UNKNOWN",
+    "locations": [
+      {
+        "path": "/opt/hermes/.venv/lib/python3.13/site-packages/discord/bin/libopus-0.x86.dll",
+        "layerID": "sha256:d6d9922d0f43b33229b49540e663aa2f9842084508e12ce9c7c680c467598100"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "hermes",
+    "artifactId": "d42d1b7fdb53e872",
+    "type": "binary",
+    "name": "libopus-0.x86",
+    "version": "UNKNOWN",
+    "locations": [
+      {
+        "path": "/root/.cache/uv/archive-v0/u46vIi0JDRxkC5XxoaKBS/discord/bin/libopus-0.x86.dll",
+        "layerID": "sha256:d6d9922d0f43b33229b49540e663aa2f9842084508e12ce9c7c680c467598100"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "hermes",
+    "artifactId": "e74fb1dbb7883683",
+    "type": "binary",
+    "name": "node",
+    "version": "22.22.2",
+    "locations": [
+      {
+        "path": "/usr/local/bin/node",
+        "layerID": "sha256:73d240c12e1051cd76347aa1e75d1f045994e0bec3137844f59117bc57ba96f4"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "hermes",
+    "artifactId": "c47032b5dde6c8d7",
+    "type": "binary",
+    "name": "node",
+    "version": "26.5.1",
+    "locations": [
+      {
+        "path": "/usr/local/bin/node",
+        "layerID": "sha256:da637400dd5f50a9c1581c3eb206ae084f99fbbc52eb5b92fa018080f4825f40"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "d930e17b592cae0b",
+    "type": "java-archive",
+    "name": "jrt-fs",
+    "version": "21.0.6",
+    "locations": [
+      {
+        "path": "/usr/lib/jvm/java-21-openjdk-21.0.6.0.7-1.el9.x86_64/lib/jrt-fs.jar",
+        "layerID": "sha256:5350e392fb409c2b524bea30a6d5fead6851034c8251d58fcd465b16e4e73004"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "dabf0c635baf2f49",
+    "type": "java-archive",
+    "name": "quarkus-run",
+    "version": "26.0.8",
+    "locations": [
+      {
+        "path": "/opt/keycloak/lib/quarkus-run.jar",
+        "layerID": "sha256:adab456def56b37939bc6702c218f532045b596cbefbaa7403418499580f4a88"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "memory-v4",
+    "artifactId": "faa85af46f96a055",
+    "type": "binary",
+    "name": "python",
+    "version": "3.12.14",
+    "locations": [
+      {
+        "path": "/usr/local/bin/python3.12",
+        "layerID": "sha256:3d664d274420a79749a26f9e5115b2120d46037264011773ca4c52e22780b2ca"
+      },
+      {
+        "path": "/usr/local/lib/libpython3.12.so.1.0",
+        "layerID": "sha256:3d664d274420a79749a26f9e5115b2120d46037264011773ca4c52e22780b2ca"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "postgresql",
+    "artifactId": "96ada3e2ced9b39a",
+    "type": "apk",
+    "name": ".postgresql-rundeps",
+    "version": "20250204.203554",
+    "locations": [
+      {
+        "path": "/lib/apk/db/installed",
+        "layerID": "sha256:9fbaab84dd357184835af6bdb6934bd17f2c09abdfbe53b45e62b343e667c03a"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "postgresql",
+    "artifactId": "c13a9da2e175805c",
+    "type": "go-module",
+    "name": "github.com/tianon/gosu",
+    "version": "UNKNOWN",
+    "locations": [
+      {
+        "path": "/usr/local/bin/gosu",
+        "layerID": "sha256:37589276ea56dd66484b437d0c47fe0f4889d895bb94df111b707fff4400cfca"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "postgresql",
+    "artifactId": "e87fa48a39943693",
+    "type": "binary",
+    "name": "postgresql",
+    "version": "16.6",
+    "locations": [
+      {
+        "path": "/usr/local/bin/postgres",
+        "layerID": "sha256:9fbaab84dd357184835af6bdb6934bd17f2c09abdfbe53b45e62b343e667c03a"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "uniui",
+    "artifactId": "7745134583913f62",
+    "type": "deb",
+    "name": "libgcc-s1",
+    "version": "14.2.0-19",
+    "locations": [
+      {
+        "path": "/var/lib/dpkg/status.d/libgcc-s1",
+        "layerID": "sha256:c16b2ec4b1493bad1b1de23d659c899e60abb166bda756d02792f0a03ba54a43"
+      },
+      {
+        "path": "/var/lib/dpkg/status.d/libgcc-s1.md5sums",
+        "layerID": "sha256:c16b2ec4b1493bad1b1de23d659c899e60abb166bda756d02792f0a03ba54a43"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "uniui",
+    "artifactId": "c65f4e8ea077136e",
+    "type": "deb",
+    "name": "libgomp1",
+    "version": "14.2.0-19",
+    "locations": [
+      {
+        "path": "/var/lib/dpkg/status.d/libgomp1",
+        "layerID": "sha256:1f5d28bd51650f429293f7730ede274b81dc0744aa918bc887133c4ad610258c"
+      },
+      {
+        "path": "/var/lib/dpkg/status.d/libgomp1.md5sums",
+        "layerID": "sha256:1f5d28bd51650f429293f7730ede274b81dc0744aa918bc887133c4ad610258c"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "uniui",
+    "artifactId": "4e9ceeddb7c62ff7",
+    "type": "deb",
+    "name": "libstdc++6",
+    "version": "14.2.0-19",
+    "locations": [
+      {
+        "path": "/var/lib/dpkg/status.d/libstdc++6",
+        "layerID": "sha256:6e18ad80f3d64a8cbbcd1ff2e8a0d5ce7282cf664e816b86183a59d30a618e8a"
+      },
+      {
+        "path": "/var/lib/dpkg/status.d/libstdc++6.md5sums",
+        "layerID": "sha256:6e18ad80f3d64a8cbbcd1ff2e8a0d5ce7282cf664e816b86183a59d30a618e8a"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  },
+  {
+    "image": "uniui",
+    "artifactId": "53496684038ceb5f",
+    "type": "binary",
+    "name": "node",
+    "version": "22.23.2",
+    "locations": [
+      {
+        "path": "/nodejs/bin/node",
+        "layerID": "sha256:1401d568f9711097c33fdd59d4175c678bc68702b16309b2dfaca9fe99e4b609"
+      }
+    ],
+    "reason": "No verified applicable package-owner declaration; metadata remains unresolved"
+  }
+]

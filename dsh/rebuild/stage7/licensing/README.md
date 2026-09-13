@@ -4,7 +4,80 @@
 
 Stage numbering follows PROJECT-ALICA's versioned rebuild master plan: 7.4 is commercial licence/source/enforcement and third-party compliance with appropriate legal review; the earlier conversational list numbered these differently.
 
-## Current engineering continuation — original QA4 reinspection
+## Current engineering continuation — package context and evidence gate
+
+**Current missing metadata: 52. Stage7.4 engineering remains incomplete.**
+The archive, all 125 layers and QA stopped-state were rechecked read-only again.
+The existing earlier reports below remain historical; the latest metadata queue
+is `go-origin-review/review-queue.json`, with unresolved entries in
+`go-origin-review/gaps.json`.
+
+This continuation adds 10 explicitly bounded npm workspace/fixture-parent
+observations, 8 SHA256-and-size wheel-RECORD-bound setuptools launcher owner
+observations, 12 whole-file byte-matched distlib launchers, 7 conservative
+full-document formatting matches and 2 proxy-origin-commit Go licence documents.
+The latter require the exact shipped module version's proxy `.mod` to equal the
+origin commit's `go.mod`; they do not relax archive size bounds or claim binary
+source equivalence. npm parent observations are explicitly **not** standalone
+child-package licence declarations. Inferred licence choices are not created.
+
+### Package-specific engineering artifact
+
+`engineering-review/notice-evidence.tar` is a deterministic, hash-manifested
+**review-only evidence sidecar**, not a candidate rebuild or distribution approval.
+It contains 980 real notice documents and an evidence mapping for all 3,689
+inventory occurrences; 2,215 occurrences have observed notice documents.
+The package mapping references 127 retained upstream source archives, explicitly
+without claiming that these are complete corresponding sources.
+
+A narrowly bounded MIT engineering rule produces 613 dispositions: only npm or
+Python occurrences whose sole declared licence is MIT, with exact-MIT local
+licence documents covering every listed layer. All observed documents are in the
+sidecar. Source/build/relink delivery is marked not required by that observed MIT
+text **for the occurrence only**, not for its bundled dependencies, and not as
+legal acceptance. Mixed declarations, missing layers, extra terms, inferred
+parent licences and unsupported binary cases do not qualify.
+
+The other 3,076 occurrences retain explicit unresolved notice and
+source/build/relink applicability/evidence dispositions. These are **unassessed
+dispositions**, not a statement that every one requires source or relinking.
+Identity verification means authenticated image plus scanner occurrence, not a
+claim of byte-for-byte source/build equivalence.
+
+### Reproduce and enforce
+
+Use Python 3.11 or newer (the inherited tests use `tomllib`):
+
+```sh
+python3.11 -m unittest discover -s . -p 'test_*.py' -q
+python3.11 bind_package_context.py --verify
+python3.11 bind_distlib.py --verify
+python3.11 match_document_formats.py --verify
+python3.11 collect_go_origin.py --verify
+python3.11 build_engineering_evidence.py --verify
+python3.11 build_engineering_evidence.py --verify --require-complete
+# The last command MUST currently exit 2, not 0.
+```
+
+The completion gate separately checks identity, metadata, notice delivery,
+corresponding source, build instructions and relink materials. It cannot pass
+merely because tests pass or notice candidates exist. Generated outputs are
+byte-replayed from hash-verified sources; editing a completion flag fails replay.
+Collectors' initial output paths must be new. To reproduce remote evidence:
+
+```sh
+python3.11 collect_package_context.py /tmp/stage74-context-new.json \
+  --compare package-context-review/context.json
+```
+
+No remote extraction, container start, rebuild, SSH trust modification, reboot or
+recovery-material write occurs. Package context includes tar-link/whiteout
+information so ownership binding does not silently cross deleted or foreign
+layers. Final verification output is retained in `verification-package-context.txt`.
+Legal identity and legal review stay outside this engineering scope; acceptance
+and production-distribution flags remain false.
+
+## Previous engineering continuation — original QA4 reinspection
 
 **Current missing metadata: 91. Engineering remains incomplete.** The earlier SSH blocker below is historical and resolved: the existing `/home/herman/.alica-provider-access/dsh2-stage7-known-hosts` record verifies DSH2 under strict checking. Do not use the outdated `.ssh/dsh2_known_hosts` file for Stage7.
 

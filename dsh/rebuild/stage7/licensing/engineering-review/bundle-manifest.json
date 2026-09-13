@@ -1,0 +1,26 @@
+{
+  "package-evidence.json": {
+    "sha256": "f615ee32f44651932b0672a57f58a9436e3cda9be21472bab5ddeae050283d35",
+    "bytes": 6916538
+  },
+  "notice-manifest.json": {
+    "sha256": "b861f64f468711e301ad788aa66d73e5ce7278fa18c56832ddc65c9fba5314da",
+    "bytes": 259699
+  },
+  "source-archive-references.json": {
+    "sha256": "462f44161feaa22391229fc72efd2a1a0f8e02c67da083b3f4453d71c450a776",
+    "bytes": 46795
+  },
+  "summary.json": {
+    "sha256": "73503cd98c3beddcc138b191a2031e635934c91fa16c75b507589c534e2c3786",
+    "bytes": 827
+  },
+  "inputs.json": {
+    "sha256": "1939cb36496b85ea90424e6fd9a9e96a799456c93845c4521828483f54a4401e",
+    "bytes": 189
+  },
+  "notice-evidence.tar": {
+    "sha256": "1828e8b912a1a51eaa5b12943ea303565b0d7b7083dd6f69cfea42dbcec11405",
+    "bytes": 13056000
+  }
+}

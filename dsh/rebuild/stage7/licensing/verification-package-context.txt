@@ -1,0 +1,325 @@
+Actual execution UTC 2026-09-13T11:07:36.834551+00:00
+
+$ python3.11 -m unittest discover -s . -p test_*.py -q
+{"layers": 2, "noticeCandidates": 1, "uniqueContents": 1, "resolvedReferences": 1, "unresolvedExtractionItems": 1, "legalCoverageComplete": false}
+----------------------------------------------------------------------
+Ran 136 tests in 37.418s
+
+OK
+
+EXIT 0 (expected 0)
+
+$ python3.11 bind_package_context.py --verify
+{
+  "schema": "stage74-original-bsd-review/v1",
+  "addedByteMatchedMetadataOccurrences": 33,
+  "remainingMissingMetadata": 91,
+  "remainingByType": {
+    "apk": 1,
+    "binary": 34,
+    "deb": 6,
+    "go-module": 28,
+    "java-archive": 2,
+    "npm": 18,
+    "python": 2
+  },
+  "originalArchivesAndLayersReinspected": true,
+  "qaUnchangedAndStopped": true,
+  "engineeringComplete": false,
+  "engineeringBlockers": [
+    "Remaining metadata gaps enumerated in gaps.json",
+    "Package-specific notices, corresponding source, build and relink dispositions not complete across the shipped inventory"
+  ],
+  "legalIdentityAndReview": "outside-this-engineering-scope",
+  "stage74Accepted": false,
+  "productionDistributionCleared": false,
+  "addedBsdTextMetadataOccurrences": 17
+}
+
+{
+  "schema": "stage74-package-context-review/v1",
+  "newPackageOwnerMetadataOccurrences": {
+    "npm": 10,
+    "binary": 8
+  },
+  "remainingMissingMetadata": 73,
+  "remainingByType": {
+    "apk": 1,
+    "binary": 26,
+    "deb": 6,
+    "go-module": 28,
+    "java-archive": 2,
+    "npm": 8,
+    "python": 2
+  },
+  "engineeringComplete": false,
+  "engineeringBlockers": [
+    "Remaining applicable metadata gaps",
+    "Package-specific notices/source/build/relink delivery evidence incomplete"
+  ],
+  "legalIdentityAndReview": "outside-this-engineering-scope",
+  "stage74Accepted": false,
+  "productionDistributionCleared": false
+}
+
+
+EXIT 0 (expected 0)
+
+$ python3.11 bind_distlib.py --verify
+{
+  "schema": "stage74-original-bsd-review/v1",
+  "addedByteMatchedMetadataOccurrences": 33,
+  "remainingMissingMetadata": 91,
+  "remainingByType": {
+    "apk": 1,
+    "binary": 34,
+    "deb": 6,
+    "go-module": 28,
+    "java-archive": 2,
+    "npm": 18,
+    "python": 2
+  },
+  "originalArchivesAndLayersReinspected": true,
+  "qaUnchangedAndStopped": true,
+  "engineeringComplete": false,
+  "engineeringBlockers": [
+    "Remaining metadata gaps enumerated in gaps.json",
+    "Package-specific notices, corresponding source, build and relink dispositions not complete across the shipped inventory"
+  ],
+  "legalIdentityAndReview": "outside-this-engineering-scope",
+  "stage74Accepted": false,
+  "productionDistributionCleared": false,
+  "addedBsdTextMetadataOccurrences": 17
+}
+
+{
+  "schema": "stage74-distlib-review/v1",
+  "newPackageOwnerMetadataOccurrences": {
+    "npm": 10,
+    "binary": 8
+  },
+  "remainingMissingMetadata": 61,
+  "remainingByType": {
+    "apk": 1,
+    "binary": 14,
+    "deb": 6,
+    "go-module": 28,
+    "java-archive": 2,
+    "npm": 8,
+    "python": 2
+  },
+  "engineeringComplete": false,
+  "engineeringBlockers": [
+    "Remaining applicable metadata gaps",
+    "Package-specific notices/source/build/relink delivery evidence incomplete"
+  ],
+  "legalIdentityAndReview": "outside-this-engineering-scope",
+  "stage74Accepted": false,
+  "productionDistributionCleared": false,
+  "newByteMatchedLauncherOccurrences": 12
+}
+
+
+EXIT 0 (expected 0)
+
+$ python3.11 match_document_formats.py --verify
+{
+  "schema": "stage74-original-bsd-review/v1",
+  "addedByteMatchedMetadataOccurrences": 33,
+  "remainingMissingMetadata": 91,
+  "remainingByType": {
+    "apk": 1,
+    "binary": 34,
+    "deb": 6,
+    "go-module": 28,
+    "java-archive": 2,
+    "npm": 18,
+    "python": 2
+  },
+  "originalArchivesAndLayersReinspected": true,
+  "qaUnchangedAndStopped": true,
+  "engineeringComplete": false,
+  "engineeringBlockers": [
+    "Remaining metadata gaps enumerated in gaps.json",
+    "Package-specific notices, corresponding source, build and relink dispositions not complete across the shipped inventory"
+  ],
+  "legalIdentityAndReview": "outside-this-engineering-scope",
+  "stage74Accepted": false,
+  "productionDistributionCleared": false,
+  "addedBsdTextMetadataOccurrences": 17
+}
+
+{
+  "schema": "stage74-format-review/v1",
+  "newPackageOwnerMetadataOccurrences": {
+    "npm": 10,
+    "binary": 8
+  },
+  "remainingMissingMetadata": 54,
+  "remainingByType": {
+    "apk": 1,
+    "binary": 14,
+    "deb": 6,
+    "go-module": 21,
+    "java-archive": 2,
+    "npm": 8,
+    "python": 2
+  },
+  "engineeringComplete": false,
+  "engineeringBlockers": [
+    "Remaining applicable metadata gaps",
+    "Package-specific notices/source/build/relink delivery evidence incomplete"
+  ],
+  "legalIdentityAndReview": "outside-this-engineering-scope",
+  "stage74Accepted": false,
+  "productionDistributionCleared": false,
+  "newByteMatchedLauncherOccurrences": 12,
+  "newFullDocumentFormatMatches": 7
+}
+
+
+EXIT 0 (expected 0)
+
+$ python3.11 collect_go_origin.py --verify
+{
+  "schema": "stage74-original-bsd-review/v1",
+  "addedByteMatchedMetadataOccurrences": 33,
+  "remainingMissingMetadata": 91,
+  "remainingByType": {
+    "apk": 1,
+    "binary": 34,
+    "deb": 6,
+    "go-module": 28,
+    "java-archive": 2,
+    "npm": 18,
+    "python": 2
+  },
+  "originalArchivesAndLayersReinspected": true,
+  "qaUnchangedAndStopped": true,
+  "engineeringComplete": false,
+  "engineeringBlockers": [
+    "Remaining metadata gaps enumerated in gaps.json",
+    "Package-specific notices, corresponding source, build and relink dispositions not complete across the shipped inventory"
+  ],
+  "legalIdentityAndReview": "outside-this-engineering-scope",
+  "stage74Accepted": false,
+  "productionDistributionCleared": false,
+  "addedBsdTextMetadataOccurrences": 17
+}
+
+{
+  "schema": "stage74-go-origin-review/v1",
+  "newPackageOwnerMetadataOccurrences": {
+    "npm": 10,
+    "binary": 8
+  },
+  "remainingMissingMetadata": 52,
+  "remainingByType": {
+    "apk": 1,
+    "binary": 14,
+    "deb": 6,
+    "go-module": 19,
+    "java-archive": 2,
+    "npm": 8,
+    "python": 2
+  },
+  "engineeringComplete": false,
+  "engineeringBlockers": [
+    "Remaining applicable metadata gaps",
+    "Package-specific notices/source/build/relink delivery evidence incomplete"
+  ],
+  "legalIdentityAndReview": "outside-this-engineering-scope",
+  "stage74Accepted": false,
+  "productionDistributionCleared": false,
+  "newByteMatchedLauncherOccurrences": 12,
+  "newFullDocumentFormatMatches": 7,
+  "newOriginBoundMetadataOccurrences": 2
+}
+
+
+EXIT 0 (expected 0)
+
+$ python3.11 build_engineering_evidence.py --verify
+{
+  "schema": "stage74-engineering-evidence/v1",
+  "packageOccurrences": 3689,
+  "metadataGaps": 52,
+  "occurrencesWithObservedNoticeDocuments": 2215,
+  "uniqueNoticeDocuments": 980,
+  "upstreamSourceArchivesReferenced": 127,
+  "engineeringComplete": false,
+  "qaExecutionRequiredOrPerformed": false,
+  "sourceCorrespondenceOrDeliveryInferred": false,
+  "legalIdentityAndReview": "outside-this-engineering-scope",
+  "stage74Accepted": false,
+  "productionDistributionCleared": false,
+  "boundedMitEngineeringDispositions": 613,
+  "blockers": {
+    "metadata": 52,
+    "noticeDeliveryDispositions": 3076,
+    "sourceBuildRelinkApplicabilityAndEvidenceDispositions": 3076
+  },
+  "interpretation": "Unresolved source/build/relink counts are unassessed dispositions, not a claim that every package requires source or relinking."
+}
+
+EXIT 0 (expected 0)
+
+$ python3.11 build_engineering_evidence.py --verify --require-complete
+{
+  "schema": "stage74-engineering-evidence/v1",
+  "packageOccurrences": 3689,
+  "metadataGaps": 52,
+  "occurrencesWithObservedNoticeDocuments": 2215,
+  "uniqueNoticeDocuments": 980,
+  "upstreamSourceArchivesReferenced": 127,
+  "engineeringComplete": false,
+  "qaExecutionRequiredOrPerformed": false,
+  "sourceCorrespondenceOrDeliveryInferred": false,
+  "legalIdentityAndReview": "outside-this-engineering-scope",
+  "stage74Accepted": false,
+  "productionDistributionCleared": false,
+  "boundedMitEngineeringDispositions": 613,
+  "blockers": {
+    "metadata": 52,
+    "noticeDeliveryDispositions": 3076,
+    "sourceBuildRelinkApplicabilityAndEvidenceDispositions": 3076
+  },
+  "interpretation": "Unresolved source/build/relink counts are unassessed dispositions, not a claim that every package requires source or relinking."
+}
+
+EXIT 2 (expected 2)
+
+$ python3.11 build_review_handoff.py review-handoff-v3 --original-review --verify
+{
+  "schema": "stage74-original-bsd-review/v1",
+  "addedByteMatchedMetadataOccurrences": 33,
+  "remainingMissingMetadata": 91,
+  "remainingByType": {
+    "apk": 1,
+    "binary": 34,
+    "deb": 6,
+    "go-module": 28,
+    "java-archive": 2,
+    "npm": 18,
+    "python": 2
+  },
+  "originalArchivesAndLayersReinspected": true,
+  "qaUnchangedAndStopped": true,
+  "engineeringComplete": false,
+  "engineeringBlockers": [
+    "Remaining metadata gaps enumerated in gaps.json",
+    "Package-specific notices, corresponding source, build and relink dispositions not complete across the shipped inventory"
+  ],
+  "legalIdentityAndReview": "outside-this-engineering-scope",
+  "stage74Accepted": false,
+  "productionDistributionCleared": false,
+  "addedBsdTextMetadataOccurrences": 17
+}
+
+PASS: full handoff replay; acceptance remains BLOCKED
+
+EXIT 0 (expected 0)
+
+Live refetch equality: 8 Go origin objects and 1 distlib wheel: PASS
+Repeated read-only remote context exact equality: PASS; sha256=61b7b3ddcf764099e0e9ccb8f639a791237e6a28fd508951f936e6565d63d1e5
+Rechecked image layers: 125; QA unchanged and stopped: PASS

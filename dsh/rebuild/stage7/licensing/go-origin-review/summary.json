@@ -1,0 +1,28 @@
+{
+  "schema": "stage74-go-origin-review/v1",
+  "newPackageOwnerMetadataOccurrences": {
+    "npm": 10,
+    "binary": 8
+  },
+  "remainingMissingMetadata": 52,
+  "remainingByType": {
+    "apk": 1,
+    "binary": 14,
+    "deb": 6,
+    "go-module": 19,
+    "java-archive": 2,
+    "npm": 8,
+    "python": 2
+  },
+  "engineeringComplete": false,
+  "engineeringBlockers": [
+    "Remaining applicable metadata gaps",
+    "Package-specific notices/source/build/relink delivery evidence incomplete"
+  ],
+  "legalIdentityAndReview": "outside-this-engineering-scope",
+  "stage74Accepted": false,
+  "productionDistributionCleared": false,
+  "newByteMatchedLauncherOccurrences": 12,
+  "newFullDocumentFormatMatches": 7,
+  "newOriginBoundMetadataOccurrences": 2
+}

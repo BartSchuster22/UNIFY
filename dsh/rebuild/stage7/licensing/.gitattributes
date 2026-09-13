@@ -12,3 +12,7 @@ original-review/objects/* -text -diff
 original-bsd-review/objects/* -text -diff
 review-handoff-v3/GO-NOTICE-CANDIDATES.txt -text -diff
 review-handoff-v3/pending-dispositions.csv -text -diff
+# New byte-bound upstream objects and deterministic engineering sidecar.
+distlib-review/objects/* -text -diff
+go-origin-review/objects/* -text -diff
+engineering-review/notice-evidence.tar -text -diff

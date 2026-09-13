@@ -1,0 +1,46 @@
+{
+  "golang.org/x/text": {
+    "info": {
+      "url": "https://proxy.golang.org/golang.org/x/text/@v/v0.27.0.info",
+      "sha256": "ee4ce91af0cf7c733182a82755b07e0e146da78ed3182b98ff3b22b4b45bbb6e",
+      "bytes": 191
+    },
+    "proxyMod": {
+      "url": "https://proxy.golang.org/golang.org/x/text/@v/v0.27.0.mod",
+      "sha256": "da5f12c7398b0c0ea136ec5ece1df536f0f955ad648feeeae33530c3e2fb9cbf",
+      "bytes": 190
+    },
+    "originMod": {
+      "url": "https://go.googlesource.com/text/+/b6d26456dd3ff554a56f10b1e388db0f8ca862d1/go.mod?format=TEXT",
+      "sha256": "a557cf28af9a9b40d682e51bc9ed4ebe99c2e713a4fd9a3d4b94b43240243bd7",
+      "bytes": 256
+    },
+    "licence": {
+      "url": "https://go.googlesource.com/text/+/b6d26456dd3ff554a56f10b1e388db0f8ca862d1/LICENSE?format=TEXT",
+      "sha256": "a812238a4de1d1040e2efee9b976fafc1a11cff1500cbdc5b2528cad9b209f2c",
+      "bytes": 1940
+    }
+  },
+  "google.golang.org/api": {
+    "info": {
+      "url": "https://proxy.golang.org/google.golang.org/api/@v/v0.240.0.info",
+      "sha256": "c646e0e6569fa7d8381f7183f410366dd10c6536e10d76acf1b795698113a8d1",
+      "bytes": 211
+    },
+    "proxyMod": {
+      "url": "https://proxy.golang.org/google.golang.org/api/@v/v0.240.0.mod",
+      "sha256": "307f3a11b04f092270b5928cf7e6cb8a3b3d9a88ac4bc1e9a23039898b35a152",
+      "bytes": 1338
+    },
+    "originMod": {
+      "url": "https://raw.githubusercontent.com/googleapis/google-api-go-client/9f7dd0d6600833ed29eb7dcefe7e9ad1f203ba36/go.mod",
+      "sha256": "307f3a11b04f092270b5928cf7e6cb8a3b3d9a88ac4bc1e9a23039898b35a152",
+      "bytes": 1338
+    },
+    "licence": {
+      "url": "https://raw.githubusercontent.com/googleapis/google-api-go-client/9f7dd0d6600833ed29eb7dcefe7e9ad1f203ba36/LICENSE",
+      "sha256": "110244b02140866ee37d17fa7449436a377ec3b85a481fbb208f4c87964382de",
+      "bytes": 1475
+    }
+  }
+}

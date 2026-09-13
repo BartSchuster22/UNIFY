@@ -1,0 +1,25 @@
+{
+  "schema": "stage74-package-context-review/v1",
+  "newPackageOwnerMetadataOccurrences": {
+    "npm": 10,
+    "binary": 8
+  },
+  "remainingMissingMetadata": 73,
+  "remainingByType": {
+    "apk": 1,
+    "binary": 26,
+    "deb": 6,
+    "go-module": 28,
+    "java-archive": 2,
+    "npm": 8,
+    "python": 2
+  },
+  "engineeringComplete": false,
+  "engineeringBlockers": [
+    "Remaining applicable metadata gaps",
+    "Package-specific notices/source/build/relink delivery evidence incomplete"
+  ],
+  "legalIdentityAndReview": "outside-this-engineering-scope",
+  "stage74Accepted": false,
+  "productionDistributionCleared": false
+}
