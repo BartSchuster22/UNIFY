@@ -1,6 +1,6 @@
 {
   "inputs": {
-    "build_step3_obligations.py": "7c9ee6391766af2d585b6acd57402b51d1d868bc757a398871626911f4ef5106",
+    "build_step3_obligations.py": "b2fcefabcc7132dfa98678f3756aa8b06ce3054acb4618814e52180c4d893df3",
     "clean-candidate-review/caddy/transformation.json": "697b3f86fecdf4508604b1d077c86351acdb71210f0770f836108dc10c560ad0",
     "clean-candidate-review/candidate-package-evidence.json": "309305783ddad490694f2a59c5f664d7107c014f39840d587a53fdbb3969db40",
     "clean-candidate-review/hermes/transformation.json": "42ff99d1b0b126fe714a5e9dc9e03f49f1f224f87f42df3013f128b1acce76f4",
@@ -24,18 +24,20 @@
     "collect_step3_context.py": "f426f862b454237b9a489ad5ed81b46069abb6973bdee4f604580d04d7cde010",
     "collect_step3_gsap.py": "b1c3676a90fb6fc087a8571ebd4d09d94a6fc8389de8f6de8a2812689369eebf",
     "go-origin-review/review-queue.json": "d7632c898aa947b1fe2ba15ab41e91bbff6e9de0a35e7ee002ecf4c17561f85f",
+    "review_step3_scoped_cases.py": "ca610f21b782e7bcd4a84691b4997a0edb03afdd5265dac85d20f46195d989e1",
     "scan_step3_licence_texts.py": "7af73d67bfec8866d4b8daf70ec85e629d9eb555a51d7ffad9ab48bfe2e121d9",
     "source-disposition-review/notice-evidence.tar": "03417b7f65cd10a90e6eb7908ba3788c3a15d9533089e0992dabb19014033746",
     "source-disposition-review/package-evidence.json": "5c84849aabfa4d13c99cb8ba47809ad733de98dd3a94c29a49fd693ade2db71c",
-    "test_step3_obligations.py": "5bbccee7a623894ae27b8793cd863db8959dc55ca2bf351874d7fff3ec5d5534"
+    "test_step3_obligations.py": "5bbccee7a623894ae27b8793cd863db8959dc55ca2bf351874d7fff3ec5d5534",
+    "test_step3_scoped_cases.py": "e0dabff2fb6eb82302e7b81ac4297fbbdc0c3b58850417af19980cb56ed5f15d"
   },
   "outputs": {
-    "STATUS.md": "815be765698edd8822b5f4e2e4918890e410afc02e038bf13acfb8e3329fdb00",
-    "blockers.json": "b9d14ab8d07527f27757da4ef34c4a1ecefa18993648cdf1c1f913998533b462",
-    "group-obligations.csv": "54ecdf378e61bea40dd177aad91ba58f16ed3c892904c3386b004232b07df82f",
-    "groups.json": "c0ffb85e9f29f0e03a96e131c2f49dace6a28192b4160aabaa7f5890f002514c",
+    "STATUS.md": "8a1bd2cb929caabac0f55970d353f9f15baabb2e5363ea429272558e84161922",
+    "blockers.json": "4c21a720154cedc49eddb73e9da09a09d9ce6bcd6743423096a8836fbd3862d6",
+    "group-obligations.csv": "3d64c1ef3d35194ab09f70bc14c576dcf6871ab4de1c5ccd3464fdd5bf0e0610",
+    "groups.json": "324f32fa917ae34e847d7e8b156d88e6187991835bb175e5b9d8443bd9f0dafd",
     "native-linking-evidence.json": "3803e01f3ab090778f1e98901d3f0a804aa48bf39d1574bde22aa2ba94b92816",
-    "occurrence-to-group.json": "322a834797872f23adbae2cfce0534aee3814ea9a16844fecc153b1ab97a5f7d",
-    "summary.json": "30f3f597b6e0d48ac09adbfae8ddf7251968651fda0e94bb94dd1c6a205de35c"
+    "occurrence-to-group.json": "e4f3af33d155977c72e067fa09eb563e4493263e2d30b249bf95e87e0a336be1",
+    "summary.json": "3815a2f4eb5e6a83021bc25c0764f1f8a4e732a047161bb6f89872df26caeb8a"
   }
 }

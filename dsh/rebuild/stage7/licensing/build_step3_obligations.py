@@ -6,6 +6,7 @@ import argparse,collections,csv,hashlib,io,json,posixpath,re,tarfile
 from pathlib import Path
 import freeze_clean_candidate as freeze
 import resolve_step2_records as step2
+import review_step3_scoped_cases as scoped_reviews
 BASE=Path(__file__).resolve().parent;B=BASE/'clean-candidate-review';OUT=B/'step3'
 def sha(b):return hashlib.sha256(b).hexdigest()
 def enc(v):return (json.dumps(v,sort_keys=True,indent=2)+'\n').encode()
@@ -221,6 +222,7 @@ def derive():
             issues.append({'code':'additional-notice-terms-scope-review','terms':extras,'action':'Full licence text was recognized in scoped notice evidence. Determine covered files/alternatives/exceptions before issuing a source/relink waiver; recognition alone is not a licence-scope decision.'})
             for field in ['correspondingSource','buildInstructions','relinkOrReplacement']:
                 if req.get(field,{}).get('applicability')=='not-required':req[field]={'applicability':'blocked','basis':'Additional notice terms need component/file scope review before this waiver.','fulfilled':False}
+        profile,req,issues=scoped_reviews.apply(row,ev,profile,req,issues,read)
         if not ctx['retainedFileCount'] and not (ov and ov['classification']=='zero-payload-package-manager-descriptor'):issues.append({'code':'payload-ownership-incomplete','action':'Resolve empty package-manager/editable-project ownership; do not treat this as absent code.'})
         shape={'name':row['name'],'version':row['version'],'type':typ,'purl':row['purl'],'payload':ctx['relativePayloadSignature'],'noticeHashes':sorted({d['sha256'] for d in ev}),'licenceProfile':profile,'situation':situation,'requirements':req,'blockers':issues}
         gid=sha(enc(shape));family=sha(enc({'name':row['name'],'version':row['version'],'type':typ,'purl':row['purl']}));g=groups.setdefault(gid,{'groupId':gid,'componentFamilyId':family,**shape,'occurrences':[]});g['occurrences'].append({'image':row['image'],'artifactId':row['artifactId']});members.append({'image':row['image'],'artifactId':row['artifactId'],'groupId':gid,'primaryPaths':ctx['primaryPaths'],'payloadSignature':ctx['payloadSignature'],'nativePaths':ctx['nativePaths']})
@@ -229,7 +231,7 @@ def derive():
         if g['blockers']:blockers.append({'groupId':g['groupId'],'name':g['name'],'version':g['version'],'occurrences':g['occurrences'],'issues':g['blockers'],'noticeHashes':g['noticeHashes']})
     decided=sum(len(g['occurrences']) for g in ordered if not g['blockers']);summary={'schema':'stage74-step3-obligations/v1','candidateLockSha256':sha(enc(lock)),'occurrences':len(q),'componentFamilies':len({g['componentFamilyId'] for g in ordered}),'contextualGroups':len(ordered),'groupsWithRepeatedOccurrences':sum(len(g['occurrences'])>1 for g in ordered),'decidedGroups':len(ordered)-len(blockers),'blockedGroups':len(blockers),'decidedOccurrences':decided,'blockedOccurrences':len(q)-decided,'step3Complete':not blockers,'fulfilmentAssessed':False,'engineeringComplete':False,'legalApproval':False,'fullStackRequalified':False,'nativePayloadsInspected':len(native),'dynamicDependencyEdges':len(edges),'originalQAUnchanged':c['originalQAUnchanged']}
     summary.update({'groupingComplete':True,'textDocumentsInspected':len(text_docs),'openReviewsAreNotFindingsOfInfringement':True,'reviewStatus':'complete' if not blockers else 'partial-applicability-review'})
-    for name in ['build_step3_obligations.py','collect_step3_context.py','scan_step3_licence_texts.py','collect_step3_gsap.py','test_step3_obligations.py']:read(name)
+    for name in ['build_step3_obligations.py','review_step3_scoped_cases.py','test_step3_scoped_cases.py','collect_step3_context.py','scan_step3_licence_texts.py','collect_step3_gsap.py','test_step3_obligations.py']:read(name)
     outputs={n:enc(v) for n,v in {'summary.json':summary,'groups.json':ordered,'occurrence-to-group.json':members,'blockers.json':blockers,'native-linking-evidence.json':{'scope':'Static ELF observations only; no absence inference or full loader resolution','edges':edges,'providerOwners':[{'image':k[0],'path':k[1],'artifactIds':v} for k,v in sorted(owners.items())]}}.items()}
     sheet=io.StringIO();writer=csv.writer(sheet,lineterminator='\n',quoting=csv.QUOTE_ALL)
     writer.writerow(['groupId','type','name','version','occurrences','images','terms','source','build','relink','notice','reviewStatus','openIssueCodes'])

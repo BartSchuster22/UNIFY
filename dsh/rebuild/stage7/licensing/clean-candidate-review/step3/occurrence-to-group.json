@@ -12803,7 +12803,7 @@
   },
   {
     "artifactId": "300b1cdfc47bfde7",
-    "groupId": "4b961d5c92e3b9401a91c6264800c0c249456bf0cf9a8617612817ff0a349304",
+    "groupId": "83139a911812f835a05fdb953c51a6d39c6f3a76af5a57edb1e50d78fa2f3adf",
     "image": "hermes",
     "nativePaths": [
       "usr/local/bin/uv"
@@ -12815,7 +12815,7 @@
   },
   {
     "artifactId": "83a70d2ccb13a033",
-    "groupId": "7cf85a151a93b6257bfb544d3283512baaae2d50af21e2c25b33c2a75ea1ac3e",
+    "groupId": "a8ca32d2b9ab21683edc1ce5564a22e9ba26f5ea4c6afcc1efb09cd7963fe4a9",
     "image": "hermes",
     "nativePaths": [
       "usr/local/bin/uvx"
@@ -24557,7 +24557,7 @@
   },
   {
     "artifactId": "726eb076f8c46e5a",
-    "groupId": "ab3b89aa2e0102028a210cb0852ced1e26c7e1372c4e1d55a43f2b57e6c7c019",
+    "groupId": "738ce99e93a6a254a9c863602fef1fe99d1ae291792490e4591d9640cf2f62fd",
     "image": "hermes",
     "nativePaths": [
       "usr/local/bin/uv"
@@ -24569,7 +24569,7 @@
   },
   {
     "artifactId": "0867e5b67cdd86ae",
-    "groupId": "716c9148aee5b052ba776755cf2ec1dc2275557bd6ecc48454afea128ea940b7",
+    "groupId": "2e76d0b6bf5474ad6fcde1cb0c362e7d9ec8a63a1b9fafc186c6485944a24787",
     "image": "hermes",
     "nativePaths": [
       "usr/local/bin/uvx"
@@ -28200,7 +28200,7 @@
   },
   {
     "artifactId": "3dd535f3fa4bb6d1",
-    "groupId": "a56814cf96f3f670f59b353d87a676ed28faa4ac92b04b79defcbff809d652d4",
+    "groupId": "754fb7ae09445e1e1d233b9b8078bebffe70c1a36f22e73f7dfb20624a16cb06",
     "image": "hermes",
     "nativePaths": [
       "usr/local/bin/uv"
@@ -28212,7 +28212,7 @@
   },
   {
     "artifactId": "aab3f7ff8910cbf3",
-    "groupId": "b29031dc2e95da8b2d70891ecd3bc32182f80146394c750a3e329c2eb205adc2",
+    "groupId": "245837f66b95b31e6fdbb7835d969c9d5ef83e448443713818547b41dcfe8f9c",
     "image": "hermes",
     "nativePaths": [
       "usr/local/bin/uvx"

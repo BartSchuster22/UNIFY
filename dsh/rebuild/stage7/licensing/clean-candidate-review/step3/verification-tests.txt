@@ -1,5 +1,5 @@
 {"layers": 2, "noticeCandidates": 1, "uniqueContents": 1, "resolvedReferences": 1, "unresolvedExtractionItems": 1, "legalCoverageComplete": false}
 ----------------------------------------------------------------------
-Ran 227 tests in 111.914s
+Ran 235 tests in 113.394s
 
 OK

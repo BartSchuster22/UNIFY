@@ -219338,35 +219338,33 @@
     "version": "1.5.0"
   },
   {
-    "blockers": [
-      {
-        "action": "Review the attached actual notice bundle and resolve file/exception/custom-term scope for this component.",
-        "code": "unresolved-licence-scope",
-        "terms": [
-          "bzip2-1.0.6"
-        ]
-      }
-    ],
+    "blockers": [],
     "componentFamilyId": "22ee2cc03f02c54e340a0376d8bb950f1fe4dea6f9e82a87b969fdc519136aaa",
-    "groupId": "4b961d5c92e3b9401a91c6264800c0c249456bf0cf9a8617612817ff0a349304",
+    "groupId": "83139a911812f835a05fdb953c51a6d39c6f3a76af5a57edb1e50d78fa2f3adf",
     "licenceProfile": {
       "expressions": [
         "bzip2-1.0.6"
       ],
-      "families": [],
-      "selectedAlternatives": [],
-      "syntaxTrees": [
-        [
-          "licence",
+      "families": [
+        "reviewed-non-copyleft-scope"
+      ],
+      "scopedReview": {
+        "decision": "The supplied notice explicitly covers the Rust translation derived from bzip2/libbzip2. Source and binary redistribution are permitted. Clauses 1\u20134 retain source notices, forbid misrepresented origin, require altered source to be marked, and prohibit unapproved endorsement. Product-documentation acknowledgement is appreciated, not mandated. No source offer, build or application-relink duty is imposed.",
+        "hashes": [
+          "54e1fd7bd53273e601c9599eb162a004dacddee031ae297ee7109a7beb93b1c2"
+        ],
+        "special": {
+          "originChangesAndEndorsement": "Preserve source notices when conveying source; do not misrepresent authorship, mark altered source, and do not claim endorsement. DSH retains the full notice also in binary delivery as audit policy."
+        },
+        "terms": [
           "bzip2-1.0.6"
         ]
-      ],
+      },
+      "selectedAlternatives": [],
       "terms": [
         "bzip2-1.0.6"
       ],
-      "unresolvedTerms": [
-        "bzip2-1.0.6"
-      ]
+      "unresolvedTerms": []
     },
     "name": "libbz2-rs-sys",
     "noticeHashes": [
@@ -219382,28 +219380,28 @@
     "purl": "pkg:cargo/libbz2-rs-sys@0.2.2",
     "requirements": {
       "buildInstructions": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
+        "applicability": "not-required",
+        "basis": "The supplied notice explicitly covers the Rust translation derived from bzip2/libbzip2. Source and binary redistribution are permitted. Clauses 1\u20134 retain source notices, forbid misrepresented origin, require altered source to be marked, and prohibit unapproved endorsement. Product-documentation acknowledgement is appreciated, not mandated. No source offer, build or application-relink duty is imposed.",
         "fulfilled": false
       },
       "correspondingSource": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
-        "fulfilled": false
-      },
-      "licenceCompatibility": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
+        "applicability": "not-required",
+        "basis": "The supplied notice explicitly covers the Rust translation derived from bzip2/libbzip2. Source and binary redistribution are permitted. Clauses 1\u20134 retain source notices, forbid misrepresented origin, require altered source to be marked, and prohibit unapproved endorsement. Product-documentation acknowledgement is appreciated, not mandated. No source offer, build or application-relink duty is imposed.",
         "fulfilled": false
       },
       "noticeDelivery": {
         "applicability": "required",
-        "basis": "DSH distribution policy retains complete scoped copyright/licence/NOTICE material; licence-specific mandatory notices remain binding. No delivery asserted here.",
+        "basis": "Retain the complete reviewed notice; fulfil the specific requirements below.",
+        "fulfilled": false
+      },
+      "originChangesAndEndorsement": {
+        "applicability": "required",
+        "basis": "Preserve source notices when conveying source; do not misrepresent authorship, mark altered source, and do not claim endorsement. DSH retains the full notice also in binary delivery as audit policy.",
         "fulfilled": false
       },
       "relinkOrReplacement": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
+        "applicability": "not-required",
+        "basis": "The supplied notice explicitly covers the Rust translation derived from bzip2/libbzip2. Source and binary redistribution are permitted. Clauses 1\u20134 retain source notices, forbid misrepresented origin, require altered source to be marked, and prohibit unapproved endorsement. Product-documentation acknowledgement is appreciated, not mandated. No source offer, build or application-relink duty is imposed.",
         "fulfilled": false
       }
     },
@@ -219423,35 +219421,33 @@
     "version": "0.2.2"
   },
   {
-    "blockers": [
-      {
-        "action": "Review the attached actual notice bundle and resolve file/exception/custom-term scope for this component.",
-        "code": "unresolved-licence-scope",
-        "terms": [
-          "bzip2-1.0.6"
-        ]
-      }
-    ],
+    "blockers": [],
     "componentFamilyId": "22ee2cc03f02c54e340a0376d8bb950f1fe4dea6f9e82a87b969fdc519136aaa",
-    "groupId": "7cf85a151a93b6257bfb544d3283512baaae2d50af21e2c25b33c2a75ea1ac3e",
+    "groupId": "a8ca32d2b9ab21683edc1ce5564a22e9ba26f5ea4c6afcc1efb09cd7963fe4a9",
     "licenceProfile": {
       "expressions": [
         "bzip2-1.0.6"
       ],
-      "families": [],
-      "selectedAlternatives": [],
-      "syntaxTrees": [
-        [
-          "licence",
+      "families": [
+        "reviewed-non-copyleft-scope"
+      ],
+      "scopedReview": {
+        "decision": "The supplied notice explicitly covers the Rust translation derived from bzip2/libbzip2. Source and binary redistribution are permitted. Clauses 1\u20134 retain source notices, forbid misrepresented origin, require altered source to be marked, and prohibit unapproved endorsement. Product-documentation acknowledgement is appreciated, not mandated. No source offer, build or application-relink duty is imposed.",
+        "hashes": [
+          "54e1fd7bd53273e601c9599eb162a004dacddee031ae297ee7109a7beb93b1c2"
+        ],
+        "special": {
+          "originChangesAndEndorsement": "Preserve source notices when conveying source; do not misrepresent authorship, mark altered source, and do not claim endorsement. DSH retains the full notice also in binary delivery as audit policy."
+        },
+        "terms": [
           "bzip2-1.0.6"
         ]
-      ],
+      },
+      "selectedAlternatives": [],
       "terms": [
         "bzip2-1.0.6"
       ],
-      "unresolvedTerms": [
-        "bzip2-1.0.6"
-      ]
+      "unresolvedTerms": []
     },
     "name": "libbz2-rs-sys",
     "noticeHashes": [
@@ -219467,28 +219463,28 @@
     "purl": "pkg:cargo/libbz2-rs-sys@0.2.2",
     "requirements": {
       "buildInstructions": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
+        "applicability": "not-required",
+        "basis": "The supplied notice explicitly covers the Rust translation derived from bzip2/libbzip2. Source and binary redistribution are permitted. Clauses 1\u20134 retain source notices, forbid misrepresented origin, require altered source to be marked, and prohibit unapproved endorsement. Product-documentation acknowledgement is appreciated, not mandated. No source offer, build or application-relink duty is imposed.",
         "fulfilled": false
       },
       "correspondingSource": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
-        "fulfilled": false
-      },
-      "licenceCompatibility": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
+        "applicability": "not-required",
+        "basis": "The supplied notice explicitly covers the Rust translation derived from bzip2/libbzip2. Source and binary redistribution are permitted. Clauses 1\u20134 retain source notices, forbid misrepresented origin, require altered source to be marked, and prohibit unapproved endorsement. Product-documentation acknowledgement is appreciated, not mandated. No source offer, build or application-relink duty is imposed.",
         "fulfilled": false
       },
       "noticeDelivery": {
         "applicability": "required",
-        "basis": "DSH distribution policy retains complete scoped copyright/licence/NOTICE material; licence-specific mandatory notices remain binding. No delivery asserted here.",
+        "basis": "Retain the complete reviewed notice; fulfil the specific requirements below.",
+        "fulfilled": false
+      },
+      "originChangesAndEndorsement": {
+        "applicability": "required",
+        "basis": "Preserve source notices when conveying source; do not misrepresent authorship, mark altered source, and do not claim endorsement. DSH retains the full notice also in binary delivery as audit policy.",
         "fulfilled": false
       },
       "relinkOrReplacement": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
+        "applicability": "not-required",
+        "basis": "The supplied notice explicitly covers the Rust translation derived from bzip2/libbzip2. Source and binary redistribution are permitted. Clauses 1\u20134 retain source notices, forbid misrepresented origin, require altered source to be marked, and prohibit unapproved endorsement. Product-documentation acknowledgement is appreciated, not mandated. No source offer, build or application-relink duty is imposed.",
         "fulfilled": false
       }
     },
@@ -248302,49 +248298,33 @@
     "version": "0.4.45"
   },
   {
-    "blockers": [
-      {
-        "action": "Review the attached actual notice bundle and resolve file/exception/custom-term scope for this component.",
-        "code": "unresolved-licence-scope",
-        "terms": [
-          "WITH LLVM-exception"
-        ]
-      },
-      {
-        "action": "Full licence text was recognized in scoped notice evidence. Determine covered files/alternatives/exceptions before issuing a source/relink waiver; recognition alone is not a licence-scope decision.",
-        "code": "additional-notice-terms-scope-review",
-        "terms": [
-          "LLVM-exception"
-        ]
-      }
-    ],
+    "blockers": [],
     "componentFamilyId": "66d2ae722c14eda105dba39cc454613e3509171c704e3fd01d71cf825917dc7d",
-    "groupId": "716c9148aee5b052ba776755cf2ec1dc2275557bd6ecc48454afea128ea940b7",
+    "groupId": "2e76d0b6bf5474ad6fcde1cb0c362e7d9ec8a63a1b9fafc186c6485944a24787",
     "licenceProfile": {
       "expressions": [
         "Apache-2.0 WITH LLVM-exception"
       ],
       "families": [
-        "permissive"
+        "reviewed-non-copyleft-scope"
       ],
-      "selectedAlternatives": [],
-      "syntaxTrees": [
-        [
-          "with",
-          [
-            "licence",
-            "Apache-2.0"
-          ],
-          "LLVM-exception"
+      "scopedReview": {
+        "decision": "Retain the entire Apache/LLVM notice and comply with Apache sections 3, 4 and 9. Do not exercise the optional 4(a)/4(b)/4(d) compilation waiver or the conditional GPLv2 conflict waiver. Embedded compilation therefore receives no notice exemption. This grant imposes no corresponding-source or relink-kit delivery duty.",
+        "hashes": [
+          "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5"
+        ],
+        "special": {
+          "apacheComplianceWithoutExceptionReliance": "Retain licence, applicable NOTICE, change notices and patent/trademark conditions. Exception remains in the delivered text but is not relied upon to omit conditions."
+        },
+        "terms": [
+          "Apache-2.0 WITH LLVM-exception"
         ]
-      ],
+      },
+      "selectedAlternatives": [],
       "terms": [
-        "Apache-2.0",
-        "WITH LLVM-exception"
+        "Apache-2.0 WITH LLVM-exception"
       ],
-      "unresolvedTerms": [
-        "WITH LLVM-exception"
-      ]
+      "unresolvedTerms": []
     },
     "name": "target-lexicon",
     "noticeHashes": [
@@ -248359,29 +248339,29 @@
     "payload": "803269fb7d9cc2fd89a335b9ab211a62a999cb38e6af3c7a6bf7212b80f358ee",
     "purl": "pkg:cargo/target-lexicon@0.13.5",
     "requirements": {
+      "apacheComplianceWithoutExceptionReliance": {
+        "applicability": "required",
+        "basis": "Retain licence, applicable NOTICE, change notices and patent/trademark conditions. Exception remains in the delivered text but is not relied upon to omit conditions.",
+        "fulfilled": false
+      },
       "buildInstructions": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
+        "applicability": "not-required",
+        "basis": "Retain the entire Apache/LLVM notice and comply with Apache sections 3, 4 and 9. Do not exercise the optional 4(a)/4(b)/4(d) compilation waiver or the conditional GPLv2 conflict waiver. Embedded compilation therefore receives no notice exemption. This grant imposes no corresponding-source or relink-kit delivery duty.",
         "fulfilled": false
       },
       "correspondingSource": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
-        "fulfilled": false
-      },
-      "licenceCompatibility": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
+        "applicability": "not-required",
+        "basis": "Retain the entire Apache/LLVM notice and comply with Apache sections 3, 4 and 9. Do not exercise the optional 4(a)/4(b)/4(d) compilation waiver or the conditional GPLv2 conflict waiver. Embedded compilation therefore receives no notice exemption. This grant imposes no corresponding-source or relink-kit delivery duty.",
         "fulfilled": false
       },
       "noticeDelivery": {
         "applicability": "required",
-        "basis": "DSH distribution policy retains complete scoped copyright/licence/NOTICE material; licence-specific mandatory notices remain binding. No delivery asserted here.",
+        "basis": "Retain the complete reviewed notice; fulfil the specific requirements below.",
         "fulfilled": false
       },
       "relinkOrReplacement": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
+        "applicability": "not-required",
+        "basis": "Retain the entire Apache/LLVM notice and comply with Apache sections 3, 4 and 9. Do not exercise the optional 4(a)/4(b)/4(d) compilation waiver or the conditional GPLv2 conflict waiver. Embedded compilation therefore receives no notice exemption. This grant imposes no corresponding-source or relink-kit delivery duty.",
         "fulfilled": false
       }
     },
@@ -248401,49 +248381,33 @@
     "version": "0.13.5"
   },
   {
-    "blockers": [
-      {
-        "action": "Review the attached actual notice bundle and resolve file/exception/custom-term scope for this component.",
-        "code": "unresolved-licence-scope",
-        "terms": [
-          "WITH LLVM-exception"
-        ]
-      },
-      {
-        "action": "Full licence text was recognized in scoped notice evidence. Determine covered files/alternatives/exceptions before issuing a source/relink waiver; recognition alone is not a licence-scope decision.",
-        "code": "additional-notice-terms-scope-review",
-        "terms": [
-          "LLVM-exception"
-        ]
-      }
-    ],
+    "blockers": [],
     "componentFamilyId": "66d2ae722c14eda105dba39cc454613e3509171c704e3fd01d71cf825917dc7d",
-    "groupId": "ab3b89aa2e0102028a210cb0852ced1e26c7e1372c4e1d55a43f2b57e6c7c019",
+    "groupId": "738ce99e93a6a254a9c863602fef1fe99d1ae291792490e4591d9640cf2f62fd",
     "licenceProfile": {
       "expressions": [
         "Apache-2.0 WITH LLVM-exception"
       ],
       "families": [
-        "permissive"
+        "reviewed-non-copyleft-scope"
       ],
-      "selectedAlternatives": [],
-      "syntaxTrees": [
-        [
-          "with",
-          [
-            "licence",
-            "Apache-2.0"
-          ],
-          "LLVM-exception"
+      "scopedReview": {
+        "decision": "Retain the entire Apache/LLVM notice and comply with Apache sections 3, 4 and 9. Do not exercise the optional 4(a)/4(b)/4(d) compilation waiver or the conditional GPLv2 conflict waiver. Embedded compilation therefore receives no notice exemption. This grant imposes no corresponding-source or relink-kit delivery duty.",
+        "hashes": [
+          "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5"
+        ],
+        "special": {
+          "apacheComplianceWithoutExceptionReliance": "Retain licence, applicable NOTICE, change notices and patent/trademark conditions. Exception remains in the delivered text but is not relied upon to omit conditions."
+        },
+        "terms": [
+          "Apache-2.0 WITH LLVM-exception"
         ]
-      ],
+      },
+      "selectedAlternatives": [],
       "terms": [
-        "Apache-2.0",
-        "WITH LLVM-exception"
+        "Apache-2.0 WITH LLVM-exception"
       ],
-      "unresolvedTerms": [
-        "WITH LLVM-exception"
-      ]
+      "unresolvedTerms": []
     },
     "name": "target-lexicon",
     "noticeHashes": [
@@ -248458,29 +248422,29 @@
     "payload": "5fb39761340b51a5c32da04175fc9ccfa5854686c0d37d6b97e7b72a6f365ceb",
     "purl": "pkg:cargo/target-lexicon@0.13.5",
     "requirements": {
+      "apacheComplianceWithoutExceptionReliance": {
+        "applicability": "required",
+        "basis": "Retain licence, applicable NOTICE, change notices and patent/trademark conditions. Exception remains in the delivered text but is not relied upon to omit conditions.",
+        "fulfilled": false
+      },
       "buildInstructions": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
+        "applicability": "not-required",
+        "basis": "Retain the entire Apache/LLVM notice and comply with Apache sections 3, 4 and 9. Do not exercise the optional 4(a)/4(b)/4(d) compilation waiver or the conditional GPLv2 conflict waiver. Embedded compilation therefore receives no notice exemption. This grant imposes no corresponding-source or relink-kit delivery duty.",
         "fulfilled": false
       },
       "correspondingSource": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
-        "fulfilled": false
-      },
-      "licenceCompatibility": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
+        "applicability": "not-required",
+        "basis": "Retain the entire Apache/LLVM notice and comply with Apache sections 3, 4 and 9. Do not exercise the optional 4(a)/4(b)/4(d) compilation waiver or the conditional GPLv2 conflict waiver. Embedded compilation therefore receives no notice exemption. This grant imposes no corresponding-source or relink-kit delivery duty.",
         "fulfilled": false
       },
       "noticeDelivery": {
         "applicability": "required",
-        "basis": "DSH distribution policy retains complete scoped copyright/licence/NOTICE material; licence-specific mandatory notices remain binding. No delivery asserted here.",
+        "basis": "Retain the complete reviewed notice; fulfil the specific requirements below.",
         "fulfilled": false
       },
       "relinkOrReplacement": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
+        "applicability": "not-required",
+        "basis": "Retain the entire Apache/LLVM notice and comply with Apache sections 3, 4 and 9. Do not exercise the optional 4(a)/4(b)/4(d) compilation waiver or the conditional GPLv2 conflict waiver. Embedded compilation therefore receives no notice exemption. This grant imposes no corresponding-source or relink-kit delivery duty.",
         "fulfilled": false
       }
     },
@@ -269192,35 +269156,33 @@
     "version": "0.3.1"
   },
   {
-    "blockers": [
-      {
-        "action": "Review the attached actual notice bundle and resolve file/exception/custom-term scope for this component.",
-        "code": "unresolved-licence-scope",
-        "terms": [
-          "CDLA-Permissive-2.0"
-        ]
-      }
-    ],
+    "blockers": [],
     "componentFamilyId": "b83c022c23ca185ca39ac2a914f8776eca0f254e9dd23319827e2a7a0190070b",
-    "groupId": "a56814cf96f3f670f59b353d87a676ed28faa4ac92b04b79defcbff809d652d4",
+    "groupId": "245837f66b95b31e6fdbb7835d969c9d5ef83e448443713818547b41dcfe8f9c",
     "licenceProfile": {
       "expressions": [
         "CDLA-Permissive-2.0"
       ],
-      "families": [],
-      "selectedAlternatives": [],
-      "syntaxTrees": [
-        [
-          "licence",
+      "families": [
+        "reviewed-non-copyleft-scope"
+      ],
+      "scopedReview": {
+        "decision": "The root certificate dataset is shared as embedded data, not merely computational Results. Section 2.1 requires making the agreement text available with the shared data, modified or not. There is no corresponding-source, build-script or relink-material requirement in this agreement. Section 3.1 on Results is not used to waive the shared-data notice.",
+        "hashes": [
+          "e271993808fec50ab29350b39539cdec611a9103f827e0aa26d61da70e2d33f8"
+        ],
+        "special": {
+          "sharedDataAgreement": "Make the full CDLA-Permissive-2.0 text available with the distributed certificate data. Preserve the disclaimer; no unrestricted grant over unrelated code is inferred."
+        },
+        "terms": [
           "CDLA-Permissive-2.0"
         ]
-      ],
+      },
+      "selectedAlternatives": [],
       "terms": [
         "CDLA-Permissive-2.0"
       ],
-      "unresolvedTerms": [
-        "CDLA-Permissive-2.0"
-      ]
+      "unresolvedTerms": []
     },
     "name": "webpki-root-certs",
     "noticeHashes": [
@@ -269228,36 +269190,36 @@
     ],
     "occurrences": [
       {
-        "artifactId": "3dd535f3fa4bb6d1",
+        "artifactId": "aab3f7ff8910cbf3",
         "image": "hermes"
       }
     ],
-    "payload": "5fb39761340b51a5c32da04175fc9ccfa5854686c0d37d6b97e7b72a6f365ceb",
+    "payload": "803269fb7d9cc2fd89a335b9ab211a62a999cb38e6af3c7a6bf7212b80f358ee",
     "purl": "pkg:cargo/webpki-root-certs@1.0.6",
     "requirements": {
       "buildInstructions": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
+        "applicability": "not-required",
+        "basis": "The root certificate dataset is shared as embedded data, not merely computational Results. Section 2.1 requires making the agreement text available with the shared data, modified or not. There is no corresponding-source, build-script or relink-material requirement in this agreement. Section 3.1 on Results is not used to waive the shared-data notice.",
         "fulfilled": false
       },
       "correspondingSource": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
-        "fulfilled": false
-      },
-      "licenceCompatibility": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
+        "applicability": "not-required",
+        "basis": "The root certificate dataset is shared as embedded data, not merely computational Results. Section 2.1 requires making the agreement text available with the shared data, modified or not. There is no corresponding-source, build-script or relink-material requirement in this agreement. Section 3.1 on Results is not used to waive the shared-data notice.",
         "fulfilled": false
       },
       "noticeDelivery": {
         "applicability": "required",
-        "basis": "DSH distribution policy retains complete scoped copyright/licence/NOTICE material; licence-specific mandatory notices remain binding. No delivery asserted here.",
+        "basis": "Retain the complete reviewed notice; fulfil the specific requirements below.",
         "fulfilled": false
       },
       "relinkOrReplacement": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
+        "applicability": "not-required",
+        "basis": "The root certificate dataset is shared as embedded data, not merely computational Results. Section 2.1 requires making the agreement text available with the shared data, modified or not. There is no corresponding-source, build-script or relink-material requirement in this agreement. Section 3.1 on Results is not used to waive the shared-data notice.",
+        "fulfilled": false
+      },
+      "sharedDataAgreement": {
+        "applicability": "required",
+        "basis": "Make the full CDLA-Permissive-2.0 text available with the distributed certificate data. Preserve the disclaimer; no unrestricted grant over unrelated code is inferred.",
         "fulfilled": false
       }
     },
@@ -269277,35 +269239,33 @@
     "version": "1.0.6"
   },
   {
-    "blockers": [
-      {
-        "action": "Review the attached actual notice bundle and resolve file/exception/custom-term scope for this component.",
-        "code": "unresolved-licence-scope",
-        "terms": [
-          "CDLA-Permissive-2.0"
-        ]
-      }
-    ],
+    "blockers": [],
     "componentFamilyId": "b83c022c23ca185ca39ac2a914f8776eca0f254e9dd23319827e2a7a0190070b",
-    "groupId": "b29031dc2e95da8b2d70891ecd3bc32182f80146394c750a3e329c2eb205adc2",
+    "groupId": "754fb7ae09445e1e1d233b9b8078bebffe70c1a36f22e73f7dfb20624a16cb06",
     "licenceProfile": {
       "expressions": [
         "CDLA-Permissive-2.0"
       ],
-      "families": [],
-      "selectedAlternatives": [],
-      "syntaxTrees": [
-        [
-          "licence",
+      "families": [
+        "reviewed-non-copyleft-scope"
+      ],
+      "scopedReview": {
+        "decision": "The root certificate dataset is shared as embedded data, not merely computational Results. Section 2.1 requires making the agreement text available with the shared data, modified or not. There is no corresponding-source, build-script or relink-material requirement in this agreement. Section 3.1 on Results is not used to waive the shared-data notice.",
+        "hashes": [
+          "e271993808fec50ab29350b39539cdec611a9103f827e0aa26d61da70e2d33f8"
+        ],
+        "special": {
+          "sharedDataAgreement": "Make the full CDLA-Permissive-2.0 text available with the distributed certificate data. Preserve the disclaimer; no unrestricted grant over unrelated code is inferred."
+        },
+        "terms": [
           "CDLA-Permissive-2.0"
         ]
-      ],
+      },
+      "selectedAlternatives": [],
       "terms": [
         "CDLA-Permissive-2.0"
       ],
-      "unresolvedTerms": [
-        "CDLA-Permissive-2.0"
-      ]
+      "unresolvedTerms": []
     },
     "name": "webpki-root-certs",
     "noticeHashes": [
@@ -269313,36 +269273,36 @@
     ],
     "occurrences": [
       {
-        "artifactId": "aab3f7ff8910cbf3",
+        "artifactId": "3dd535f3fa4bb6d1",
         "image": "hermes"
       }
     ],
-    "payload": "803269fb7d9cc2fd89a335b9ab211a62a999cb38e6af3c7a6bf7212b80f358ee",
+    "payload": "5fb39761340b51a5c32da04175fc9ccfa5854686c0d37d6b97e7b72a6f365ceb",
     "purl": "pkg:cargo/webpki-root-certs@1.0.6",
     "requirements": {
       "buildInstructions": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
+        "applicability": "not-required",
+        "basis": "The root certificate dataset is shared as embedded data, not merely computational Results. Section 2.1 requires making the agreement text available with the shared data, modified or not. There is no corresponding-source, build-script or relink-material requirement in this agreement. Section 3.1 on Results is not used to waive the shared-data notice.",
         "fulfilled": false
       },
       "correspondingSource": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
-        "fulfilled": false
-      },
-      "licenceCompatibility": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
+        "applicability": "not-required",
+        "basis": "The root certificate dataset is shared as embedded data, not merely computational Results. Section 2.1 requires making the agreement text available with the shared data, modified or not. There is no corresponding-source, build-script or relink-material requirement in this agreement. Section 3.1 on Results is not used to waive the shared-data notice.",
         "fulfilled": false
       },
       "noticeDelivery": {
         "applicability": "required",
-        "basis": "DSH distribution policy retains complete scoped copyright/licence/NOTICE material; licence-specific mandatory notices remain binding. No delivery asserted here.",
+        "basis": "Retain the complete reviewed notice; fulfil the specific requirements below.",
         "fulfilled": false
       },
       "relinkOrReplacement": {
-        "applicability": "blocked",
-        "basis": "Resolve exact scoped terms before deciding applicability; do not treat a bundle or custom label as permissive.",
+        "applicability": "not-required",
+        "basis": "The root certificate dataset is shared as embedded data, not merely computational Results. Section 2.1 requires making the agreement text available with the shared data, modified or not. There is no corresponding-source, build-script or relink-material requirement in this agreement. Section 3.1 on Results is not used to waive the shared-data notice.",
+        "fulfilled": false
+      },
+      "sharedDataAgreement": {
+        "applicability": "required",
+        "basis": "Make the full CDLA-Permissive-2.0 text available with the distributed certificate data. Preserve the disclaimer; no unrestricted grant over unrelated code is inferred.",
         "fulfilled": false
       }
     },

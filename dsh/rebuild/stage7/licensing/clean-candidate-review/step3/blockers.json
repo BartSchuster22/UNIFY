@@ -16361,52 +16361,6 @@
     "version": "1.0.7"
   },
   {
-    "groupId": "4b961d5c92e3b9401a91c6264800c0c249456bf0cf9a8617612817ff0a349304",
-    "issues": [
-      {
-        "action": "Review the attached actual notice bundle and resolve file/exception/custom-term scope for this component.",
-        "code": "unresolved-licence-scope",
-        "terms": [
-          "bzip2-1.0.6"
-        ]
-      }
-    ],
-    "name": "libbz2-rs-sys",
-    "noticeHashes": [
-      "54e1fd7bd53273e601c9599eb162a004dacddee031ae297ee7109a7beb93b1c2"
-    ],
-    "occurrences": [
-      {
-        "artifactId": "300b1cdfc47bfde7",
-        "image": "hermes"
-      }
-    ],
-    "version": "0.2.2"
-  },
-  {
-    "groupId": "7cf85a151a93b6257bfb544d3283512baaae2d50af21e2c25b33c2a75ea1ac3e",
-    "issues": [
-      {
-        "action": "Review the attached actual notice bundle and resolve file/exception/custom-term scope for this component.",
-        "code": "unresolved-licence-scope",
-        "terms": [
-          "bzip2-1.0.6"
-        ]
-      }
-    ],
-    "name": "libbz2-rs-sys",
-    "noticeHashes": [
-      "54e1fd7bd53273e601c9599eb162a004dacddee031ae297ee7109a7beb93b1c2"
-    ],
-    "occurrences": [
-      {
-        "artifactId": "83a70d2ccb13a033",
-        "image": "hermes"
-      }
-    ],
-    "version": "0.2.2"
-  },
-  {
     "groupId": "2347d7d8eb4288ddbf63d07c016f924dd3e59c0f8177bf0a32b7a4a19bd9f339",
     "issues": [
       {
@@ -17417,66 +17371,6 @@
     "version": "3.1.2"
   },
   {
-    "groupId": "716c9148aee5b052ba776755cf2ec1dc2275557bd6ecc48454afea128ea940b7",
-    "issues": [
-      {
-        "action": "Review the attached actual notice bundle and resolve file/exception/custom-term scope for this component.",
-        "code": "unresolved-licence-scope",
-        "terms": [
-          "WITH LLVM-exception"
-        ]
-      },
-      {
-        "action": "Full licence text was recognized in scoped notice evidence. Determine covered files/alternatives/exceptions before issuing a source/relink waiver; recognition alone is not a licence-scope decision.",
-        "code": "additional-notice-terms-scope-review",
-        "terms": [
-          "LLVM-exception"
-        ]
-      }
-    ],
-    "name": "target-lexicon",
-    "noticeHashes": [
-      "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5"
-    ],
-    "occurrences": [
-      {
-        "artifactId": "0867e5b67cdd86ae",
-        "image": "hermes"
-      }
-    ],
-    "version": "0.13.5"
-  },
-  {
-    "groupId": "ab3b89aa2e0102028a210cb0852ced1e26c7e1372c4e1d55a43f2b57e6c7c019",
-    "issues": [
-      {
-        "action": "Review the attached actual notice bundle and resolve file/exception/custom-term scope for this component.",
-        "code": "unresolved-licence-scope",
-        "terms": [
-          "WITH LLVM-exception"
-        ]
-      },
-      {
-        "action": "Full licence text was recognized in scoped notice evidence. Determine covered files/alternatives/exceptions before issuing a source/relink waiver; recognition alone is not a licence-scope decision.",
-        "code": "additional-notice-terms-scope-review",
-        "terms": [
-          "LLVM-exception"
-        ]
-      }
-    ],
-    "name": "target-lexicon",
-    "noticeHashes": [
-      "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5"
-    ],
-    "occurrences": [
-      {
-        "artifactId": "726eb076f8c46e5a",
-        "image": "hermes"
-      }
-    ],
-    "version": "0.13.5"
-  },
-  {
     "groupId": "5a52a73b0be030a235d24895bdbfa234f4efa1abb633fa5076dba5e98f503e67",
     "issues": [
       {
@@ -17783,52 +17677,6 @@
       }
     ],
     "version": "2.5.0"
-  },
-  {
-    "groupId": "a56814cf96f3f670f59b353d87a676ed28faa4ac92b04b79defcbff809d652d4",
-    "issues": [
-      {
-        "action": "Review the attached actual notice bundle and resolve file/exception/custom-term scope for this component.",
-        "code": "unresolved-licence-scope",
-        "terms": [
-          "CDLA-Permissive-2.0"
-        ]
-      }
-    ],
-    "name": "webpki-root-certs",
-    "noticeHashes": [
-      "e271993808fec50ab29350b39539cdec611a9103f827e0aa26d61da70e2d33f8"
-    ],
-    "occurrences": [
-      {
-        "artifactId": "3dd535f3fa4bb6d1",
-        "image": "hermes"
-      }
-    ],
-    "version": "1.0.6"
-  },
-  {
-    "groupId": "b29031dc2e95da8b2d70891ecd3bc32182f80146394c750a3e329c2eb205adc2",
-    "issues": [
-      {
-        "action": "Review the attached actual notice bundle and resolve file/exception/custom-term scope for this component.",
-        "code": "unresolved-licence-scope",
-        "terms": [
-          "CDLA-Permissive-2.0"
-        ]
-      }
-    ],
-    "name": "webpki-root-certs",
-    "noticeHashes": [
-      "e271993808fec50ab29350b39539cdec611a9103f827e0aa26d61da70e2d33f8"
-    ],
-    "occurrences": [
-      {
-        "artifactId": "aab3f7ff8910cbf3",
-        "image": "hermes"
-      }
-    ],
-    "version": "1.0.6"
   },
   {
     "groupId": "49789c4669caf9b37b1b8ad2820870c6858bc6d5d044da0255292c23465b19c8",

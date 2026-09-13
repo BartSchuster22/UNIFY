@@ -6,10 +6,10 @@
 | componentFamilies | 2626 |
 | contextualGroups | 3173 |
 | groupsWithRepeatedOccurrences | 174 |
-| decidedGroups | 2577 |
-| blockedGroups | 596 |
-| decidedOccurrences | 2686 |
-| blockedOccurrences | 666 |
+| decidedGroups | 2583 |
+| blockedGroups | 590 |
+| decidedOccurrences | 2692 |
+| blockedOccurrences | 660 |
 | nativePayloadsInspected | 4041 |
 | dynamicDependencyEdges | 7190 |
 | textDocumentsInspected | 1299 |
