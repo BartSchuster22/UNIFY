@@ -1,0 +1,308 @@
+[
+  {
+    "artifactId": "948b704c27397904",
+    "declaredLicenses": [],
+    "image": "caddy",
+    "name": "caddy",
+    "priorArtifactId": "948b704c27397904",
+    "type": "go-module",
+    "version": "v0.0.0-20250822212934-551f793700fe"
+  },
+  {
+    "artifactId": "52bc4586ef22a868",
+    "declaredLicenses": [],
+    "image": "caddy",
+    "name": "github.com/antlr4-go/antlr/v4",
+    "priorArtifactId": "52bc4586ef22a868",
+    "type": "go-module",
+    "version": "v4.13.0"
+  },
+  {
+    "artifactId": "cd97832ab16a5c2f",
+    "declaredLicenses": [],
+    "image": "caddy",
+    "name": "github.com/caddyserver/certmagic",
+    "priorArtifactId": "cd97832ab16a5c2f",
+    "type": "go-module",
+    "version": "v0.24.0"
+  },
+  {
+    "artifactId": "877a806ebf57e2ef",
+    "declaredLicenses": [],
+    "image": "caddy",
+    "name": "github.com/cloudflare/circl",
+    "priorArtifactId": "877a806ebf57e2ef",
+    "type": "go-module",
+    "version": "v1.6.1"
+  },
+  {
+    "artifactId": "3f0b77508aaee303",
+    "declaredLicenses": [],
+    "image": "caddy",
+    "name": "github.com/coreos/go-oidc/v3",
+    "priorArtifactId": "3f0b77508aaee303",
+    "type": "go-module",
+    "version": "v3.14.1"
+  },
+  {
+    "artifactId": "e8a1ce1c799a0126",
+    "declaredLicenses": [],
+    "image": "caddy",
+    "name": "github.com/dustin/go-humanize",
+    "priorArtifactId": "e8a1ce1c799a0126",
+    "type": "go-module",
+    "version": "v1.0.1"
+  },
+  {
+    "artifactId": "783487354d8c2a0f",
+    "declaredLicenses": [],
+    "image": "caddy",
+    "name": "github.com/go-logr/logr",
+    "priorArtifactId": "783487354d8c2a0f",
+    "type": "go-module",
+    "version": "v1.4.3"
+  },
+  {
+    "artifactId": "c7242c912e4a02f0",
+    "declaredLicenses": [],
+    "image": "caddy",
+    "name": "github.com/google/cel-go",
+    "priorArtifactId": "c7242c912e4a02f0",
+    "type": "go-module",
+    "version": "v0.26.0"
+  },
+  {
+    "artifactId": "3351194736e767bc",
+    "declaredLicenses": [],
+    "image": "caddy",
+    "name": "github.com/google/go-tspi",
+    "priorArtifactId": "3351194736e767bc",
+    "type": "go-module",
+    "version": "v0.3.0"
+  },
+  {
+    "artifactId": "7a65e90a74c6bdd3",
+    "declaredLicenses": [],
+    "image": "caddy",
+    "name": "github.com/grpc-ecosystem/grpc-gateway/v2",
+    "priorArtifactId": "7a65e90a74c6bdd3",
+    "type": "go-module",
+    "version": "v2.27.1"
+  },
+  {
+    "artifactId": "799d7d87601f5386",
+    "declaredLicenses": [],
+    "image": "caddy",
+    "name": "github.com/klauspost/compress",
+    "priorArtifactId": "799d7d87601f5386",
+    "type": "go-module",
+    "version": "v1.18.0"
+  },
+  {
+    "artifactId": "1eff95415d0a4c88",
+    "declaredLicenses": [],
+    "image": "caddy",
+    "name": "github.com/munnerz/goautoneg",
+    "priorArtifactId": "1eff95415d0a4c88",
+    "type": "go-module",
+    "version": "v0.0.0-20191010083416-a7dc8b61c822"
+  },
+  {
+    "artifactId": "f812beb1e8db1a85",
+    "declaredLicenses": [],
+    "image": "caddy",
+    "name": "github.com/pires/go-proxyproto",
+    "priorArtifactId": "f812beb1e8db1a85",
+    "type": "go-module",
+    "version": "v0.8.1"
+  },
+  {
+    "artifactId": "c1d98cbce7016709",
+    "declaredLicenses": [],
+    "image": "caddy",
+    "name": "github.com/russross/blackfriday/v2",
+    "priorArtifactId": "c1d98cbce7016709",
+    "type": "go-module",
+    "version": "v2.1.0"
+  },
+  {
+    "artifactId": "12a6bb94d9e44380",
+    "declaredLicenses": [],
+    "image": "caddy",
+    "name": "github.com/shopspring/decimal",
+    "priorArtifactId": "12a6bb94d9e44380",
+    "type": "go-module",
+    "version": "v1.4.0"
+  },
+  {
+    "artifactId": "e539d7c05ecc6ea4",
+    "declaredLicenses": [],
+    "image": "caddy",
+    "name": "github.com/zeebo/blake3",
+    "priorArtifactId": "e539d7c05ecc6ea4",
+    "type": "go-module",
+    "version": "v0.2.4"
+  },
+  {
+    "artifactId": "36a4e38fe477b839",
+    "declaredLicenses": [],
+    "image": "caddy",
+    "name": "gopkg.in/yaml.v3",
+    "priorArtifactId": "36a4e38fe477b839",
+    "type": "go-module",
+    "version": "v3.0.1"
+  },
+  {
+    "artifactId": "3ad0ccddf1b6e8c6",
+    "declaredLicenses": [],
+    "image": "hermes",
+    "name": "@aquiero/contracts",
+    "priorArtifactId": "3ad0ccddf1b6e8c6",
+    "type": "npm",
+    "version": "0.1.0"
+  },
+  {
+    "artifactId": "2b43b8db6abc5517",
+    "declaredLicenses": [],
+    "image": "hermes",
+    "name": "@aquiero/hermes-control-adapter",
+    "priorArtifactId": "2b43b8db6abc5517",
+    "type": "npm",
+    "version": "0.1.0"
+  },
+  {
+    "artifactId": "85c1a1d5545cca6a",
+    "declaredLicenses": [],
+    "image": "hermes",
+    "name": "github.com/docker/cli/cmd/docker",
+    "priorArtifactId": "85c1a1d5545cca6a",
+    "type": "go-module",
+    "version": "UNKNOWN"
+  },
+  {
+    "artifactId": "94ea8e260480223e",
+    "declaredLicenses": [],
+    "image": "hermes",
+    "name": "hermes-whatsapp-bridge",
+    "priorArtifactId": "94ea8e260480223e",
+    "type": "npm",
+    "version": "1.0.0"
+  },
+  {
+    "artifactId": "944a02cefeef02c9",
+    "declaredLicenses": [],
+    "image": "hermes",
+    "name": "hindsight-client",
+    "priorArtifactId": "944a02cefeef02c9",
+    "type": "python",
+    "version": "0.6.1"
+  },
+  {
+    "artifactId": "2acd79d760529caa",
+    "declaredLicenses": [],
+    "image": "hermes",
+    "name": "node",
+    "priorArtifactId": "e74fb1dbb7883683",
+    "type": "binary",
+    "version": "22.22.2"
+  },
+  {
+    "artifactId": "d930e17b592cae0b",
+    "declaredLicenses": [],
+    "image": "keycloak",
+    "name": "jrt-fs",
+    "priorArtifactId": "d930e17b592cae0b",
+    "type": "java-archive",
+    "version": "21.0.6"
+  },
+  {
+    "artifactId": "dabf0c635baf2f49",
+    "declaredLicenses": [],
+    "image": "keycloak",
+    "name": "quarkus-run",
+    "priorArtifactId": "dabf0c635baf2f49",
+    "type": "java-archive",
+    "version": "26.0.8"
+  },
+  {
+    "artifactId": "b99eed5b3f033319",
+    "declaredLicenses": [],
+    "image": "memory-v4",
+    "name": "python",
+    "priorArtifactId": "faa85af46f96a055",
+    "type": "binary",
+    "version": "3.12.14"
+  },
+  {
+    "artifactId": "96ada3e2ced9b39a",
+    "declaredLicenses": [],
+    "image": "postgresql",
+    "name": ".postgresql-rundeps",
+    "priorArtifactId": "96ada3e2ced9b39a",
+    "type": "apk",
+    "version": "20250204.203554"
+  },
+  {
+    "artifactId": "c13a9da2e175805c",
+    "declaredLicenses": [],
+    "image": "postgresql",
+    "name": "github.com/tianon/gosu",
+    "priorArtifactId": "c13a9da2e175805c",
+    "type": "go-module",
+    "version": "UNKNOWN"
+  },
+  {
+    "artifactId": "5a3f0a1e62acfcbf",
+    "declaredLicenses": [],
+    "image": "postgresql",
+    "name": "postgresql",
+    "priorArtifactId": "e87fa48a39943693",
+    "type": "binary",
+    "version": "16.6"
+  },
+  {
+    "artifactId": "dbf39d12a879b0cd",
+    "declaredLicenses": [],
+    "image": "reference-application",
+    "name": "python",
+    "priorArtifactId": "faa85af46f96a055",
+    "type": "binary",
+    "version": "3.12.14"
+  },
+  {
+    "artifactId": "055b0b7f0842a128",
+    "declaredLicenses": [],
+    "image": "unify-core",
+    "name": "@aquiero/contracts",
+    "priorArtifactId": "055b0b7f0842a128",
+    "type": "npm",
+    "version": "0.1.0"
+  },
+  {
+    "artifactId": "33675c3940251a41",
+    "declaredLicenses": [],
+    "image": "unify-core",
+    "name": "@aquiero/gateway",
+    "priorArtifactId": "33675c3940251a41",
+    "type": "npm",
+    "version": "0.1.0"
+  },
+  {
+    "artifactId": "eb74c04ff5d071a8",
+    "declaredLicenses": [],
+    "image": "unify-core",
+    "name": "node",
+    "priorArtifactId": "53496684038ceb5f",
+    "type": "binary",
+    "version": "22.23.2"
+  },
+  {
+    "artifactId": "521ad10f0530e7f0",
+    "declaredLicenses": [],
+    "image": "uniui",
+    "name": "node",
+    "priorArtifactId": "53496684038ceb5f",
+    "type": "binary",
+    "version": "22.23.2"
+  }
+]

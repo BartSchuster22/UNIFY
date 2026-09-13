@@ -1,0 +1,23 @@
+{
+  "schema": "stage74-clean-material-delivery/v1",
+  "buildReceiptSha256": "3fdd13c530019038c03609717e1b7590577804cbafdee167a409a66f2f1aa85e",
+  "sourceReportSha256": "5526f66548569b4200a8bf844264bf7f0e5d276639fe0cfabbd614a136e6cc53",
+  "sourcePackages": 288,
+  "sourceFiles": 936,
+  "retainedNoticeOccurrences": 1720,
+  "uniqueRetainedNoticeDocuments": 813,
+  "archives": {
+    "debian-source-materials.tar": {
+      "sha256": "9b4383664a7a4350467de633a0e139c82e0e351c1b18dc8cfb3cf6dd3736f254",
+      "bytes": 1735229440
+    },
+    "retained-notice-documents.tar": {
+      "sha256": "1f503a367b4867b96806c1388a5a3a34e9326edd6ae9826e3482183dd6c359c2",
+      "bytes": 7905280
+    }
+  },
+  "retainedDocumentIndexSha256": "3035859d25f061e0a6352f427ae799d4346a3f0b63d557eda48cdd04e2950a1b",
+  "originalQAUnchanged": true,
+  "engineeringComplete": false,
+  "sourceBuildRelinkDisposition": "not-implied-by-material-collection"
+}

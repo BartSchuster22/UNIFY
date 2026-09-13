@@ -1,0 +1,63 @@
+{
+  "schema": "stage74-clean-image-scans/v1",
+  "buildReceiptSha256": "3fdd13c530019038c03609717e1b7590577804cbafdee167a409a66f2f1aa85e",
+  "scannerSha256": "abca2def61de9952fa06d3977bb1e064818facb9badfce502b450d3d6846a91f",
+  "scope": "all-layers",
+  "networkEnrichment": false,
+  "images": {
+    "caddy": {
+      "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+      "spdxSha256": "0e0bcbaeb66a5d4f5532274921eeabc81cdd8f9ecf019dab58419e097a431ec4",
+      "syftSha256": "fb6a76e8712b01499363905091955966c76f44d1b5f49f94e8c0dc3787272f61",
+      "softwareOccurrences": 162
+    },
+    "hermes": {
+      "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+      "spdxSha256": "151c54181c7fe8b155bc8436cd25c47a50bd2765f87dc1717d097578b476fd17",
+      "syftSha256": "edebd335485fb2c360a569c53364b0c74a4ef87050940422aa7769d39fb9ba1b",
+      "softwareOccurrences": 2353
+    },
+    "keycloak": {
+      "imageId": "sha256:bebf1b13934bc6349f898bb37e6841b1736c87fa3b38bfbc4040a3c16897cf6b",
+      "spdxSha256": "e61f649bdfe1b3425c0daa7cc90518c52647bf1d78fd82c19ff68f414be0e5f5",
+      "syftSha256": "b28d843ad12041d6d935572ab9997a318e3ce4b3220256ab4306f3225023c3e2",
+      "softwareOccurrences": 489
+    },
+    "memory-v4": {
+      "imageId": "sha256:a3ee96f87088f9b307ecb68dcc68c21e1a52f8c3c9eefc5ec07652407c8cdbc6",
+      "spdxSha256": "8f9524a357b59ab73a5549158883482262bcccfefe7bc4b858071690cbf1e1cb",
+      "syftSha256": "d80e4a31398cbff6f179bef4cb2864559cc70370a3e87b81168b1462c5b4f2c1",
+      "softwareOccurrences": 106
+    },
+    "postgresql": {
+      "imageId": "sha256:bd10494dc29eedb2ed7c79f8dcbfddb3ee3b7143319566695da75259114e25e9",
+      "spdxSha256": "e8523f2af199017398e09525eb89517ed0e0f81c55dc68d574294e83e48d9680",
+      "syftSha256": "746dc3724558a3ef8c3d8e6d0d8fa0f929ba5814306cd895d6b02c258a60ed94",
+      "softwareOccurrences": 51
+    },
+    "reference-application": {
+      "imageId": "sha256:6183cc25bb210b63ae4c7a1d4123014890a5e57518ca484f3c29421f319df8df",
+      "spdxSha256": "b79ff3a2e3743c383397bb3a3631f5418f4a6d69063c8176aa083793dc21960f",
+      "syftSha256": "7e53d88164e2c93d269c2887230344a01f76de43cdffcdf9b770a0ed22e2b955",
+      "softwareOccurrences": 89
+    },
+    "unify-core": {
+      "imageId": "sha256:3a1a6aaecb0a00720e672c7e0a32479d8f5cb9c3e28a69d7379f69602a4f6646",
+      "spdxSha256": "4fbcdbc4a8487ccf69b09f96fe7d8b5421cd33ee65282608aa1c917f5cfa630f",
+      "syftSha256": "0759a33b7cbee1d9d4573a9ae586a2a066fcb934afa57dcbb39865532cf63664",
+      "softwareOccurrences": 88
+    },
+    "uniui": {
+      "imageId": "sha256:74a2a57a8f67930442d8bd6ee46dc49884f01f5bc3df3764386afeb9fdef0f26",
+      "spdxSha256": "23a00bd754fd496cd90557ba8b4bc6a683f6f1479abbbba339a027e63a868432",
+      "syftSha256": "3ebbdf59bc2c0f6c09ce5bb094c6c77f81a754e2b7243320af567fe8e2f33b4a",
+      "softwareOccurrences": 14
+    }
+  },
+  "engineeringComplete": false,
+  "completed": true,
+  "originalQAUnchanged": true,
+  "softwareOccurrences": 3352,
+  "scannerMissingLicenceDeclarations": 1352,
+  "queueSha256": "b1a48729a50e03824b3ad570ed77873211e64e7b3c9a7f40f3e64c758e6bb10b"
+}

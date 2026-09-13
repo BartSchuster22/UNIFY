@@ -1,0 +1,197 @@
+{
+  "schema": "stage74-clean-image-probes/v1",
+  "buildVerificationSha256": "9fa3d3d06a678070779670498fe1a8545415f1cf451f65391296404cdefdd745",
+  "results": [
+    {
+      "name": "caddy-version",
+      "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+      "network": "none",
+      "hostMounts": false,
+      "command": [
+        "caddy",
+        "version"
+      ],
+      "passed": true,
+      "exitCode": 0,
+      "oomKilled": false,
+      "logSha256": "534a2f27f8dcff1995d46fb573722238fd73e7c8ef62a4e02a0730edb12cc7d4"
+    },
+    {
+      "name": "postgres-version",
+      "imageId": "sha256:bd10494dc29eedb2ed7c79f8dcbfddb3ee3b7143319566695da75259114e25e9",
+      "network": "none",
+      "hostMounts": false,
+      "command": [
+        "postgres",
+        "--version"
+      ],
+      "passed": true,
+      "exitCode": 0,
+      "oomKilled": false,
+      "logSha256": "078b0284364c36906127bbe29e13a7d19b6c8077ef186214282b856c5cfe2fcc"
+    },
+    {
+      "name": "keycloak-version",
+      "imageId": "sha256:bebf1b13934bc6349f898bb37e6841b1736c87fa3b38bfbc4040a3c16897cf6b",
+      "network": "none",
+      "hostMounts": false,
+      "command": [
+        "/opt/keycloak/bin/kc.sh",
+        "--version"
+      ],
+      "passed": true,
+      "exitCode": 0,
+      "oomKilled": false,
+      "logSha256": "4691ebf6c25932034d5a01f0f6b306d6bbe68ed5fb2f8028b4c1e16e576b4df3"
+    },
+    {
+      "name": "core-node",
+      "imageId": "sha256:3a1a6aaecb0a00720e672c7e0a32479d8f5cb9c3e28a69d7379f69602a4f6646",
+      "network": "none",
+      "hostMounts": false,
+      "command": [
+        "/nodejs/bin/node",
+        "--version"
+      ],
+      "passed": true,
+      "exitCode": 0,
+      "oomKilled": false,
+      "logSha256": "13887e184d3624bbb9ddb7531f79022148b601bb5fd6eb328fdcdf473a9f53c0"
+    },
+    {
+      "name": "core-syntax",
+      "imageId": "sha256:3a1a6aaecb0a00720e672c7e0a32479d8f5cb9c3e28a69d7379f69602a4f6646",
+      "network": "none",
+      "hostMounts": false,
+      "command": [
+        "/nodejs/bin/node",
+        "--check",
+        "dist/server.js"
+      ],
+      "passed": true,
+      "exitCode": 0,
+      "oomKilled": false,
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "name": "ui-syntax",
+      "imageId": "sha256:74a2a57a8f67930442d8bd6ee46dc49884f01f5bc3df3764386afeb9fdef0f26",
+      "network": "none",
+      "hostMounts": false,
+      "command": [
+        "/nodejs/bin/node",
+        "--check",
+        "server.mjs"
+      ],
+      "passed": true,
+      "exitCode": 0,
+      "oomKilled": false,
+      "logSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "name": "memory-import",
+      "imageId": "sha256:a3ee96f87088f9b307ecb68dcc68c21e1a52f8c3c9eefc5ec07652407c8cdbc6",
+      "network": "none",
+      "hostMounts": false,
+      "command": [
+        "python",
+        "-c",
+        "import app.main; print(\"MemoryV4 application import OK\")"
+      ],
+      "passed": true,
+      "exitCode": 0,
+      "oomKilled": false,
+      "logSha256": "82e7a282af008d7bd7c9e267a3cd71c8d1420e7793b4b5a69f981db74304e25c"
+    },
+    {
+      "name": "reference-syntax",
+      "imageId": "sha256:6183cc25bb210b63ae4c7a1d4123014890a5e57518ca484f3c29421f319df8df",
+      "network": "none",
+      "hostMounts": false,
+      "command": [
+        "python",
+        "-c",
+        "import ast,pathlib; ast.parse(pathlib.Path(\"app.py\").read_text()); print(\"Reference application syntax OK\")"
+      ],
+      "passed": true,
+      "exitCode": 0,
+      "oomKilled": false,
+      "logSha256": "c67124b7ff069bf94bc100ee33dc7e011c1bb28e59ec3bcc867637f130b69436"
+    },
+    {
+      "name": "hermes-python",
+      "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+      "network": "none",
+      "hostMounts": false,
+      "command": [
+        "/opt/hermes/.venv/bin/python",
+        "--version"
+      ],
+      "passed": true,
+      "exitCode": 0,
+      "oomKilled": false,
+      "logSha256": "0f9ac95dae9b07121531b1df3d67d4dda84af037f2d1e073f97bb659cc620eb6"
+    },
+    {
+      "name": "hermes-node",
+      "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+      "network": "none",
+      "hostMounts": false,
+      "command": [
+        "/usr/local/bin/node",
+        "--version"
+      ],
+      "passed": true,
+      "exitCode": 0,
+      "oomKilled": false,
+      "logSha256": "4dd95870f0c6d8bf915ea8a548aab722c2491920d3f93c3eb9a107ffba50ddf8"
+    },
+    {
+      "name": "hermes-uv",
+      "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+      "network": "none",
+      "hostMounts": false,
+      "command": [
+        "/usr/local/bin/uv",
+        "--version"
+      ],
+      "passed": true,
+      "exitCode": 0,
+      "oomKilled": false,
+      "logSha256": "3229c1ec9681a8a67d26ba3a74e9360e54a8b46fc8cd953f261f9bed10077a88"
+    },
+    {
+      "name": "hermes-agent-browser",
+      "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+      "network": "none",
+      "hostMounts": false,
+      "command": [
+        "/opt/hermes/node_modules/.bin/agent-browser",
+        "--version"
+      ],
+      "passed": true,
+      "exitCode": 0,
+      "oomKilled": false,
+      "logSha256": "c956d518a6a073ae4867fe3b88885240ef1cae1e290ce1751b0d197eece485b6"
+    },
+    {
+      "name": "hermes-imports",
+      "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+      "network": "none",
+      "hostMounts": false,
+      "command": [
+        "/opt/hermes/.venv/bin/python",
+        "-c",
+        "import pathlib; assert not pathlib.Path(\"/opt/hermes/plugins/platforms/photon\").exists(); import discord,olm,run_agent; print(\"Retained Hermes/Discord/Olm imports OK; Photon absent\")"
+      ],
+      "passed": true,
+      "exitCode": 0,
+      "oomKilled": false,
+      "logSha256": "7d88642d7e5e0824def7c9ff6f87f3b387f23056ef71ce511bedaec9f2c7c97d"
+    }
+  ],
+  "allImageProbesPassed": true,
+  "originalQAUnchanged": true,
+  "fullStackRequalified": false,
+  "engineeringComplete": false
+}

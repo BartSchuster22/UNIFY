@@ -1,0 +1,22 @@
+{
+  "name": "@aquiero/hermes-control-adapter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run src --passWithNoTests --maxWorkers=1 --no-file-parallelism",
+    "start": "node dist/server.js",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@aquiero/contracts": "workspace:*",
+    "@sinclair/typebox": "0.34.52",
+    "fastify": "5.10.0",
+    "pg": "8.22.0"
+  },
+  "devDependencies": {
+    "@types/pg": "8.20.0"
+  }
+}

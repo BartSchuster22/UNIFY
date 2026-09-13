@@ -1,0 +1,58 @@
+{
+  "exactBuildSourceCorrespondenceAsserted": false,
+  "legalHold": "Historical notice names ALICA Ltd. Record the declaration as evidence, not proof of entity existence or authorization. Correct/finalize licensor wording in the separate commercial/legal review.",
+  "newLicenceGrant": false,
+  "records": [
+    {
+      "commit": "e44d8fc86849471869f10a1cb0f849cfb7c23c7b",
+      "matches": [],
+      "path": "LICENSE",
+      "repository": "https://github.com/BartSchuster22/UNIFY",
+      "sha256": "1808a6d047b19a80e1ef601413d2f772ff629a0a4bd6c1dfdaa70cd448dba32f"
+    },
+    {
+      "commit": "e44d8fc86849471869f10a1cb0f849cfb7c23c7b",
+      "matches": [
+        {
+          "image": "hermes",
+          "path": "opt/unify-adapter/node_modules/.pnpm/@aquiero+contracts@file+packages+contracts/node_modules/@aquiero/contracts/package.json",
+          "sha256": "dc03a761fbe0f24b11b43fc168994705c4d14475654ad2eaf8e0bcae5dd7712d"
+        },
+        {
+          "image": "unify-core",
+          "path": "app/node_modules/.pnpm/@aquiero+contracts@file+packages+contracts/node_modules/@aquiero/contracts/package.json",
+          "sha256": "dc03a761fbe0f24b11b43fc168994705c4d14475654ad2eaf8e0bcae5dd7712d"
+        }
+      ],
+      "path": "packages/contracts/package.json",
+      "repository": "https://github.com/BartSchuster22/UNIFY",
+      "sha256": "dc03a761fbe0f24b11b43fc168994705c4d14475654ad2eaf8e0bcae5dd7712d"
+    },
+    {
+      "commit": "e44d8fc86849471869f10a1cb0f849cfb7c23c7b",
+      "matches": [
+        {
+          "image": "hermes",
+          "path": "opt/unify-adapter/package.json",
+          "sha256": "fb8b2575a9bc2d800dc3cd4a9ab161fb632d186750004ade5ff812fc17ae2c9e"
+        }
+      ],
+      "path": "apps/hermes-control-adapter/package.json",
+      "repository": "https://github.com/BartSchuster22/UNIFY",
+      "sha256": "fb8b2575a9bc2d800dc3cd4a9ab161fb632d186750004ade5ff812fc17ae2c9e"
+    },
+    {
+      "commit": "e44d8fc86849471869f10a1cb0f849cfb7c23c7b",
+      "matches": [
+        {
+          "image": "unify-core",
+          "path": "app/package.json",
+          "sha256": "ef36ebe0df59e68a6f545e5408997f202ef5eb755d75816a7f060c3d63b411b1"
+        }
+      ],
+      "path": "apps/gateway/package.json",
+      "repository": "https://github.com/BartSchuster22/UNIFY",
+      "sha256": "ef36ebe0df59e68a6f545e5408997f202ef5eb755d75816a7f060c3d63b411b1"
+    }
+  ]
+}

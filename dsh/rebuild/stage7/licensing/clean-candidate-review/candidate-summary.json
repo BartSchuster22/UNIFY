@@ -1,0 +1,18 @@
+{
+  "candidateImages": 8,
+  "debianOccurrencesWithMaterials": 632,
+  "debianSourcePackagesCollected": 288,
+  "engineeringComplete": false,
+  "fullStackRequalified": false,
+  "imageProbesPassed": true,
+  "legalIdentityAndReview": "outside-engineering-scope",
+  "metadataUnresolved": 34,
+  "note": "Raw scanner gaps and verified metadata gaps differ. Previous image acceptance is never inherited. Source collection does not establish binary/source equality, builds or relinking.",
+  "occurrencesWithUnresolvedEngineeringChecks": 2425,
+  "originalQAUnchanged": true,
+  "reboundNoticeArchiveSha256": "03417b7f65cd10a90e6eb7908ba3788c3a15d9533089e0992dabb19014033746",
+  "reboundTechnicalDispositions": 927,
+  "schema": "stage74-clean-engineering/v1",
+  "softwareOccurrences": 3352,
+  "stage74Accepted": false
+}

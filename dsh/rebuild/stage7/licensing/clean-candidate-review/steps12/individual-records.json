@@ -1,0 +1,1751 @@
+[
+  {
+    "artifactId": "948b704c27397904",
+    "classification": "distribution-main-build-record",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "bytes": 11358,
+        "origin": {
+          "kind": "exact-upstream",
+          "reference": {
+            "bytes": 11358,
+            "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+            "url": "https://raw.githubusercontent.com/caddyserver/caddy/v2.10.2/LICENSE"
+          }
+        },
+        "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+      }
+    ],
+    "facts": {
+      "compilerBinarySha256": "4ef1f68c70219536b2711fd16547a79841a2dec2d6b4e56b1e3e5e9da76028e6",
+      "distributionVersion": "2.10.2",
+      "goMainModuleVersion": "(devel)",
+      "vendorLabels": {
+        "org.opencontainers.image.description": "a powerful, enterprise-ready, open source web server with automatic HTTPS written in Go",
+        "org.opencontainers.image.documentation": "https://caddyserver.com/docs",
+        "org.opencontainers.image.licenses": "Apache-2.0",
+        "org.opencontainers.image.source": "https://github.com/caddyserver/caddy-docker",
+        "org.opencontainers.image.title": "Caddy",
+        "org.opencontainers.image.url": "https://caddyserver.com",
+        "org.opencontainers.image.vendor": "Light Code Labs",
+        "org.opencontainers.image.version": "v2.10.2"
+      }
+    },
+    "image": "caddy",
+    "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+    "licenceExpression": "Apache-2.0",
+    "otherObligationsClosed": false,
+    "rationale": "Scanner pseudo-version is build VCS metadata, not a published caddy module release. Identify as the Caddy 2.10.2 distribution main record, corroborated by compiled dependency and vendor declaration. Dependent modules remain separately inventoried.",
+    "resolution": "metadata-resolved",
+    "scannerName": "caddy",
+    "scannerVersion": "v0.0.0-20250822212934-551f793700fe",
+    "type": "go-module"
+  },
+  {
+    "artifactId": "52bc4586ef22a868",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/683fcd416d83b64781e229a3c2a598462fbf55c5c9fea54be244766b22c033cf",
+        "bytes": 1480,
+        "origin": {
+          "kind": "previous-exact-source",
+          "package": "github.com/antlr4-go/antlr/v4",
+          "path": "LICENSE",
+          "version": "v4.13.0"
+        },
+        "sha256": "683fcd416d83b64781e229a3c2a598462fbf55c5c9fea54be244766b22c033cf"
+      }
+    ],
+    "facts": {
+      "compilerBinarySha256": "4ef1f68c70219536b2711fd16547a79841a2dec2d6b4e56b1e3e5e9da76028e6",
+      "moduleVersion": "v4.13.0",
+      "sourceBindings": [
+        {
+          "bytes": 147732,
+          "compilerModuleChecksum": "h1:lxCg3LAv+EUK6t1i0y1V6/SLeUi0eKEKdhQAlS8TVTI=",
+          "path": "go-notice-review/objects/e8da99b695f242026fcd1877a0ecd248a5a2ec58c042670e7b3a68910c99447a",
+          "relation": "exact-coordinate-upstream-archive-not-proven-corresponding-source",
+          "sha256": "e8da99b695f242026fcd1877a0ecd248a5a2ec58c042670e7b3a68910c99447a"
+        }
+      ]
+    },
+    "image": "caddy",
+    "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+    "licenceExpression": "BSD-3-Clause",
+    "otherObligationsClosed": false,
+    "rationale": "Three conditions, including non-endorsement; retain ANTLR copyright and complete disclaimer.",
+    "resolution": "metadata-resolved",
+    "scannerName": "github.com/antlr4-go/antlr/v4",
+    "scannerVersion": "v4.13.0",
+    "type": "go-module"
+  },
+  {
+    "artifactId": "cd97832ab16a5c2f",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1",
+        "bytes": 11357,
+        "origin": {
+          "kind": "previous-exact-source",
+          "package": "github.com/caddyserver/certmagic",
+          "path": "LICENSE.txt",
+          "version": "v0.24.0"
+        },
+        "sha256": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1"
+      }
+    ],
+    "facts": {
+      "compilerBinarySha256": "4ef1f68c70219536b2711fd16547a79841a2dec2d6b4e56b1e3e5e9da76028e6",
+      "moduleVersion": "v0.24.0",
+      "sourceBindings": [
+        {
+          "bytes": 171898,
+          "compilerModuleChecksum": "h1:EfXTWpxHAUKgDfOj6MHImJN8Jm4AMFfMT6ITuKhrDF0=",
+          "path": "go-notice-review/objects/814039235edab69e0a23974900425e5ace4762ebd7bcc4da3c8b3f47f7c51e56",
+          "relation": "exact-coordinate-upstream-archive-not-proven-corresponding-source",
+          "sha256": "814039235edab69e0a23974900425e5ace4762ebd7bcc4da3c8b3f47f7c51e56"
+        }
+      ]
+    },
+    "image": "caddy",
+    "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+    "licenceExpression": "Apache-2.0",
+    "otherObligationsClosed": false,
+    "rationale": "Complete Apache 2.0 document; appendix placeholder is not missing licence metadata.",
+    "resolution": "metadata-resolved",
+    "scannerName": "github.com/caddyserver/certmagic",
+    "scannerVersion": "v0.24.0",
+    "type": "go-module"
+  },
+  {
+    "artifactId": "877a806ebf57e2ef",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/b0da1764fe4d13d610b695536fc3f2ebc362482d053a1cd258e36975bc6b97a7",
+        "bytes": 3028,
+        "origin": {
+          "kind": "previous-exact-source",
+          "package": "github.com/cloudflare/circl",
+          "path": "LICENSE",
+          "version": "v1.6.1"
+        },
+        "sha256": "b0da1764fe4d13d610b695536fc3f2ebc362482d053a1cd258e36975bc6b97a7"
+      },
+      {
+        "archivePath": "objects/18951c084f68bce792efa2037685466628ebc1c67f4bff8b7147f3d5050e50a4",
+        "bytes": 1489,
+        "origin": {
+          "kind": "previous-exact-source",
+          "package": "github.com/cloudflare/circl",
+          "path": "ecc/p384/LICENSE",
+          "version": "v1.6.1"
+        },
+        "sha256": "18951c084f68bce792efa2037685466628ebc1c67f4bff8b7147f3d5050e50a4"
+      }
+    ],
+    "facts": {
+      "compilerBinarySha256": "4ef1f68c70219536b2711fd16547a79841a2dec2d6b4e56b1e3e5e9da76028e6",
+      "moduleVersion": "v1.6.1",
+      "sourceBindings": [
+        {
+          "bytes": 7096784,
+          "compilerModuleChecksum": "h1:zqIqSPIndyBh1bjLVVDHMPpVKqp8Su/V+6MeDzzQBQ0=",
+          "path": "go-notice-review/objects/a639161f881603a040700d987d2c16ec815302418058cdb29bcc3b349ed56c10",
+          "relation": "exact-coordinate-upstream-archive-not-proven-corresponding-source",
+          "sha256": "a639161f881603a040700d987d2c16ec815302418058cdb29bcc3b349ed56c10"
+        }
+      ]
+    },
+    "image": "caddy",
+    "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+    "licenceExpression": "BSD-3-Clause",
+    "otherObligationsClosed": false,
+    "rationale": "Cloudflare and Go copyright blocks both carry BSD-3-Clause; preserve ecc/p384 attribution too.",
+    "resolution": "metadata-resolved",
+    "scannerName": "github.com/cloudflare/circl",
+    "scannerVersion": "v1.6.1",
+    "type": "go-module"
+  },
+  {
+    "artifactId": "3f0b77508aaee303",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14",
+        "bytes": 11325,
+        "origin": {
+          "kind": "previous-exact-source",
+          "package": "github.com/coreos/go-oidc/v3",
+          "path": "LICENSE",
+          "version": "v3.14.1"
+        },
+        "sha256": "cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14"
+      },
+      {
+        "archivePath": "objects/dccd26c6fd9c296daf44d0bc56bb4efc566edd4880381b3331c9a63e6e471338",
+        "bytes": 126,
+        "origin": {
+          "kind": "previous-exact-source",
+          "package": "github.com/coreos/go-oidc/v3",
+          "path": "NOTICE",
+          "version": "v3.14.1"
+        },
+        "sha256": "dccd26c6fd9c296daf44d0bc56bb4efc566edd4880381b3331c9a63e6e471338"
+      }
+    ],
+    "facts": {
+      "compilerBinarySha256": "4ef1f68c70219536b2711fd16547a79841a2dec2d6b4e56b1e3e5e9da76028e6",
+      "moduleVersion": "v3.14.1",
+      "sourceBindings": [
+        {
+          "bytes": 44290,
+          "compilerModuleChecksum": "h1:9ePWwfdwC4QKRlCXsJGou56adA/owXczOzwKdOumLqk=",
+          "path": "go-notice-review/objects/0ca16a75e71758f95fb4cb96ea9f82f5c1b5a43f2b9c519f6cdcf68b040e5da2",
+          "relation": "exact-coordinate-upstream-archive-not-proven-corresponding-source",
+          "sha256": "0ca16a75e71758f95fb4cb96ea9f82f5c1b5a43f2b9c519f6cdcf68b040e5da2"
+        }
+      ]
+    },
+    "image": "caddy",
+    "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+    "licenceExpression": "Apache-2.0",
+    "otherObligationsClosed": false,
+    "rationale": "Complete Apache 2.0 plus distinct CoreOS NOTICE; do not drop NOTICE.",
+    "resolution": "metadata-resolved",
+    "scannerName": "github.com/coreos/go-oidc/v3",
+    "scannerVersion": "v3.14.1",
+    "type": "go-module"
+  },
+  {
+    "artifactId": "e8a1ce1c799a0126",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/a973b4498c13eb74baa2a8e5c351426a6826f2fcdd909916dbe53ee2e755fd71",
+        "bytes": 1136,
+        "origin": {
+          "kind": "previous-exact-source",
+          "package": "github.com/dustin/go-humanize",
+          "path": "LICENSE",
+          "version": "v1.0.1"
+        },
+        "sha256": "a973b4498c13eb74baa2a8e5c351426a6826f2fcdd909916dbe53ee2e755fd71"
+      }
+    ],
+    "facts": {
+      "compilerBinarySha256": "4ef1f68c70219536b2711fd16547a79841a2dec2d6b4e56b1e3e5e9da76028e6",
+      "moduleVersion": "v1.0.1",
+      "sourceBindings": [
+        {
+          "bytes": 27015,
+          "compilerModuleChecksum": "h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=",
+          "path": "go-notice-review/objects/319404ea84c8a4e2d3d83f30988b006e7dd04976de3e1a1a90484ad94679fa46",
+          "relation": "exact-coordinate-upstream-archive-not-proven-corresponding-source",
+          "sha256": "319404ea84c8a4e2d3d83f30988b006e7dd04976de3e1a1a90484ad94679fa46"
+        }
+      ]
+    },
+    "image": "caddy",
+    "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+    "licenceExpression": "MIT",
+    "otherObligationsClosed": false,
+    "rationale": "MIT grant/condition/disclaimer followed by an informational opensource.org URL; retain full text.",
+    "resolution": "metadata-resolved",
+    "scannerName": "github.com/dustin/go-humanize",
+    "scannerVersion": "v1.0.1",
+    "type": "go-module"
+  },
+  {
+    "artifactId": "783487354d8c2a0f",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1",
+        "bytes": 11357,
+        "origin": {
+          "kind": "previous-exact-source",
+          "package": "github.com/go-logr/logr",
+          "path": "LICENSE",
+          "version": "v1.4.3"
+        },
+        "sha256": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1"
+      }
+    ],
+    "facts": {
+      "compilerBinarySha256": "4ef1f68c70219536b2711fd16547a79841a2dec2d6b4e56b1e3e5e9da76028e6",
+      "moduleVersion": "v1.4.3",
+      "sourceBindings": [
+        {
+          "bytes": 90797,
+          "compilerModuleChecksum": "h1:CjnDlHq8ikf6E492q6eKboGOC0T8CDaOvkHCIg8idEI=",
+          "path": "go-notice-review/objects/523d7a3587fe73f61ef41c8bc627f7d7f38de8104d46278154b307e60770ad70",
+          "relation": "exact-coordinate-upstream-archive-not-proven-corresponding-source",
+          "sha256": "523d7a3587fe73f61ef41c8bc627f7d7f38de8104d46278154b307e60770ad70"
+        }
+      ]
+    },
+    "image": "caddy",
+    "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+    "licenceExpression": "Apache-2.0",
+    "otherObligationsClosed": false,
+    "rationale": "Complete Apache 2.0; root licence metadata resolved, obligations remain separate.",
+    "resolution": "metadata-resolved",
+    "scannerName": "github.com/go-logr/logr",
+    "scannerVersion": "v1.4.3",
+    "type": "go-module"
+  },
+  {
+    "artifactId": "c7242c912e4a02f0",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/4cdb9af102dfbb0ca03d87d6f650a505df098646a4080f4665b389ad9c6caa02",
+        "bytes": 13053,
+        "origin": {
+          "kind": "previous-exact-source",
+          "package": "github.com/google/cel-go",
+          "path": "LICENSE",
+          "version": "v0.26.0"
+        },
+        "sha256": "4cdb9af102dfbb0ca03d87d6f650a505df098646a4080f4665b389ad9c6caa02"
+      }
+    ],
+    "facts": {
+      "compilerBinarySha256": "4ef1f68c70219536b2711fd16547a79841a2dec2d6b4e56b1e3e5e9da76028e6",
+      "moduleVersion": "v0.26.0",
+      "sourceBindings": [
+        {
+          "bytes": 812017,
+          "compilerModuleChecksum": "h1:DPGjXackMpJWH680oGY4lZhYjIameYmR+/6RBdDGmaI=",
+          "path": "go-notice-review/objects/e9d0c56640a08ea4791ae84fc2ca8f7060820926f9678321d1d270f1487372f4",
+          "relation": "exact-coordinate-upstream-archive-not-proven-corresponding-source",
+          "sha256": "e9d0c56640a08ea4791ae84fc2ca8f7060820926f9678321d1d270f1487372f4"
+        }
+      ]
+    },
+    "image": "caddy",
+    "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+    "licenceExpression": "Apache-2.0 AND BSD-3-Clause",
+    "otherObligationsClosed": false,
+    "rationale": "Apache applies generally; common/types/pb/equal.go has an additional Go BSD-3-Clause block. Not Apache-only.",
+    "resolution": "metadata-resolved",
+    "scannerName": "github.com/google/cel-go",
+    "scannerVersion": "v0.26.0",
+    "type": "go-module"
+  },
+  {
+    "artifactId": "3351194736e767bc",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14",
+        "bytes": 11325,
+        "origin": {
+          "kind": "previous-exact-source",
+          "package": "github.com/google/go-tspi",
+          "path": "LICENSE",
+          "version": "v0.3.0"
+        },
+        "sha256": "cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14"
+      }
+    ],
+    "facts": {
+      "compilerBinarySha256": "4ef1f68c70219536b2711fd16547a79841a2dec2d6b4e56b1e3e5e9da76028e6",
+      "moduleVersion": "v0.3.0",
+      "sourceBindings": [
+        {
+          "bytes": 50691,
+          "compilerModuleChecksum": "h1:ADtq8RKfP+jrTyIWIZDIYcKOMecRqNJFOew2IT0Inus=",
+          "path": "go-notice-review/objects/d89ccbad339394b0b45edc2273549ee5eec69657903fd2006f560f027b9e464a",
+          "relation": "exact-coordinate-upstream-archive-not-proven-corresponding-source",
+          "sha256": "d89ccbad339394b0b45edc2273549ee5eec69657903fd2006f560f027b9e464a"
+        }
+      ]
+    },
+    "image": "caddy",
+    "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+    "licenceExpression": "Apache-2.0",
+    "otherObligationsClosed": false,
+    "rationale": "Complete Apache 2.0 document.",
+    "resolution": "metadata-resolved",
+    "scannerName": "github.com/google/go-tspi",
+    "scannerVersion": "v0.3.0",
+    "type": "go-module"
+  },
+  {
+    "artifactId": "7a65e90a74c6bdd3",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/a15b1d1b168954c92ff7fb1620382418f7c72f4f4d251ee791d1098ad68ab0c4",
+        "bytes": 1511,
+        "origin": {
+          "kind": "previous-exact-source",
+          "package": "github.com/grpc-ecosystem/grpc-gateway/v2",
+          "path": "LICENSE",
+          "version": "v2.27.1"
+        },
+        "sha256": "a15b1d1b168954c92ff7fb1620382418f7c72f4f4d251ee791d1098ad68ab0c4"
+      },
+      {
+        "archivePath": "objects/20873bd48d04a4e4075ee881ec2a5f3a3b14bf4920018b1131a7c52ec9b4a318",
+        "bytes": 1486,
+        "origin": {
+          "kind": "previous-exact-source",
+          "package": "github.com/grpc-ecosystem/grpc-gateway/v2",
+          "path": "internal/casing/LICENSE.md",
+          "version": "v2.27.1"
+        },
+        "sha256": "20873bd48d04a4e4075ee881ec2a5f3a3b14bf4920018b1131a7c52ec9b4a318"
+      }
+    ],
+    "facts": {
+      "compilerBinarySha256": "4ef1f68c70219536b2711fd16547a79841a2dec2d6b4e56b1e3e5e9da76028e6",
+      "moduleVersion": "v2.27.1",
+      "sourceBindings": [
+        {
+          "bytes": 1150599,
+          "compilerModuleChecksum": "h1:X5VWvz21y3gzm9Nw/kaUeku/1+uBhcekkmy4IkffJww=",
+          "path": "go-notice-review/objects/5c4f32ba9009fd761ecc86e3d7783060bf54a8298eb879372070185212e0c3cf",
+          "relation": "exact-coordinate-upstream-archive-not-proven-corresponding-source",
+          "sha256": "5c4f32ba9009fd761ecc86e3d7783060bf54a8298eb879372070185212e0c3cf"
+        }
+      ]
+    },
+    "image": "caddy",
+    "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+    "licenceExpression": "BSD-3-Clause",
+    "otherObligationsClosed": false,
+    "rationale": "Gengo root and internal/casing Go attribution each have three-condition BSD terms.",
+    "resolution": "metadata-resolved",
+    "scannerName": "github.com/grpc-ecosystem/grpc-gateway/v2",
+    "scannerVersion": "v2.27.1",
+    "type": "go-module"
+  },
+  {
+    "artifactId": "799d7d87601f5386",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/0d9e582ee4bff57bf1189c9e514e6da7ce277f9cd3bc2d488b22fbb39a6d87cf",
+        "bytes": 16733,
+        "origin": {
+          "kind": "exact-upstream",
+          "reference": {
+            "bytes": 16733,
+            "path": "LICENSE",
+            "sha256": "0d9e582ee4bff57bf1189c9e514e6da7ce277f9cd3bc2d488b22fbb39a6d87cf"
+          }
+        },
+        "sha256": "0d9e582ee4bff57bf1189c9e514e6da7ce277f9cd3bc2d488b22fbb39a6d87cf"
+      },
+      {
+        "archivePath": "objects/2252a5b1e2b1d3663b53ea77051b8ed065cb9270a3d1174d5d6ead8a2de051b6",
+        "bytes": 11361,
+        "origin": {
+          "kind": "exact-upstream",
+          "reference": {
+            "bytes": 11361,
+            "path": "gzhttp/LICENSE",
+            "sha256": "2252a5b1e2b1d3663b53ea77051b8ed065cb9270a3d1174d5d6ead8a2de051b6"
+          }
+        },
+        "sha256": "2252a5b1e2b1d3663b53ea77051b8ed065cb9270a3d1174d5d6ead8a2de051b6"
+      },
+      {
+        "archivePath": "objects/6a358d2540ca14048f02d366f23787c0a480157e58f058113f0e27168dd4e447",
+        "bytes": 1477,
+        "origin": {
+          "kind": "exact-upstream",
+          "reference": {
+            "bytes": 1477,
+            "path": "internal/lz4ref/LICENSE",
+            "sha256": "6a358d2540ca14048f02d366f23787c0a480157e58f058113f0e27168dd4e447"
+          }
+        },
+        "sha256": "6a358d2540ca14048f02d366f23787c0a480157e58f058113f0e27168dd4e447"
+      },
+      {
+        "archivePath": "objects/f69f157b0be75da373605dbc8bbf142e8924ee82d8f44f11bcaf351335bf98cf",
+        "bytes": 1486,
+        "origin": {
+          "kind": "exact-upstream",
+          "reference": {
+            "bytes": 1486,
+            "path": "internal/snapref/LICENSE",
+            "sha256": "f69f157b0be75da373605dbc8bbf142e8924ee82d8f44f11bcaf351335bf98cf"
+          }
+        },
+        "sha256": "f69f157b0be75da373605dbc8bbf142e8924ee82d8f44f11bcaf351335bf98cf"
+      },
+      {
+        "archivePath": "objects/08683b14bda8ae3538abf19e1879e853a39e3b8276a8d673363b529d15a61c1a",
+        "bytes": 1538,
+        "origin": {
+          "kind": "exact-upstream",
+          "reference": {
+            "bytes": 1538,
+            "path": "s2/LICENSE",
+            "sha256": "08683b14bda8ae3538abf19e1879e853a39e3b8276a8d673363b529d15a61c1a"
+          }
+        },
+        "sha256": "08683b14bda8ae3538abf19e1879e853a39e3b8276a8d673363b529d15a61c1a"
+      },
+      {
+        "archivePath": "objects/8582c87d9a6baa28f7827c5205b7d16c3179bc794ebd4c7cc287c49a89b7eaa1",
+        "bytes": 1061,
+        "origin": {
+          "kind": "exact-upstream",
+          "reference": {
+            "bytes": 1061,
+            "path": "s2/cmd/internal/filepathx/LICENSE",
+            "sha256": "8582c87d9a6baa28f7827c5205b7d16c3179bc794ebd4c7cc287c49a89b7eaa1"
+          }
+        },
+        "sha256": "8582c87d9a6baa28f7827c5205b7d16c3179bc794ebd4c7cc287c49a89b7eaa1"
+      },
+      {
+        "archivePath": "objects/10fa24a602fde465db603cd5d546e37e33642a73cd24ddf5910be81724fec8b2",
+        "bytes": 1100,
+        "origin": {
+          "kind": "exact-upstream",
+          "reference": {
+            "bytes": 1100,
+            "path": "s2/cmd/internal/readahead/LICENSE",
+            "sha256": "10fa24a602fde465db603cd5d546e37e33642a73cd24ddf5910be81724fec8b2"
+          }
+        },
+        "sha256": "10fa24a602fde465db603cd5d546e37e33642a73cd24ddf5910be81724fec8b2"
+      },
+      {
+        "archivePath": "objects/f69f157b0be75da373605dbc8bbf142e8924ee82d8f44f11bcaf351335bf98cf",
+        "bytes": 1486,
+        "origin": {
+          "kind": "exact-upstream",
+          "reference": {
+            "bytes": 1486,
+            "path": "snappy/LICENSE",
+            "sha256": "f69f157b0be75da373605dbc8bbf142e8924ee82d8f44f11bcaf351335bf98cf"
+          }
+        },
+        "sha256": "f69f157b0be75da373605dbc8bbf142e8924ee82d8f44f11bcaf351335bf98cf"
+      },
+      {
+        "archivePath": "objects/d4ff111fa30ac75e28dca3868de957a3b73ff50b76bc4b8fe5c3a1f008d26703",
+        "bytes": 1106,
+        "origin": {
+          "kind": "exact-upstream",
+          "reference": {
+            "bytes": 1106,
+            "path": "snappy/xerial/LICENSE",
+            "sha256": "d4ff111fa30ac75e28dca3868de957a3b73ff50b76bc4b8fe5c3a1f008d26703"
+          }
+        },
+        "sha256": "d4ff111fa30ac75e28dca3868de957a3b73ff50b76bc4b8fe5c3a1f008d26703"
+      },
+      {
+        "archivePath": "objects/f566a9f97bacdaf00d9f21dd991e81dc11201c4e016c86b470799429a1c9a79c",
+        "bytes": 1068,
+        "origin": {
+          "kind": "exact-upstream",
+          "reference": {
+            "bytes": 1068,
+            "path": "zstd/internal/xxhash/LICENSE.txt",
+            "sha256": "f566a9f97bacdaf00d9f21dd991e81dc11201c4e016c86b470799429a1c9a79c"
+          }
+        },
+        "sha256": "f566a9f97bacdaf00d9f21dd991e81dc11201c4e016c86b470799429a1c9a79c"
+      }
+    ],
+    "facts": {
+      "archive": {
+        "bytes": 39187545,
+        "sha256": "c4679e4cbc820a21758199d985be754abf5eb2a38e6f1de95cd70b2e7ef06905",
+        "url": "https://proxy.golang.org/github.com/klauspost/compress/@v/v1.18.0.zip"
+      },
+      "compilerModuleChecksum": "h1:c/Cqfb0r+Yi+JtIEq73FWXVkRonBlf0CRNYc8Zttxdo=",
+      "documents": [
+        {
+          "bytes": 16733,
+          "path": "LICENSE",
+          "sha256": "0d9e582ee4bff57bf1189c9e514e6da7ce277f9cd3bc2d488b22fbb39a6d87cf"
+        },
+        {
+          "bytes": 11361,
+          "path": "gzhttp/LICENSE",
+          "sha256": "2252a5b1e2b1d3663b53ea77051b8ed065cb9270a3d1174d5d6ead8a2de051b6"
+        },
+        {
+          "bytes": 1477,
+          "path": "internal/lz4ref/LICENSE",
+          "sha256": "6a358d2540ca14048f02d366f23787c0a480157e58f058113f0e27168dd4e447"
+        },
+        {
+          "bytes": 1486,
+          "path": "internal/snapref/LICENSE",
+          "sha256": "f69f157b0be75da373605dbc8bbf142e8924ee82d8f44f11bcaf351335bf98cf"
+        },
+        {
+          "bytes": 1538,
+          "path": "s2/LICENSE",
+          "sha256": "08683b14bda8ae3538abf19e1879e853a39e3b8276a8d673363b529d15a61c1a"
+        },
+        {
+          "bytes": 1061,
+          "path": "s2/cmd/internal/filepathx/LICENSE",
+          "sha256": "8582c87d9a6baa28f7827c5205b7d16c3179bc794ebd4c7cc287c49a89b7eaa1"
+        },
+        {
+          "bytes": 1100,
+          "path": "s2/cmd/internal/readahead/LICENSE",
+          "sha256": "10fa24a602fde465db603cd5d546e37e33642a73cd24ddf5910be81724fec8b2"
+        },
+        {
+          "bytes": 1486,
+          "path": "snappy/LICENSE",
+          "sha256": "f69f157b0be75da373605dbc8bbf142e8924ee82d8f44f11bcaf351335bf98cf"
+        },
+        {
+          "bytes": 1106,
+          "path": "snappy/xerial/LICENSE",
+          "sha256": "d4ff111fa30ac75e28dca3868de957a3b73ff50b76bc4b8fe5c3a1f008d26703"
+        },
+        {
+          "bytes": 1068,
+          "path": "zstd/internal/xxhash/LICENSE.txt",
+          "sha256": "f566a9f97bacdaf00d9f21dd991e81dc11201c4e016c86b470799429a1c9a79c"
+        }
+      ]
+    },
+    "image": "caddy",
+    "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+    "licenceExpression": "BSD-3-Clause AND Apache-2.0 AND MIT",
+    "otherObligationsClosed": false,
+    "rationale": "Complete root and nested licence texts: BSD default, Apache gzhttp, MIT designated subdirectories. Source module ZIP matches the h1 checksum embedded in the frozen binary; object-code subcomponent applicability remains Step 3.",
+    "resolution": "metadata-resolved",
+    "scannerName": "github.com/klauspost/compress",
+    "scannerVersion": "v1.18.0",
+    "type": "go-module"
+  },
+  {
+    "artifactId": "1eff95415d0a4c88",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/aa1376b9bc5dea6f30cdefde40c176a254f247d2814d0a9929395138631b2ae0",
+        "bytes": 1546,
+        "origin": {
+          "kind": "previous-exact-source",
+          "package": "github.com/munnerz/goautoneg",
+          "path": "LICENSE",
+          "version": "v0.0.0-20191010083416-a7dc8b61c822"
+        },
+        "sha256": "aa1376b9bc5dea6f30cdefde40c176a254f247d2814d0a9929395138631b2ae0"
+      }
+    ],
+    "facts": {
+      "compilerBinarySha256": "4ef1f68c70219536b2711fd16547a79841a2dec2d6b4e56b1e3e5e9da76028e6",
+      "moduleVersion": "v0.0.0-20191010083416-a7dc8b61c822",
+      "sourceBindings": [
+        {
+          "bytes": 5674,
+          "compilerModuleChecksum": "h1:C3w9PqII01/Oq1c1nUAm88MOHcQC9l5mIlSMApZMrHA=",
+          "path": "go-notice-review/objects/3d7ce17916779890be02ea6b3dd6345c3c30c1df502ad9d8b5b9b310e636afd9",
+          "relation": "exact-coordinate-upstream-archive-not-proven-corresponding-source",
+          "sha256": "3d7ce17916779890be02ea6b3dd6345c3c30c1df502ad9d8b5b9b310e636afd9"
+        }
+      ]
+    },
+    "image": "caddy",
+    "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+    "licenceExpression": "BSD-3-Clause",
+    "otherObligationsClosed": false,
+    "rationale": "Three unnumbered conditions include Open Knowledge Foundation non-endorsement; retain whole document.",
+    "resolution": "metadata-resolved",
+    "scannerName": "github.com/munnerz/goautoneg",
+    "scannerVersion": "v0.0.0-20191010083416-a7dc8b61c822",
+    "type": "go-module"
+  },
+  {
+    "artifactId": "f812beb1e8db1a85",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/666f1951be1d543e744818d232bb311a4a310fd1d344288642c796fca39af3c7",
+        "bytes": 11341,
+        "origin": {
+          "kind": "previous-exact-source",
+          "package": "github.com/pires/go-proxyproto",
+          "path": "LICENSE",
+          "version": "v0.8.1"
+        },
+        "sha256": "666f1951be1d543e744818d232bb311a4a310fd1d344288642c796fca39af3c7"
+      }
+    ],
+    "facts": {
+      "compilerBinarySha256": "4ef1f68c70219536b2711fd16547a79841a2dec2d6b4e56b1e3e5e9da76028e6",
+      "moduleVersion": "v0.8.1",
+      "sourceBindings": [
+        {
+          "bytes": 61160,
+          "compilerModuleChecksum": "h1:9KEixbdJfhrbtjpz/ZwCdWDD2Xem0NZ38qMYaASJgp0=",
+          "path": "go-notice-review/objects/a979a2f26160bfcb6f3829dd546d5f53c8b1879e7ad84466e359cf3f6237aa4c",
+          "relation": "exact-coordinate-upstream-archive-not-proven-corresponding-source",
+          "sha256": "a979a2f26160bfcb6f3829dd546d5f53c8b1879e7ad84466e359cf3f6237aa4c"
+        }
+      ]
+    },
+    "image": "caddy",
+    "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+    "licenceExpression": "Apache-2.0",
+    "otherObligationsClosed": false,
+    "rationale": "Complete Apache 2.0 with Paulo Pires appendix attribution.",
+    "resolution": "metadata-resolved",
+    "scannerName": "github.com/pires/go-proxyproto",
+    "scannerVersion": "v0.8.1",
+    "type": "go-module"
+  },
+  {
+    "artifactId": "c1d98cbce7016709",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/75e1ca97a84a9da6051dee0114333388216f2c4a5a028296b882ff3d57274735",
+        "bytes": 1416,
+        "origin": {
+          "kind": "previous-exact-source",
+          "package": "github.com/russross/blackfriday/v2",
+          "path": "LICENSE.txt",
+          "version": "v2.1.0"
+        },
+        "sha256": "75e1ca97a84a9da6051dee0114333388216f2c4a5a028296b882ff3d57274735"
+      }
+    ],
+    "facts": {
+      "compilerBinarySha256": "4ef1f68c70219536b2711fd16547a79841a2dec2d6b4e56b1e3e5e9da76028e6",
+      "moduleVersion": "v2.1.0",
+      "sourceBindings": [
+        {
+          "bytes": 122358,
+          "compilerModuleChecksum": "h1:JIOH55/0cWyOuilr9/qlrm0BSXldqnqwMsf35Ld67mk=",
+          "path": "go-notice-review/objects/7852750d58a053ce38b01f2c203208817564f552ebf371b2b630081d7004c6ae",
+          "relation": "exact-coordinate-upstream-archive-not-proven-corresponding-source",
+          "sha256": "7852750d58a053ce38b01f2c203208817564f552ebf371b2b630081d7004c6ae"
+        }
+      ]
+    },
+    "image": "caddy",
+    "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+    "licenceExpression": "BSD-2-Clause",
+    "otherObligationsClosed": false,
+    "rationale": "Markdown quotation formatting surrounds the two-condition Simplified BSD text; no third condition.",
+    "resolution": "metadata-resolved",
+    "scannerName": "github.com/russross/blackfriday/v2",
+    "scannerVersion": "v2.1.0",
+    "type": "go-module"
+  },
+  {
+    "artifactId": "12a6bb94d9e44380",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/b92ba0f6ee02f2309628bfdadb123668a17c016e475ba477b857d33470d9d625",
+        "bytes": 2245,
+        "origin": {
+          "kind": "previous-exact-source",
+          "package": "github.com/shopspring/decimal",
+          "path": "LICENSE",
+          "version": "v1.4.0"
+        },
+        "sha256": "b92ba0f6ee02f2309628bfdadb123668a17c016e475ba477b857d33470d9d625"
+      }
+    ],
+    "facts": {
+      "compilerBinarySha256": "4ef1f68c70219536b2711fd16547a79841a2dec2d6b4e56b1e3e5e9da76028e6",
+      "moduleVersion": "v1.4.0",
+      "sourceBindings": [
+        {
+          "bytes": 57031,
+          "compilerModuleChecksum": "h1:bxl37RwXBklmTi0C79JfXCEBD1cqqHt0bbgBAGFp81k=",
+          "path": "go-notice-review/objects/751d4cd3460984afc72973d2a0df56ed9b10499c5cd0508d7f2207245d9e3315",
+          "relation": "exact-coordinate-upstream-archive-not-proven-corresponding-source",
+          "sha256": "751d4cd3460984afc72973d2a0df56ed9b10499c5cd0508d7f2207245d9e3315"
+        }
+      ]
+    },
+    "image": "caddy",
+    "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+    "licenceExpression": "MIT",
+    "otherObligationsClosed": false,
+    "rationale": "Two MIT grants, Spring and upstream fpd/Oguz Bilgic; retain both, not just the first block.",
+    "resolution": "metadata-resolved",
+    "scannerName": "github.com/shopspring/decimal",
+    "scannerVersion": "v1.4.0",
+    "type": "go-module"
+  },
+  {
+    "artifactId": "e539d7c05ecc6ea4",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/0589f544f68ffc436e6e21efec2cf7cc2dbb2ac09ce6cb8a8cdb75ab74489716",
+        "bytes": 7189,
+        "origin": {
+          "kind": "previous-exact-source",
+          "package": "github.com/zeebo/blake3",
+          "path": "LICENSE",
+          "version": "v0.2.4"
+        },
+        "sha256": "0589f544f68ffc436e6e21efec2cf7cc2dbb2ac09ce6cb8a8cdb75ab74489716"
+      }
+    ],
+    "facts": {
+      "compilerBinarySha256": "4ef1f68c70219536b2711fd16547a79841a2dec2d6b4e56b1e3e5e9da76028e6",
+      "moduleVersion": "v0.2.4",
+      "sourceBindings": [
+        {
+          "bytes": 111107,
+          "compilerModuleChecksum": "h1:KYQPkhpRtcqh0ssGYcKLG1JYvddkEA8QwCM/yBqhaZI=",
+          "path": "go-notice-review/objects/65aaa3487c097fa0140f52041e8e6fe8214c244a29223fd4caaa60986192a08f",
+          "relation": "exact-coordinate-upstream-archive-not-proven-corresponding-source",
+          "sha256": "65aaa3487c097fa0140f52041e8e6fe8214c244a29223fd4caaa60986192a08f"
+        }
+      ]
+    },
+    "image": "caddy",
+    "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+    "licenceExpression": "CC0-1.0",
+    "otherObligationsClosed": false,
+    "rationale": "Explicit CC0 1.0 dedication and complete legal code, including fallback licence and limitations; not an unsupported public-domain assertion.",
+    "resolution": "metadata-resolved",
+    "scannerName": "github.com/zeebo/blake3",
+    "scannerVersion": "v0.2.4",
+    "type": "go-module"
+  },
+  {
+    "artifactId": "36a4e38fe477b839",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/d18f6323b71b0b768bb5e9616e36da390fbd39369a81807cca352de4e4e6aa0b",
+        "bytes": 2151,
+        "origin": {
+          "kind": "previous-exact-source",
+          "package": "gopkg.in/yaml.v3",
+          "path": "LICENSE",
+          "version": "v3.0.1"
+        },
+        "sha256": "d18f6323b71b0b768bb5e9616e36da390fbd39369a81807cca352de4e4e6aa0b"
+      },
+      {
+        "archivePath": "objects/f6c2dd3a67b576eafb89b80200b8b1627230bf3821a0c14cb99a22ac19107d00",
+        "bytes": 560,
+        "origin": {
+          "kind": "previous-exact-source",
+          "package": "gopkg.in/yaml.v3",
+          "path": "NOTICE",
+          "version": "v3.0.1"
+        },
+        "sha256": "f6c2dd3a67b576eafb89b80200b8b1627230bf3821a0c14cb99a22ac19107d00"
+      }
+    ],
+    "facts": {
+      "compilerBinarySha256": "4ef1f68c70219536b2711fd16547a79841a2dec2d6b4e56b1e3e5e9da76028e6",
+      "moduleVersion": "v3.0.1",
+      "sourceBindings": [
+        {
+          "bytes": 104623,
+          "compilerModuleChecksum": "h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=",
+          "path": "go-notice-review/objects/aab8fbc4e6300ea08e6afe1caea18a21c90c79f489f52c53e2f20431f1a9a015",
+          "relation": "exact-coordinate-upstream-archive-not-proven-corresponding-source",
+          "sha256": "aab8fbc4e6300ea08e6afe1caea18a21c90c79f489f52c53e2f20431f1a9a015"
+        }
+      ]
+    },
+    "image": "caddy",
+    "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+    "licenceExpression": "MIT AND Apache-2.0",
+    "otherObligationsClosed": false,
+    "rationale": "MIT for the enumerated libyaml-derived files; Apache 2.0 for remaining files. This is not a choice of either licence. NOTICE retained.",
+    "resolution": "metadata-resolved",
+    "scannerName": "gopkg.in/yaml.v3",
+    "scannerVersion": "v3.0.1",
+    "type": "go-module"
+  },
+  {
+    "artifactId": "3ad0ccddf1b6e8c6",
+    "classification": "first-party-restricted",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/dc03a761fbe0f24b11b43fc168994705c4d14475654ad2eaf8e0bcae5dd7712d",
+        "bytes": 446,
+        "origin": {
+          "image": "hermes",
+          "kind": "shipped",
+          "path": "opt/unify-adapter/node_modules/.pnpm/@aquiero+contracts@file+packages+contracts/node_modules/@aquiero/contracts/package.json"
+        },
+        "sha256": "dc03a761fbe0f24b11b43fc168994705c4d14475654ad2eaf8e0bcae5dd7712d"
+      },
+      {
+        "archivePath": "objects/1808a6d047b19a80e1ef601413d2f772ff629a0a4bd6c1dfdaa70cd448dba32f",
+        "bytes": 828,
+        "origin": {
+          "commit": "e44d8fc86849471869f10a1cb0f849cfb7c23c7b",
+          "matches": [],
+          "path": "LICENSE",
+          "repository": "https://github.com/BartSchuster22/UNIFY",
+          "sha256": "1808a6d047b19a80e1ef601413d2f772ff629a0a4bd6c1dfdaa70cd448dba32f"
+        },
+        "sha256": "1808a6d047b19a80e1ef601413d2f772ff629a0a4bd6c1dfdaa70cd448dba32f"
+      }
+    ],
+    "facts": {
+      "exactBuildSourceCorrespondenceAsserted": false,
+      "legalHold": "Historical notice names ALICA Ltd. Record the declaration as evidence, not proof of entity existence or authorization. Correct/finalize licensor wording in the separate commercial/legal review.",
+      "newLicenceGrant": false,
+      "sourceManifest": {
+        "commit": "e44d8fc86849471869f10a1cb0f849cfb7c23c7b",
+        "matches": [
+          {
+            "image": "hermes",
+            "path": "opt/unify-adapter/node_modules/.pnpm/@aquiero+contracts@file+packages+contracts/node_modules/@aquiero/contracts/package.json",
+            "sha256": "dc03a761fbe0f24b11b43fc168994705c4d14475654ad2eaf8e0bcae5dd7712d"
+          },
+          {
+            "image": "unify-core",
+            "path": "app/node_modules/.pnpm/@aquiero+contracts@file+packages+contracts/node_modules/@aquiero/contracts/package.json",
+            "sha256": "dc03a761fbe0f24b11b43fc168994705c4d14475654ad2eaf8e0bcae5dd7712d"
+          }
+        ],
+        "path": "packages/contracts/package.json",
+        "repository": "https://github.com/BartSchuster22/UNIFY",
+        "sha256": "dc03a761fbe0f24b11b43fc168994705c4d14475654ad2eaf8e0bcae5dd7712d"
+      }
+    },
+    "image": "hermes",
+    "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+    "licenceExpression": "LicenseRef-UNIFY-FirstParty-Proprietary",
+    "otherObligationsClosed": false,
+    "rationale": "Existing proprietary/restricted declaration, not SPDX Unlicense and not an OSS exemption. Package identity is byte-bound to repository manifest. Historical ALICA Ltd wording is a separate unresolved commercial/legal correction, not validated here.",
+    "resolution": "metadata-resolved",
+    "scannerName": "@aquiero/contracts",
+    "scannerVersion": "0.1.0",
+    "type": "npm"
+  },
+  {
+    "artifactId": "2b43b8db6abc5517",
+    "classification": "first-party-restricted",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/fb8b2575a9bc2d800dc3cd4a9ab161fb632d186750004ade5ff812fc17ae2c9e",
+        "bytes": 564,
+        "origin": {
+          "image": "hermes",
+          "kind": "shipped",
+          "path": "opt/unify-adapter/package.json"
+        },
+        "sha256": "fb8b2575a9bc2d800dc3cd4a9ab161fb632d186750004ade5ff812fc17ae2c9e"
+      },
+      {
+        "archivePath": "objects/1808a6d047b19a80e1ef601413d2f772ff629a0a4bd6c1dfdaa70cd448dba32f",
+        "bytes": 828,
+        "origin": {
+          "commit": "e44d8fc86849471869f10a1cb0f849cfb7c23c7b",
+          "matches": [],
+          "path": "LICENSE",
+          "repository": "https://github.com/BartSchuster22/UNIFY",
+          "sha256": "1808a6d047b19a80e1ef601413d2f772ff629a0a4bd6c1dfdaa70cd448dba32f"
+        },
+        "sha256": "1808a6d047b19a80e1ef601413d2f772ff629a0a4bd6c1dfdaa70cd448dba32f"
+      }
+    ],
+    "facts": {
+      "exactBuildSourceCorrespondenceAsserted": false,
+      "legalHold": "Historical notice names ALICA Ltd. Record the declaration as evidence, not proof of entity existence or authorization. Correct/finalize licensor wording in the separate commercial/legal review.",
+      "newLicenceGrant": false,
+      "sourceManifest": {
+        "commit": "e44d8fc86849471869f10a1cb0f849cfb7c23c7b",
+        "matches": [
+          {
+            "image": "hermes",
+            "path": "opt/unify-adapter/package.json",
+            "sha256": "fb8b2575a9bc2d800dc3cd4a9ab161fb632d186750004ade5ff812fc17ae2c9e"
+          }
+        ],
+        "path": "apps/hermes-control-adapter/package.json",
+        "repository": "https://github.com/BartSchuster22/UNIFY",
+        "sha256": "fb8b2575a9bc2d800dc3cd4a9ab161fb632d186750004ade5ff812fc17ae2c9e"
+      }
+    },
+    "image": "hermes",
+    "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+    "licenceExpression": "LicenseRef-UNIFY-FirstParty-Proprietary",
+    "otherObligationsClosed": false,
+    "rationale": "Existing proprietary/restricted declaration, not SPDX Unlicense and not an OSS exemption. Package identity is byte-bound to repository manifest. Historical ALICA Ltd wording is a separate unresolved commercial/legal correction, not validated here.",
+    "resolution": "metadata-resolved",
+    "scannerName": "@aquiero/hermes-control-adapter",
+    "scannerVersion": "0.1.0",
+    "type": "npm"
+  },
+  {
+    "artifactId": "85c1a1d5545cca6a",
+    "classification": "owned-binary-subrecord",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/e4e52839404b4685b26e99169fb7f6be7776276d10ccf422e2b208545e6168e5",
+        "bytes": 14152,
+        "origin": {
+          "bytes": 14152,
+          "image": "hermes",
+          "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+          "path": "usr/share/doc/docker-cli/copyright",
+          "resolvedPath": "usr/share/doc/docker-cli/copyright",
+          "sha256": "e4e52839404b4685b26e99169fb7f6be7776276d10ccf422e2b208545e6168e5"
+        },
+        "sha256": "e4e52839404b4685b26e99169fb7f6be7776276d10ccf422e2b208545e6168e5"
+      }
+    ],
+    "facts": {
+      "digestMatches": true,
+      "image": "hermes",
+      "package": "docker-cli",
+      "packageDigest": {
+        "algorithm": "md5",
+        "value": "00bae64552d5b571a8910acdd1986cc2"
+      },
+      "path": "usr/bin/docker",
+      "scanSha256": "edebd335485fb2c360a569c53364b0c74a4ef87050940422aa7769d39fb9ba1b",
+      "sha256": "dcd656567975bc326ab55e8a043989a60ca336638689d9faa10ef15614709b71",
+      "source": "docker.io",
+      "sourceVersion": "26.1.5+dfsg1-9",
+      "version": "26.1.5+dfsg1-9+b13"
+    },
+    "image": "hermes",
+    "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+    "licenceExpression": "LicenseRef-Debian-DockerCLI-26.1.5-Distribution",
+    "otherObligationsClosed": false,
+    "rationale": "UNKNOWN Go main-module version resolves to Debian docker-cli 26.1.5+dfsg1-9+b13, source docker.io 26.1.5+dfsg1-9. Package-manager file digest matches this exact binary. Preserve complete Debian copyright with per-file/packaging terms; do not apply GPL packaging terms indiscriminately to all Docker code.",
+    "resolution": "metadata-resolved",
+    "scannerName": "github.com/docker/cli/cmd/docker",
+    "scannerVersion": "UNKNOWN",
+    "type": "go-module"
+  },
+  {
+    "artifactId": "94ea8e260480223e",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/51678e5e739149c050c257592cd449ecbb8d306c308cf6698cc82bc3092e6ca6",
+        "bytes": 417,
+        "origin": {
+          "image": "hermes",
+          "kind": "shipped",
+          "path": "opt/hermes/scripts/whatsapp-bridge/package.json"
+        },
+        "sha256": "51678e5e739149c050c257592cd449ecbb8d306c308cf6698cc82bc3092e6ca6"
+      },
+      {
+        "archivePath": "objects/821556e6336796450ab852d375117b48a4887e71d255794fd6318d99982a5ab6",
+        "bytes": 1070,
+        "origin": {
+          "image": "hermes",
+          "kind": "shipped",
+          "path": "opt/hermes/LICENSE"
+        },
+        "sha256": "821556e6336796450ab852d375117b48a4887e71d255794fd6318d99982a5ab6"
+      }
+    ],
+    "facts": {},
+    "image": "hermes",
+    "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+    "licenceExpression": "MIT",
+    "otherObligationsClosed": false,
+    "rationale": "Bridge is within the shipped Hermes repository root MIT scope. Its npm private flag is not a proprietary licence. Baileys and other dependencies retain separate records and obligations.",
+    "resolution": "metadata-resolved",
+    "scannerName": "hermes-whatsapp-bridge",
+    "scannerVersion": "1.0.0",
+    "type": "npm"
+  },
+  {
+    "artifactId": "944a02cefeef02c9",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/a4644e25544a427aca3e5c547f1485ffa15e52be28707ebf7ee21db67fa31fc3",
+        "bytes": 647,
+        "origin": {
+          "image": "hermes",
+          "kind": "shipped",
+          "path": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client-0.6.1.dist-info/METADATA"
+        },
+        "sha256": "a4644e25544a427aca3e5c547f1485ffa15e52be28707ebf7ee21db67fa31fc3"
+      },
+      {
+        "archivePath": "objects/01fde0bedf83bdc185065d7af524a61690efe576a67f922eaff3a1280c17b63a",
+        "bytes": 1075,
+        "origin": {
+          "kind": "exact-upstream",
+          "reference": {
+            "bytes": 1075,
+            "sha256": "01fde0bedf83bdc185065d7af524a61690efe576a67f922eaff3a1280c17b63a",
+            "url": "https://raw.githubusercontent.com/vectorize-io/hindsight/0f7c5e895b2fc0ff6a9047a1e9e9e5785207c784/LICENSE"
+          }
+        },
+        "sha256": "01fde0bedf83bdc185065d7af524a61690efe576a67f922eaff3a1280c17b63a"
+      }
+    ],
+    "facts": {
+      "exactReleaseCommit": "0f7c5e895b2fc0ff6a9047a1e9e9e5785207c784",
+      "registry": {
+        "sha256": "ba08de4a6f06393fe43fcf609453f7e1b3936fba13598c6d7cf6e0f679a23d05",
+        "url": "https://pypi.org/pypi/hindsight-client/0.6.1/json"
+      },
+      "releaseArchives": [
+        {
+          "bytes": 249379,
+          "sha256": "9fdda176ab50f7cec8d7339c6608c148f0cd9ad7e65d9d76192f2db730bc330a",
+          "url": "https://files.pythonhosted.org/packages/24/4f/a1d0bc33ef933ecc52e76dc1514163594d25836a5d303c256a61bb61445d/hindsight_client-0.6.1-py3-none-any.whl"
+        },
+        {
+          "bytes": 99833,
+          "sha256": "314d0bb9e13622e15586ba1586a799726d405b27bc20d78872474b5d6d96cd51",
+          "url": "https://files.pythonhosted.org/packages/33/26/8b8efa4be21fc3ba12ade3b1353d87f9837ec0d3ec2607e8adbf85bc9c63/hindsight_client-0.6.1.tar.gz"
+        }
+      ],
+      "verifiedClientFiles": 137
+    },
+    "image": "hermes",
+    "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+    "licenceExpression": "MIT",
+    "otherObligationsClosed": false,
+    "rationale": "Wheel omitted licence metadata. Installed client payload matches the published wheel and the exact tagged source tree, whose root supplies the MIT licence; this is not a name-only or latest-version inference.",
+    "resolution": "metadata-resolved",
+    "scannerName": "hindsight-client",
+    "scannerVersion": "0.6.1",
+    "type": "python"
+  },
+  {
+    "artifactId": "2acd79d760529caa",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/c738ae413cf561f174e34f6961f8ca458aae2369a73640dda6234c629b98bcc4",
+        "bytes": 145485,
+        "origin": {
+          "kind": "exact-upstream",
+          "reference": {
+            "bytes": 145485,
+            "sha256": "c738ae413cf561f174e34f6961f8ca458aae2369a73640dda6234c629b98bcc4"
+          }
+        },
+        "sha256": "c738ae413cf561f174e34f6961f8ca458aae2369a73640dda6234c629b98bcc4"
+      }
+    ],
+    "facts": {
+      "coreLicence": "MIT",
+      "exactBinaryMatch": {
+        "image": "hermes",
+        "path": "usr/local/bin/node",
+        "sha256": "81925c0995b5c1427b5d538e6a90ca2fdc4daffb786b09af749beaf7369d4e90"
+      },
+      "runtimeArchive": {
+        "bytes": 31065656,
+        "sha256": "88fd1ce767091fd8d4a99fdb2356e98c819f93f3b1f8663853a2dee9b438068a",
+        "url": "https://nodejs.org/dist/v22.22.2/node-v22.22.2-linux-x64.tar.xz"
+      },
+      "signaturesVerified": false,
+      "vendorChecksumManifest": {
+        "bytes": 3777,
+        "sha256": "62a55cf160c9005f0e0f0067f30b74ba8081320117c6fee6ce2938604e669d10",
+        "url": "https://nodejs.org/dist/v22.22.2/SHASUMS256.txt"
+      }
+    },
+    "image": "hermes",
+    "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+    "licenceExpression": "LicenseRef-Node-22.22.2-Distribution",
+    "otherObligationsClosed": false,
+    "rationale": "Exact upstream release executable matches shipped bytes. Preserve the complete Node licence bundle, including separately licensed embedded libraries; do not label the whole runtime MIT-only.",
+    "resolution": "metadata-resolved",
+    "scannerName": "node",
+    "scannerVersion": "22.22.2",
+    "type": "binary"
+  },
+  {
+    "artifactId": "d930e17b592cae0b",
+    "classification": "owned-runtime-subrecord",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/5d99dd2027ce21e9a988d49f18e186b51c76d6b30e56e29782b1d689ee3edd56",
+        "bytes": 110120,
+        "origin": {
+          "image": "keycloak",
+          "kind": "shipped",
+          "path": "usr/lib/jvm/java-21-openjdk-21.0.6.0.7-1.el9.x86_64/lib/jrt-fs.jar"
+        },
+        "sha256": "5d99dd2027ce21e9a988d49f18e186b51c76d6b30e56e29782b1d689ee3edd56"
+      },
+      {
+        "archivePath": "objects/f68e1348ddde60139aecac367a57e12666ac2268203370288e38305229a4f249",
+        "bytes": 1263,
+        "origin": {
+          "image": "keycloak",
+          "kind": "shipped",
+          "path": "usr/lib/jvm/java-21-openjdk-21.0.6.0.7-1.el9.x86_64/release"
+        },
+        "sha256": "f68e1348ddde60139aecac367a57e12666ac2268203370288e38305229a4f249"
+      },
+      {
+        "archivePath": "objects/4b9abebc4338048a7c2dc184e9f800deb349366bdf28eb23c2677a77b4c87726",
+        "bytes": 19274,
+        "origin": {
+          "image": "keycloak",
+          "kind": "shipped",
+          "path": "usr/lib/jvm/java-21-openjdk-21.0.6.0.7-1.el9.x86_64/legal/java.base/LICENSE"
+        },
+        "sha256": "4b9abebc4338048a7c2dc184e9f800deb349366bdf28eb23c2677a77b4c87726"
+      },
+      {
+        "archivePath": "objects/75292f03bf23d3db7c985aecc191029b93883200721ed23ed34a2e601463df33",
+        "bytes": 1514,
+        "origin": {
+          "image": "keycloak",
+          "kind": "shipped",
+          "path": "usr/lib/jvm/java-21-openjdk-21.0.6.0.7-1.el9.x86_64/legal/java.base/ASSEMBLY_EXCEPTION"
+        },
+        "sha256": "75292f03bf23d3db7c985aecc191029b93883200721ed23ed34a2e601463df33"
+      }
+    ],
+    "facts": {
+      "baseTerms": "GPL-2.0-only",
+      "conditionalExceptions": [
+        "Classpath exception",
+        "OpenJDK assembly exception"
+      ],
+      "exceptionApplicabilityNotAutomaticallyGranted": true,
+      "owningPackage": {
+        "digestMatches": true,
+        "image": "keycloak",
+        "package": "java-21-openjdk-headless",
+        "packageDigest": {
+          "algorithm": "sha256",
+          "value": "5d99dd2027ce21e9a988d49f18e186b51c76d6b30e56e29782b1d689ee3edd56"
+        },
+        "path": "usr/lib/jvm/java-21-openjdk-21.0.6.0.7-1.el9.x86_64/lib/jrt-fs.jar",
+        "scanSha256": "b28d843ad12041d6d935572ab9997a318e3ce4b3220256ab4306f3225023c3e2",
+        "sha256": "5d99dd2027ce21e9a988d49f18e186b51c76d6b30e56e29782b1d689ee3edd56",
+        "source": "java-21-openjdk-21.0.6.0.7-1.el9.src.rpm",
+        "sourceVersion": null,
+        "version": "1:21.0.6.0.7-1.el9"
+      }
+    },
+    "image": "keycloak",
+    "imageId": "sha256:bebf1b13934bc6349f898bb37e6841b1736c87fa3b38bfbc4040a3c16897cf6b",
+    "licenceExpression": "LicenseRef-OpenJDK-21.0.6-JRTFS-Terms",
+    "otherObligationsClosed": false,
+    "rationale": "JAR is byte-bound to the installed Red Hat OpenJDK package and Java 21.0.6 release. Supplied GPL and conditional exceptions are explicit, not missing metadata. Evaluate source/linking/exception applicability in Steps 3\u20134; do not infer an unconditional exception for every file.",
+    "resolution": "metadata-resolved",
+    "scannerName": "jrt-fs",
+    "scannerVersion": "21.0.6",
+    "type": "java-archive"
+  },
+  {
+    "artifactId": "dabf0c635baf2f49",
+    "classification": "generated-launcher-descriptor",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/49c294907d5e0746bab6c1f9633a686993b8e5ce394ddeeccbd56ac84275748a",
+        "bytes": 725,
+        "origin": {
+          "image": "keycloak",
+          "kind": "shipped",
+          "path": "opt/keycloak/lib/quarkus-run.jar"
+        },
+        "sha256": "49c294907d5e0746bab6c1f9633a686993b8e5ce394ddeeccbd56ac84275748a"
+      },
+      {
+        "archivePath": "objects/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "bytes": 11358,
+        "origin": {
+          "image": "keycloak",
+          "kind": "shipped",
+          "path": "opt/keycloak/LICENSE.txt"
+        },
+        "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+      }
+    ],
+    "facts": {
+      "classpathDependenciesNotExempted": true,
+      "containsProgramClasses": false,
+      "owningDistribution": "Keycloak 26.0.8"
+    },
+    "image": "keycloak",
+    "imageId": "sha256:bebf1b13934bc6349f898bb37e6841b1736c87fa3b38bfbc4040a3c16897cf6b",
+    "licenceExpression": "Apache-2.0",
+    "otherObligationsClosed": false,
+    "rationale": "Manifest-only launcher descriptor, not an unidentified independent Java library. Keycloak root Apache declaration retained. Referenced classpath JARs remain separately licensed/inventoried.",
+    "resolution": "metadata-resolved",
+    "scannerName": "quarkus-run",
+    "scannerVersion": "26.0.8",
+    "type": "java-archive"
+  },
+  {
+    "artifactId": "b99eed5b3f033319",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+        "bytes": 13936,
+        "origin": {
+          "image": "memory-v4",
+          "kind": "shipped",
+          "path": "usr/local/lib/python3.12/LICENSE.txt"
+        },
+        "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf"
+      },
+      {
+        "archivePath": "objects/66ff726e200a2eba15cfedee752bf6a59e20d6741a7c45f7a2c424dea649f473",
+        "bytes": 1301,
+        "origin": {
+          "image": "memory-v4",
+          "kind": "shipped",
+          "path": "usr/local/include/python3.12/patchlevel.h"
+        },
+        "sha256": "66ff726e200a2eba15cfedee752bf6a59e20d6741a7c45f7a2c424dea649f473"
+      }
+    ],
+    "facts": {
+      "coreLicence": "PSF-2.0",
+      "historicalAndBundledTermsPreserved": true
+    },
+    "image": "memory-v4",
+    "imageId": "sha256:a3ee96f87088f9b307ecb68dcc68c21e1a52f8c3c9eefc5ec07652407c8cdbc6",
+    "licenceExpression": "LicenseRef-CPython-3.12.14-Distribution",
+    "otherObligationsClosed": false,
+    "rationale": "Shipped version header and complete interpreter licence/history identify CPython 3.12.14. Preserve historical and bundled terms, not a PSF-only assertion for the whole distribution.",
+    "resolution": "metadata-resolved",
+    "scannerName": "python",
+    "scannerVersion": "3.12.14",
+    "type": "binary"
+  },
+  {
+    "artifactId": "96ada3e2ced9b39a",
+    "classification": "zero-payload-package-manager-descriptor",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/2768bd45a803516fa22835feeba0689517cbed504b6b7027723c9f16aca98d2d",
+        "bytes": 64515,
+        "origin": {
+          "image": "postgresql",
+          "kind": "shipped",
+          "path": "lib/apk/db/installed"
+        },
+        "sha256": "2768bd45a803516fa22835feeba0689517cbed504b6b7027723c9f16aca98d2d"
+      }
+    ],
+    "facts": {
+      "dependencies": [
+        "so:libLLVM.so.19.1",
+        "so:libc.musl-x86_64.so.1",
+        "so:libcrypto.so.3",
+        "so:libedit.so.0",
+        "so:libgcc_s.so.1",
+        "so:libgssapi_krb5.so.2",
+        "so:libicui18n.so.74",
+        "so:libicuuc.so.74",
+        "so:libldap.so.2",
+        "so:liblz4.so.1",
+        "so:libssl.so.3",
+        "so:libstdc++.so.6",
+        "so:libuuid.so.1",
+        "so:libxml2.so.2",
+        "so:libxslt.so.1",
+        "so:libz.so.1",
+        "so:libzstd.so.1",
+        "bash",
+        "tzdata",
+        "zstd",
+        "icu-data-full",
+        "nss_wrapper"
+      ],
+      "dependencyLicencesNotExempted": true,
+      "installedBytes": 0,
+      "payloadBytes": 0
+    },
+    "image": "postgresql",
+    "imageId": "sha256:bd10494dc29eedb2ed7c79f8dcbfddb3ee3b7143319566695da75259114e25e9",
+    "licenceExpression": "NONE",
+    "otherObligationsClosed": false,
+    "rationale": "Generated apk virtual dependency record contains no software payload or owned files. No independent component licence applies to this record; every actual dependency remains in compliance scope.",
+    "resolution": "metadata-resolved",
+    "scannerName": ".postgresql-rundeps",
+    "scannerVersion": "20250204.203554",
+    "type": "apk"
+  },
+  {
+    "artifactId": "c13a9da2e175805c",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "bytes": 11358,
+        "origin": {
+          "kind": "exact-upstream",
+          "reference": {
+            "bytes": 11358,
+            "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+            "url": "https://raw.githubusercontent.com/tianon/gosu/1.17/LICENSE"
+          }
+        },
+        "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+      }
+    ],
+    "facts": {
+      "exactReleaseBinary": {
+        "bytes": 2355481,
+        "path": "usr/local/bin/gosu",
+        "sha256": "bbc4136d03ab138b1ad66fa4fc051bafc6cc7ffae632b069a53657279a450de3",
+        "url": "https://github.com/tianon/gosu/releases/download/1.17/gosu-amd64"
+      },
+      "resolvedVersion": "1.17"
+    },
+    "image": "postgresql",
+    "imageId": "sha256:bd10494dc29eedb2ed7c79f8dcbfddb3ee3b7143319566695da75259114e25e9",
+    "licenceExpression": "Apache-2.0",
+    "otherObligationsClosed": false,
+    "rationale": "UNKNOWN Go devel module version resolves to gosu 1.17 through byte equality with its exact upstream release binary and matching image environment. Upstream 1.17 Apache licence supplied.",
+    "resolution": "metadata-resolved",
+    "scannerName": "github.com/tianon/gosu",
+    "scannerVersion": "UNKNOWN",
+    "type": "go-module"
+  },
+  {
+    "artifactId": "5a3f0a1e62acfcbf",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/c498602f5676e7b3b7f9046dc52962a85438f487a2de35ade2ecc7beaa007859",
+        "bytes": 26915,
+        "origin": {
+          "image": "postgresql",
+          "kind": "shipped",
+          "path": "usr/local/include/postgresql/server/pg_config.h"
+        },
+        "sha256": "c498602f5676e7b3b7f9046dc52962a85438f487a2de35ade2ecc7beaa007859"
+      },
+      {
+        "archivePath": "objects/9bf20ee493926a7e17a74bc7f05089fbc014269667b1540bc35a6b194a40c9de",
+        "bytes": 1192,
+        "origin": {
+          "kind": "exact-upstream",
+          "reference": {
+            "bytes": 1192,
+            "sha256": "9bf20ee493926a7e17a74bc7f05089fbc014269667b1540bc35a6b194a40c9de",
+            "url": "https://raw.githubusercontent.com/postgres/postgres/REL_16_6/COPYRIGHT"
+          }
+        },
+        "sha256": "9bf20ee493926a7e17a74bc7f05089fbc014269667b1540bc35a6b194a40c9de"
+      }
+    ],
+    "facts": {
+      "releaseVersion": "16.6",
+      "versionEnvironment": [
+        "GOSU_VERSION=1.17",
+        "PG_MAJOR=16",
+        "PG_VERSION=16.6"
+      ]
+    },
+    "image": "postgresql",
+    "imageId": "sha256:bd10494dc29eedb2ed7c79f8dcbfddb3ee3b7143319566695da75259114e25e9",
+    "licenceExpression": "PostgreSQL",
+    "otherObligationsClosed": false,
+    "rationale": "Installed version header and image PG_VERSION agree on 16.6; exact REL_16_6 COPYRIGHT supplies the PostgreSQL licence. This does not clear separately linked libraries.",
+    "resolution": "metadata-resolved",
+    "scannerName": "postgresql",
+    "scannerVersion": "16.6",
+    "type": "binary"
+  },
+  {
+    "artifactId": "dbf39d12a879b0cd",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+        "bytes": 13936,
+        "origin": {
+          "image": "reference-application",
+          "kind": "shipped",
+          "path": "usr/local/lib/python3.12/LICENSE.txt"
+        },
+        "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf"
+      },
+      {
+        "archivePath": "objects/66ff726e200a2eba15cfedee752bf6a59e20d6741a7c45f7a2c424dea649f473",
+        "bytes": 1301,
+        "origin": {
+          "image": "reference-application",
+          "kind": "shipped",
+          "path": "usr/local/include/python3.12/patchlevel.h"
+        },
+        "sha256": "66ff726e200a2eba15cfedee752bf6a59e20d6741a7c45f7a2c424dea649f473"
+      }
+    ],
+    "facts": {
+      "coreLicence": "PSF-2.0",
+      "historicalAndBundledTermsPreserved": true
+    },
+    "image": "reference-application",
+    "imageId": "sha256:6183cc25bb210b63ae4c7a1d4123014890a5e57518ca484f3c29421f319df8df",
+    "licenceExpression": "LicenseRef-CPython-3.12.14-Distribution",
+    "otherObligationsClosed": false,
+    "rationale": "Shipped version header and complete interpreter licence/history identify CPython 3.12.14. Preserve historical and bundled terms, not a PSF-only assertion for the whole distribution.",
+    "resolution": "metadata-resolved",
+    "scannerName": "python",
+    "scannerVersion": "3.12.14",
+    "type": "binary"
+  },
+  {
+    "artifactId": "055b0b7f0842a128",
+    "classification": "first-party-restricted",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/dc03a761fbe0f24b11b43fc168994705c4d14475654ad2eaf8e0bcae5dd7712d",
+        "bytes": 446,
+        "origin": {
+          "image": "unify-core",
+          "kind": "shipped",
+          "path": "app/node_modules/.pnpm/@aquiero+contracts@file+packages+contracts/node_modules/@aquiero/contracts/package.json"
+        },
+        "sha256": "dc03a761fbe0f24b11b43fc168994705c4d14475654ad2eaf8e0bcae5dd7712d"
+      },
+      {
+        "archivePath": "objects/1808a6d047b19a80e1ef601413d2f772ff629a0a4bd6c1dfdaa70cd448dba32f",
+        "bytes": 828,
+        "origin": {
+          "commit": "e44d8fc86849471869f10a1cb0f849cfb7c23c7b",
+          "matches": [],
+          "path": "LICENSE",
+          "repository": "https://github.com/BartSchuster22/UNIFY",
+          "sha256": "1808a6d047b19a80e1ef601413d2f772ff629a0a4bd6c1dfdaa70cd448dba32f"
+        },
+        "sha256": "1808a6d047b19a80e1ef601413d2f772ff629a0a4bd6c1dfdaa70cd448dba32f"
+      }
+    ],
+    "facts": {
+      "exactBuildSourceCorrespondenceAsserted": false,
+      "legalHold": "Historical notice names ALICA Ltd. Record the declaration as evidence, not proof of entity existence or authorization. Correct/finalize licensor wording in the separate commercial/legal review.",
+      "newLicenceGrant": false,
+      "sourceManifest": {
+        "commit": "e44d8fc86849471869f10a1cb0f849cfb7c23c7b",
+        "matches": [
+          {
+            "image": "hermes",
+            "path": "opt/unify-adapter/node_modules/.pnpm/@aquiero+contracts@file+packages+contracts/node_modules/@aquiero/contracts/package.json",
+            "sha256": "dc03a761fbe0f24b11b43fc168994705c4d14475654ad2eaf8e0bcae5dd7712d"
+          },
+          {
+            "image": "unify-core",
+            "path": "app/node_modules/.pnpm/@aquiero+contracts@file+packages+contracts/node_modules/@aquiero/contracts/package.json",
+            "sha256": "dc03a761fbe0f24b11b43fc168994705c4d14475654ad2eaf8e0bcae5dd7712d"
+          }
+        ],
+        "path": "packages/contracts/package.json",
+        "repository": "https://github.com/BartSchuster22/UNIFY",
+        "sha256": "dc03a761fbe0f24b11b43fc168994705c4d14475654ad2eaf8e0bcae5dd7712d"
+      }
+    },
+    "image": "unify-core",
+    "imageId": "sha256:3a1a6aaecb0a00720e672c7e0a32479d8f5cb9c3e28a69d7379f69602a4f6646",
+    "licenceExpression": "LicenseRef-UNIFY-FirstParty-Proprietary",
+    "otherObligationsClosed": false,
+    "rationale": "Existing proprietary/restricted declaration, not SPDX Unlicense and not an OSS exemption. Package identity is byte-bound to repository manifest. Historical ALICA Ltd wording is a separate unresolved commercial/legal correction, not validated here.",
+    "resolution": "metadata-resolved",
+    "scannerName": "@aquiero/contracts",
+    "scannerVersion": "0.1.0",
+    "type": "npm"
+  },
+  {
+    "artifactId": "33675c3940251a41",
+    "classification": "first-party-restricted",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/ef36ebe0df59e68a6f545e5408997f202ef5eb755d75816a7f060c3d63b411b1",
+        "bytes": 1008,
+        "origin": {
+          "image": "unify-core",
+          "kind": "shipped",
+          "path": "app/package.json"
+        },
+        "sha256": "ef36ebe0df59e68a6f545e5408997f202ef5eb755d75816a7f060c3d63b411b1"
+      },
+      {
+        "archivePath": "objects/1808a6d047b19a80e1ef601413d2f772ff629a0a4bd6c1dfdaa70cd448dba32f",
+        "bytes": 828,
+        "origin": {
+          "commit": "e44d8fc86849471869f10a1cb0f849cfb7c23c7b",
+          "matches": [],
+          "path": "LICENSE",
+          "repository": "https://github.com/BartSchuster22/UNIFY",
+          "sha256": "1808a6d047b19a80e1ef601413d2f772ff629a0a4bd6c1dfdaa70cd448dba32f"
+        },
+        "sha256": "1808a6d047b19a80e1ef601413d2f772ff629a0a4bd6c1dfdaa70cd448dba32f"
+      }
+    ],
+    "facts": {
+      "exactBuildSourceCorrespondenceAsserted": false,
+      "legalHold": "Historical notice names ALICA Ltd. Record the declaration as evidence, not proof of entity existence or authorization. Correct/finalize licensor wording in the separate commercial/legal review.",
+      "newLicenceGrant": false,
+      "sourceManifest": {
+        "commit": "e44d8fc86849471869f10a1cb0f849cfb7c23c7b",
+        "matches": [
+          {
+            "image": "unify-core",
+            "path": "app/package.json",
+            "sha256": "ef36ebe0df59e68a6f545e5408997f202ef5eb755d75816a7f060c3d63b411b1"
+          }
+        ],
+        "path": "apps/gateway/package.json",
+        "repository": "https://github.com/BartSchuster22/UNIFY",
+        "sha256": "ef36ebe0df59e68a6f545e5408997f202ef5eb755d75816a7f060c3d63b411b1"
+      }
+    },
+    "image": "unify-core",
+    "imageId": "sha256:3a1a6aaecb0a00720e672c7e0a32479d8f5cb9c3e28a69d7379f69602a4f6646",
+    "licenceExpression": "LicenseRef-UNIFY-FirstParty-Proprietary",
+    "otherObligationsClosed": false,
+    "rationale": "Existing proprietary/restricted declaration, not SPDX Unlicense and not an OSS exemption. Package identity is byte-bound to repository manifest. Historical ALICA Ltd wording is a separate unresolved commercial/legal correction, not validated here.",
+    "resolution": "metadata-resolved",
+    "scannerName": "@aquiero/gateway",
+    "scannerVersion": "0.1.0",
+    "type": "npm"
+  },
+  {
+    "artifactId": "eb74c04ff5d071a8",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/c738ae413cf561f174e34f6961f8ca458aae2369a73640dda6234c629b98bcc4",
+        "bytes": 145485,
+        "origin": {
+          "kind": "exact-upstream",
+          "reference": {
+            "bytes": 145485,
+            "sha256": "c738ae413cf561f174e34f6961f8ca458aae2369a73640dda6234c629b98bcc4"
+          }
+        },
+        "sha256": "c738ae413cf561f174e34f6961f8ca458aae2369a73640dda6234c629b98bcc4"
+      }
+    ],
+    "facts": {
+      "coreLicence": "MIT",
+      "exactBinaryMatch": {
+        "image": "unify-core",
+        "path": "nodejs/bin/node",
+        "sha256": "3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327"
+      },
+      "runtimeArchive": {
+        "bytes": 31058332,
+        "sha256": "d60acfe00a2932254bb0ad20e01b0d74397a0875595de719654b214f4b03f307",
+        "url": "https://nodejs.org/dist/v22.23.2/node-v22.23.2-linux-x64.tar.xz"
+      },
+      "signaturesVerified": false,
+      "vendorChecksumManifest": {
+        "bytes": 3777,
+        "sha256": "778ac5b2fcdbd68d9c0ae9f4310674faa3af0910bd0d18e7f6597787c40a3e39",
+        "url": "https://nodejs.org/dist/v22.23.2/SHASUMS256.txt"
+      }
+    },
+    "image": "unify-core",
+    "imageId": "sha256:3a1a6aaecb0a00720e672c7e0a32479d8f5cb9c3e28a69d7379f69602a4f6646",
+    "licenceExpression": "LicenseRef-Node-22.23.2-Distribution",
+    "otherObligationsClosed": false,
+    "rationale": "Exact upstream release executable matches shipped bytes. Preserve the complete Node licence bundle, including separately licensed embedded libraries; do not label the whole runtime MIT-only.",
+    "resolution": "metadata-resolved",
+    "scannerName": "node",
+    "scannerVersion": "22.23.2",
+    "type": "binary"
+  },
+  {
+    "artifactId": "521ad10f0530e7f0",
+    "classification": "third-party",
+    "commercialApproval": false,
+    "evidence": [
+      {
+        "archivePath": "objects/c738ae413cf561f174e34f6961f8ca458aae2369a73640dda6234c629b98bcc4",
+        "bytes": 145485,
+        "origin": {
+          "kind": "exact-upstream",
+          "reference": {
+            "bytes": 145485,
+            "sha256": "c738ae413cf561f174e34f6961f8ca458aae2369a73640dda6234c629b98bcc4"
+          }
+        },
+        "sha256": "c738ae413cf561f174e34f6961f8ca458aae2369a73640dda6234c629b98bcc4"
+      }
+    ],
+    "facts": {
+      "coreLicence": "MIT",
+      "exactBinaryMatch": {
+        "image": "uniui",
+        "path": "nodejs/bin/node",
+        "sha256": "3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327"
+      },
+      "runtimeArchive": {
+        "bytes": 31058332,
+        "sha256": "d60acfe00a2932254bb0ad20e01b0d74397a0875595de719654b214f4b03f307",
+        "url": "https://nodejs.org/dist/v22.23.2/node-v22.23.2-linux-x64.tar.xz"
+      },
+      "signaturesVerified": false,
+      "vendorChecksumManifest": {
+        "bytes": 3777,
+        "sha256": "778ac5b2fcdbd68d9c0ae9f4310674faa3af0910bd0d18e7f6597787c40a3e39",
+        "url": "https://nodejs.org/dist/v22.23.2/SHASUMS256.txt"
+      }
+    },
+    "image": "uniui",
+    "imageId": "sha256:74a2a57a8f67930442d8bd6ee46dc49884f01f5bc3df3764386afeb9fdef0f26",
+    "licenceExpression": "LicenseRef-Node-22.23.2-Distribution",
+    "otherObligationsClosed": false,
+    "rationale": "Exact upstream release executable matches shipped bytes. Preserve the complete Node licence bundle, including separately licensed embedded libraries; do not label the whole runtime MIT-only.",
+    "resolution": "metadata-resolved",
+    "scannerName": "node",
+    "scannerVersion": "22.23.2",
+    "type": "binary"
+  }
+]

@@ -1,0 +1,86 @@
+{
+  "schema": "stage74-clean-build-verification/v1",
+  "buildReceiptSha256": "3fdd13c530019038c03609717e1b7590577804cbafdee167a409a66f2f1aa85e",
+  "builderSha256": "e440bfc3101580543e227a9bcfaed66f19b7b74a0d2b0da9778f311a2c87fb5f",
+  "verifierSha256": "982726df99ac1a0c7792957feaf959f358ecb18a07443f66d43d73a24bd6261f",
+  "images": [
+    {
+      "role": "caddy",
+      "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+      "archiveVerified": true,
+      "configPreserved": true,
+      "singleLayer": true,
+      "retainedContentVerified": true,
+      "approvedRemovalsAbsent": true
+    },
+    {
+      "role": "hermes",
+      "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+      "archiveVerified": true,
+      "configPreserved": true,
+      "singleLayer": true,
+      "retainedContentVerified": true,
+      "approvedRemovalsAbsent": true
+    },
+    {
+      "role": "keycloak",
+      "imageId": "sha256:bebf1b13934bc6349f898bb37e6841b1736c87fa3b38bfbc4040a3c16897cf6b",
+      "archiveVerified": true,
+      "configPreserved": true,
+      "singleLayer": true,
+      "retainedContentVerified": true,
+      "approvedRemovalsAbsent": true
+    },
+    {
+      "role": "memory-v4",
+      "imageId": "sha256:a3ee96f87088f9b307ecb68dcc68c21e1a52f8c3c9eefc5ec07652407c8cdbc6",
+      "archiveVerified": true,
+      "configPreserved": true,
+      "singleLayer": true,
+      "retainedContentVerified": true,
+      "approvedRemovalsAbsent": true
+    },
+    {
+      "role": "postgresql",
+      "imageId": "sha256:bd10494dc29eedb2ed7c79f8dcbfddb3ee3b7143319566695da75259114e25e9",
+      "archiveVerified": true,
+      "configPreserved": true,
+      "singleLayer": true,
+      "retainedContentVerified": true,
+      "approvedRemovalsAbsent": true
+    },
+    {
+      "role": "reference-application",
+      "imageId": "sha256:6183cc25bb210b63ae4c7a1d4123014890a5e57518ca484f3c29421f319df8df",
+      "archiveVerified": true,
+      "configPreserved": true,
+      "singleLayer": true,
+      "retainedContentVerified": true,
+      "approvedRemovalsAbsent": true
+    },
+    {
+      "role": "unify-core",
+      "imageId": "sha256:3a1a6aaecb0a00720e672c7e0a32479d8f5cb9c3e28a69d7379f69602a4f6646",
+      "archiveVerified": true,
+      "configPreserved": true,
+      "singleLayer": true,
+      "retainedContentVerified": true,
+      "approvedRemovalsAbsent": true
+    },
+    {
+      "role": "uniui",
+      "imageId": "sha256:74a2a57a8f67930442d8bd6ee46dc49884f01f5bc3df3764386afeb9fdef0f26",
+      "archiveVerified": true,
+      "configPreserved": true,
+      "singleLayer": true,
+      "retainedContentVerified": true,
+      "approvedRemovalsAbsent": true
+    }
+  ],
+  "buildComplete": true,
+  "originalContainersUnchanged": true,
+  "originalBundleUnchanged": true,
+  "normalization": "Docker mount/container ordering only; all other fields compared exactly",
+  "runtimeAccepted": false,
+  "engineeringComplete": false
+}

@@ -1,0 +1,1064 @@
+{
+  "caddy": {
+    "licence": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "url": "https://raw.githubusercontent.com/caddyserver/caddy/v2.10.2/LICENSE"
+    }
+  },
+  "compress": {
+    "archive": {
+      "bytes": 39187545,
+      "sha256": "c4679e4cbc820a21758199d985be754abf5eb2a38e6f1de95cd70b2e7ef06905",
+      "url": "https://proxy.golang.org/github.com/klauspost/compress/@v/v1.18.0.zip"
+    },
+    "compilerModuleChecksum": "h1:c/Cqfb0r+Yi+JtIEq73FWXVkRonBlf0CRNYc8Zttxdo=",
+    "documents": [
+      {
+        "bytes": 16733,
+        "path": "LICENSE",
+        "sha256": "0d9e582ee4bff57bf1189c9e514e6da7ce277f9cd3bc2d488b22fbb39a6d87cf"
+      },
+      {
+        "bytes": 11361,
+        "path": "gzhttp/LICENSE",
+        "sha256": "2252a5b1e2b1d3663b53ea77051b8ed065cb9270a3d1174d5d6ead8a2de051b6"
+      },
+      {
+        "bytes": 1477,
+        "path": "internal/lz4ref/LICENSE",
+        "sha256": "6a358d2540ca14048f02d366f23787c0a480157e58f058113f0e27168dd4e447"
+      },
+      {
+        "bytes": 1486,
+        "path": "internal/snapref/LICENSE",
+        "sha256": "f69f157b0be75da373605dbc8bbf142e8924ee82d8f44f11bcaf351335bf98cf"
+      },
+      {
+        "bytes": 1538,
+        "path": "s2/LICENSE",
+        "sha256": "08683b14bda8ae3538abf19e1879e853a39e3b8276a8d673363b529d15a61c1a"
+      },
+      {
+        "bytes": 1061,
+        "path": "s2/cmd/internal/filepathx/LICENSE",
+        "sha256": "8582c87d9a6baa28f7827c5205b7d16c3179bc794ebd4c7cc287c49a89b7eaa1"
+      },
+      {
+        "bytes": 1100,
+        "path": "s2/cmd/internal/readahead/LICENSE",
+        "sha256": "10fa24a602fde465db603cd5d546e37e33642a73cd24ddf5910be81724fec8b2"
+      },
+      {
+        "bytes": 1486,
+        "path": "snappy/LICENSE",
+        "sha256": "f69f157b0be75da373605dbc8bbf142e8924ee82d8f44f11bcaf351335bf98cf"
+      },
+      {
+        "bytes": 1106,
+        "path": "snappy/xerial/LICENSE",
+        "sha256": "d4ff111fa30ac75e28dca3868de957a3b73ff50b76bc4b8fe5c3a1f008d26703"
+      },
+      {
+        "bytes": 1068,
+        "path": "zstd/internal/xxhash/LICENSE.txt",
+        "sha256": "f566a9f97bacdaf00d9f21dd991e81dc11201c4e016c86b470799429a1c9a79c"
+      }
+    ]
+  },
+  "gosu": {
+    "binaryMatch": {
+      "bytes": 2355481,
+      "path": "usr/local/bin/gosu",
+      "sha256": "bbc4136d03ab138b1ad66fa4fc051bafc6cc7ffae632b069a53657279a450de3",
+      "url": "https://github.com/tianon/gosu/releases/download/1.17/gosu-amd64"
+    },
+    "licence": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "url": "https://raw.githubusercontent.com/tianon/gosu/1.17/LICENSE"
+    }
+  },
+  "hindsight": {
+    "artifacts": [
+      {
+        "archive": {
+          "bytes": 249379,
+          "sha256": "9fdda176ab50f7cec8d7339c6608c148f0cd9ad7e65d9d76192f2db730bc330a",
+          "url": "https://files.pythonhosted.org/packages/24/4f/a1d0bc33ef933ecc52e76dc1514163594d25836a5d303c256a61bb61445d/hindsight_client-0.6.1-py3-none-any.whl"
+        },
+        "members": {
+          "hindsight_client-0.6.1.dist-info/METADATA": {
+            "bytes": 647,
+            "sha256": "a4644e25544a427aca3e5c547f1485ffa15e52be28707ebf7ee21db67fa31fc3"
+          },
+          "hindsight_client/__init__.py": {
+            "bytes": 5546,
+            "sha256": "9ba918d4a6bca304413ec85dcf5718e54872cbf225230fd195102b87b3d95078"
+          },
+          "hindsight_client_api/__init__.py": {
+            "bytes": 10777,
+            "sha256": "a733fb252a766a348dd752662b95aeb00e3bc16391f74c7d721c71545a49b663"
+          },
+          "hindsight_client_api/api/__init__.py": {
+            "bytes": 804,
+            "sha256": "a9129a8d69ef9c8954ec4ab67d69d2d3bc982986a78b66bb6fe0aaa5ade6de58"
+          },
+          "hindsight_client_api/models/__init__.py": {
+            "bytes": 9423,
+            "sha256": "48e90b7eab3bec028bed0f8e2fec1ea0acc5ad8557ddd1b4f1f132d1ee87be81"
+          }
+        }
+      },
+      {
+        "archive": {
+          "bytes": 99833,
+          "sha256": "314d0bb9e13622e15586ba1586a799726d405b27bc20d78872474b5d6d96cd51",
+          "url": "https://files.pythonhosted.org/packages/33/26/8b8efa4be21fc3ba12ade3b1353d87f9837ec0d3ec2607e8adbf85bc9c63/hindsight_client-0.6.1.tar.gz"
+        },
+        "members": {
+          "hindsight_client-0.6.1/PKG-INFO": {
+            "bytes": 647,
+            "sha256": "a4644e25544a427aca3e5c547f1485ffa15e52be28707ebf7ee21db67fa31fc3"
+          },
+          "hindsight_client-0.6.1/pyproject.toml": {
+            "bytes": 1101,
+            "sha256": "767b64a7f197055cf8e25bd6bc6cdb1f6a8d7e04ab123ed642e47ef860513767"
+          }
+        }
+      }
+    ],
+    "commit": "0f7c5e895b2fc0ff6a9047a1e9e9e5785207c784",
+    "completeClientPayloadMatches": [
+      {
+        "gitBlobSha1": "9444d4403f7f06f7c3dd31df032f6932fb3153c4",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client/__init__.py",
+        "sha256": "9ba918d4a6bca304413ec85dcf5718e54872cbf225230fd195102b87b3d95078",
+        "sourcePath": "hindsight-clients/python/hindsight_client/__init__.py"
+      },
+      {
+        "gitBlobSha1": "802c39c83d27210118e01defaabb5e8eed21bc8d",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client/hindsight_client.py",
+        "sha256": "f6cc79cd60f3da9958f9c233c96b12c71eb17c3871d17626bcb0fade81f01c40",
+        "sourcePath": "hindsight-clients/python/hindsight_client/hindsight_client.py"
+      },
+      {
+        "gitBlobSha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client/py.typed",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sourcePath": "hindsight-clients/python/hindsight_client/py.typed"
+      },
+      {
+        "gitBlobSha1": "dc7722a8747dcbbb8acc49abfd1048d9f2879749",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/__init__.py",
+        "sha256": "a733fb252a766a348dd752662b95aeb00e3bc16391f74c7d721c71545a49b663",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/__init__.py"
+      },
+      {
+        "gitBlobSha1": "ab6c567272638b8659fa6b8dc35539003b27ec0b",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/api_client.py",
+        "sha256": "8b532b34da27023c61b3886c88cca7c6a75286991aa2e163b40073e79707affc",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/api_client.py"
+      },
+      {
+        "gitBlobSha1": "9bc7c11f6b9f3fd7d144275aabe7082a7b83bfc5",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/api_response.py",
+        "sha256": "78cc70d66a6625ca0667782cf73ea3338a18a19d741a3937df7b3db0ac46bfbb",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/api_response.py"
+      },
+      {
+        "gitBlobSha1": "407f8c88ed2a8f1a9cb22ac356e3c6b748752992",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/configuration.py",
+        "sha256": "efed2d9a582189692d8b3b33e0bdfc235fff600b9e6a284b711dc089eac505c8",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/configuration.py"
+      },
+      {
+        "gitBlobSha1": "ace4b988a952631596acad58a82b352471e85883",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/exceptions.py",
+        "sha256": "5c1834db92a7e4459878210bfe2d5bafc29119d983c2810044556fe8d11b9d81",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/exceptions.py"
+      },
+      {
+        "gitBlobSha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/py.typed",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/py.typed"
+      },
+      {
+        "gitBlobSha1": "56be0f9a2ad94c8730b16062e530d6e1ced46ba3",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/rest.py",
+        "sha256": "8ce84434583ef815f469a80f57bfcb9fa99ac22972e6d2d4025de3622c62846c",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/rest.py"
+      },
+      {
+        "gitBlobSha1": "fc09c82ac0e124fbc6c03535573128f8dac94413",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/api/__init__.py",
+        "sha256": "a9129a8d69ef9c8954ec4ab67d69d2d3bc982986a78b66bb6fe0aaa5ade6de58",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/api/__init__.py"
+      },
+      {
+        "gitBlobSha1": "f5e6aee129916e3dbbec20352c9a8b3421f0b14c",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/api/audit_api.py",
+        "sha256": "d8b56c3fce2613dfa6c7cc6159919b5e0683b46217024b413ca7ac15d4c362e1",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/api/audit_api.py"
+      },
+      {
+        "gitBlobSha1": "43d7296986155491ac34969bf8d834ce33a8789a",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/api/bank_templates_api.py",
+        "sha256": "7a25185a1188eb68d938b05ff5c290bcdb0f2883765938ccf75d381ce87337bc",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/api/bank_templates_api.py"
+      },
+      {
+        "gitBlobSha1": "9ae19d370b1646641fd779f4dd8f43f8932d5248",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/api/banks_api.py",
+        "sha256": "12a5114ee5f5860082d00b95eb63e65686ed867ff324b456fdfaa08f94a98b05",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/api/banks_api.py"
+      },
+      {
+        "gitBlobSha1": "d458f6c87d4f9022f88d7720ac72d7fadee627c2",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/api/directives_api.py",
+        "sha256": "fd07d14485031649fa5f1e2d591e10c0ab3a6d884f7f40227ad109e13357fea3",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/api/directives_api.py"
+      },
+      {
+        "gitBlobSha1": "5c2b4c1abfadbf813e50ea26661d7cd8f8fa141f",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/api/documents_api.py",
+        "sha256": "9ba723724730a5d1fe5721c259da4c4cae60ea5f99ff8aafd5ce959c46b29e76",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/api/documents_api.py"
+      },
+      {
+        "gitBlobSha1": "0c9b68d46be66c766fb7ea89de369b882fb7878b",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/api/entities_api.py",
+        "sha256": "888e12192dfaa3ccaa48cb8a46eec74e1488f4952a4570f27bdac2a219ad4a5d",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/api/entities_api.py"
+      },
+      {
+        "gitBlobSha1": "2975d11bd51417cf543ce2c17699def1f0a7fffd",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/api/files_api.py",
+        "sha256": "654cf3aded62f6d859851f0450560197378116f00af9dcbc768f5c80c9504814",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/api/files_api.py"
+      },
+      {
+        "gitBlobSha1": "f2a2a70de0f5fbc9f3176e6e459351bf67f43d48",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/api/memory_api.py",
+        "sha256": "f9e0d89f071b671f81da891e5dd24f4a40c50e5d52acfa5d4d6a86e111f59b58",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/api/memory_api.py"
+      },
+      {
+        "gitBlobSha1": "853d004cd54c8359d90316dfbf000d5a6e30f952",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/api/mental_models_api.py",
+        "sha256": "1590ef32c3ff5db7e9f49c196a45b459326a28d1bc8bdeece11858eff4c12fa8",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/api/mental_models_api.py"
+      },
+      {
+        "gitBlobSha1": "fe9aaf09194c6e857f504c3077e2a6d898ccc77b",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/api/monitoring_api.py",
+        "sha256": "6d7aa0c6fb90a70a294365c88aad288c387c325450839defb60d260720c39b96",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/api/monitoring_api.py"
+      },
+      {
+        "gitBlobSha1": "71d01eb3cd9a30c0a04c2ccfd8183db19fdca023",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/api/operations_api.py",
+        "sha256": "ea5a8d8c8b38135092bd66eb9710552ecdbc29c44a9b6e90d68f6cd7119d4b70",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/api/operations_api.py"
+      },
+      {
+        "gitBlobSha1": "4bac47aeedb6f28f2df6cb89d433b75e39a0fb89",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/api/webhooks_api.py",
+        "sha256": "a56f349b9e404d79dc4ee0a6864b7ee0afa12326382af239de39e244cba905be",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/api/webhooks_api.py"
+      },
+      {
+        "gitBlobSha1": "5169dd1084ca32606e63610c95cd9312ee16ef2c",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/__init__.py",
+        "sha256": "48e90b7eab3bec028bed0f8e2fec1ea0acc5ad8557ddd1b4f1f132d1ee87be81",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/__init__.py"
+      },
+      {
+        "gitBlobSha1": "9bfe335e6555829a3e8d67913c752233d1995c8f",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/add_background_request.py",
+        "sha256": "883db8c2680f455c11fd190d826867262bc944fd56befcf990c725c39bff8d9a",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/add_background_request.py"
+      },
+      {
+        "gitBlobSha1": "a6f35bf0692a60e4e37f4bf57ee9d8804f435d03",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/async_operation_submit_response.py",
+        "sha256": "d0782838d2ea77ef22d010be8055e09f67372d71c63a0830fe04e2c43ff26947",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/async_operation_submit_response.py"
+      },
+      {
+        "gitBlobSha1": "feccc621b3f64d963b2901eb667c16747b4bcc71",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/audit_log_entry.py",
+        "sha256": "abb1db1662f182ff511ce0949d51272e7b7abaf69bba54f62745f217bbb8276c",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/audit_log_entry.py"
+      },
+      {
+        "gitBlobSha1": "0d44fe8feff9f5ee99fece1d604a218f35e44f3d",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/audit_log_list_response.py",
+        "sha256": "94aec65d11835b7b087f43aff54f603b167de9457309a2840453597678f00746",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/audit_log_list_response.py"
+      },
+      {
+        "gitBlobSha1": "7f2cec9148ee98f6d91d1c1d3fc65cd91dd9b170",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/audit_log_stats_bucket.py",
+        "sha256": "aff571c1fd5090cf04dacaf9bd552335feb3096a589dff4d6d2484f135a8792d",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/audit_log_stats_bucket.py"
+      },
+      {
+        "gitBlobSha1": "d2d2b0fbe0c9fe35cf71da2e525cef28e89fdfc3",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/audit_log_stats_response.py",
+        "sha256": "06539ca527b1aa82cd7b4ddc4d8373dbb48c21435c30232aa4a56b155a3f27e2",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/audit_log_stats_response.py"
+      },
+      {
+        "gitBlobSha1": "c7f19aa37af6ddbd0fa282e7fb320b11ecef0a5e",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/background_response.py",
+        "sha256": "16bc64dde1147b97afeda07bcd38f8167e5977d5abd5c0b143faac13b3b257fa",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/background_response.py"
+      },
+      {
+        "gitBlobSha1": "cb9dc283a9803c024272c87d058a6dcb40d3f39f",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/bank_config_response.py",
+        "sha256": "66cc032e2d8fd4d67b8aca57dc99ef62f6f67a48b23d18eb6cc131b61d9d0a56",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/bank_config_response.py"
+      },
+      {
+        "gitBlobSha1": "c1985af997bc884516bf08f0305df568fb67381f",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/bank_config_update.py",
+        "sha256": "a7a1e30909ed115dc0f0d7d0e5e2d0768722bfd43c81ba51473dfd66d928ab00",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/bank_config_update.py"
+      },
+      {
+        "gitBlobSha1": "18ad16a17d69eceb4f8db2be498895df5f37a003",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/bank_list_item.py",
+        "sha256": "7ec19e3cdcf525eafb4fb868d7c58c9bd39f083e3db47e017497caffa1c2dc65",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/bank_list_item.py"
+      },
+      {
+        "gitBlobSha1": "e8fb2b9f4f2c48fd5837784ffb072a604b09e24d",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/bank_list_response.py",
+        "sha256": "310dcd5b3916de34815e6a2c79a3dc378e1420fca9b87034f3ee40ed02e52f3f",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/bank_list_response.py"
+      },
+      {
+        "gitBlobSha1": "dd02303dc8c1a5d64c87d98d10c96551267010fe",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/bank_profile_response.py",
+        "sha256": "3553ecf10302d4e0140e7813865cad066d6bef367c687719c2649092d7d888c4",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/bank_profile_response.py"
+      },
+      {
+        "gitBlobSha1": "550a7d9158b2fde8dd75e329cf931c5e35ee0a3b",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/bank_stats_response.py",
+        "sha256": "56289d1d982bae99db527d906eff2265042c1b3477b5bdd8b9163a1c23481574",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/bank_stats_response.py"
+      },
+      {
+        "gitBlobSha1": "aa79cad1efb8518c815a927342b83a8e38f0b080",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/bank_template_config.py",
+        "sha256": "0418534f9671af227f8da82009b0b7cde230c686b59f5a2e94e4294f7d97443d",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/bank_template_config.py"
+      },
+      {
+        "gitBlobSha1": "ea7e4d1695f8670eacbf506ad3a51b98a1239650",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/bank_template_directive.py",
+        "sha256": "f7c15dfeaf5f0ec9ac1e4d18710c070b7bc6b7bf150861de2073662f20709fa4",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/bank_template_directive.py"
+      },
+      {
+        "gitBlobSha1": "4cc939dc09aa38673e0f2ef351705978116d3089",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/bank_template_import_response.py",
+        "sha256": "085dab4fa10aea023f037c376c4c3a4de4ce6a2ccdf9ea9e473d87f9308813ec",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/bank_template_import_response.py"
+      },
+      {
+        "gitBlobSha1": "ac372f8aeb4edfd76ed7c2a5ada89ab9e94e23e0",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/bank_template_manifest.py",
+        "sha256": "abf2e7a3e486ea95da9a122213e79ad5e09ca9b9a9be6365acbcbb41dcf5c88e",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/bank_template_manifest.py"
+      },
+      {
+        "gitBlobSha1": "4bd5a0ce7dff02cbdbbb9d425836b6f69816196b",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/bank_template_mental_model.py",
+        "sha256": "d758979bf95ffbe3a3cead4f8e0b8a3bcd79be8af857b141f83455958b817cf5",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/bank_template_mental_model.py"
+      },
+      {
+        "gitBlobSha1": "9ec7b337280ad5b43443d475f97e9d15cda7b31f",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/budget.py",
+        "sha256": "9b86afb7e4a02e708ec51f59ab77ea1b7338d27cf836ccb627ec3ac7c303d30d",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/budget.py"
+      },
+      {
+        "gitBlobSha1": "9875c88e75399124ba5cd3f366bc4b17977e6e83",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/cancel_operation_response.py",
+        "sha256": "b0088273e7d7c9f483e46d86465e74961bae3728d25eefbcd07fef5debeab7d6",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/cancel_operation_response.py"
+      },
+      {
+        "gitBlobSha1": "3db4e487d3acf70e63a68af0302c5da3c9c3734f",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/child_operation_status.py",
+        "sha256": "adbda1df3f43c755011e1e956790590d5d684283f560642f3a299bab97d0e4a1",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/child_operation_status.py"
+      },
+      {
+        "gitBlobSha1": "8b053274f55f254d4ffed551a196c27e7b2c4d62",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/chunk_data.py",
+        "sha256": "d5658aca3e27dcb77591b9c9a537613684a5f66a9ecd072c3dc846375f6db428",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/chunk_data.py"
+      },
+      {
+        "gitBlobSha1": "23053d6399eeeadfa8678652744e1a7144a79163",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/chunk_include_options.py",
+        "sha256": "119486f561bdb5467f54fe10a50444074ef91cfdc31cba9d6ffd31cbdd108c0e",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/chunk_include_options.py"
+      },
+      {
+        "gitBlobSha1": "a44711c42f976450c59556f5f96b453648e950ec",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/chunk_response.py",
+        "sha256": "08f485705f4e2520b7b8b76f58c4c43d6b8470fea20ffcf374947f1151d21942",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/chunk_response.py"
+      },
+      {
+        "gitBlobSha1": "423adb7b880b4edaf08f2158e47f370a8903bc42",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/clear_memory_observations_response.py",
+        "sha256": "0ca7fdf049a9d1bfe2f6fd79d0c473b86065250568f4dbb38b94b1186b792eb3",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/clear_memory_observations_response.py"
+      },
+      {
+        "gitBlobSha1": "ff4dec54af6bb4cfd9992c9d8509064567633bce",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/consolidation_response.py",
+        "sha256": "aabe99548b3b431b7edec2835f0284b33e75972cd0a5ac1e7ce2d277396dd89f",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/consolidation_response.py"
+      },
+      {
+        "gitBlobSha1": "6aa40fd2a224a58353c67c5638233922b6bf9ac9",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/create_bank_request.py",
+        "sha256": "68d09bd95594f9071165869e71e7374096f7c271942f35527c37a79f22b4d454",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/create_bank_request.py"
+      },
+      {
+        "gitBlobSha1": "eb9227f0a824567cfc8963b62fd4c99b298ba8a4",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/create_directive_request.py",
+        "sha256": "8013a354d3f8637dfa11a46adee0cac709e728cb300ee1be6d520c4f4836a469",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/create_directive_request.py"
+      },
+      {
+        "gitBlobSha1": "cd8b8fc1a09039a03877111fce7a4577bd6d952b",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/create_mental_model_request.py",
+        "sha256": "cb892c06416635bae6efd8c65623814553f51054d2931a150408e18d18206e41",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/create_mental_model_request.py"
+      },
+      {
+        "gitBlobSha1": "8896af51b3a128d52befb76748e806bddd4fe1c4",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/create_mental_model_response.py",
+        "sha256": "c1c461bd20513cd5765625b06bbdb7130144843e9bc2166dc59730cde722c1da",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/create_mental_model_response.py"
+      },
+      {
+        "gitBlobSha1": "295d020ac87c0795534719a9084826650a3eac2c",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/create_webhook_request.py",
+        "sha256": "d1697cb9b0df43c4b5a4e71678c6ac360f046e58eb61af86d7c39ae6644905f1",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/create_webhook_request.py"
+      },
+      {
+        "gitBlobSha1": "394d73d938d400ce0d808c9a17fc8f88a6911ab2",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/delete_document_response.py",
+        "sha256": "362ba8c50d4e4edb750bbebf9a4e879f065e96ff84f222f6cf7089a3b7f113a0",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/delete_document_response.py"
+      },
+      {
+        "gitBlobSha1": "fc32842e33102d2861429aed4f3a95c5e73b2618",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/delete_response.py",
+        "sha256": "b87549818a320c959a73709d5e44f183188dfec3b55664207231b58da656f50c",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/delete_response.py"
+      },
+      {
+        "gitBlobSha1": "0c7ef3a4e018d91631eacc13d31feecb203bdbc7",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/directive_list_response.py",
+        "sha256": "0915f1848bbd03f1d1de41a76f956580b53d7b984aec168d65ae7ecb862a2834",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/directive_list_response.py"
+      },
+      {
+        "gitBlobSha1": "0093e1d2a9c30f3b7972ae3ff3708c75fef9b923",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/directive_response.py",
+        "sha256": "3fc13d3b99f79db3cd3693b9d457ce468cac5015f752b68dfa375a97aec0f162",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/directive_response.py"
+      },
+      {
+        "gitBlobSha1": "02b6dae6679476708000a2bc164da4486a95044f",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/disposition_traits.py",
+        "sha256": "382d29cb3680058a2cf7c56bd30219e74956b1dfcefc6db1979a107f36ad7e53",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/disposition_traits.py"
+      },
+      {
+        "gitBlobSha1": "209e44abde492a341b058d5e643f52f7ebb468f0",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/document_response.py",
+        "sha256": "cf39098122941071d1c09793ed04944b1eb88f8989f665f049173bc4fa7fbf76",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/document_response.py"
+      },
+      {
+        "gitBlobSha1": "f37690a3fb5d11b149aac4facbf27bca4f29af8c",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/entity_detail_response.py",
+        "sha256": "843ae7988d47fcc2e19e72e50f68094ccae33f8ebf1a42bc986e848d71deb199",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/entity_detail_response.py"
+      },
+      {
+        "gitBlobSha1": "8f4a0c232bab1a69e6790aaf2d5d2371d06c52e7",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/entity_graph_response.py",
+        "sha256": "70775e8c5cdd7c6928ee649e4113fb548f4ff592dd5f463f1d715031908d21e7",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/entity_graph_response.py"
+      },
+      {
+        "gitBlobSha1": "dfb510c43344d459e3ea06f51438a448bcb368cf",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/entity_include_options.py",
+        "sha256": "4d5fadb4efb10eec23f1640534b90c016962fb4313827aadb5b96abfccacf0cb",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/entity_include_options.py"
+      },
+      {
+        "gitBlobSha1": "290a5a842d3e8bcb54a6643ce516d74127a5fe6a",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/entity_input.py",
+        "sha256": "d9e1a38705d3cd01b2f14081c91a4da7f36d17c41c12b5c0277b7f9bf13a452a",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/entity_input.py"
+      },
+      {
+        "gitBlobSha1": "aeaef8c0183ee8d6f2b1cc1ea7ddcdbe46bee42e",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/entity_list_item.py",
+        "sha256": "3d821cab1e8012334961f7a2b35c44486383fe85feb25180551e7385b034e8b9",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/entity_list_item.py"
+      },
+      {
+        "gitBlobSha1": "ea0b9b59a753c5eb3b155bddb7c9bd655ea134e7",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/entity_list_response.py",
+        "sha256": "f297ae09cf09af398e6d260a6dcc6cc91e729ca3f7217d1cca587b040f5e55f9",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/entity_list_response.py"
+      },
+      {
+        "gitBlobSha1": "b5849aac1f6ec17c5d7f4559d96373d87a34df61",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/entity_observation_response.py",
+        "sha256": "1511bb840831a9739571c31e2396e1192bd82c956b868ee4a8cc62a51d344403",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/entity_observation_response.py"
+      },
+      {
+        "gitBlobSha1": "797b37083dd2bb4e310ed2a9064638e9454ce719",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/entity_state_response.py",
+        "sha256": "92601d5b3dd81d7d7f23fedbc31c08730a4eda7c8530844550758f092ee72dd2",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/entity_state_response.py"
+      },
+      {
+        "gitBlobSha1": "1dc08804763a7810ec8d0532ce536fa72ec43cd5",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/features_info.py",
+        "sha256": "5029d7d32294626c3b280e6ff29aa008b7efc82674d88f163b906b641ecf4d22",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/features_info.py"
+      },
+      {
+        "gitBlobSha1": "967e20baf74c0d5b7c09968ecdb7a233190da24f",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/file_retain_response.py",
+        "sha256": "c4dd773f5c5de28004f261f54f40b01194f702d062601a5bfe5bb095acbe926a",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/file_retain_response.py"
+      },
+      {
+        "gitBlobSha1": "83dfdd6986cda31744b59d605e378df855f02b4d",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/graph_data_response.py",
+        "sha256": "43aac5f7444b84f66557530aa5310d7a82fae37cb0cd24706133aa03193bf1d1",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/graph_data_response.py"
+      },
+      {
+        "gitBlobSha1": "f65896fe578d838241f9edb09e83eccb1aa971b2",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/http_validation_error.py",
+        "sha256": "e87deb90f20026a4cbff4e97b032340131d3ed09cf4a7a27253fdb685311aa1b",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/http_validation_error.py"
+      },
+      {
+        "gitBlobSha1": "32ade530e6a6a513be9c3cd133eb38c792695ef2",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/include_options.py",
+        "sha256": "e7ab79d5bb2d570d1a15eb49a48999ec3c6d80d993d765640805c2f59964ee40",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/include_options.py"
+      },
+      {
+        "gitBlobSha1": "9e12aa46e3f390f391bb9d3a8f83c24751d87a87",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/list_chunks_response.py",
+        "sha256": "8d74a8c6b6962e920727b83ff89515162823fe014c1f48cca25e3a0adb95e1cf",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/list_chunks_response.py"
+      },
+      {
+        "gitBlobSha1": "471fdaed31233c9984a6099518487cf4ffd3fcd0",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/list_documents_response.py",
+        "sha256": "25c72b90719ad5da4ec3481036ba19dacc7168a91adf8cd2e1e65466054acaf9",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/list_documents_response.py"
+      },
+      {
+        "gitBlobSha1": "96460c510b2aafc80f507b02cc1679edba46de0b",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/list_memory_units_response.py",
+        "sha256": "e3f0399fc7e6f6c26a3915ea1eddec67ec1e6adccebf059a919eea7f98175f80",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/list_memory_units_response.py"
+      },
+      {
+        "gitBlobSha1": "6d865f113ea68b87b6ab0acd9668ff94b80405e3",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/list_tags_response.py",
+        "sha256": "4ffe33543548086758afffed9f830525d2c13862d6effc8f4a3998589d8a0b40",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/list_tags_response.py"
+      },
+      {
+        "gitBlobSha1": "792e8853969508ebbfb8c504a4dd5c460fcb0b0d",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/memories_timeseries_response.py",
+        "sha256": "00a625f7f92465ce0e8353b7c7c7b6e8b2bf44bfac044bd02694fcfff0064ff4",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/memories_timeseries_response.py"
+      },
+      {
+        "gitBlobSha1": "14f01dc79abec566d00ee333519b29646e0df4f2",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/memory_item.py",
+        "sha256": "6cedd06302c40ec921143671698c66c3aa8a576b449468d46b0415b43adf5deb",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/memory_item.py"
+      },
+      {
+        "gitBlobSha1": "11d9d5a9c6499226a76cf58692d096952f64713d",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/memory_timeseries_bucket.py",
+        "sha256": "ecfc7141da03179210a7e5c85d2e9224c2b429575669a378595fc8e2b02f73f0",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/memory_timeseries_bucket.py"
+      },
+      {
+        "gitBlobSha1": "349fc5e3a133d1515239f8b9af191b4776d82bf1",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/mental_model_list_response.py",
+        "sha256": "e57035bd55cf640fee2fba58844daac396e0cd16d9abc47f48bb883a4d373fd3",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/mental_model_list_response.py"
+      },
+      {
+        "gitBlobSha1": "26ed11a3b1b4f5eb7590c3a5b25883b1b38214f6",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/mental_model_response.py",
+        "sha256": "ceef7775ba55d6320c2fa1423da9bec6d8e52bb099fa191b172b1711b19466c4",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/mental_model_response.py"
+      },
+      {
+        "gitBlobSha1": "36c7f69b5a312f8d988bbaef8d0901ec70e0e265",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/mental_model_trigger_input.py",
+        "sha256": "495d10bd147c127afd8efeef6aca5201629828bf25574f20b7a3924fefa5cdc2",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/mental_model_trigger_input.py"
+      },
+      {
+        "gitBlobSha1": "f86c20e30ec701f4d184d0dbb4a115628c729f19",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/mental_model_trigger_input_tag_groups_inner.py",
+        "sha256": "9ef78ea0cf6fa4877fc56e7d2a789583a625a31d17d97d7601cb7859fb3baffe",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/mental_model_trigger_input_tag_groups_inner.py"
+      },
+      {
+        "gitBlobSha1": "4ae00e7a1d3a8b89b22ee4345de5a69c66d4c284",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/mental_model_trigger_output.py",
+        "sha256": "bfbf826c1f966921a009e05e58a10cea1b95669a8ffae2f0c8a6248cecf11965",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/mental_model_trigger_output.py"
+      },
+      {
+        "gitBlobSha1": "98822b4a134a50cb1a1b9d9b2235b590213dfcee",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/mental_model_trigger_output_tag_groups_inner.py",
+        "sha256": "d1e2248e9825d8869589e8e82051bcb91bd5193273edd496d3e2edef0d50db70",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/mental_model_trigger_output_tag_groups_inner.py"
+      },
+      {
+        "gitBlobSha1": "258319b7d2c1f3160c46442c6175ba9df4c928a6",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/model_not.py",
+        "sha256": "9e747afb2976c06bda011d4003c392792429399c3d8a5ac14f6c0fd0c66f9d26",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/model_not.py"
+      },
+      {
+        "gitBlobSha1": "c0570b928edb9f29e912b50e73ede8762333684e",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/not1.py",
+        "sha256": "015f773c454ec0e8bc1495905de679aa8476fcd3a8e49c8eb20cbcf6fe1072c7",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/not1.py"
+      },
+      {
+        "gitBlobSha1": "9aef29a34e3da98e0cb2d1cbe7b37180199ad660",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/observation_scopes.py",
+        "sha256": "1acc410208bfa9f82cd148433b6fb84ee7318bd5bd7a790b69ec266d5e5ee24f",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/observation_scopes.py"
+      },
+      {
+        "gitBlobSha1": "30870fa86ad113a8a3df77d8940cb3e3ad96f4ae",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/operation_response.py",
+        "sha256": "bd7084fc7eec4c7c33128ec747d23d89d71976bf1f87b94dc80955bb6292ae02",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/operation_response.py"
+      },
+      {
+        "gitBlobSha1": "fc6824ff9347992e4c91010f624f25150cb1da1f",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/operation_status_response.py",
+        "sha256": "f153f82981a544ed5b6d47df2725d4a3413e1322de4e940423156c61bfd63878",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/operation_status_response.py"
+      },
+      {
+        "gitBlobSha1": "d1689a964170a37bdac75a7475858e5e09e4ffa2",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/operations_list_response.py",
+        "sha256": "340276cec1c137bea82210a746cfe2dd056fe670d44b8d531b07da07c3ea89be",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/operations_list_response.py"
+      },
+      {
+        "gitBlobSha1": "340b3dd7d7c965c385184ce463a9139dcf0e2bc6",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/recall_request.py",
+        "sha256": "19d1006053c4e8afa0ac8bbe1963ba1b7ba63eb57fbda38f1e1287be3dd2fd8a",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/recall_request.py"
+      },
+      {
+        "gitBlobSha1": "a8276eecc33262aa0b8f61beb4ceeac9519549d2",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/recall_response.py",
+        "sha256": "091218cdfdb81786f1ff5de53c10d3b01fbfc67f4c216fa5dd1c2827b1a06c0e",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/recall_response.py"
+      },
+      {
+        "gitBlobSha1": "86c3e64fd6e77897d0421081eba4abefa8869d00",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/recall_result.py",
+        "sha256": "b3648b5e5706489e1f9298a3722b4f0137dacd76d40446bcfa531e77215ec787",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/recall_result.py"
+      },
+      {
+        "gitBlobSha1": "f4f65eb62bb23bb3face99c2e2cc4ae260b63187",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/recover_consolidation_response.py",
+        "sha256": "b86d7385ea26e52440590a63d0cd8b02af2a18e74b09f7da30167f7f3d565f34",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/recover_consolidation_response.py"
+      },
+      {
+        "gitBlobSha1": "2dc8f4e8c5dd735613d9eac9bcaf9f359955538f",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/reflect_based_on.py",
+        "sha256": "1ec491f2ff4b7e3534c4a7b3998fd0de5feb9271db7453d0d86ee25c43f92b31",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/reflect_based_on.py"
+      },
+      {
+        "gitBlobSha1": "b6284304bd5bda0ed9122795f634fde55e3ac96f",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/reflect_directive.py",
+        "sha256": "306d39875cb18ac079e32e9ed61e6ee173276582ae09a748425e7fd34742eec9",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/reflect_directive.py"
+      },
+      {
+        "gitBlobSha1": "e4eaeabf74245535161cccdc131815a13b2d79b6",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/reflect_fact.py",
+        "sha256": "39328d80a5cde3c8bba8960794719330f9c40dbaaea8b1441ae7c61399963e64",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/reflect_fact.py"
+      },
+      {
+        "gitBlobSha1": "7557c51860a546c3730c5f30cfaa4245c7cba313",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/reflect_include_options.py",
+        "sha256": "ff4c783f498425c38a5fe2fa9fadfae5bf8cf478d9a7452f91e1bfdff1a4efe1",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/reflect_include_options.py"
+      },
+      {
+        "gitBlobSha1": "385333cd859b7d1505ede8e809d60c6cb558d629",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/reflect_llm_call.py",
+        "sha256": "5f0a3fee296b71160a28192762576e043e1c10a7c9e6e71b0888437b35114786",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/reflect_llm_call.py"
+      },
+      {
+        "gitBlobSha1": "8a168f7450993b16bd9b2728c2e378a4f1b04540",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/reflect_mental_model.py",
+        "sha256": "82936965ab22be632246239b6324054f04f2afbc413a7cb92fefbe24108310c1",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/reflect_mental_model.py"
+      },
+      {
+        "gitBlobSha1": "6c1596eb7af6bbe74dc33a38afa68a7a7ae929ea",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/reflect_request.py",
+        "sha256": "216ef1b1686b8d5ba15d3c06a928f4a098a7fe47d7cbcbcb8b39ca3054b68376",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/reflect_request.py"
+      },
+      {
+        "gitBlobSha1": "530ccd87c18c3e6a25536857d49a337736b93b61",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/reflect_response.py",
+        "sha256": "719893b70d48341b0a5e158f33432338f9cee39ddc4bbad03c05d801eba922ba",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/reflect_response.py"
+      },
+      {
+        "gitBlobSha1": "7229d69581a3a2f288a1b81c8b6b1d376b85affa",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/reflect_tool_call.py",
+        "sha256": "c8527b154567aeccd3d88f8cf99618bf52fc26e7362dddf5cd368b7f16302e8b",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/reflect_tool_call.py"
+      },
+      {
+        "gitBlobSha1": "0a81efb39eb817076cb8b90fc525bf0968b021ed",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/reflect_trace.py",
+        "sha256": "187c54c4a07fbb046923fa96552fdede5bb2d57e5d89781000dcc552c839a066",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/reflect_trace.py"
+      },
+      {
+        "gitBlobSha1": "2e87d46a864199b804da887f1f3c5491f21dfc11",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/reprocess_document_response.py",
+        "sha256": "579c42519552d1201c866f2ce3a3ef8508697ae805733c4b40bdbd286bef4a1a",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/reprocess_document_response.py"
+      },
+      {
+        "gitBlobSha1": "3871167c8067acc98e959ceb47f36c1440b31f02",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/retain_request.py",
+        "sha256": "1c7dcda975d3988631cb9f7ab35b93cfb29b848886be3270289b5879a98444c2",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/retain_request.py"
+      },
+      {
+        "gitBlobSha1": "469bc0bbb58ee21da591f993fab8cebe2c6386f2",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/retain_response.py",
+        "sha256": "0486cf47a6ae3676fc6e66cd12cf2e83c9b21ff84ed49deaed52c156743146bb",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/retain_response.py"
+      },
+      {
+        "gitBlobSha1": "77ff0fe53d1cdd38ddeea92515c582db9755776e",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/retry_operation_response.py",
+        "sha256": "1b4261757e5cbe619bd1b838b6ad19efd2da1150ef0ba7308561b169d22f5f0d",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/retry_operation_response.py"
+      },
+      {
+        "gitBlobSha1": "724a0af2dd0c24704fa5d9a3978504c60925f786",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/source_facts_include_options.py",
+        "sha256": "a020f35dab4ff99ade1381529a81491516ae78a45cf2e14aade31fd26d3ba2b4",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/source_facts_include_options.py"
+      },
+      {
+        "gitBlobSha1": "03fe0e25a317cab14aa554f58f6aede00492dd0e",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/tag_group_and_input.py",
+        "sha256": "d5c57254ef4cc8042dfb60c74d5c5f5520bf2fe9eafe78f5814f25ba86520eda",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/tag_group_and_input.py"
+      },
+      {
+        "gitBlobSha1": "a3edbadaa5dc90f4cf8c538819dc2c42d9596e75",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/tag_group_and_output.py",
+        "sha256": "0ca7254fd8f9a71409eac09b72a400383cc0d6fbfe4b7bfd9de2882d778577c8",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/tag_group_and_output.py"
+      },
+      {
+        "gitBlobSha1": "b6677bc8fbc7c1e6e79f0de992897093b5c9ef69",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/tag_group_leaf.py",
+        "sha256": "42ef1df5fa11be4b39b0adb2fc22ff30280ab047961a9a9cf84610653eb0f562",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/tag_group_leaf.py"
+      },
+      {
+        "gitBlobSha1": "2574248a545f5e1096ded0d137cfbb05bde8054e",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/tag_group_not_input.py",
+        "sha256": "ef84db6b922bbdef769b8cf49dd5e52f329a2e633abbd01554d94e3ca9393755",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/tag_group_not_input.py"
+      },
+      {
+        "gitBlobSha1": "837c64d4ca2d325cef7e4e38162dac73e713cd5e",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/tag_group_not_output.py",
+        "sha256": "2952d193373bacb29f6cddca6736f7374cb9ce3ee6ca408170f49d753fee91bf",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/tag_group_not_output.py"
+      },
+      {
+        "gitBlobSha1": "3fbe555c34554c156132a4650187ed02e9487cda",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/tag_group_or_input.py",
+        "sha256": "e58abd2a920c33c0db34c5518f4a8e97b7502fe7045b9ed6a6ea136e574238e3",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/tag_group_or_input.py"
+      },
+      {
+        "gitBlobSha1": "393bd86a0df1c25ff599771bf39843693be4ff07",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/tag_group_or_output.py",
+        "sha256": "6cd21bcde9a423fc89ad4e4bea892d31a4639505e527768977197997f3cc54cf",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/tag_group_or_output.py"
+      },
+      {
+        "gitBlobSha1": "087f4868dcb3de50ce94f5d349b9e27b1f7289f8",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/tag_item.py",
+        "sha256": "9805cbd60525b7eae54e712d8052f433281546de257c69f1687da09b613a30a3",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/tag_item.py"
+      },
+      {
+        "gitBlobSha1": "d6ca73db5ac20f74b572c8f552690f88a40eefc7",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/timestamp.py",
+        "sha256": "9db75882d7ac26b34a08df9419e9f2d98438bbec90d45776ad3bdd5728a578c4",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/timestamp.py"
+      },
+      {
+        "gitBlobSha1": "fc4b482d3b63bd8882f5f65dd9d775209db03479",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/token_usage.py",
+        "sha256": "512b9d9c3b58f5be8e3444f94d1a4038708653e8e60f2a98dd3e2cb657a88c99",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/token_usage.py"
+      },
+      {
+        "gitBlobSha1": "af474885574e56a77fa9207c295342dd789634be",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/tool_calls_include_options.py",
+        "sha256": "576b7b780fb93335768e5be08734d2bef722f6529b695be29e9309ace1f7e983",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/tool_calls_include_options.py"
+      },
+      {
+        "gitBlobSha1": "b6192fbca11fe509359f0addf54457b3e5dd6196",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/update_directive_request.py",
+        "sha256": "2a99c50226db988263e0b3c2cfbea64dcc94d8f2736b3c7c736b79aaac610bde",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/update_directive_request.py"
+      },
+      {
+        "gitBlobSha1": "733a76d428a28d154d66662a83cb09419cd07abb",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/update_disposition_request.py",
+        "sha256": "5e81e86ac00b4190894d44aadc2fb10ae3ab53ff3976519c8308278c64468575",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/update_disposition_request.py"
+      },
+      {
+        "gitBlobSha1": "c7b3296c876f34bcac9563f82257e8971e60c32c",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/update_document_request.py",
+        "sha256": "3abf14e75c6052667480054fd0d70b70603fae3ba2f313a30ee67165d13e3145",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/update_document_request.py"
+      },
+      {
+        "gitBlobSha1": "fd70d9696d4f03000b9eaade71b2c609863b7b0a",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/update_document_response.py",
+        "sha256": "6d0157faa840382426e1bc242761625cb88256fcf70869393f6441bac9d379f1",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/update_document_response.py"
+      },
+      {
+        "gitBlobSha1": "f16ce5b50147086f61945237618c4406fd6e78ba",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/update_mental_model_request.py",
+        "sha256": "4b3ac06a84974a3e944f9a883cbd7a337abd36f124c9b170d7f50db5284d2fd3",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/update_mental_model_request.py"
+      },
+      {
+        "gitBlobSha1": "f0fbc795b1354d583ad809ba1f9c08c6ecf60907",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/update_webhook_request.py",
+        "sha256": "4164089dd3d8b84e9eca7bb738931b5b16095a92f3f92cc130d446e8c157a6ee",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/update_webhook_request.py"
+      },
+      {
+        "gitBlobSha1": "1463cefa28648ad5351fd96b1a370b16bad55f3f",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/validation_error.py",
+        "sha256": "b0e3761edb484bed3877e5266d2bc9469c16022717bca048cefa473aab54ad91",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/validation_error.py"
+      },
+      {
+        "gitBlobSha1": "d162e67bebfaa3641b1a7b42234dc05dfb02db29",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/validation_error_loc_inner.py",
+        "sha256": "7e7ce161899dd83d549711de6239ec5659d018aad5dc0357ca6bdbebcedd4a8c",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/validation_error_loc_inner.py"
+      },
+      {
+        "gitBlobSha1": "bd78902621d0a049fe4d7fc60be48138c45e69fe",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/version_response.py",
+        "sha256": "17d3b0194d163f898150d03cfa302a794201e08a6ffb8d8ac7ced73bdadc21a3",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/version_response.py"
+      },
+      {
+        "gitBlobSha1": "d86f2a34124bcaa7c98b2da93dfb83428c589c53",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/webhook_delivery_list_response.py",
+        "sha256": "e7256bd24ed488abe2aaaaa43c5ebf83664ea5c4109456ec539beee9624c747b",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/webhook_delivery_list_response.py"
+      },
+      {
+        "gitBlobSha1": "4d9960013ec73fd31b87de17688669a5d52c4bc2",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/webhook_delivery_response.py",
+        "sha256": "8b3a5bb53b0b724f76ed0f1200c3ec78bac021762f348e1daa4dfc1c93f93bfb",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/webhook_delivery_response.py"
+      },
+      {
+        "gitBlobSha1": "1a57327b0ada1c2759f2a367f88d53bf7d9936f2",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/webhook_http_config.py",
+        "sha256": "2b042a5180b18690b3f66ef88fe65b3670635d1b5570ad06cea0fbba69229f5c",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/webhook_http_config.py"
+      },
+      {
+        "gitBlobSha1": "85863563c2b46691f4c450ca54647c44524b65c5",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/webhook_list_response.py",
+        "sha256": "2e3384f3ae1bf46e446cb24b727e7037ade7aab979faa0028e381660c25116ae",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/webhook_list_response.py"
+      },
+      {
+        "gitBlobSha1": "8e80469bdb85d98c684cbe7456842a42130c3f8c",
+        "installedPath": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client_api/models/webhook_response.py",
+        "sha256": "86c80241e95224a4f9b72dcf35d4f4e6fa4578a4d4b234cf2871aaadf32049c4",
+        "sourcePath": "hindsight-clients/python/hindsight_client_api/models/webhook_response.py"
+      }
+    ],
+    "registry": {
+      "sha256": "ba08de4a6f06393fe43fcf609453f7e1b3936fba13598c6d7cf6e0f679a23d05",
+      "url": "https://pypi.org/pypi/hindsight-client/0.6.1/json"
+    },
+    "sourceDocuments": [
+      {
+        "path": "LICENSE",
+        "source": {
+          "bytes": 1075,
+          "sha256": "01fde0bedf83bdc185065d7af524a61690efe576a67f922eaff3a1280c17b63a",
+          "url": "https://raw.githubusercontent.com/vectorize-io/hindsight/0f7c5e895b2fc0ff6a9047a1e9e9e5785207c784/LICENSE"
+        }
+      },
+      {
+        "path": "hindsight-clients/python/hindsight_client/__init__.py",
+        "source": {
+          "bytes": 5546,
+          "sha256": "9ba918d4a6bca304413ec85dcf5718e54872cbf225230fd195102b87b3d95078",
+          "url": "https://raw.githubusercontent.com/vectorize-io/hindsight/0f7c5e895b2fc0ff6a9047a1e9e9e5785207c784/hindsight-clients/python/hindsight_client/__init__.py"
+        }
+      },
+      {
+        "path": "hindsight-clients/python/pyproject.toml",
+        "source": {
+          "bytes": 1101,
+          "sha256": "767b64a7f197055cf8e25bd6bc6cdb1f6a8d7e04ab123ed642e47ef860513767",
+          "url": "https://raw.githubusercontent.com/vectorize-io/hindsight/0f7c5e895b2fc0ff6a9047a1e9e9e5785207c784/hindsight-clients/python/pyproject.toml"
+        }
+      }
+    ],
+    "tagReferences": [
+      {
+        "bytes": 339,
+        "sha256": "73ce1567cf8bc55cd21f87a2891bdcc29c0b62c15e4e979f48e37f1a7550e19c",
+        "url": "https://api.github.com/repos/vectorize-io/hindsight/git/ref/tags/v0.6.1"
+      },
+      {
+        "bytes": 677,
+        "sha256": "78658419bc87f7d3413429d5987a34fded1736991b9d3cf597bc298f9143fc30",
+        "url": "https://api.github.com/repos/vectorize-io/hindsight/git/tags/623a9df6a65b6eb1f2838436861d2c841e60bbe5"
+      }
+    ],
+    "tree": {
+      "bytes": 681917,
+      "sha256": "6059106405e685b6f16a124a46ef1acac5cb079a5406df04cfe30a1f8966f2c7",
+      "url": "https://api.github.com/repos/vectorize-io/hindsight/git/trees/0f7c5e895b2fc0ff6a9047a1e9e9e5785207c784?recursive=1"
+    }
+  },
+  "node-22.22.2": {
+    "binaryMatches": [
+      {
+        "image": "hermes",
+        "path": "usr/local/bin/node",
+        "sha256": "81925c0995b5c1427b5d538e6a90ca2fdc4daffb786b09af749beaf7369d4e90"
+      }
+    ],
+    "checksumManifest": {
+      "bytes": 3777,
+      "sha256": "62a55cf160c9005f0e0f0067f30b74ba8081320117c6fee6ce2938604e669d10",
+      "url": "https://nodejs.org/dist/v22.22.2/SHASUMS256.txt"
+    },
+    "completeLicenceBundle": {
+      "bytes": 145485,
+      "sha256": "c738ae413cf561f174e34f6961f8ca458aae2369a73640dda6234c629b98bcc4"
+    },
+    "runtimeArchive": {
+      "bytes": 31065656,
+      "sha256": "88fd1ce767091fd8d4a99fdb2356e98c819f93f3b1f8663853a2dee9b438068a",
+      "url": "https://nodejs.org/dist/v22.22.2/node-v22.22.2-linux-x64.tar.xz"
+    },
+    "signaturesVerified": false
+  },
+  "node-22.23.2": {
+    "binaryMatches": [
+      {
+        "image": "unify-core",
+        "path": "nodejs/bin/node",
+        "sha256": "3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327"
+      },
+      {
+        "image": "uniui",
+        "path": "nodejs/bin/node",
+        "sha256": "3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327"
+      }
+    ],
+    "checksumManifest": {
+      "bytes": 3777,
+      "sha256": "778ac5b2fcdbd68d9c0ae9f4310674faa3af0910bd0d18e7f6597787c40a3e39",
+      "url": "https://nodejs.org/dist/v22.23.2/SHASUMS256.txt"
+    },
+    "completeLicenceBundle": {
+      "bytes": 145485,
+      "sha256": "c738ae413cf561f174e34f6961f8ca458aae2369a73640dda6234c629b98bcc4"
+    },
+    "runtimeArchive": {
+      "bytes": 31058332,
+      "sha256": "d60acfe00a2932254bb0ad20e01b0d74397a0875595de719654b214f4b03f307",
+      "url": "https://nodejs.org/dist/v22.23.2/node-v22.23.2-linux-x64.tar.xz"
+    },
+    "signaturesVerified": false
+  },
+  "postgresql": {
+    "licence": {
+      "bytes": 1192,
+      "sha256": "9bf20ee493926a7e17a74bc7f05089fbc014269667b1540bc35a6b194a40c9de",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_16_6/COPYRIGHT"
+    }
+  }
+}

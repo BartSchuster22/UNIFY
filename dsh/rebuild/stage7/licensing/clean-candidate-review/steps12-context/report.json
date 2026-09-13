@@ -1,0 +1,348 @@
+{
+  "schema": "stage74-step2-context/v1",
+  "buildReceiptSha256": "3fdd13c530019038c03609717e1b7590577804cbafdee167a409a66f2f1aa85e",
+  "files": [
+    {
+      "image": "hermes",
+      "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+      "path": "opt/hermes/LICENSE",
+      "sha256": "821556e6336796450ab852d375117b48a4887e71d255794fd6318d99982a5ab6",
+      "bytes": 1070
+    },
+    {
+      "image": "hermes",
+      "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+      "path": "opt/hermes/scripts/whatsapp-bridge/package.json",
+      "sha256": "51678e5e739149c050c257592cd449ecbb8d306c308cf6698cc82bc3092e6ca6",
+      "bytes": 417
+    },
+    {
+      "image": "hermes",
+      "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+      "path": "opt/unify-adapter/package.json",
+      "sha256": "fb8b2575a9bc2d800dc3cd4a9ab161fb632d186750004ade5ff812fc17ae2c9e",
+      "bytes": 564
+    },
+    {
+      "image": "hermes",
+      "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+      "path": "opt/unify-adapter/node_modules/.pnpm/@aquiero+contracts@file+packages+contracts/node_modules/@aquiero/contracts/package.json",
+      "sha256": "dc03a761fbe0f24b11b43fc168994705c4d14475654ad2eaf8e0bcae5dd7712d",
+      "bytes": 446
+    },
+    {
+      "image": "hermes",
+      "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+      "path": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client-0.6.1.dist-info/METADATA",
+      "sha256": "a4644e25544a427aca3e5c547f1485ffa15e52be28707ebf7ee21db67fa31fc3",
+      "bytes": 647
+    },
+    {
+      "image": "hermes",
+      "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+      "path": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client-0.6.1.dist-info/RECORD",
+      "sha256": "2ea8228b78e20c54c5527cd5dbfefaae62fd4f47ee70fee643af1fc78eab1293",
+      "bytes": 14929
+    },
+    {
+      "image": "hermes",
+      "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+      "path": "opt/hermes/.venv/lib/python3.13/site-packages/hindsight_client/__init__.py",
+      "sha256": "9ba918d4a6bca304413ec85dcf5718e54872cbf225230fd195102b87b3d95078",
+      "bytes": 5546
+    },
+    {
+      "image": "keycloak",
+      "imageId": "sha256:bebf1b13934bc6349f898bb37e6841b1736c87fa3b38bfbc4040a3c16897cf6b",
+      "path": "opt/keycloak/LICENSE.txt",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "bytes": 11358
+    },
+    {
+      "image": "keycloak",
+      "imageId": "sha256:bebf1b13934bc6349f898bb37e6841b1736c87fa3b38bfbc4040a3c16897cf6b",
+      "path": "opt/keycloak/lib/quarkus-run.jar",
+      "sha256": "49c294907d5e0746bab6c1f9633a686993b8e5ce394ddeeccbd56ac84275748a",
+      "bytes": 725,
+      "members": [
+        "META-INF/MANIFEST.MF",
+        "META-INF/"
+      ],
+      "textMembers": {
+        "META-INF/MANIFEST.MF": "Manifest-Version: 1.0\r\nClass-Path:  lib/boot/io.smallrye.common.smallrye-common-constraint-2.6.\r\n 0.jar lib/boot/io.github.crac.org-crac-0.1.3.jar lib/boot/io.quarkus.qu\r\n arkus-vertx-latebound-mdc-provider-3.15.1.jar lib/boot/org.eclipse.pars\r\n son.parsson-1.1.7.jar lib/boot/io.smallrye.common.smallrye-common-os-2.\r\n 6.0.jar lib/boot/io.quarkus.quarkus-development-mode-spi-3.15.1.jar lib\r\n /boot/org.jboss.logging.jboss-logging-3.6.0.Final.jar lib/boot/org.jbos\r\n s.logmanager.jboss-logmanager-3.0.6.Final.jar lib/boot/io.smallrye.comm\r\n on.smallrye-common-cpu-2.6.0.jar lib/boot/io.smallrye.common.smallrye-c\r\n ommon-expression-2.6.0.jar lib/boot/io.smallrye.common.smallrye-common-\r\n function-2.6.0.jar lib/boot/io.smallrye.common.smallrye-common-net-2.6.\r\n 0.jar lib/boot/io.smallrye.common.smallrye-common-ref-2.6.0.jar lib/boo\r\n t/jakarta.json.jakarta.json-api-2.1.3.jar lib/boot/io.quarkus.quarkus-b\r\n ootstrap-runner-3.15.1.jar lib/boot/io.quarkus.quarkus-classloader-comm\r\n ons-3.15.1.jar lib/boot/io.smallrye.common.smallrye-common-io-2.6.0.jar\r\nMain-Class: io.quarkus.bootstrap.runner.QuarkusEntryPoint\r\nImplementation-Title: Keycloak\r\nImplementation-Version: 26.0.8\r\n\r\n"
+      }
+    },
+    {
+      "image": "keycloak",
+      "imageId": "sha256:bebf1b13934bc6349f898bb37e6841b1736c87fa3b38bfbc4040a3c16897cf6b",
+      "path": "usr/lib/jvm/java-21-openjdk-21.0.6.0.7-1.el9.x86_64/lib/jrt-fs.jar",
+      "sha256": "5d99dd2027ce21e9a988d49f18e186b51c76d6b30e56e29782b1d689ee3edd56",
+      "bytes": 110120,
+      "members": [
+        "META-INF/",
+        "META-INF/MANIFEST.MF",
+        "META-INF/services/java.nio.file.spi.FileSystemProvider",
+        "jdk/internal/jimage/BasicImageReader$1.class",
+        "jdk/internal/jimage/BasicImageReader$2.class",
+        "jdk/internal/jimage/BasicImageReader.class",
+        "jdk/internal/jimage/ImageBufferCache$1.class",
+        "jdk/internal/jimage/ImageBufferCache$2.class",
+        "jdk/internal/jimage/ImageBufferCache.class",
+        "jdk/internal/jimage/ImageHeader.class",
+        "jdk/internal/jimage/ImageLocation.class",
+        "jdk/internal/jimage/ImageReader$1.class",
+        "jdk/internal/jimage/ImageReader$Directory.class",
+        "jdk/internal/jimage/ImageReader$LinkNode.class",
+        "jdk/internal/jimage/ImageReader$Node.class",
+        "jdk/internal/jimage/ImageReader$Resource.class",
+        "jdk/internal/jimage/ImageReader$SharedImageReader$LocationVisitor.class",
+        "jdk/internal/jimage/ImageReader$SharedImageReader.class",
+        "jdk/internal/jimage/ImageReader.class",
+        "jdk/internal/jimage/ImageReaderFactory$1.class",
+        "jdk/internal/jimage/ImageReaderFactory.class",
+        "jdk/internal/jimage/ImageStream.class",
+        "jdk/internal/jimage/ImageStrings.class",
+        "jdk/internal/jimage/ImageStringsReader.class",
+        "jdk/internal/jimage/NativeImageBuffer$1.class",
+        "jdk/internal/jimage/NativeImageBuffer.class",
+        "jdk/internal/jimage/decompressor/CompressIndexes.class",
+        "jdk/internal/jimage/decompressor/CompressedResourceHeader.class",
+        "jdk/internal/jimage/decompressor/Decompressor.class",
+        "jdk/internal/jimage/decompressor/ResourceDecompressor$StringsProvider.class",
+        "jdk/internal/jimage/decompressor/ResourceDecompressor.class",
+        "jdk/internal/jimage/decompressor/ResourceDecompressorFactory.class",
+        "jdk/internal/jimage/decompressor/ResourceDecompressorRepository.class",
+        "jdk/internal/jimage/decompressor/SignatureParser$1.class",
+        "jdk/internal/jimage/decompressor/SignatureParser$ParseResult.class",
+        "jdk/internal/jimage/decompressor/SignatureParser.class",
+        "jdk/internal/jimage/decompressor/StringSharingDecompressor.class",
+        "jdk/internal/jimage/decompressor/StringSharingDecompressorFactory.class",
+        "jdk/internal/jimage/decompressor/ZipDecompressor.class",
+        "jdk/internal/jimage/decompressor/ZipDecompressorFactory.class",
+        "jdk/internal/jrtfs/ExplodedImage$PathNode.class",
+        "jdk/internal/jrtfs/ExplodedImage.class",
+        "jdk/internal/jrtfs/JrtDirectoryStream$1.class",
+        "jdk/internal/jrtfs/JrtDirectoryStream.class",
+        "jdk/internal/jrtfs/JrtFileAttributeView$AttrID.class",
+        "jdk/internal/jrtfs/JrtFileAttributeView.class",
+        "jdk/internal/jrtfs/JrtFileAttributes.class",
+        "jdk/internal/jrtfs/JrtFileStore.class",
+        "jdk/internal/jrtfs/JrtFileSystem$1.class",
+        "jdk/internal/jrtfs/JrtFileSystem.class",
+        "jdk/internal/jrtfs/JrtFileSystemProvider$1.class",
+        "jdk/internal/jrtfs/JrtFileSystemProvider$JrtFsLoader.class",
+        "jdk/internal/jrtfs/JrtFileSystemProvider.class",
+        "jdk/internal/jrtfs/JrtPath$1.class",
+        "jdk/internal/jrtfs/JrtPath$2.class",
+        "jdk/internal/jrtfs/JrtPath.class",
+        "jdk/internal/jrtfs/JrtUtils.class",
+        "jdk/internal/jrtfs/SystemImage$1.class",
+        "jdk/internal/jrtfs/SystemImage$2.class",
+        "jdk/internal/jrtfs/SystemImage.class"
+      ],
+      "textMembers": {
+        "META-INF/MANIFEST.MF": "Manifest-Version: 1.0\r\nSpecification-Title: Java Platform API Specification\r\nSpecification-Version: 21\r\nSpecification-Vendor: Oracle Corporation\r\nImplementation-Title: Java Runtime Environment\r\nImplementation-Version: 21.0.6\r\nImplementation-Vendor: Red Hat, Inc.\r\nCreated-By: 21.0.6 (Red Hat, Inc.)\r\n\r\n"
+      }
+    },
+    {
+      "image": "keycloak",
+      "imageId": "sha256:bebf1b13934bc6349f898bb37e6841b1736c87fa3b38bfbc4040a3c16897cf6b",
+      "path": "usr/lib/jvm/java-21-openjdk-21.0.6.0.7-1.el9.x86_64/release",
+      "sha256": "f68e1348ddde60139aecac367a57e12666ac2268203370288e38305229a4f249",
+      "bytes": 1263
+    },
+    {
+      "image": "keycloak",
+      "imageId": "sha256:bebf1b13934bc6349f898bb37e6841b1736c87fa3b38bfbc4040a3c16897cf6b",
+      "path": "usr/lib/jvm/java-21-openjdk-21.0.6.0.7-1.el9.x86_64/legal/java.base/LICENSE",
+      "sha256": "4b9abebc4338048a7c2dc184e9f800deb349366bdf28eb23c2677a77b4c87726",
+      "bytes": 19274
+    },
+    {
+      "image": "keycloak",
+      "imageId": "sha256:bebf1b13934bc6349f898bb37e6841b1736c87fa3b38bfbc4040a3c16897cf6b",
+      "path": "usr/lib/jvm/java-21-openjdk-21.0.6.0.7-1.el9.x86_64/legal/java.base/ASSEMBLY_EXCEPTION",
+      "sha256": "75292f03bf23d3db7c985aecc191029b93883200721ed23ed34a2e601463df33",
+      "bytes": 1514
+    },
+    {
+      "image": "memory-v4",
+      "imageId": "sha256:a3ee96f87088f9b307ecb68dcc68c21e1a52f8c3c9eefc5ec07652407c8cdbc6",
+      "path": "usr/local/lib/python3.12/LICENSE.txt",
+      "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+      "bytes": 13936
+    },
+    {
+      "image": "memory-v4",
+      "imageId": "sha256:a3ee96f87088f9b307ecb68dcc68c21e1a52f8c3c9eefc5ec07652407c8cdbc6",
+      "path": "usr/local/include/python3.12/patchlevel.h",
+      "sha256": "66ff726e200a2eba15cfedee752bf6a59e20d6741a7c45f7a2c424dea649f473",
+      "bytes": 1301
+    },
+    {
+      "image": "reference-application",
+      "imageId": "sha256:6183cc25bb210b63ae4c7a1d4123014890a5e57518ca484f3c29421f319df8df",
+      "path": "usr/local/lib/python3.12/LICENSE.txt",
+      "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+      "bytes": 13936
+    },
+    {
+      "image": "reference-application",
+      "imageId": "sha256:6183cc25bb210b63ae4c7a1d4123014890a5e57518ca484f3c29421f319df8df",
+      "path": "usr/local/include/python3.12/patchlevel.h",
+      "sha256": "66ff726e200a2eba15cfedee752bf6a59e20d6741a7c45f7a2c424dea649f473",
+      "bytes": 1301
+    },
+    {
+      "image": "postgresql",
+      "imageId": "sha256:bd10494dc29eedb2ed7c79f8dcbfddb3ee3b7143319566695da75259114e25e9",
+      "path": "lib/apk/db/installed",
+      "sha256": "2768bd45a803516fa22835feeba0689517cbed504b6b7027723c9f16aca98d2d",
+      "bytes": 64515
+    },
+    {
+      "image": "postgresql",
+      "imageId": "sha256:bd10494dc29eedb2ed7c79f8dcbfddb3ee3b7143319566695da75259114e25e9",
+      "path": "usr/local/include/postgresql/server/pg_config.h",
+      "sha256": "c498602f5676e7b3b7f9046dc52962a85438f487a2de35ade2ecc7beaa007859",
+      "bytes": 26915
+    },
+    {
+      "image": "unify-core",
+      "imageId": "sha256:3a1a6aaecb0a00720e672c7e0a32479d8f5cb9c3e28a69d7379f69602a4f6646",
+      "path": "app/package.json",
+      "sha256": "ef36ebe0df59e68a6f545e5408997f202ef5eb755d75816a7f060c3d63b411b1",
+      "bytes": 1008
+    },
+    {
+      "image": "unify-core",
+      "imageId": "sha256:3a1a6aaecb0a00720e672c7e0a32479d8f5cb9c3e28a69d7379f69602a4f6646",
+      "path": "app/node_modules/.pnpm/@aquiero+contracts@file+packages+contracts/node_modules/@aquiero/contracts/package.json",
+      "sha256": "dc03a761fbe0f24b11b43fc168994705c4d14475654ad2eaf8e0bcae5dd7712d",
+      "bytes": 446
+    },
+    {
+      "image": "unify-core",
+      "imageId": "sha256:3a1a6aaecb0a00720e672c7e0a32479d8f5cb9c3e28a69d7379f69602a4f6646",
+      "path": "nodejs/LICENSE",
+      "sha256": "c738ae413cf561f174e34f6961f8ca458aae2369a73640dda6234c629b98bcc4",
+      "bytes": 145485
+    },
+    {
+      "image": "uniui",
+      "imageId": "sha256:74a2a57a8f67930442d8bd6ee46dc49884f01f5bc3df3764386afeb9fdef0f26",
+      "path": "nodejs/LICENSE",
+      "sha256": "c738ae413cf561f174e34f6961f8ca458aae2369a73640dda6234c629b98bcc4",
+      "bytes": 145485
+    }
+  ],
+  "imageMetadata": {
+    "hermes": {
+      "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+      "versionEnvironment": [],
+      "labels": {
+        "org.opencontainers.image.base.name": "nousresearch/hermes-agent@sha256:fcbe95482353e41cd30d39ddfc0f57ba3720f6da6969a7a69cdfb0d84b045cb6",
+        "org.opencontainers.image.description": "Pinned Hermes runtime and colocated UNIFY control adapter",
+        "org.opencontainers.image.revision": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "org.opencontainers.image.title": "UNIFY Hermes combined runtime"
+      }
+    },
+    "keycloak": {
+      "imageId": "sha256:bebf1b13934bc6349f898bb37e6841b1736c87fa3b38bfbc4040a3c16897cf6b",
+      "versionEnvironment": [],
+      "labels": {
+        "org.opencontainers.image.created": "2025-02-20T14:46:41.871Z",
+        "org.opencontainers.image.description": "",
+        "org.opencontainers.image.documentation": "https://www.keycloak.org/documentation",
+        "org.opencontainers.image.licenses": "Apache-2.0",
+        "org.opencontainers.image.revision": "1f66de17238cd310f56fc3a501750a417ecaecdc",
+        "org.opencontainers.image.source": "https://github.com/keycloak-rel/keycloak-rel",
+        "org.opencontainers.image.title": "keycloak-rel",
+        "org.opencontainers.image.url": "https://github.com/keycloak-rel/keycloak-rel",
+        "org.opencontainers.image.version": "26.0.8"
+      }
+    },
+    "memory-v4": {
+      "imageId": "sha256:a3ee96f87088f9b307ecb68dcc68c21e1a52f8c3c9eefc5ec07652407c8cdbc6",
+      "versionEnvironment": [
+        "PYTHON_VERSION=3.12.14"
+      ],
+      "labels": {
+        "org.opencontainers.image.revision": "2d74b1c",
+        "org.opencontainers.image.source": "https://github.com/BartSchuster22/memoryV4",
+        "org.opencontainers.image.title": "MemoryV4 Core"
+      }
+    },
+    "reference-application": {
+      "imageId": "sha256:6183cc25bb210b63ae4c7a1d4123014890a5e57518ca484f3c29421f319df8df",
+      "versionEnvironment": [
+        "PYTHON_VERSION=3.12.14"
+      ],
+      "labels": {}
+    },
+    "postgresql": {
+      "imageId": "sha256:bd10494dc29eedb2ed7c79f8dcbfddb3ee3b7143319566695da75259114e25e9",
+      "versionEnvironment": [
+        "GOSU_VERSION=1.17",
+        "PG_MAJOR=16",
+        "PG_VERSION=16.6"
+      ],
+      "labels": {}
+    },
+    "unify-core": {
+      "imageId": "sha256:3a1a6aaecb0a00720e672c7e0a32479d8f5cb9c3e28a69d7379f69602a4f6646",
+      "versionEnvironment": [],
+      "labels": {
+        "org.opencontainers.image.description": "Standalone UNIFY production gateway",
+        "org.opencontainers.image.licenses": "UNLICENSED",
+        "org.opencontainers.image.revision": "e44d8fc86849471869f10a1cb0f849cfb7c23c7b",
+        "org.opencontainers.image.source": "https://github.com/BartSchuster22/UNIFY",
+        "org.opencontainers.image.title": "UNIFY Gateway"
+      }
+    },
+    "uniui": {
+      "imageId": "sha256:74a2a57a8f67930442d8bd6ee46dc49884f01f5bc3df3764386afeb9fdef0f26",
+      "versionEnvironment": [],
+      "labels": {
+        "org.opencontainers.image.description": "UNIFY operator web interface and same-origin Core API proxy",
+        "org.opencontainers.image.licenses": "UNLICENSED",
+        "org.opencontainers.image.revision": "e44d8fc86849471869f10a1cb0f849cfb7c23c7b",
+        "org.opencontainers.image.source": "https://github.com/BartSchuster22/UNIFY",
+        "org.opencontainers.image.title": "UNIFY Web"
+      }
+    },
+    "caddy": {
+      "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+      "versionEnvironment": [],
+      "labels": {
+        "org.opencontainers.image.description": "a powerful, enterprise-ready, open source web server with automatic HTTPS written in Go",
+        "org.opencontainers.image.documentation": "https://caddyserver.com/docs",
+        "org.opencontainers.image.licenses": "Apache-2.0",
+        "org.opencontainers.image.source": "https://github.com/caddyserver/caddy-docker",
+        "org.opencontainers.image.title": "Caddy",
+        "org.opencontainers.image.url": "https://caddyserver.com",
+        "org.opencontainers.image.vendor": "Light Code Labs",
+        "org.opencontainers.image.version": "v2.10.2"
+      }
+    }
+  },
+  "missingPaths": [
+    {
+      "image": "hermes",
+      "path": "opt/hermes/.git/HEAD"
+    },
+    {
+      "image": "hermes",
+      "path": "opt/hermes/.git/packed-refs"
+    },
+    {
+      "image": "hermes",
+      "path": "usr/local/include/node/node_version.h"
+    },
+    {
+      "image": "postgresql",
+      "path": "usr/local/share/postgresql/COPYRIGHT"
+    }
+  ],
+  "originalQAUnchanged": true
+}

@@ -1,0 +1,82 @@
+{
+  "candidate": "clean-candidate1-linux-amd64",
+  "changePolicy": "Any changed image/archive/inventory requires a new candidate lock and affected evidence requalification; never rewrite this lock.",
+  "engineeringComplete": false,
+  "images": {
+    "caddy": {
+      "archiveSha256": "4cfa275566c9ac5b4fac169da04a65c67848819bf854bce85d20efa594b93711",
+      "imageId": "sha256:e3a618f576e83321f670e4dff82e9ca830a52d3c15be01255d277bc8d1a1e002",
+      "layerSha256": "fd36e4b15ff173f87962489a73e0b947fc9589ce5388669c2a009af2045a5ec0",
+      "originalImageId": "sha256:6a107c5750be160c6b2b909d2329d73e6e4589b618dfcde00bc8145ddd20194f",
+      "tagAtFreeze": "alica-stage74-clean:caddy",
+      "transformationSha256": "697b3f86fecdf4508604b1d077c86351acdb71210f0770f836108dc10c560ad0"
+    },
+    "hermes": {
+      "archiveSha256": "3d8ccf0cbabf92c9a4a9f349020c62a2cf90232bafd20dc0c92e92529a379db6",
+      "imageId": "sha256:db8a41e59c775741ff1610dd955210b44a7ce3125c51107b45aaba282b78326f",
+      "layerSha256": "a0eee6fa3d8f2de44e1e3c4646cdb0dfceadaa957f0a0a8a719eda645dd97107",
+      "originalImageId": "sha256:96ed2f016fb159f48058f668a3baccd2d8154644dfd3519b9e683c4e7c636bd9",
+      "tagAtFreeze": "alica-stage74-clean:hermes",
+      "transformationSha256": "42ff99d1b0b126fe714a5e9dc9e03f49f1f224f87f42df3013f128b1acce76f4"
+    },
+    "keycloak": {
+      "archiveSha256": "0328273438bb277be1412b263b749a264436fa86581dd098cc2a6ebfe2774be5",
+      "imageId": "sha256:bebf1b13934bc6349f898bb37e6841b1736c87fa3b38bfbc4040a3c16897cf6b",
+      "layerSha256": "a512d07ffeca1f5a8bba639685af9ba3be641218a25bb3a1e19c48c224c9dfe1",
+      "originalImageId": "sha256:b6fa492fadbe4b41fb70af150ccf665f6bae371c412bdeb4c27a0ee113158bec",
+      "tagAtFreeze": "alica-stage74-clean:keycloak",
+      "transformationSha256": "e8718bdaf4a5468e11f73ae93848765c1958f994621abb5b857cfb2213856e4b"
+    },
+    "memory-v4": {
+      "archiveSha256": "dcff6061592f4ab36ba35fe120128ef5b50cba0800c88c97c247782c6c5cfbcb",
+      "imageId": "sha256:a3ee96f87088f9b307ecb68dcc68c21e1a52f8c3c9eefc5ec07652407c8cdbc6",
+      "layerSha256": "b14907d2a8f518841ac701cdfeff7c38f0f307e5a81e118817cc3ab8961e8b3b",
+      "originalImageId": "sha256:17c114de04013eedaf12be909730bc27a76fb605478e1f23dab509953093356d",
+      "tagAtFreeze": "alica-stage74-clean:memory-v4",
+      "transformationSha256": "f0a2622ad9312f82d42f5ae920aba2f9c1722320c62fa7a7f013afb4b5bf4e2c"
+    },
+    "postgresql": {
+      "archiveSha256": "473ef66e9b33d803d3a7b809c81addc5b205e3552dce373247c2f9acbc75facd",
+      "imageId": "sha256:bd10494dc29eedb2ed7c79f8dcbfddb3ee3b7143319566695da75259114e25e9",
+      "layerSha256": "875a3d41d02c063054c717adf0fdcc0922f5f162af146d4c48e12ca8c92a2485",
+      "originalImageId": "sha256:5c773214aed7adab0900cd0a05dbc468348f76fe1e4c2ca5b0e222e9531f7811",
+      "tagAtFreeze": "alica-stage74-clean:postgresql",
+      "transformationSha256": "cb0275bfd8e50943ac666383f5477b397b17b6432cb9b50a8ee402e5fef3ffce"
+    },
+    "reference-application": {
+      "archiveSha256": "9a4257c9a2724b181a0b6f27aabd48642109c6c8e8d22b25beae8de28d93f749",
+      "imageId": "sha256:6183cc25bb210b63ae4c7a1d4123014890a5e57518ca484f3c29421f319df8df",
+      "layerSha256": "60046d36148c6b0ec7a026377a1c351b5a780228e82ef10b7d81a7f33cf7441b",
+      "originalImageId": "sha256:453f59474c73eda86bdb3dcdcaebb0928bf593c86700da9a9ad2449ed52dec61",
+      "tagAtFreeze": "alica-stage74-clean:reference-application",
+      "transformationSha256": "bf21c2fc9bf1a75ca0f03713e31f5506f32e3e2112b4563677fc5eb97241b6ca"
+    },
+    "unify-core": {
+      "archiveSha256": "e0d00c1ebd3495a5431f93c70bfff9fa86226a4c870d6392ffb6b17f0ad8efff",
+      "imageId": "sha256:3a1a6aaecb0a00720e672c7e0a32479d8f5cb9c3e28a69d7379f69602a4f6646",
+      "layerSha256": "dbb8ce55c43a842087a7b8e2012e236fbb4b74cbeb0fbf37b93d0cee441d0210",
+      "originalImageId": "sha256:86d47fdd52bf88cf8f91c9e2245ba6ebe69ed324955b9e157ebb676b83715f8a",
+      "tagAtFreeze": "alica-stage74-clean:unify-core",
+      "transformationSha256": "e856482c13dab5bd551de420def013a4f63e245f48ac992fcfade6d9800d3dff"
+    },
+    "uniui": {
+      "archiveSha256": "f03bbe0d24dfbb41e6a874a67a754e5decbd6240f40b060463617c7616292694",
+      "imageId": "sha256:74a2a57a8f67930442d8bd6ee46dc49884f01f5bc3df3764386afeb9fdef0f26",
+      "layerSha256": "6584b56f89bf5314a5080647faf034e3d8444f78f55e1b1681df8ee18e8c1b1f",
+      "originalImageId": "sha256:5e981ddd106e7c591850f6c7bda25ebe667d96b71db14afc085898c0b7b7e064",
+      "tagAtFreeze": "alica-stage74-clean:uniui",
+      "transformationSha256": "9bf80895ad80bad5f6ed5701c1d2a0d1867f01884aecaaaf5a630d32cd3c9be4"
+    }
+  },
+  "inputs": {
+    "build-receipt.json": "3fdd13c530019038c03609717e1b7590577804cbafdee167a409a66f2f1aa85e",
+    "build-verification.json": "9fa3d3d06a678070779670498fe1a8545415f1cf451f65391296404cdefdd745",
+    "candidate-metadata-gaps.json": "aef2b6d4f56ba9a359dbe6d59e06b3d552d3859fc948e34244f80a8c0ffdc77c",
+    "scans/receipt.json": "8e90cff6abf5279192851f32319d29529c67ce4a38defeae405627d57a1103d4",
+    "scans/review-queue.json": "b1a48729a50e03824b3ad570ed77873211e64e7b3c9a7f40f3e64c758e6bb10b"
+  },
+  "legalApproval": false,
+  "productionRelease": false,
+  "remoteRoot": "/srv/alica-stage74-clean-candidate1",
+  "schema": "stage74-clean-candidate-lock/v1"
+}

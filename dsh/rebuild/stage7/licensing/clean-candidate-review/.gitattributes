@@ -1,0 +1,3 @@
+# Evidence objects are byte-hashed; Git must not normalize their line endings.
+**/objects/* -text -diff
+*.tar -text -diff

@@ -1,0 +1,32 @@
+[
+  {
+    "image": "hermes",
+    "package": "docker-cli",
+    "version": "26.1.5+dfsg1-9+b13",
+    "path": "usr/bin/docker",
+    "sha256": "dcd656567975bc326ab55e8a043989a60ca336638689d9faa10ef15614709b71",
+    "scanSha256": "edebd335485fb2c360a569c53364b0c74a4ef87050940422aa7769d39fb9ba1b",
+    "packageDigest": {
+      "algorithm": "md5",
+      "value": "00bae64552d5b571a8910acdd1986cc2"
+    },
+    "source": "docker.io",
+    "sourceVersion": "26.1.5+dfsg1-9",
+    "digestMatches": true
+  },
+  {
+    "image": "keycloak",
+    "package": "java-21-openjdk-headless",
+    "version": "1:21.0.6.0.7-1.el9",
+    "path": "usr/lib/jvm/java-21-openjdk-21.0.6.0.7-1.el9.x86_64/lib/jrt-fs.jar",
+    "sha256": "5d99dd2027ce21e9a988d49f18e186b51c76d6b30e56e29782b1d689ee3edd56",
+    "scanSha256": "b28d843ad12041d6d935572ab9997a318e3ce4b3220256ab4306f3225023c3e2",
+    "packageDigest": {
+      "algorithm": "sha256",
+      "value": "5d99dd2027ce21e9a988d49f18e186b51c76d6b30e56e29782b1d689ee3edd56"
+    },
+    "source": "java-21-openjdk-21.0.6.0.7-1.el9.src.rpm",
+    "sourceVersion": null,
+    "digestMatches": true
+  }
+]
