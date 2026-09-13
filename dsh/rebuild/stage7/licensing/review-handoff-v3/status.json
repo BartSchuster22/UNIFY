@@ -1,0 +1,35 @@
+{
+  "reviewOnly": true,
+  "stage74Accepted": false,
+  "legalReviewComplete": false,
+  "inputQueueSha256": "aa72698c8cfe63f4b75170b5a4ffbae170031f704f54731946efdd2e2cb6eb60",
+  "inventoryOccurrences": 3689,
+  "remainingMissingMetadataByType": {
+    "apk": 1,
+    "binary": 34,
+    "deb": 6,
+    "go-module": 28,
+    "java-archive": 2,
+    "npm": 18,
+    "python": 2
+  },
+  "remainingMissingMetadata": 91,
+  "goNoticeCandidates": {
+    "coordinates": 133,
+    "archivesRetained": 127,
+    "coordinatesWithNoticeCandidates": 127,
+    "inventoryOccurrencesWithNoticeCandidates": 127,
+    "noticeFiles": 150,
+    "remainingMissingMetadata": 353,
+    "stage74Accepted": false,
+    "legalReviewComplete": false
+  },
+  "blockers": [
+    "Remaining metadata gaps enumerated in gaps.json",
+    "Package-specific notices, corresponding source, build and relink dispositions not complete across the shipped inventory"
+  ],
+  "engineeringComplete": false,
+  "legalIdentityAndReview": "outside-this-engineering-scope",
+  "originalArtifactInspectionSha256": "9552d7d2d0b5b3e4664fdf839cf0a6dd3d1ad209ada62672e6d199f27abb6049",
+  "byteMatchedMavenOccurrences": 33
+}

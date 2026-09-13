@@ -1,0 +1,12 @@
+{
+  "BSD-2-Clause": {
+    "url": "https://raw.githubusercontent.com/spdx/license-list-data/main/text/BSD-2-Clause.txt",
+    "sha256": "f32fb3b417a194167cfad068223fc975ba96c5960513a10f66a3c28720aec1df",
+    "bytes": 1267
+  },
+  "BSD-3-Clause": {
+    "url": "https://raw.githubusercontent.com/spdx/license-list-data/main/text/BSD-3-Clause.txt",
+    "sha256": "5a93d5831e1297ab10fe643e1a631e83be392896da14ee2951285a79012df69d",
+    "bytes": 1460
+  }
+}

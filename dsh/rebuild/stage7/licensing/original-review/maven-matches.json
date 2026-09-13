@@ -1,0 +1,1037 @@
+[
+  {
+    "image": "keycloak",
+    "artifactId": "4be92ce2dc2fefe7",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.grpc",
+      "grpc-context",
+      "1.65.1"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/grpc/grpc-context/1.65.1/grpc-context-1.65.1.jar",
+      "sha256": "1e8d6da14486585451f061a47d2e2435ec45506deb809b5029ccab9d4842c6ff",
+      "bytes": 295
+    },
+    "declarations": [
+      {
+        "name": "Apache 2.0",
+        "url": "https://opensource.org/licenses/Apache-2.0",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/grpc/grpc-context/1.65.1/grpc-context-1.65.1.pom",
+        "sha256": "260c804d4907a7a1a8b0f9c0cf3a0697b1e32cb31c995f0a33d586c290c0dd91",
+        "bytes": 1871
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "1cfdd7bf360fb5d7",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.grpc",
+      "grpc-core",
+      "1.65.1"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/grpc/grpc-core/1.65.1/grpc-core-1.65.1.jar",
+      "sha256": "590d19ad387b5f288477fc4c5bc5be9adf4ac4eab51cb69e8b3211286127c061",
+      "bytes": 641997
+    },
+    "declarations": [
+      {
+        "name": "Apache 2.0",
+        "url": "https://opensource.org/licenses/Apache-2.0",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/grpc/grpc-core/1.65.1/grpc-core-1.65.1.pom",
+        "sha256": "1a2c61e24765c74ca8134d5c987cdfad87d1ba596c7808e299c6b3b555b855c9",
+        "bytes": 2695
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "1cf3b4b799bedea4",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.grpc",
+      "grpc-netty",
+      "1.65.1"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/grpc/grpc-netty/1.65.1/grpc-netty-1.65.1.jar",
+      "sha256": "86b0a76c7283c7dfe47153f1b27f9ad6580a3ea8ab82276aa5e32d6a62487ae6",
+      "bytes": 288631
+    },
+    "declarations": [
+      {
+        "name": "Apache 2.0",
+        "url": "https://opensource.org/licenses/Apache-2.0",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/grpc/grpc-netty/1.65.1/grpc-netty-1.65.1.pom",
+        "sha256": "5c8ce16be42ee5e871d2a8e7c716cfc6c1eddd237ca0f332ff2d1032e471d152",
+        "bytes": 2885
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "df449af662ca1f7b",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.grpc",
+      "grpc-protobuf",
+      "1.65.1"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/grpc/grpc-protobuf/1.65.1/grpc-protobuf-1.65.1.jar",
+      "sha256": "dd5b390240b98daf040f28319711e964a810d7e7c200eb15d3525de51c927350",
+      "bytes": 5292
+    },
+    "declarations": [
+      {
+        "name": "Apache 2.0",
+        "url": "https://opensource.org/licenses/Apache-2.0",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/grpc/grpc-protobuf/1.65.1/grpc-protobuf-1.65.1.pom",
+        "sha256": "63256773f81334ed55241586eabafa167b78f5537c2f38555c179237f3a6460c",
+        "bytes": 2701
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "f7a4d277ace6cbbd",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.grpc",
+      "grpc-protobuf-lite",
+      "1.65.1"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/grpc/grpc-protobuf-lite/1.65.1/grpc-protobuf-lite-1.65.1.jar",
+      "sha256": "0debee5af442761318309bb24377c512c2228123396f9f4aafd36f1d198af4b2",
+      "bytes": 7854
+    },
+    "declarations": [
+      {
+        "name": "Apache 2.0",
+        "url": "https://opensource.org/licenses/Apache-2.0",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/grpc/grpc-protobuf-lite/1.65.1/grpc-protobuf-lite-1.65.1.pom",
+        "sha256": "09330e33582fb727a2918e2f6e1c8f6c4e954d7352efa0d0fa8696308e47c78c",
+        "bytes": 1990
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "a5830f1ba88ed751",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.grpc",
+      "grpc-stub",
+      "1.65.1"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/grpc/grpc-stub/1.65.1/grpc-stub-1.65.1.jar",
+      "sha256": "2df07043e03ae03e06bca49fd9a55702adeaafb3bcec3068a8f6179efa68c9e1",
+      "bytes": 50251
+    },
+    "declarations": [
+      {
+        "name": "Apache 2.0",
+        "url": "https://opensource.org/licenses/Apache-2.0",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/grpc/grpc-stub/1.65.1/grpc-stub-1.65.1.pom",
+        "sha256": "5d07e5c93ce73e2b5c308a3673d5002e5c55cfe62b2e9d6977c35bc63c4b1794",
+        "bytes": 1788
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "9ea7786a477b8940",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.grpc",
+      "grpc-util",
+      "1.65.1"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/grpc/grpc-util/1.65.1/grpc-util-1.65.1.jar",
+      "sha256": "7d2c4866515c6101598dd0c3d2e955707fb1126e51fd0eeb06daa98837f8dfbc",
+      "bytes": 98630
+    },
+    "declarations": [
+      {
+        "name": "Apache 2.0",
+        "url": "https://opensource.org/licenses/Apache-2.0",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/grpc/grpc-util/1.65.1/grpc-util-1.65.1.pom",
+        "sha256": "e6a872b9542192cb1f7b52b37629b629a261b0160279a6e585c82dc10b8e981e",
+        "bytes": 1955
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "5b4fc42a77b3fca9",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "org.hibernate.common",
+      "hibernate-commons-annotations",
+      "7.0.1.Final"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/org/hibernate/common/hibernate-commons-annotations/7.0.1.Final/hibernate-commons-annotations-7.0.1.Final.jar",
+      "sha256": "0a690967ef2ef3e2bcec3c7871869ff64d1269904d58d22d7aaf46e3e5bb0483",
+      "bytes": 67278
+    },
+    "declarations": [
+      {
+        "name": "Apache License Version 2.0",
+        "url": "https://opensource.org/licenses/Apache-2.0",
+        "distribution": "repo",
+        "comments": "See http://hibernate.org/community/license/ for more details."
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/org/hibernate/common/hibernate-commons-annotations/7.0.1.Final/hibernate-commons-annotations-7.0.1.Final.pom",
+        "sha256": "cecff99850c06eaecfa48451b3b445ff0a4232292305fde87f0b494e49a2b8c5",
+        "bytes": 2036
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "d930e17b592cae0b",
+    "status": "unresolved",
+    "error": "No coordinate candidate; not a repository-named library JAR"
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "4ad8c12b5bc13c54",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "org.openjdk.nashorn",
+      "nashorn-core",
+      "15.4"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/org/openjdk/nashorn/nashorn-core/15.4/nashorn-core-15.4.jar",
+      "sha256": "6f816e84dfd63a81d4eaa7829c08337bbaff3ec683ff3bf6bbd90d017a00dc6f",
+      "bytes": 2167292
+    },
+    "declarations": [
+      {
+        "name": "GPL v2 with the Classpath exception",
+        "url": "https://github.com/openjdk/nashorn/blob/main/LICENSE",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/org/openjdk/nashorn/nashorn-core/15.4/nashorn-core-15.4.pom",
+        "sha256": "69a9f7b9e47eccf47bbcee721ad4fb039ca7d9b650174e6d8602aadb77e5ac23",
+        "bytes": 2996
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "33a1078d4bfee342",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry",
+      "opentelemetry-api",
+      "1.39.0"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-api/1.39.0/opentelemetry-api-1.39.0.jar",
+      "sha256": "ffe18c37246fd34da9460b8d604825bb265c99d3c141698b770c31dd3e38f6c5",
+      "bytes": 141734
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-api/1.39.0/opentelemetry-api-1.39.0.pom",
+        "sha256": "ee3798d8dd1da7b0f1da4e42d83e2cefa863871872a93920d336c3ddc22c8b8d",
+        "bytes": 1779
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "3b0b82d95e0ce3f5",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry",
+      "opentelemetry-api-incubator",
+      "1.39.0-alpha"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-api-incubator/1.39.0-alpha/opentelemetry-api-incubator-1.39.0-alpha.jar",
+      "sha256": "ea84984fd86cc25b07e083af5cf39e764160bbe82ff0e2723610f8880a95af6f",
+      "bytes": 37361
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-api-incubator/1.39.0-alpha/opentelemetry-api-incubator-1.39.0-alpha.pom",
+        "sha256": "c028b301c558d6ca1c5caa6f7e2f834015900b5e45291a96c21198e984040d7b",
+        "bytes": 1801
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "11400681e0057844",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry",
+      "opentelemetry-context",
+      "1.39.0"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-context/1.39.0/opentelemetry-context-1.39.0.jar",
+      "sha256": "3c86e7de8cc34a2c1a6077b0409bafebe4321495e297e355c371d1cfd39c26f3",
+      "bytes": 47252
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-context/1.39.0/opentelemetry-context-1.39.0.pom",
+        "sha256": "59a46470866d47938d7f472f99095804748fc05e57903236f9358e55f6a3219c",
+        "bytes": 1573
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "705b1857f32ff238",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry",
+      "opentelemetry-exporter-common",
+      "1.39.0"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-exporter-common/1.39.0/opentelemetry-exporter-common-1.39.0.jar",
+      "sha256": "91d95ae84f2f0a98bf8256951a4ca76be2cea47a56a47721690c5d8a9beb54b0",
+      "bytes": 102859
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-exporter-common/1.39.0/opentelemetry-exporter-common-1.39.0.pom",
+        "sha256": "e97215ca3a04a1c72d64bb57720ad79634157cc6db9ad03211a9f2fe3f2f2934",
+        "bytes": 2014
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "8d3a53e9192dbbe7",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry",
+      "opentelemetry-exporter-otlp",
+      "1.39.0"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-exporter-otlp/1.39.0/opentelemetry-exporter-otlp-1.39.0.jar",
+      "sha256": "1cc7c3833fb3f899348678f98a17480d665bd3e9ad4afb5f2c8f7a1b2384fe55",
+      "bytes": 69624
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-exporter-otlp/1.39.0/opentelemetry-exporter-otlp-1.39.0.pom",
+        "sha256": "230d9ea80937b4832d74bf6d8f13862c1381a7bcacbae7a48017163cbb930a63",
+        "bytes": 2825
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "e9372fc46e68a572",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry",
+      "opentelemetry-exporter-otlp-common",
+      "1.39.0"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-exporter-otlp-common/1.39.0/opentelemetry-exporter-otlp-common-1.39.0.jar",
+      "sha256": "906f78a318182b4d342067b974da2b10656a8673627b5d2291cdf53829df28f4",
+      "bytes": 192027
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-exporter-otlp-common/1.39.0/opentelemetry-exporter-otlp-common-1.39.0.pom",
+        "sha256": "e9ecb6eb779727fb81be8b83f5739ef07d6c4df0ddc9eaaa0fe0d5d08033cd93",
+        "bytes": 2021
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "1751bd3c555bd017",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry",
+      "opentelemetry-exporter-sender-okhttp",
+      "1.39.0"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-exporter-sender-okhttp/1.39.0/opentelemetry-exporter-sender-okhttp-1.39.0.jar",
+      "sha256": "e2fbf6f490c2e2b7ab926460d9fa4602dedb4050bbd4e7005eb145512eab44d1",
+      "bytes": 25646
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-exporter-sender-okhttp/1.39.0/opentelemetry-exporter-sender-okhttp-1.39.0.pom",
+        "sha256": "44281ef1df2ff96c4e10b77aaf084e035737b4713271ec68c662bbc127299f41",
+        "bytes": 2191
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "4c7229b7685923f8",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry.instrumentation",
+      "opentelemetry-instrumentation-annotations",
+      "2.5.0"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/instrumentation/opentelemetry-instrumentation-annotations/2.5.0/opentelemetry-instrumentation-annotations-2.5.0.jar",
+      "sha256": "f75b30df5119e73e630c8bc81b60889c384ef1fcda036b03b29585645081ca4a",
+      "bytes": 2831
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/instrumentation/opentelemetry-instrumentation-annotations/2.5.0/opentelemetry-instrumentation-annotations-2.5.0.pom",
+        "sha256": "0a7e7a4b4c3760f747f95c2a832cdcaa44531f6292c88d681329c5a6eaae7086",
+        "bytes": 2189
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "c9e5a9b7fe450489",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry.instrumentation",
+      "opentelemetry-instrumentation-annotations-support",
+      "2.5.0-alpha"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/instrumentation/opentelemetry-instrumentation-annotations-support/2.5.0-alpha/opentelemetry-instrumentation-annotations-support-2.5.0-alpha.jar",
+      "sha256": "ad8178cc3b64fd19a85543351a27ae8f98160809dfd8787d080d3ddbe5013692",
+      "bytes": 33562
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/instrumentation/opentelemetry-instrumentation-annotations-support/2.5.0-alpha/opentelemetry-instrumentation-annotations-support-2.5.0-alpha.pom",
+        "sha256": "39935966316d4bad3bf59f7e41788e6eb498813ccff1bed1f990f8b3a33b02c0",
+        "bytes": 3493
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "246eb5b58a836b1b",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry.instrumentation",
+      "opentelemetry-instrumentation-api",
+      "2.5.0"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/instrumentation/opentelemetry-instrumentation-api/2.5.0/opentelemetry-instrumentation-api-2.5.0.jar",
+      "sha256": "a61582214f88184facef5a16d9a1300b45f8aaf2ce3a90783651e91380181dd5",
+      "bytes": 221140
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/instrumentation/opentelemetry-instrumentation-api/2.5.0/opentelemetry-instrumentation-api-2.5.0.pom",
+        "sha256": "ef864d64dc27a60f1023869ed9927d690645dd8ed64026f2ad8281ad85190451",
+        "bytes": 3023
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "e916ac51a8305f27",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry.instrumentation",
+      "opentelemetry-instrumentation-api-incubator",
+      "2.5.0-alpha"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/instrumentation/opentelemetry-instrumentation-api-incubator/2.5.0-alpha/opentelemetry-instrumentation-api-incubator-2.5.0-alpha.jar",
+      "sha256": "eb3d98eea4e6b091dc8da99ee38189290ce19edfede0e82e82cdbd7809e4f3d0",
+      "bytes": 109787
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/instrumentation/opentelemetry-instrumentation-api-incubator/2.5.0-alpha/opentelemetry-instrumentation-api-incubator-2.5.0-alpha.pom",
+        "sha256": "6ab25f344c953f4d72f4a9c8b1000509833b7b75eda434f8f23f6cad0e7c70ca",
+        "bytes": 3070
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "0a1d8d05064c047d",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry.instrumentation",
+      "opentelemetry-jdbc",
+      "2.5.0-alpha"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/instrumentation/opentelemetry-jdbc/2.5.0-alpha/opentelemetry-jdbc-2.5.0-alpha.jar",
+      "sha256": "900edfd6ae02874d21f2db3f9ce55846f3e94db86cf95e03fe41fbdc37988bfd",
+      "bytes": 81138
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/instrumentation/opentelemetry-jdbc/2.5.0-alpha/opentelemetry-jdbc-2.5.0-alpha.pom",
+        "sha256": "efb547fff9d98a069096d803060fa21e40e0e14038123e43c95a3e4dd8657efc",
+        "bytes": 3058
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "e9e00ac61458efb3",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry",
+      "opentelemetry-sdk",
+      "1.39.0"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-sdk/1.39.0/opentelemetry-sdk-1.39.0.jar",
+      "sha256": "90d24b5066eda3a15e8739f1f48d0758e5b5c55b70f1e6e326b9471a1dfacc23",
+      "bytes": 6770
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-sdk/1.39.0/opentelemetry-sdk-1.39.0.pom",
+        "sha256": "f50fcae661f02ef2e6f5973de6e44dc75d9f31feba925ff835634a43aceb27a7",
+        "bytes": 2549
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "48942ccf3c2b6df4",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry",
+      "opentelemetry-sdk-common",
+      "1.39.0"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-sdk-common/1.39.0/opentelemetry-sdk-common-1.39.0.jar",
+      "sha256": "f7adb493a05c0e348c4a56736da1ded238df85ef59dfd502e06d186b6b547f88",
+      "bytes": 54033
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-sdk-common/1.39.0/opentelemetry-sdk-common-1.39.0.pom",
+        "sha256": "c33ba5179299dec304bb82d0873bbe3694fa7ed7e615cab875bc62e98ae1bad4",
+        "bytes": 1789
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "c0df8a4a0571bfda",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry",
+      "opentelemetry-sdk-extension-autoconfigure",
+      "1.39.0"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-sdk-extension-autoconfigure/1.39.0/opentelemetry-sdk-extension-autoconfigure-1.39.0.jar",
+      "sha256": "292bef09c2e35154e6d580b46dd612f267166ee4069aa7116449b75e13739e88",
+      "bytes": 46156
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-sdk-extension-autoconfigure/1.39.0/opentelemetry-sdk-extension-autoconfigure-1.39.0.pom",
+        "sha256": "8335bed6f6180e6d16ad299cd82242291150182d18ccbe264197c1336afc3826",
+        "bytes": 2236
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "4ef0aa4e6d9db469",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry",
+      "opentelemetry-sdk-extension-autoconfigure-spi",
+      "1.39.0"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/1.39.0/opentelemetry-sdk-extension-autoconfigure-spi-1.39.0.jar",
+      "sha256": "771973839aa69e5ec03abd80e08fb046a71ba917b2b912ac9e8cd508e3dc0ea5",
+      "bytes": 19269
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-sdk-extension-autoconfigure-spi/1.39.0/opentelemetry-sdk-extension-autoconfigure-spi-1.39.0.pom",
+        "sha256": "19d87c70277e23d9e076bb87980f2f3ae3f7f8b204f612ad90e666db2fbf875a",
+        "bytes": 1826
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "b59fa098e8458cbf",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry",
+      "opentelemetry-sdk-logs",
+      "1.39.0"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-sdk-logs/1.39.0/opentelemetry-sdk-logs-1.39.0.jar",
+      "sha256": "a8f2e26ed29940e607894e8d370ff3c495a1c664efb5c42ecfeb993699cd4b45",
+      "bytes": 54264
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-sdk-logs/1.39.0/opentelemetry-sdk-logs-1.39.0.pom",
+        "sha256": "4a5644117ee0534dd17361c9e49b631ca4c8f781a1a60cb170cc92f96e715f64",
+        "bytes": 2181
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "87f81ac5983404f1",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry",
+      "opentelemetry-sdk-metrics",
+      "1.39.0"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-sdk-metrics/1.39.0/opentelemetry-sdk-metrics-1.39.0.jar",
+      "sha256": "b682910c1b3d19d79559e8f2de0ed32a997122df5f687c72893ae4a8d58f8418",
+      "bytes": 307189
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-sdk-metrics/1.39.0/opentelemetry-sdk-metrics-1.39.0.pom",
+        "sha256": "2e9b75c4354636ece5baf4cd6295c67180586123d71782a0111fab12bb8a412e",
+        "bytes": 2188
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "982b30ba9084535a",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry",
+      "opentelemetry-sdk-trace",
+      "1.39.0"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-sdk-trace/1.39.0/opentelemetry-sdk-trace-1.39.0.jar",
+      "sha256": "2f152b730decb46a001f48b65420ae32f565e7b5c43afe88be3377455e0d41b8",
+      "bytes": 127846
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/opentelemetry-sdk-trace/1.39.0/opentelemetry-sdk-trace-1.39.0.pom",
+        "sha256": "b9d05e1b184a326c106a404c3e17391039999ffb77f0dd9c31d927c55d6a02f7",
+        "bytes": 2190
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "7f5a6614e308320d",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.opentelemetry.semconv",
+      "opentelemetry-semconv-incubating",
+      "1.26.0-alpha"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/semconv/opentelemetry-semconv-incubating/1.26.0-alpha/opentelemetry-semconv-incubating-1.26.0-alpha.jar",
+      "sha256": "11357da4671ec0b4110fe01e617ff56643efbd12fa1744bfa43aad8371eae0d9",
+      "bytes": 97353
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/opentelemetry/semconv/opentelemetry-semconv-incubating/1.26.0-alpha/opentelemetry-semconv-incubating-1.26.0-alpha.pom",
+        "sha256": "52d5c9b02f4104c1e6af027f5356451a924d7b25dc294194c196e0dfddae22bc",
+        "bytes": 1926
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "ebd9ea05c97ed3b2",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "info.picocli",
+      "picocli",
+      "4.7.6"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/info/picocli/picocli/4.7.6/picocli-4.7.6.jar",
+      "sha256": "ed441183f309b93f104ca9e071e314a4062a893184e18a3c7ad72ec9cba12ba0",
+      "bytes": 415723
+    },
+    "declarations": [
+      {
+        "name": "The Apache Software License, version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "repo",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/info/picocli/picocli/4.7.6/picocli-4.7.6.pom",
+        "sha256": "2d2248cccf487ad9ce208dec751745df15cd1e1924a4cc3d36841b5f1990c6fb",
+        "bytes": 1376
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "dabf0c635baf2f49",
+    "status": "unresolved",
+    "error": "No coordinate candidate; not a repository-named library JAR"
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "d41602bb76a9ffc9",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "io.setl",
+      "rdf-urdna",
+      "1.1"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/io/setl/rdf-urdna/1.1/rdf-urdna-1.1.jar",
+      "sha256": "c57a2ae551bd301f84faf1010251d96510a40e2b00d883e86cdd2d0dfa6f01ae",
+      "bytes": 20247
+    },
+    "declarations": [
+      {
+        "name": "The Apache License, Version 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.txt",
+        "distribution": "",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/io/setl/rdf-urdna/1.1/rdf-urdna-1.1.pom",
+        "sha256": "03d36dbbb3feeb51c9862a0383a1bf24c9ef23fdcc33e21a3e2de203113f385d",
+        "bytes": 1732
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "754e023e712e25db",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "com.webauthn4j",
+      "webauthn4j-core",
+      "0.21.5.RELEASE"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/com/webauthn4j/webauthn4j-core/0.21.5.RELEASE/webauthn4j-core-0.21.5.RELEASE.jar",
+      "sha256": "e3b954c4426499752dc354e2c0af582b0bb85dc1f6a6104605c681ccf724fcae",
+      "bytes": 493369
+    },
+    "declarations": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/license/LICENSE-2.0.txt",
+        "distribution": "repo",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/com/webauthn4j/webauthn4j-core/0.21.5.RELEASE/webauthn4j-core-0.21.5.RELEASE.pom",
+        "sha256": "fcd2a5319256c11115e567efbb0f87fe9feda1dfaea4ee7944eccbfc6140a182",
+        "bytes": 2523
+      }
+    ],
+    "inheritedFromParent": false
+  },
+  {
+    "image": "keycloak",
+    "artifactId": "314e3af3f17c8fca",
+    "status": "byte-matched-upstream-declaration",
+    "coordinate": [
+      "com.webauthn4j",
+      "webauthn4j-util",
+      "0.21.5.RELEASE"
+    ],
+    "upstreamJar": {
+      "url": "https://repo.maven.apache.org/maven2/com/webauthn4j/webauthn4j-util/0.21.5.RELEASE/webauthn4j-util-0.21.5.RELEASE.jar",
+      "sha256": "1f4f1eec6da1836509afc0f3e826f445a0edf685aab931b98a3f19d4ad029002",
+      "bytes": 23555
+    },
+    "declarations": [
+      {
+        "name": "The Apache Software License, Version 2.0",
+        "url": "http://www.apache.org/license/LICENSE-2.0.txt",
+        "distribution": "repo",
+        "comments": ""
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://repo.maven.apache.org/maven2/com/webauthn4j/webauthn4j-util/0.21.5.RELEASE/webauthn4j-util-0.21.5.RELEASE.pom",
+        "sha256": "236084416da7e58b31856debcbb9b3be37ed6a79f59ddd25119a9fa1bbe8ec72",
+        "bytes": 2190
+      }
+    ],
+    "inheritedFromParent": false
+  }
+]

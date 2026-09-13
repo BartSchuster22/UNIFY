@@ -13,13 +13,17 @@ import collect_uv_workspace as uv
 BASE = Path(__file__).resolve().parent
 
 
-def render(go_text=False):
+def render(go_text=False, original_review=False):
     go.verify(BASE/'go-notice-review')
     uv.verify(BASE/'uv-workspace-review')
     if go_text:
         import match_go_licence_texts as matcher
         matcher.verify(BASE/'go-text-review')
-    queue_bytes = (BASE/('go-text-review/review-queue.json' if go_text else 'uv-workspace-review/review-queue.json')).read_bytes()
+    if original_review:
+        import match_original_bsd
+        match_original_bsd.run(verify=True)
+    queue_path = 'original-bsd-review/review-queue.json' if original_review else ('go-text-review/review-queue.json' if go_text else 'uv-workspace-review/review-queue.json')
+    queue_bytes = (BASE/queue_path).read_bytes()
     queue = json.loads(queue_bytes)
     out = io.StringIO(newline='')
     writer = csv.writer(out)
@@ -46,6 +50,13 @@ def render(go_text=False):
                            'Three oversized Go archives and three invalid/missing coordinates remain uncollected.',
                            'Full legal name/contact and appropriate completed agreement review are outstanding.',
                            'Final approved immutable assembly has not been produced; this is a review handoff.']}
+    if original_review:
+        engineering = json.loads((BASE/'original-bsd-review/summary.json').read_text())
+        status['engineeringComplete'] = engineering['engineeringComplete']
+        status['blockers'] = engineering['engineeringBlockers']
+        status['legalIdentityAndReview'] = 'outside-this-engineering-scope'
+        status['originalArtifactInspectionSha256'] = hashlib.sha256((BASE/'original-review/inspection.json').read_bytes()).hexdigest()
+        status['byteMatchedMavenOccurrences'] = engineering['addedByteMatchedMetadataOccurrences']
     return {'pending-dispositions.csv': out.getvalue().encode(), 'GO-NOTICE-CANDIDATES.txt': ''.join(text).encode(), 'status.json': (json.dumps(status, indent=2)+'\n').encode()}
 
 
@@ -53,9 +64,11 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('output', type=Path)
     p.add_argument('--verify', action='store_true')
-    p.add_argument('--go-text', action='store_true', help='Use the later exact-text-matched queue; preserve original handoff by default')
+    choice = p.add_mutually_exclusive_group()
+    choice.add_argument('--go-text', action='store_true', help='Use the later exact-text-matched queue; preserve original handoff by default')
+    choice.add_argument('--original-review', action='store_true', help='Use original byte-matched Maven and BSD evidence; legal identity is out of engineering scope')
     a = p.parse_args()
-    files = render(a.go_text)
+    files = render(a.go_text, a.original_review)
     manifest = {name: {'sha256': hashlib.sha256(data).hexdigest(), 'bytes': len(data)} for name, data in files.items()}
     files['manifest.json'] = (json.dumps(manifest, indent=2)+'\n').encode()
     if a.verify:

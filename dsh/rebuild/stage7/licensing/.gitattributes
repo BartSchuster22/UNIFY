@@ -8,3 +8,7 @@ review-handoff/pending-dispositions.csv -text -diff
 go-text-review/objects/* -text -diff
 review-handoff-v2/GO-NOTICE-CANDIDATES.txt -text -diff
 review-handoff-v2/pending-dispositions.csv -text -diff
+original-review/objects/* -text -diff
+original-bsd-review/objects/* -text -diff
+review-handoff-v3/GO-NOTICE-CANDIDATES.txt -text -diff
+review-handoff-v3/pending-dispositions.csv -text -diff

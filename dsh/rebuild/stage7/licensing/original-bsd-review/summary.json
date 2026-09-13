@@ -1,0 +1,25 @@
+{
+  "schema": "stage74-original-bsd-review/v1",
+  "addedByteMatchedMetadataOccurrences": 33,
+  "remainingMissingMetadata": 91,
+  "remainingByType": {
+    "apk": 1,
+    "binary": 34,
+    "deb": 6,
+    "go-module": 28,
+    "java-archive": 2,
+    "npm": 18,
+    "python": 2
+  },
+  "originalArchivesAndLayersReinspected": true,
+  "qaUnchangedAndStopped": true,
+  "engineeringComplete": false,
+  "engineeringBlockers": [
+    "Remaining metadata gaps enumerated in gaps.json",
+    "Package-specific notices, corresponding source, build and relink dispositions not complete across the shipped inventory"
+  ],
+  "legalIdentityAndReview": "outside-this-engineering-scope",
+  "stage74Accepted": false,
+  "productionDistributionCleared": false,
+  "addedBsdTextMetadataOccurrences": 17
+}

@@ -4,7 +4,32 @@
 
 Stage numbering follows PROJECT-ALICA's versioned rebuild master plan: 7.4 is commercial licence/source/enforcement and third-party compliance with appropriate legal review; the earlier conversational list numbered these differently.
 
-## Engineering-only continuation — 2026-09-12, 22:41:15 UTC
+## Current engineering continuation — original QA4 reinspection
+
+**Current missing metadata: 91. Engineering remains incomplete.** The earlier SSH blocker below is historical and resolved: the existing `/home/herman/.alica-provider-access/dsh2-stage7-known-hosts` record verifies DSH2 under strict checking. Do not use the outdated `.ssh/dsh2_known_hosts` file for Stage7.
+
+- `original-review/inspection.json`: read-only, repeated inspection of the exact original candidate archive and every unpacked bundle member; release identity, eight image identities and all **125 layer digests** checked. **98 requested original file records** retained, including bounded nested JAR metadata. Non-regular locations remain unresolved, not silently dereferenced through the host. All eight QA containers remained stopped with identical IDs/images/start/finish/restart/mount state. No remote files were created, no workload started, no recovery material changed.
+- `bind_original_maven.py`: **33** Java occurrences have byte-identical upstream JARs and replayable exact-coordinate POM/parent declarations. The original scanner PURL is preserved; corrected coordinates appear separately as `verifiedMavenPurl`. Filename-derived coordinates are only lookup candidates until the entire upstream JAR's SHA-256 and size match every original occurrence. Embedded shaded dependency POMs are not substituted for the enclosing JAR identity. Binary JARs are streamed for comparison, not added to this repository; POM sources and matching receipts are retained. `--verify-live` repeats the upstream binary comparisons; offline verification replays retained declarations and receipts.
+- `match_original_bsd.py`: **17** additional Go metadata occurrences have full-body BSD text observations from already hash-verified exact-coordinate upstream archives. Only whitespace/list markers, conventional copyright headers, HOLDER/OWNER disclaimer wording, and the explicit Google LLC/Google Inc. non-endorsement name variants are tolerated. Additional or changed clauses fail. This does not prove binary/source equivalence or infer a module-wide AND/OR expression.
+- `original-bsd-review/` is the latest queue, summary and per-occurrence gap list. Remaining: **34 binary, 28 Go, 18 npm, 6 Debian, 2 Java, 2 Python, 1 APK**. Original npm manifests inspected here lack licence declarations; `private`, test/example location, or a colliding public package name does not supply permission. Java `jrt-fs` and `quarkus-run` are not normal repository-named Maven libraries and were not force-mapped.
+- `review-handoff-v3/` uses this latest queue; historical handoffs remain replayable. Engineering blockers are separated from legal identity/review, which remains outside this engineering task.
+
+**85 tests pass with Python 3.11** (the system Python 3.10 cannot import the existing TOML collector). Full original replay, live Maven byte checks, derived evidence and old/new handoff replays pass. Actual verification output is retained in `verification-original-review.txt`.
+
+Reproduce from this directory:
+
+```sh
+python3.11 -m unittest discover -s . -p 'test_*.py' -v
+python3.11 bind_original_maven.py --verify-live
+python3.11 match_original_bsd.py --verify
+python3.11 build_review_handoff.py review-handoff-v3 --original-review --verify
+# New local output only; remote inspection never writes or executes image contents.
+python3.11 run_original_inspection.py /tmp/stage74-original-reinspection.json --compare original-review/inspection.json
+```
+
+**Not completed:** the 91 enumerated metadata gaps; package-specific complete notices/corresponding-source/build/relink evidence and delivery dispositions across the shipped inventory. Metadata observations do not complete these duties. `engineeringComplete`, `stage74Accepted` and production-distribution clearance remain false. This task did not rebuild/repackage the qualified candidate or alter its licence policy.
+
+## Historical engineering-only continuation — 2026-09-12, 22:41:15 UTC
 
 Legal identity/reviewer selection is explicitly outside this requested engineering scope. `shipped-python-review/` binds two `agent-client-protocol` occurrences to an exact Apache licence text in their shipped `.dist-info` directory and authenticated layer, including the exported image-local hardlink resolution. Missing metadata: **141**. The matcher checks distribution name/version, image/layer membership, path boundaries and text hashes. **63 tests pass**, full exported-evidence/shipped-text replay passes, and an asserted `engineeringComplete=true` is rejected. Actual output: `verification-shipped-python.txt`.
 
