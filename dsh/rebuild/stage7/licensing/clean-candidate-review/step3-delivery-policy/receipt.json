@@ -1,0 +1,22 @@
+{
+  "inputs": {
+    "assessment/STATUS.md": "8a1bd2cb929caabac0f55970d353f9f15baabb2e5363ea429272558e84161922",
+    "assessment/blockers.json": "4c21a720154cedc49eddb73e9da09a09d9ce6bcd6743423096a8836fbd3862d6",
+    "assessment/group-obligations.csv": "3d64c1ef3d35194ab09f70bc14c576dcf6871ab4de1c5ccd3464fdd5bf0e0610",
+    "assessment/groups.json": "324f32fa917ae34e847d7e8b156d88e6187991835bb175e5b9d8443bd9f0dafd",
+    "assessment/inputs.json": "8bfb7a709e8706dee4f3306f5e120ee28eabf4a9f8253e3d547848987104a2ad",
+    "assessment/native-linking-evidence.json": "3803e01f3ab090778f1e98901d3f0a804aa48bf39d1574bde22aa2ba94b92816",
+    "assessment/occurrence-to-group.json": "e4f3af33d155977c72e067fa09eb563e4493263e2d30b249bf95e87e0a336be1",
+    "assessment/summary.json": "3815a2f4eb5e6a83021bc25c0764f1f8a4e732a047161bb6f89872df26caeb8a",
+    "build_step3_delivery_policy.py": "a8b9dcfdaeac40a77532003558d30dbf1d1268df314fdca4f196db8e21719fa1",
+    "test_step3_delivery_policy.py": "1e1d36c3f9760e29e7b42b0c253c43b76e7b8de01f176e6b00e4f1b712f2fd26"
+  },
+  "outputs": {
+    "STATUS.md": "413844e4e7a1b1d1d0f8c5f8105ddac01777f67c8244f320721dfc190ec21ad5",
+    "delivery-decisions.json": "62dcd253c0129a85ba877887bbe419040f284f9f66c8342cf06a621bfd87d8cc",
+    "delivery-ledger.csv": "8a1b3effbb44dcc025edcf85be549de7367df276428413e752e5cbfeb8c2e1eb",
+    "policy.json": "f5e29d0a0455309e73efcdaf38b2b5d68b1f605c12d2551bfa11b73cede04144",
+    "summary.json": "8619b3b301b7178d532a16ade6e9bd224191f17c4e30fcc7b0e0ef6bafd506b6",
+    "targeted-holds.json": "fc2845f36ac197be40b59493b668887ee38ea56dce85baf173b1b624166e91ca"
+  }
+}

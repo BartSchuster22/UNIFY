@@ -1,0 +1,30 @@
+{
+  "candidateLockSha256": "3262d4a212d2edbd336c25bdb189ed03c31c8af207b9e301ebd6ca4a675ad58d",
+  "conservativeOccurrences": 631,
+  "distributionAuthorized": false,
+  "fulfilmentComplete": false,
+  "groups": 3173,
+  "groupsWithHoldsOrAcceptancePrerequisites": 776,
+  "holdCategories": {
+    "combination-compatibility": 205,
+    "content-restrictions": 13,
+    "distribution-permission": 1,
+    "first-party-authority": 3,
+    "grant-and-file-scope": 951,
+    "ownership": 2
+  },
+  "legalApproval": false,
+  "occurrences": 3352,
+  "originalOpenGroups": 590,
+  "originalOpenOccurrences": 660,
+  "policyAssignmentComplete": true,
+  "routes": {
+    "conservative-third-party-bundle": 538,
+    "existing-assessment": 2440,
+    "existing-assessment-with-targeted-holds": 191,
+    "first-party-protected": 3,
+    "proven-descriptor": 1
+  },
+  "schema": "dsh-conservative-delivery-plan/v1",
+  "scopeDecisionCompletion": false
+}

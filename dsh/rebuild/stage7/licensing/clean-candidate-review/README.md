@@ -1,5 +1,14 @@
 # Clean candidate 1 — frozen; initial 34 metadata findings resolved
 
+## Approved conservative delivery policy — implemented, not fulfilled
+
+The [approved conservative delivery ledger](step3-delivery-policy/README.md)
+assigns every frozen occurrence a delivery route, separating extra policy
+material from unchanged legal-assessment requirements. It preserves permission,
+compatibility, ownership, content and first-party authority holds. No source
+publication, image change or distribution clearance is authorized by the policy.
+The underlying Step 3 scope assessment remains open.
+
 ## Step 3 continuation — still open
 
 The [Step 3 evidence and obligation review](step3/README.md) now accounts for every

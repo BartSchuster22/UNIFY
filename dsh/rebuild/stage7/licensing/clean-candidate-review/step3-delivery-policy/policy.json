@@ -1,0 +1,14 @@
+{
+  "authorization": "User approved the recommendation: conservative delivery for ordinary mixed OS/runtime bundles, targeted exact review where extra material cannot resolve an issue.",
+  "exceptions": "No licence exception, alternative grant, distribution permission or combination compatibility is established by over-delivery.",
+  "frozenCandidateChangesAuthorized": false,
+  "id": "DSH-conservative-third-party-delivery-v1",
+  "ordinaryBundleKinds": [
+    "os-package-bundle",
+    "standalone-runtime"
+  ],
+  "publicationAuthority": false,
+  "relinkFallback": "Where library replacement cannot be demonstrated, determine and supply the applicable relink/application materials under appropriate rights. Escalate any proprietary-code implication; never publish it automatically.",
+  "rights": "Keep original per-file grants, notices and recipient rights. Check permission for the source material itself before delivering it.",
+  "sourceBoundary": "Exact third-party component source, downstream patches and applicable build/install/control material only. Not a source dump of the container or proprietary DSH application."
+}
