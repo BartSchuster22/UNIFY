@@ -1,5 +1,13 @@
 # Clean candidate 1 — frozen; initial 34 metadata findings resolved
 
+## Step 3 continuation — still open
+
+The [Step 3 evidence and obligation review](step3/README.md) now accounts for every
+frozen occurrence and records bounded decisions plus explicit remaining reviews.
+Its [generated status](step3/STATUS.md) is authoritative for Step 3. Grouping and
+passing tests do not mean applicability review or engineering compliance is done.
+Steps 1–2 below remain complete; their frozen metadata evidence is unchanged.
+
 ## Authoritative current status
 
 **Only closure steps 1 and 2 are complete. Stage 7.4 engineering, legal acceptance,

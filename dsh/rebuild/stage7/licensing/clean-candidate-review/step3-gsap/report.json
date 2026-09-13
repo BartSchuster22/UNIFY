@@ -1,0 +1,40 @@
+{
+  "coordinate": "pkg:npm/gsap@3.15.0",
+  "legalApproval": false,
+  "errors": [],
+  "registry": {
+    "url": "https://registry.npmjs.org/gsap/3.15.0",
+    "finalUrl": "https://registry.npmjs.org/gsap/3.15.0",
+    "sha256": "787e4fdba7edc45b2a67af281508c4e518ad985ee0d972b9238847fa807768a9",
+    "bytes": 2137
+  },
+  "archive": {
+    "url": "https://registry.npmjs.org/gsap/-/gsap-3.15.0.tgz",
+    "finalUrl": "https://registry.npmjs.org/gsap/-/gsap-3.15.0.tgz",
+    "sha256": "d2e33ad202d4811e9084883f7ff9a27967ac4095caef51ca4c9d20697a253b1c",
+    "bytes": 1697897
+  },
+  "documents": [
+    {
+      "path": "package/package.json",
+      "sha256": "85cc13e31f7a3cd124b587a40f545f265f47d0dfb9a556bb122d70fc0fca3459"
+    },
+    {
+      "path": "package/README.md",
+      "sha256": "66a79667b0538b19634b5a000a9a3debe588c98d390424e73e5d4de847270828"
+    }
+  ],
+  "referencedPage": {
+    "url": "https://gsap.com/standard-license/",
+    "finalUrl": "https://gsap.com/community/standard-license/",
+    "sha256": "143f9669dd83bb08df53083c15839fbd3e5ad6e2f6c3f60768e5d18cc1c48d3f",
+    "bytes": 76456
+  },
+  "pageScope": "Current publisher page; mutable URL is not proof of historical contract terms.",
+  "incorporatedTerms": {
+    "url": "https://webflow.com/legal/terms",
+    "finalUrl": "https://webflow.com/legal/terms",
+    "sha256": "8e3775fb1589de94d16562ceb46279341d594703f8b4e95138fa6857aee1ad94",
+    "bytes": 361015
+  }
+}

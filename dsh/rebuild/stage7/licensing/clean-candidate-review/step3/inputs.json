@@ -1,0 +1,41 @@
+{
+  "inputs": {
+    "build_step3_obligations.py": "7c9ee6391766af2d585b6acd57402b51d1d868bc757a398871626911f4ef5106",
+    "clean-candidate-review/caddy/transformation.json": "697b3f86fecdf4508604b1d077c86351acdb71210f0770f836108dc10c560ad0",
+    "clean-candidate-review/candidate-package-evidence.json": "309305783ddad490694f2a59c5f664d7107c014f39840d587a53fdbb3969db40",
+    "clean-candidate-review/hermes/transformation.json": "42ff99d1b0b126fe714a5e9dc9e03f49f1f224f87f42df3013f128b1acce76f4",
+    "clean-candidate-review/keycloak/transformation.json": "e8718bdaf4a5468e11f73ae93848765c1958f994621abb5b857cfb2213856e4b",
+    "clean-candidate-review/memory-v4/transformation.json": "f0a2622ad9312f82d42f5ae920aba2f9c1722320c62fa7a7f013afb4b5bf4e2c",
+    "clean-candidate-review/postgresql/transformation.json": "cb0275bfd8e50943ac666383f5477b397b17b6432cb9b50a8ee402e5fef3ffce",
+    "clean-candidate-review/reference-application/transformation.json": "bf21c2fc9bf1a75ca0f03713e31f5506f32e3e2112b4563677fc5eb97241b6ca",
+    "clean-candidate-review/scans/receipt.json": "8e90cff6abf5279192851f32319d29529c67ce4a38defeae405627d57a1103d4",
+    "clean-candidate-review/step3-context.json": "339491138ade64caecd4b812e26760d203ccaa31772f51df55e1c3a6ebd29f41",
+    "clean-candidate-review/step3-gsap/objects/143f9669dd83bb08df53083c15839fbd3e5ad6e2f6c3f60768e5d18cc1c48d3f": "143f9669dd83bb08df53083c15839fbd3e5ad6e2f6c3f60768e5d18cc1c48d3f",
+    "clean-candidate-review/step3-gsap/objects/787e4fdba7edc45b2a67af281508c4e518ad985ee0d972b9238847fa807768a9": "787e4fdba7edc45b2a67af281508c4e518ad985ee0d972b9238847fa807768a9",
+    "clean-candidate-review/step3-gsap/objects/8e3775fb1589de94d16562ceb46279341d594703f8b4e95138fa6857aee1ad94": "8e3775fb1589de94d16562ceb46279341d594703f8b4e95138fa6857aee1ad94",
+    "clean-candidate-review/step3-gsap/objects/d2e33ad202d4811e9084883f7ff9a27967ac4095caef51ca4c9d20697a253b1c": "d2e33ad202d4811e9084883f7ff9a27967ac4095caef51ca4c9d20697a253b1c",
+    "clean-candidate-review/step3-gsap/report.json": "56469afd24be01b054adbf85abb19e884933d6346e25a4326e3bf7935acacb4c",
+    "clean-candidate-review/step3-text-review/report.json": "b2c943d6a0879d3ad3ecea560eba15335219703f289ad851a4e703be942c4762",
+    "clean-candidate-review/steps12/candidate-lock.json": "3262d4a212d2edbd336c25bdb189ed03c31c8af207b9e301ebd6ca4a675ad58d",
+    "clean-candidate-review/steps12/individual-records.json": "82bdf15f3c2dd6c8218841c820a6c4cdc4854092dce238245837c6395727e5a4",
+    "clean-candidate-review/steps12/metadata-evidence.tar": "70429242d23898efdd48afff316e67e4e079042fb3c62dea0ef3d72d230dcdb6",
+    "clean-candidate-review/unify-core/transformation.json": "e856482c13dab5bd551de420def013a4f63e245f48ac992fcfade6d9800d3dff",
+    "clean-candidate-review/uniui/transformation.json": "9bf80895ad80bad5f6ed5701c1d2a0d1867f01884aecaaaf5a630d32cd3c9be4",
+    "collect_step3_context.py": "f426f862b454237b9a489ad5ed81b46069abb6973bdee4f604580d04d7cde010",
+    "collect_step3_gsap.py": "b1c3676a90fb6fc087a8571ebd4d09d94a6fc8389de8f6de8a2812689369eebf",
+    "go-origin-review/review-queue.json": "d7632c898aa947b1fe2ba15ab41e91bbff6e9de0a35e7ee002ecf4c17561f85f",
+    "scan_step3_licence_texts.py": "7af73d67bfec8866d4b8daf70ec85e629d9eb555a51d7ffad9ab48bfe2e121d9",
+    "source-disposition-review/notice-evidence.tar": "03417b7f65cd10a90e6eb7908ba3788c3a15d9533089e0992dabb19014033746",
+    "source-disposition-review/package-evidence.json": "5c84849aabfa4d13c99cb8ba47809ad733de98dd3a94c29a49fd693ade2db71c",
+    "test_step3_obligations.py": "5bbccee7a623894ae27b8793cd863db8959dc55ca2bf351874d7fff3ec5d5534"
+  },
+  "outputs": {
+    "STATUS.md": "815be765698edd8822b5f4e2e4918890e410afc02e038bf13acfb8e3329fdb00",
+    "blockers.json": "b9d14ab8d07527f27757da4ef34c4a1ecefa18993648cdf1c1f913998533b462",
+    "group-obligations.csv": "54ecdf378e61bea40dd177aad91ba58f16ed3c892904c3386b004232b07df82f",
+    "groups.json": "c0ffb85e9f29f0e03a96e131c2f49dace6a28192b4160aabaa7f5890f002514c",
+    "native-linking-evidence.json": "3803e01f3ab090778f1e98901d3f0a804aa48bf39d1574bde22aa2ba94b92816",
+    "occurrence-to-group.json": "322a834797872f23adbae2cfce0534aee3814ea9a16844fecc153b1ab97a5f7d",
+    "summary.json": "30f3f597b6e0d48ac09adbfae8ddf7251968651fda0e94bb94dd1c6a205de35c"
+  }
+}
