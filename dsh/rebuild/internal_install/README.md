@@ -5,6 +5,17 @@ not a completed internal release. ALICA-v1 develops/builds; DSH2 is the clean us
 installation target; ElioHermes coordinates. No restored QA state or coordinator
 provider credentials belong in the new installation.
 
+## Owner credential handoff
+
+See [ONBOARDING.md](ONBOARDING.md). Successful installation now prints the URL,
+chosen username, and exact local commands for initial-password retrieval and
+explicit owner recovery. `setup.py onboarding` checks live identity state;
+`--reveal-initial-password` requires terminal confirmation and never prints a
+password to ordinary stdout/JSON. `setup.py recover-owner` requires explicit
+confirmation before invoking the authenticated lifecycle recovery operation.
+These commands do not enable public registration or complete provider/workload
+acceptance. They are included in the updated preview kit, not old published kits.
+
 ## Scope and status
 
 `setup.py` downloads and verifies a pinned archive, rejects unsafe extraction,

@@ -26,6 +26,8 @@ def build(output):
     output = Path(output)
     output.mkdir(mode=0o750, parents=False, exist_ok=False)
     files = {'setup.py': (source/'setup.py').read_bytes(),
+             'onboarding.py': (source/'onboarding.py').read_bytes(),
+             'ONBOARDING.md': (source/'ONBOARDING.md').read_bytes(),
              'release_trust.py': (source.parent/'stage6/release_trust.py').read_bytes(),
              'README.md': (source/'README.md').read_bytes()}
     archive = output/'alica-setup-preview.tar.gz'

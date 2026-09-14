@@ -240,7 +240,15 @@ def install(a):
     # The authenticated alicactl remains the only lifecycle writer. No Docker edits here.
     completed = subprocess.run(command, timeout=1800)
     require(completed.returncode == 0, 'Installation failed; preserve diagnostics and follow documented same-bundle recovery')
-    return {'installerExit': completed.returncode, 'root': str(a.root),
+    import shlex
+    command = 'sudo python3 ' + shlex.quote(str(Path(__file__).resolve()))
+    arguments = ' --destination ' + shlex.quote(str(destination)) + ' --root ' + shlex.quote(str(a.root))
+    return {'signInUrl': r['origin'], 'ownerUsername': r['owner'],
+            'onboardingCommand': command + ' onboarding' + arguments,
+            'initialPasswordCommand': command + ' onboarding' + arguments + ' --reveal-initial-password',
+            'ownerRecoveryCommand': command + ' recover-owner' + arguments,
+            'credentialNotice': 'Initial password only; never reuse after changing it. Retrieve interactively on the installation server. Public registration stays disabled.',
+            'installerExit': completed.returncode, 'root': str(a.root),
             'ownerPasswordFile': str(Path(a.root) / 'secrets/owner-password'),
             'onboardingRequired': True, 'userJourneyAccepted': False, 'distributionApproved': False}
 
@@ -261,14 +269,24 @@ def main():
     ins.add_argument('--bind', choices=('127.0.0.1', '0.0.0.0'), default='127.0.0.1')
     ins.add_argument('--tls-mode', choices=('engineering', 'acme', 'proxy'), default='engineering')
     ins.add_argument('--edge-network', help='Operator-provisioned dedicated dsh2-*-edge network for proxy TLS')
+    for action in ('onboarding', 'recover-owner'):
+        owner = sub.add_parser(action)
+        owner.add_argument('--destination', required=True)
+        owner.add_argument('--root', required=True)
+        if action == 'onboarding':
+            owner.add_argument('--reveal-initial-password', action='store_true')
     a = p.parse_args()
     require(os.geteuid() == 0, 'Root operator required')
     if a.action == 'prepare':
         result = prepare(a)
     elif a.action == 'verify':
         result = read_state(a.destination)[2]
+    elif a.action in ('onboarding', 'recover-owner'):
+        import onboarding
+        result = onboarding.run(a)
     else:
         result = install(a)
+        print('Installation finished; owner onboarding is still required.\nSign in: ' + result['signInUrl'] + '\nUsername: ' + result['ownerUsername'] + '\nRetrieve the initial password locally:\n' + result['initialPasswordCommand'] + '\nAfter first sign-in, change the password and complete your profile.\nLost your chosen password? Explicit reset (revokes identity sessions):\n' + result['ownerRecoveryCommand'], file=__import__('sys').stderr)
     print(json.dumps(result, indent=2, sort_keys=True))
 
 
