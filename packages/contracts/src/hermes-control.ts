@@ -370,7 +370,7 @@ export const HermesBoardsResponseSchema = controlCollectionResponse(
 );
 
 export const HermesAgentConfigurationSchema = Type.Object({
-  id: Type.String(), description: Type.String(), instructions: Type.String(), memory: Type.String(), userMemory: Type.String(), revision: Type.String(),
+  id: Type.String(), description: Type.String(), instructions: Type.String(), memory: Type.String(), userMemory: Type.String(), revision: Type.String(), runtime: Type.Optional(Type.Unknown()),
   limits: Type.Object({ instructions: Type.Number(), memory: Type.Number(), userMemory: Type.Number() }),
 }, { additionalProperties: false });
 export const HermesAgentConfigurationResponseSchema = controlCollectionResponse('HermesAgentConfigurationResponse', HermesAgentConfigurationSchema);

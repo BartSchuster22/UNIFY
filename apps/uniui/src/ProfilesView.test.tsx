@@ -443,6 +443,40 @@ describe('Profiles Hermes cutover', () => {
     }
   });
 
+  it('loads native runtime choices, invalidates review and sends only explicit profile runtime changes', async () => {
+    const bodies: any[] = [];
+    const runtime = { available: true, settings: { primary: { provider: 'test-provider', model: 'model-a' }, fallbacks: [], tools: {}, skills: {} }, models: [{ provider: 'test-provider', model: 'model-a', authenticated: true }, { provider: 'test-provider', model: 'model-b', authenticated: true }], tools: [], skills: [] };
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.endsWith('/mutations')) {
+        const body = JSON.parse(String(init?.body)); bodies.push(body);
+        return Response.json({ replayed: false, operation: { operationId: `runtime-${bodies.length}`, state: 'verified' }, result: {} });
+      }
+      if (url.includes('/configuration')) return Response.json(response([{ id: 'default', description: 'Original description', instructions: 'Original instructions', memory: 'Original memory', userMemory: 'Original user', revision: 'sha256:document-v1', limits: { instructions: 65536, memory: 2200, userMemory: 1375 }, runtime }]));
+      if (url.includes('/frameworks/hermes-main/providers') || url.includes('/frameworks/hermes-main/models')) return Response.json(response([]));
+      if (url.includes('/frameworks/hermes-main/profiles')) return Response.json(response([herman]));
+      if (url.includes('/frameworks/hermes-main/capabilities')) return Response.json({ meta, data: { capabilities: { 'profiles.read': { status: 'supported' }, 'profiles.configuration': { status: 'supported' }, 'profiles.execute': { status: 'supported' }, 'profiles.create': { status: 'supported' }, 'profiles.update': { status: 'supported' } } } });
+      if (url.includes('/frameworks')) return Response.json(response([framework]));
+      throw new Error(`Unexpected request ${url}`);
+    }));
+    renderProfiles(); fireEvent.click(await screen.findByRole('button', { name: 'Edit Herman' }));
+    await waitFor(() => expect((screen.getByRole('combobox', { name: 'Primary model' }) as HTMLInputElement).value).toContain('model-a'));
+    fireEvent.click(screen.getByRole('checkbox', { name: /I confirm this updates/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Validate and dry-run' }));
+    await waitFor(() => expect((screen.getByRole('button', { name: 'Save Agent' }) as HTMLButtonElement).disabled).toBe(false));
+    expect(bodies[0].payload.runtimeSettings).toBeUndefined();
+    fireEvent.click(screen.getByRole('combobox', { name: 'Primary model' }));
+    fireEvent.click(await screen.findByRole('option', { name: 'model-b · test-provider' }));
+    expect((screen.getByRole('button', { name: 'Save Agent' }) as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Validate and dry-run' }));
+    await waitFor(() => expect(bodies.length).toBe(2));
+    expect(bodies[1].payload.runtimeSettings.primary).toEqual({ provider: 'test-provider', model: 'model-b' });
+    expect(bodies[1].target.nativeId).toBe('default');
+    fireEvent.click(screen.getByRole('button', { name: 'Add fallback' }));
+    expect((screen.getByRole('button', { name: 'Validate and dry-run' }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole('button', { name: 'Save Agent' }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
   it('keeps profile writes unavailable for read-only roles and the built-in default', async () => {
     vi.stubGlobal(
       'fetch',

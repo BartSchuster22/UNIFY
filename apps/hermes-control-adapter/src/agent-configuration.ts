@@ -1,3 +1,4 @@
+import { runtimeBridge } from './agent-runtime.js';
 import { spawn } from 'node:child_process';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
@@ -13,7 +14,7 @@ home=base if ident=='default' else base/'profiles'/ident
 if not home.is_dir(): raise ValueError('Agent home is unavailable')
 for p in [base,base/'profiles',home,home/'memories']:
  if p.is_symlink(): raise ValueError('Linked Agent directories are not editable')
-paths={'instructions':home/'SOUL.md','memory':home/'memories/MEMORY.md','userMemory':home/'memories/USER.md','metadata':home/'profile.yaml'}
+paths={'instructions':home/'SOUL.md','memory':home/'memories/MEMORY.md','userMemory':home/'memories/USER.md','metadata':home/'profile.yaml','config':home/'config.yaml'}
 for p in [*paths.values(),home/'config.yaml']:
  if p.is_symlink(): raise ValueError('Linked Agent files are not editable')
 def raw(p):
@@ -25,8 +26,15 @@ if not isinstance(config,dict): raise ValueError('Agent configuration is invalid
 mc=config.get('memory') or {}
 limits={'instructions':65536,'memory':int(mc.get('memory_char_limit',2200)),'userMemory':int(mc.get('user_char_limit',1375))}
 if any(v<1 or v>65536 for v in limits.values()): raise ValueError('Agent memory limits are unsupported')
+${runtimeBridge}
 def snapshot():
+ global config,limits
  values={k:raw(p) for k,p in paths.items()}
+ config=yaml.safe_load(values['config'] or '{}') or {}
+ if not isinstance(config,dict):raise ValueError('Agent configuration is invalid')
+ mc=config.get('memory') or {}
+ limits={'instructions':65536,'memory':int(mc.get('memory_char_limit',2200)),'userMemory':int(mc.get('user_char_limit',1375))}
+ if any(v<1 or v>65536 for v in limits.values()):raise ValueError('Agent memory limits are unsupported')
  revision='sha256:'+hashlib.sha256(json.dumps(values,sort_keys=True,ensure_ascii=False).encode()).hexdigest()
  meta=yaml.safe_load(values['metadata'] or '{}') or {}
  if not isinstance(meta,dict): raise ValueError('Agent identity metadata is invalid')
@@ -52,7 +60,12 @@ with contextlib.ExitStack() as stack:
   p=paths[key]
   if p.parent.exists():stack.enter_context(lock(p.with_suffix(p.suffix+'.lock')))
  before,state=snapshot()
- if mode=='read': print(json.dumps(state));sys.exit(0)
+ if mode=='read':
+  try:
+   import io
+   with contextlib.redirect_stdout(io.StringIO()):state['runtime'],_=runtime_inventory(config)
+  except Exception:state['runtime']={'available':False,'reason':'Native runtime inventory is unavailable; existing settings are preserved'}
+  print(json.dumps(state));sys.exit(0)
  if mode!='initialize' and payload.get('revision')!=state['revision']:
   print(json.dumps({'error':'conflict'}));sys.exit(0)
  values=payload.get('values')
@@ -61,6 +74,13 @@ with contextlib.ExitStack() as stack:
   if not isinstance(value,str) or '\x00' in value:raise ValueError('Agent sections must be text')
   if key in ['memory','userMemory']:values[key]='\n§\n'.join(dict.fromkeys(x.strip() for x in value.split('\n§\n') if x.strip()))
   if len(values[key])>(5000 if key=='description' else limits[key]):raise ValueError('Agent section exceeds its configured limit')
+ if 'runtime' in payload:
+  import io
+  with contextlib.redirect_stdout(io.StringIO()):
+   inventory,chain=runtime_inventory(config);candidate=apply_runtime(config,payload['runtime'],inventory,chain)
+  if candidate!=config:values['config']=yaml.safe_dump(candidate,sort_keys=False,allow_unicode=True)
+ if any(raw(paths[k])!=v for k,v in before.items()):
+  print(json.dumps({'error':'conflict'}));sys.exit(0)
  if mode=='validate': print(json.dumps(state));sys.exit(0)
  backup=home/'state'/'dsh-agent-edit-backups'
  for p in [home/'state',backup]:
@@ -68,8 +88,11 @@ with contextlib.ExitStack() as stack:
  backup.mkdir(parents=True,exist_ok=True,mode=0o700);backup=backup/uuid.uuid4().hex;backup.mkdir(mode=0o700)
  for k,v in before.items():
   if v is not None:atomic(backup/(k+'.bak'),v)
- meta=yaml.safe_load(before['metadata'] or '{}') or {};meta['description']=values.pop('description').strip();meta['description_auto']=False
- values['metadata']=yaml.safe_dump(meta,sort_keys=False,allow_unicode=True)
+ description=values.pop('description').strip()
+ if description!=state['description']:
+  meta=yaml.safe_load(before['metadata'] or '{}') or {};meta['description']=description;meta['description_auto']=False
+  values['metadata']=yaml.safe_dump(meta,sort_keys=False,allow_unicode=True)
+ values={k:v for k,v in values.items() if (before[k] or '')!=v}
  written=[]
  try:
   for key,text in values.items():atomic(paths[key],text);written.append(key)
@@ -93,7 +116,7 @@ export class AgentConfigurationStore {
     return new Promise((resolve, reject) => {
       const child = spawn('python3', ['-c', bridge, this.home, id, mode], { stdio: ['pipe','pipe','pipe'] });
       let output = ''; let errors = '';
-      const timer = setTimeout(() => child.kill('SIGKILL'), 15_000);
+      const timer = setTimeout(() => child.kill('SIGKILL'), 90_000);
       child.stdout.on('data', chunk => { output += chunk; if (output.length > 1024 * 1024) child.kill('SIGKILL'); });
       child.stderr.on('data', chunk => { errors = (errors + chunk).slice(-2000); });
       child.on('error', error => { clearTimeout(timer); reject(error); });

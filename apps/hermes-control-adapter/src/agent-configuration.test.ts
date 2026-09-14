@@ -21,7 +21,7 @@ describe('authoritative Agent sections', () => {
   expect(await readFile(join(home,'profile.yaml'),'utf8')).toContain('Original');
   const saved = await store.run('qa','write',{ revision: initial.revision, values });
   expect(saved).toMatchObject(values);
-  expect(await new AgentConfigurationStore(root).run('qa','read')).toEqual(saved);
+  expect(await new AgentConfigurationStore(root).run('qa','read')).toMatchObject(saved);
   expect(await readFile(join(home,'SOUL.md'),'utf8')).toBe(values.instructions);
   expect(await readFile(join(home,'memories','MEMORY.md'),'utf8')).toBe(values.memory);
   expect(await readFile(join(home,'memories','USER.md'),'utf8')).toBe(values.userMemory);
@@ -29,6 +29,16 @@ describe('authoritative Agent sections', () => {
   expect(await readdir(join(home,'state','dsh-agent-edit-backups'))).toHaveLength(1);
   await expect(store.run('qa','write',{ revision: initial.revision, values: { ...values, memory: 'overwrite' } })).rejects.toMatchObject({ conflict: true });
   expect((await store.run('qa','read')).memory).toBe(values.memory);
+ });
+ it('includes native configuration in revisions and refuses unavailable runtime changes', async () => {
+  const { home, store } = await fixture(); const before = await store.run('qa','read');
+  expect(before.runtime.available).toBe(false);
+  const config = await readFile(join(home,'config.yaml'),'utf8');
+  await expect(store.run('qa','validate',{ revision: before.revision, values, runtime: { primary: null, fallbacks: [], tools: {}, skills: {} } })).rejects.toThrow();
+  expect(await readFile(join(home,'config.yaml'),'utf8')).toBe(config);
+  await writeFile(join(home,'config.yaml'), config + 'native_agent_edit: true\n');
+  await expect(store.run('qa','write',{ revision: before.revision, values })).rejects.toMatchObject({ conflict: true });
+  expect(await readdir(home)).not.toContain('state');
  });
  it('serializes competing editors and detects agent-side changes to memory', async () => {
   const { home, store } = await fixture(); const before = await store.run('qa','read');

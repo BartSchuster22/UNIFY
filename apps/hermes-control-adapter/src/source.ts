@@ -81,12 +81,13 @@ export class HermesNativeSource implements AdapterSource {
   }
   async validateAgentConfiguration(command: HermesProfileCommand) {
     const sections = command.payload.configuration;
+    if (command.payload.runtimeSettings !== undefined && (sections === undefined || command.operation !== 'profile.update')) throw new AgentConfigurationError(false, 'Runtime settings require an existing profile and a reviewed configuration snapshot');
     if (sections === undefined) return;
     if (!['profile.create','profile.update'].includes(command.operation) || !sections || typeof sections !== 'object' || Array.isArray(sections)) throw new AgentConfigurationError(false, 'Invalid Agent sections');
     const values = sections as Record<string, unknown>;
     if (command.payload.description !== undefined && (typeof command.payload.description !== 'string' || command.payload.description.length > 5000)) throw new AgentConfigurationError(false, 'Invalid Agent description');
     if (Object.keys(values).sort().join(',') !== 'instructions,memory,userMemory' || Object.values(values).some(x => typeof x !== 'string' || x.length > 65536 || x.includes('\0'))) throw new AgentConfigurationError(false, 'Invalid Agent sections');
-    if (command.operation === 'profile.update') await this.agentConfigurationStore.run(command.targetId, 'validate', { revision: command.payload.configurationRevision, values: { ...values, description: command.payload.description ?? '' } });
+    if (command.operation === 'profile.update') await this.agentConfigurationStore.run(command.targetId, 'validate', { revision: command.payload.configurationRevision, values: { ...values, description: command.payload.description ?? '' }, ...(command.payload.runtimeSettings !== undefined ? { runtime: command.payload.runtimeSettings } : {}) });
     else if (String(values.memory).length > 2200 || String(values.userMemory).length > 1375) throw new AgentConfigurationError(false, 'Agent section exceeds its configured limit');
   }
 
@@ -168,7 +169,7 @@ export class HermesNativeSource implements AdapterSource {
       } else if (!current) throw new SourceUnavailableError('Agent was not found');
       const result = await this.agentConfigurationStore.run(command.targetId, command.operation === 'profile.create' ? 'initialize' : 'write', {
         revision: payload.configurationRevision,
-        values: { ...record(payload.configuration), description: optionalPayloadString(payload, 'description', 5000) ?? '' },
+        values: { ...record(payload.configuration), description: optionalPayloadString(payload, 'description', 5000) ?? '' }, ...(payload.runtimeSettings !== undefined ? { runtime: payload.runtimeSettings } : {}),
       });
       return { profile: { id: command.targetId, configurationRevision: result.revision, verified: true } };
     }

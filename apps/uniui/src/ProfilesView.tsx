@@ -21,6 +21,7 @@ import { IconAlertTriangle, IconEdit, IconPlus, IconRefresh, IconUsers } from '@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api, gateway } from './api';
 import { useFrameworkContext } from './FrameworkContext';
+import { AgentRuntimeSections, type AgentRuntimeInventory, type AgentRuntimeSettings } from './AgentRuntimeSections';
 import { AgentEditorSections, emptyAgentSections, defaultAgentLimits, type AgentSections, type AgentLimits } from './AgentEditorSections';
 import type { MutationResponse } from './types';
 
@@ -81,6 +82,9 @@ type EditorState = {
   sections?: AgentSections;
   limits?: AgentLimits;
   configurationRevision?: string;
+  runtimeInventory?: AgentRuntimeInventory | undefined;
+  runtimeSettings?: AgentRuntimeSettings | undefined;
+  runtimeBaseline?: string | undefined;
   configurationLoading?: boolean;
   configurationError?: string | undefined;
   saveError?: string | undefined;
@@ -121,7 +125,7 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
     let cancelled = false;
     setEditor(current => current ? { ...current, configurationLoading: true, configurationError: undefined, reviewedFingerprint: '' } : current);
     Promise.all([
-      api<{ items: Array<AgentSections & { id: string; description: string; revision: string; limits: AgentLimits }> }>(`/frameworks/${encodeURIComponent(frameworkId)}/profiles/${encodeURIComponent(id)}/configuration`),
+      api<{ items: Array<AgentSections & { id: string; description: string; revision: string; limits: AgentLimits; runtime?: AgentRuntimeInventory }> }>(`/frameworks/${encodeURIComponent(frameworkId)}/profiles/${encodeURIComponent(id)}/configuration`),
       api<Collection>(`/frameworks/${encodeURIComponent(frameworkId)}/profiles?limit=100`),
     ]).then(([response, fresh]) => {
       if (cancelled) return;
@@ -130,6 +134,7 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
       setEditor(current => current?.profileId === id ? { ...current,
         profile: { ...profile, sourceVersion: profile.sourceVersion ?? fresh.meta.sourceVersion },
         description: doc.description, sections: { instructions: doc.instructions, memory: doc.memory, userMemory: doc.userMemory }, limits: doc.limits,
+        runtimeInventory: doc.runtime, runtimeSettings: doc.runtime?.settings, runtimeBaseline: JSON.stringify(doc.runtime?.settings),
         configurationRevision: doc.revision, configurationLoading: false, configurationError: undefined, saveError: undefined,
         reviewedFingerprint: '', dryRunKey: crypto.randomUUID(), executeKey: crypto.randomUUID(),
       } : current);
@@ -222,9 +227,10 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
     : '';
   const reviewed = !!rename?.preflight && rename.reviewedFingerprint === fingerprint;
   const editorFingerprint = editor
-    ? `${frameworkId}:${editor.operation}:${editor.profileId}:${editor.profile?.sourceVersion ?? collection?.meta.sourceVersion}:${editor.description.trim()}:${JSON.stringify(editor.sections)}:${editor.configurationRevision ?? ''}`
+    ? `${frameworkId}:${editor.operation}:${editor.profileId}:${editor.profile?.sourceVersion ?? collection?.meta.sourceVersion}:${editor.description.trim()}:${JSON.stringify(editor.sections)}:${editor.configurationRevision ?? ''}:${JSON.stringify(editor.runtimeSettings)}`
     : '';
-  const editorReviewed = !!editor?.preflight && editor.reviewedFingerprint === editorFingerprint;
+  const runtimeValid = !editor?.runtimeSettings || editor.runtimeSettings.fallbacks.every(m => m.provider && m.model);
+  const editorReviewed = runtimeValid && !!editor?.preflight && editor.reviewedFingerprint === editorFingerprint;
 
   const updateNewId = (newId: string) => {
     setRename((current) =>
@@ -306,9 +312,9 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
   };
 
   const mutateEditor = async (mode: 'dry-run' | 'execute') => {
-    if (!editor || !frameworkId || !collection || !sectionsValid || profileIdError('', editor.profileId)) return;
+    if (!editor || !frameworkId || !collection || (!sectionsValid || !runtimeValid) || profileIdError('', editor.profileId)) return;
     const intent = editor;
-    const intentFingerprint = `${frameworkId}:${intent.operation}:${intent.profileId}:${intent.profile?.sourceVersion ?? collection.meta.sourceVersion}:${intent.description.trim()}:${JSON.stringify(intent.sections)}:${intent.configurationRevision ?? ''}`;
+    const intentFingerprint = `${frameworkId}:${intent.operation}:${intent.profileId}:${intent.profile?.sourceVersion ?? collection.meta.sourceVersion}:${intent.description.trim()}:${JSON.stringify(intent.sections)}:${intent.configurationRevision ?? ''}:${JSON.stringify(intent.runtimeSettings)}`;
     if (mode === 'execute' && intent.reviewedFingerprint !== intentFingerprint) return;
     setBusy(mode);
     setError('');
@@ -321,6 +327,7 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
           payload: {
             description: intent.description.trim(),
             configuration: intent.sections,
+            ...(intent.runtimeSettings && JSON.stringify(intent.runtimeSettings) !== intent.runtimeBaseline ? { runtimeSettings: intent.runtimeSettings } : {}),
             ...(intent.configurationRevision ? { configurationRevision: intent.configurationRevision } : {}),
             expectedSourceVersion: intent.profile?.sourceVersion ?? collection.meta.sourceVersion,
           },
@@ -630,6 +637,7 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
               idError={editor.profileId ? profileIdError('', editor.profileId) : undefined}
               onId={profileId => changeEditor({ profileId })} onDescription={description => changeEditor({ description })}
               onSections={sections => changeEditor({ sections })} />
+            <AgentRuntimeSections inventory={editor.runtimeInventory} value={editor.runtimeSettings} disabled={!!busy || !!editor.configurationLoading || !!editor.configurationError} onChange={runtimeSettings => changeEditor({ runtimeSettings })} />
             <Checkbox
               checked={editor.confirmed}
               disabled={!!busy}
@@ -652,7 +660,7 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
               <Button
                 variant="light"
                 disabled={
-                  !sectionsValid ||
+                  (!sectionsValid || !runtimeValid) ||
                   !editor.profileId ||
                   !!profileIdError('', editor.profileId) ||
                   !editor.confirmed ||
@@ -664,7 +672,7 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
                 Validate and dry-run
               </Button>
               <Button
-                disabled={!sectionsValid || !editorReviewed || !editor.confirmed || !!busy}
+                disabled={(!sectionsValid || !runtimeValid) || !editorReviewed || !editor.confirmed || !!busy}
                 loading={busy === 'execute'}
                 onClick={() => void mutateEditor('execute')}
               >

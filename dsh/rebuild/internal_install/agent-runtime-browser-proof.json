@@ -1,0 +1,30 @@
+{
+  "qaProfile": "qa-runtime-capabilities",
+  "nativeCatalogCounts": {
+    "models": 10,
+    "toolsets": 28,
+    "skills": 67
+  },
+  "browserSaveAndReopen": true,
+  "dryRunNoConfigMutation": true,
+  "nativeConfigConflict409AndDraftPreserved": true,
+  "changedRuntimeInvalidatesReview": true,
+  "native": {
+    "nativePrimary": true,
+    "nativeFallbackOrder": true,
+    "nativeToolsetResolution": true,
+    "nativeSkillDiscovery": true,
+    "nativeCoeditPreserved": true
+  },
+  "invalidNativeSelectionsRejected400": [
+    "model",
+    "tool",
+    "skill",
+    "duplicate-fallback"
+  ],
+  "rejectedWritesLeaveRevisionUnchanged": true,
+  "unrelatedSectionsUnchanged": true,
+  "unauthenticatedRead401": true,
+  "javascriptErrors": [],
+  "modelCallsStarted": false
+}
