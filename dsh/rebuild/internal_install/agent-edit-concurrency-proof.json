@@ -1,0 +1,77 @@
+{
+  "qaProfile": "qa-edit-concurrency-c315164b",
+  "modelCallsStarted": false,
+  "createDryRunNoProfile": true,
+  "createSaveReopen": true,
+  "nativeReadBack": {
+    "identity": true,
+    "instructions": true,
+    "memory": true,
+    "userMemory": true,
+    "primary": true,
+    "fallbacks": true,
+    "toolset": true,
+    "skill": true
+  },
+  "allSectionsSaveReopen": true,
+  "simultaneousBrowserSaves": {
+    "overlappingRequests": true,
+    "statuses": [
+      201,
+      409
+    ],
+    "losingDraftPreserved": true,
+    "reloadMergeSave": true
+  },
+  "simultaneousNativeMemoryWrite": {
+    "realNativeToolAndLock": true,
+    "browserSubmittedWhileNativeLockHeld": true,
+    "staleSaveStatus": 409,
+    "draftPreserved": true,
+    "nativeAdditionPreservedAfterMerge": true
+  },
+  "nativeConfigCoedit": {
+    "staleSaveStatus": 409,
+    "runtimeDraftPreserved": true,
+    "reloadMergeSave": true
+  },
+  "finalNativeReadBack": {
+    "identity": true,
+    "instructions": true,
+    "memory": true,
+    "userMemory": true,
+    "primary": true,
+    "fallbacks": true,
+    "toolset": true,
+    "skill": true
+  },
+  "javascriptErrors": [],
+  "cleanup": {
+    "qaRemoved": true
+  },
+  "closure": [
+    {
+      "ownerFilesAndAbsencesUnchanged": [
+        "config.yaml",
+        "profile.yaml",
+        "SOUL.md",
+        "memories/MEMORY.md",
+        "memories/USER.md",
+        ".env",
+        "auth.json"
+      ],
+      "qaRemoved": true,
+      "healthyServices": 7
+    },
+    {
+      "allTestedBuildFilesMatchDeployment": {
+        "unify-core": 336,
+        "hermes": 92,
+        "uniui": 3
+      }
+    },
+    {
+      "installerPlanState": "installed"
+    }
+  ]
+}
