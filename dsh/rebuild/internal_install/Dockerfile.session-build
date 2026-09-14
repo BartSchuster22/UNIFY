@@ -1,0 +1,7 @@
+FROM alica-internal-ui-oauth:build
+COPY packages/contracts ./packages/contracts
+COPY apps/gateway ./apps/gateway
+COPY apps/uniui/src ./apps/uniui/src
+ENV CI=true
+RUN pnpm install --frozen-lockfile --filter @aquiero/gateway... --filter @aquiero/uniui...
+RUN pnpm --filter @aquiero/contracts build && pnpm --filter @aquiero/gateway build && pnpm --filter @aquiero/uniui build

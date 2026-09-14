@@ -1,0 +1,2 @@
+FROM sha256:86d47fdd52bf88cf8f91c9e2245ba6ebe69ed324955b9e157ebb676b83715f8a
+COPY --from=alica-session-fix:build --chown=65532:65532 /workspace/apps/gateway/dist/auth/oidc.js /workspace/apps/gateway/dist/auth/oidc-store.js /app/dist/auth/

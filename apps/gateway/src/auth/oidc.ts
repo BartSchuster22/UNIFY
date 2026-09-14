@@ -25,11 +25,19 @@ export interface OidcIdentity {
   displayName: string;
   roles: string[];
 }
+export interface OidcTokens {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: Date;
+  refreshExpiresAt: Date;
+  roles: string[];
+}
 export interface OidcStore {
   putFlow(hash: string, sealed: string, expiresAt: Date): Promise<void>;
   consumeFlow(hash: string): Promise<string | null>;
   resolveIdentity(identity: OidcIdentity): Promise<string>;
   bindSession(sessionId: string, subject: string, sealed: string): Promise<void>;
+  updateBinding(sessionId: string, work: (binding: { subject: string; sealed: string }) => Promise<string>): Promise<void>;
   sessionBinding(sessionId: string): Promise<{ subject: string; sealed: string } | null>;
 }
 export interface OidcProvider {
@@ -37,7 +45,8 @@ export interface OidcProvider {
   exchange(
     code: string,
     flow: OidcFlow,
-  ): Promise<{ identity: OidcIdentity; accessToken: string; expiresAt: Date }>;
+  ): Promise<OidcTokens & { identity: OidcIdentity }>;
+  refresh(refreshToken: string, subject: string): Promise<OidcTokens>;
   checkAccess(accessToken: string, subject: string): Promise<void>;
 }
 const roles = new Map([
@@ -186,11 +195,44 @@ export class KeycloakOidcProvider implements OidcProvider {
               : 'DSH user',
           roles: granted,
         },
+        refreshToken: this.refreshFields(result).refreshToken,
+        refreshExpiresAt: this.refreshFields(result).refreshExpiresAt,
+        roles: granted,
         accessToken: result.access_token,
         expiresAt: new Date(
           Math.min(payload.exp, access.payload.exp, Math.floor(Date.now() / 1000) + 300) * 1000,
         ),
       };
+    } catch (error) {
+      if (error instanceof AuthError) throw error;
+      throw invalid();
+    }
+  }
+  private refreshFields(result: Record<string, unknown>) {
+    if (typeof result.refresh_token !== 'string' || !result.refresh_token || result.refresh_token.length > 32768 ||
+        typeof result.refresh_expires_in !== 'number' || !Number.isFinite(result.refresh_expires_in) || result.refresh_expires_in <= 0)
+      throw invalid();
+    return { refreshToken: result.refresh_token, refreshExpiresAt: new Date(Date.now() + result.refresh_expires_in * 1000) };
+  }
+  async refresh(refreshToken: string, subject: string): Promise<OidcTokens> {
+    try {
+      const result = await boundedJson(await fetch(this.transport + '/protocol/openid-connect/token', {
+        method: 'POST', redirect: 'error', signal: AbortSignal.timeout(8000),
+        body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: refreshToken,
+          client_id: this.config.clientId, client_secret: this.config.clientSecret }),
+      }));
+      if (typeof result.access_token !== 'string') throw invalid();
+      const { payload } = await jwtVerify(result.access_token, this.keys, {
+        issuer: this.config.issuer, audience: this.config.clientId, algorithms: ['RS256'],
+        requiredClaims: ['sub', 'iat', 'exp'], maxTokenAge: 300,
+      });
+      if (payload.sub !== subject || payload.azp !== this.config.clientId || !payload.exp) throw invalid();
+      const resources = payload.resource_access as Record<string, { roles?: unknown }> | undefined;
+      const granted = admittedRoles(resources?.[this.config.clientId]?.roles);
+      if (!granted.length) throw invalid();
+      await this.checkAccess(result.access_token, subject);
+      return { ...this.refreshFields(result), accessToken: result.access_token,
+        expiresAt: new Date(payload.exp * 1000), roles: granted };
     } catch (error) {
       if (error instanceof AuthError) throw error;
       throw invalid();
@@ -294,12 +336,12 @@ export class OidcService {
     );
     if (result.expiresAt.getTime() <= Date.now()) throw invalid();
     const userId = await this.store.resolveIdentity(result.identity);
-    const session = await auth.issuePrincipalSession(userId, context, result.expiresAt);
+    const session = await auth.issuePrincipalSession(userId, context);
     try {
       await this.store.bindSession(
         session.sessionId,
         result.identity.subject,
-        this.seal(result.accessToken, 'session:' + session.sessionId),
+        this.seal(JSON.stringify({ ...result, identity: undefined }), 'session:' + session.sessionId),
       );
     } catch {
       await auth.revokeSession(session.sessionId, 'oidc_binding_failed');
@@ -308,11 +350,23 @@ export class OidcService {
     return session;
   }
   async validateSession(sessionId: string): Promise<void> {
-    const binding = await this.store.sessionBinding(sessionId);
-    if (!binding) throw invalid();
-    await this.provider.checkAccess(
-      this.open(binding.sealed, 'session:' + sessionId),
-      binding.subject,
-    );
+    await this.store.updateBinding(sessionId, async (binding) => {
+      let saved: OidcTokens;
+      try { saved = JSON.parse(this.open(binding.sealed, 'session:' + sessionId)) as OidcTokens; }
+      catch { throw invalid(); }
+      const expires = new Date(saved.expiresAt).getTime();
+      const refreshExpires = new Date(saved.refreshExpiresAt).getTime();
+      if (!Number.isFinite(expires) || !Number.isFinite(refreshExpires) ||
+          typeof saved.accessToken !== 'string' || !saved.accessToken ||
+          typeof saved.refreshToken !== 'string' || !saved.refreshToken || !Array.isArray(saved.roles)) throw invalid();
+      if (expires <= Date.now() + 60000) {
+        if (refreshExpires <= Date.now()) throw invalid();
+        const next = await this.provider.refresh(saved.refreshToken, binding.subject);
+        if (JSON.stringify([...next.roles].sort()) !== JSON.stringify([...saved.roles].sort())) throw invalid();
+        return this.seal(JSON.stringify(next), 'session:' + sessionId);
+      }
+      await this.provider.checkAccess(saved.accessToken, binding.subject);
+      return binding.sealed;
+    });
   }
 }

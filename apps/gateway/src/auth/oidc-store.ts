@@ -82,6 +82,26 @@ export class PostgresOidcStore implements OidcStore {
       [sessionId, subject, sealed],
     );
   }
+  async updateBinding(sessionId: string, work: (binding: { subject: string; sealed: string }) => Promise<string>): Promise<void> {
+    const c = await this.pool.connect();
+    try {
+      await c.query('BEGIN');
+      await c.query("SET LOCAL lock_timeout='10s'");
+      const result = await c.query(
+        'SELECT t.subject,t.sealed FROM oidc_session_tokens t JOIN sessions s ON s.id=t.session_id WHERE t.session_id=$1 AND s.revoked_at IS NULL AND s.expires_at>clock_timestamp() FOR UPDATE OF s,t',
+        [sessionId],
+      );
+      const binding = result.rows[0] as { subject: string; sealed: string } | undefined;
+      if (!binding) throw new AuthError('OIDC_INVALID', 401, 'OIDC authentication is invalid or expired');
+      const sealed = await work(binding);
+      if (sealed !== binding.sealed) await c.query('UPDATE oidc_session_tokens SET sealed=$2 WHERE session_id=$1', [sessionId, sealed]);
+      await c.query('COMMIT');
+    } catch (error) {
+      await c.query('ROLLBACK');
+      if (error instanceof AuthError) throw error;
+      throw new AuthError('OIDC_INVALID', 401, 'OIDC authentication is invalid or expired');
+    } finally { c.release(); }
+  }
   async sessionBinding(sessionId: string): Promise<{ subject: string; sealed: string } | null> {
     const result = await this.pool.query(
       'SELECT subject,sealed FROM oidc_session_tokens t JOIN sessions s ON s.id=t.session_id WHERE t.session_id=$1 AND s.revoked_at IS NULL AND s.expires_at>now()',

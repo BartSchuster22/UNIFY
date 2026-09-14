@@ -20,6 +20,7 @@ import { IconRefresh } from '@tabler/icons-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, gateway } from './api';
 import { useFrameworkContext } from './FrameworkContext';
+import { ExecutionFeedback } from './ExecutionFeedback';
 
 const INTERNAL_SOURCES = ['api_server', 'cli', 'tui', 'terminal', 'acp', 'local'];
 
@@ -65,6 +66,8 @@ export function ChatView({ canUse }: { canUse: boolean }) {
   const [selectedSessionId, setSelectedSessionId] = useState('');
   const [loading, setLoading] = useState(true);
   const [mutating, setMutating] = useState(false);
+  const [execution, setExecution] = useState<{ framework: string; session: string; startedAt: number; uncertain: boolean } | null>(null);
+  const currentExecution = execution && execution.framework === frameworkId && execution.session === selectedSessionId ? execution : null;
   const [failure, setFailure] = useState('');
   const [notice, setNotice] = useState('');
   const [title, setTitle] = useState('');
@@ -207,6 +210,8 @@ export function ChatView({ canUse }: { canUse: boolean }) {
   async function sendMessage() {
     if (
       !canExecute ||
+      mutating ||
+      currentExecution?.uncertain ||
       !selectedSessionId ||
       (!draft.trim() && !attachment) ||
       !frameworkId ||
@@ -215,6 +220,7 @@ export function ChatView({ canUse }: { canUse: boolean }) {
       return;
     const requestedFramework = frameworkId;
     const requestedSession = selectedSessionId;
+    setExecution({ framework: requestedFramework, session: requestedSession, startedAt: Date.now(), uncertain: false });
     setMutating(true);
     setFailure('');
     setNotice('');
@@ -262,13 +268,16 @@ export function ChatView({ canUse }: { canUse: boolean }) {
           : 'Hermes accepted the message for this internal session.',
       );
       await loadMessages(requestedSession);
+      setExecution(null);
     } catch (cause) {
       if (
         selectedFramework.current === requestedFramework &&
         selectedSession.current === requestedSession
       )
         setFailure(cause instanceof Error ? cause.message : 'Message send failed');
+      setExecution((current) => current?.framework === requestedFramework && current?.session === requestedSession ? { ...current, uncertain: true } : current);
     } finally {
+      setExecution((current) => current?.framework === requestedFramework && current?.session === requestedSession && !current.uncertain ? null : current);
       if (selectedFramework.current === requestedFramework) setMutating(false);
     }
   }
@@ -458,6 +467,9 @@ export function ChatView({ canUse }: { canUse: boolean }) {
             </Stack>
           </ScrollArea>
           <Stack gap="xs" mt="md">
+      {currentExecution && <ExecutionFeedback startedAt={currentExecution.startedAt} uncertain={currentExecution.uncertain}
+        onChecked={() => setExecution(null)} />}
+
             <Textarea
               label="Message"
               placeholder="Send to this internal Hermes session"
@@ -477,7 +489,7 @@ export function ChatView({ canUse }: { canUse: boolean }) {
             />
             <Button
               onClick={() => void sendMessage()}
-              disabled={!canExecute || !selectedSessionId || (!draft.trim() && !attachment)}
+              disabled={!canExecute || !selectedSessionId || !!currentExecution?.uncertain || (!draft.trim() && !attachment)}
               loading={mutating}
             >
               Send message

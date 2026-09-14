@@ -26,7 +26,7 @@ beforeAll(async () => {
     keys: [{ ...(await exportJWK(keys.publicKey)), kid: 'one', alg: 'RS256' }],
   });
 });
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
 async function jwt(overrides: Record<string, unknown> = {}, key = keys.privateKey) {
   return new SignJWT({
     iss: config.issuer,
@@ -49,7 +49,7 @@ function exchangeFetch(id: string, access: string, userSubject = 'subject-one') 
       async (url: string) =>
         new Response(
           JSON.stringify(
-            url.endsWith('/token') ? { id_token: id, access_token: access } : { sub: userSubject },
+            url.endsWith('/token') ? { id_token: id, access_token: access, refresh_token: 'fixture-refresh', refresh_expires_in: 1800 } : { sub: userSubject },
           ),
           { status: 200 },
         ),
@@ -147,6 +147,7 @@ function fixture() {
     roles: ['Administrator'],
     permissions: ['users.manage', 'frameworks.read'],
   };
+  let pending = Promise.resolve();
   const store: OidcStore = {
     async putFlow(h, sealed, expiresAt) {
       flows.set(h, { sealed, expiresAt });
@@ -162,6 +163,17 @@ function fixture() {
     async bindSession(id, subject, sealed) {
       bindings.set(id, { subject, sealed });
     },
+    async updateBinding(id, work) {
+      const previous = pending;
+      let release!: () => void;
+      pending = new Promise<void>((resolve) => { release = resolve; });
+      await previous;
+      try {
+        const binding = bindings.get(id);
+        if (!binding || revoked.has(id)) throw new AuthError('OIDC_INVALID', 401, 'Invalid session');
+        bindings.set(id, { ...binding, sealed: await work(binding) });
+      } finally { release(); }
+    },
     async sessionBinding(id) {
       return bindings.get(id) ?? null;
     },
@@ -176,8 +188,13 @@ function fixture() {
         roles: ['Administrator'],
       },
       accessToken: 'private-access-token',
+      refreshToken: 'private-refresh-token',
+      refreshExpiresAt: new Date(Date.now() + 1800000),
+      roles: ['Administrator'],
       expiresAt: new Date(Date.now() + 240000),
     })),
+    refresh: vi.fn(async () => ({ accessToken: 'rotated-access', refreshToken: 'rotated-refresh',
+      expiresAt: new Date(Date.now() + 240000), refreshExpiresAt: new Date(Date.now() + 1800000), roles: ['Administrator'] })),
     checkAccess: vi.fn(async () => {}),
   };
   const authStore = {
@@ -219,6 +236,55 @@ function fixture() {
     auth: new AuthService({ store: authStore, pepper: 'p'.repeat(40) }),
   };
 }
+describe('OIDC refresh lifecycle', () => {
+  async function login(f: ReturnType<typeof fixture>) {
+    const b = await f.oidc.begin();
+    return f.oidc.callback(b.state, b.state, 'code', f.auth, { ip: 'local', userAgent: undefined });
+  }
+  it('keeps session lifetime separate from access-token expiry and seals refresh credentials', async () => {
+    const f = fixture(); const s = await login(f);
+    expect(s.expiresAt.getTime()).toBeGreaterThan(Date.now() + 300000);
+    expect(JSON.stringify([...f.bindings])).not.toContain('private-refresh-token');
+    expect(JSON.stringify(s)).not.toContain('private-refresh-token');
+  });
+  it('refreshes once across concurrent callers, survives recreation, and retains the cookie', async () => {
+    vi.useFakeTimers(); const f = fixture(); const s = await login(f);
+    vi.advanceTimersByTime(310000);
+    const recovered = new OidcService(f.provider, f.store, 'p'.repeat(40));
+    await Promise.all([recovered.validateSession(s.sessionId), recovered.validateSession(s.sessionId)]);
+    expect(f.provider.refresh).toHaveBeenCalledTimes(1);
+    expect(f.provider.refresh).toHaveBeenCalledWith('private-refresh-token', 'subject-one');
+    await expect(f.auth.authenticate(s.sessionToken)).resolves.toMatchObject({ sessionId: s.sessionId });
+    expect(f.provider.checkAccess).toHaveBeenLastCalledWith('rotated-access', 'subject-one');
+  });
+  it('fails closed when refresh is rejected, expires, or changes roles', async () => {
+    vi.useFakeTimers(); const f = fixture(); const s = await login(f);
+    vi.advanceTimersByTime(310000);
+    vi.mocked(f.provider.refresh).mockRejectedValueOnce(new AuthError('OIDC_INVALID', 401, 'invalid'));
+    await expect(f.oidc.validateSession(s.sessionId)).rejects.toBeInstanceOf(AuthError);
+    vi.mocked(f.provider.refresh).mockResolvedValueOnce({ accessToken: 'other', refreshToken: 'other', expiresAt: new Date(Date.now()+240000), refreshExpiresAt: new Date(Date.now()+1800000), roles: ['Viewer'] });
+    await expect(f.oidc.validateSession(s.sessionId)).rejects.toBeInstanceOf(AuthError);
+    vi.advanceTimersByTime(1800000);
+    await expect(f.oidc.validateSession(s.sessionId)).rejects.toBeInstanceOf(AuthError);
+    expect(f.provider.refresh).toHaveBeenCalledTimes(2);
+  });
+  it('does not refresh a revoked local session', async () => {
+    vi.useFakeTimers(); const f = fixture(); const s = await login(f);
+    await f.auth.revokeSession(s.sessionId, 'test'); vi.advanceTimersByTime(310000);
+    await expect(f.oidc.validateSession(s.sessionId)).rejects.toBeInstanceOf(AuthError);
+    expect(f.provider.refresh).not.toHaveBeenCalled();
+  });
+  it('checks signed refresh access claims and rotates refresh credentials', async () => {
+    exchangeFetch(await jwt(), await jwt());
+    const result = await new KeycloakOidcProvider(config, jwks).refresh('previous-refresh', 'subject-one');
+    expect(result.refreshToken).toBe('fixture-refresh');
+    expect((vi.mocked(fetch).mock.calls[0]?.[1]?.body as URLSearchParams).get('grant_type')).toBe('refresh_token');
+  });
+  it.each([{ sub: 'other' }, { aud: 'other' }, { azp: 'other' }, { iss: 'https://evil.example' }, { exp: 1 }, { resource_access: {} }])('rejects invalid refreshed claims %j', async (bad) => {
+    exchangeFetch(await jwt(), await jwt(bad));
+    await expect(new KeycloakOidcProvider(config, jwks).refresh('refresh', 'subject-one')).rejects.toBeInstanceOf(AuthError);
+  });
+});
 describe('OIDC flow, session and browser integration', () => {
   it('seals PKCE material, uses S256, binds cookies and consumes each state once', async () => {
     const f = fixture();

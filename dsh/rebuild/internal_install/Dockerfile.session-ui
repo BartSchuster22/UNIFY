@@ -1,0 +1,2 @@
+FROM sha256:1aa3b3dfded9d88c2e567a988209a04c3a942c0e65f311b93ec4c82363836aef
+COPY --from=alica-session-fix:build --chown=65532:65532 /workspace/apps/uniui/dist /app/public
