@@ -369,12 +369,24 @@ export const HermesBoardsResponseSchema = controlCollectionResponse(
   HermesBoardSchema,
 );
 
+export const HermesWorkspaceSchema = Type.Object({
+  id: Type.String({ maxLength: 4096 }), path: Type.String({ maxLength: 4096 }),
+  root: Type.String({ maxLength: 4096 }), name: Type.String({ maxLength: 4096 }),
+}, { $id: 'HermesWorkspace', additionalProperties: false });
+export const HermesWorkspacesResponseSchema = controlCollectionResponse('HermesWorkspacesResponse', HermesWorkspaceSchema);
+export type HermesWorkspace = Static<typeof HermesWorkspaceSchema>;
+export type HermesWorkspacesResponse = Static<typeof HermesWorkspacesResponseSchema>;
+
 export const HermesProjectSchema = Type.Object(
   {
     id: Type.String({ minLength: 1, maxLength: 200 }),
     name: Type.String({ minLength: 1, maxLength: 500 }),
     description: Type.Optional(Type.String({ maxLength: 1000000 })),
     boardId: Type.Optional(Type.String({ maxLength: 200 })),
+    defaultWorkspacePath: Type.Optional(Type.String({ maxLength: 4096 })),
+    projectManager: Type.Optional(Type.String({ maxLength: 128 })),
+    agents: Type.Optional(Type.Array(Type.String({ maxLength: 128 }), { maxItems: 50 })),
+    teamConfigurationOwner: Type.Optional(Type.Literal('dsh-hermes-adapter')),
     archived: Type.Boolean(),
   },
   { $id: 'HermesProject', additionalProperties: false },
@@ -600,6 +612,7 @@ export const HermesWorkOperationSchema = Type.Union(
   [
     Type.Literal('project.create'),
     Type.Literal('project.rename'),
+    Type.Literal('project.configure'),
     Type.Literal('project.archive'),
     Type.Literal('task.create'),
     Type.Literal('task.start'),
@@ -1019,6 +1032,8 @@ export const HermesControlSchemas = [
   HermesModelsResponseSchema,
   HermesBoardSchema,
   HermesBoardsResponseSchema,
+  HermesWorkspaceSchema,
+  HermesWorkspacesResponseSchema,
   HermesProjectSchema,
   HermesProjectsResponseSchema,
   HermesTaskSchema,

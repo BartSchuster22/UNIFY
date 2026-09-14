@@ -15,6 +15,8 @@ import {
   HermesProfileResultSchema,
   HermesProfilesResponseSchema,
   HermesProjectsResponseSchema,
+  HermesWorkspacesResponseSchema,
+  type HermesWorkspacesResponse,
   HermesProvidersResponseSchema,
   HermesReconcileResultSchema,
   HermesSessionsResponseSchema,
@@ -132,6 +134,10 @@ export class HermesControlClient {
     return this.request('GET', pagePath('/control/v1/models', query), HermesModelsResponseSchema);
   }
 
+  workspaces(query: PageQuery = {}): Promise<HermesWorkspacesResponse> {
+    return this.request('GET', pagePath('/control/v1/work/workspaces', query), HermesWorkspacesResponseSchema);
+  }
+
   projects(query: PageQuery = {}): Promise<HermesProjectsResponse> {
     return this.request(
       'GET',
@@ -185,7 +191,9 @@ export class HermesControlClient {
   }
 
   work(command: HermesWorkCommand): Promise<Static<typeof HermesWorkResultSchema>> {
-    const timeoutMs = command.operation === 'task.run' ? 3_700_000 : this.timeoutMs;
+    const timeoutMs = command.operation === 'task.run' ? 3_700_000
+      : ['project.create', 'project.configure'].includes(command.operation) ? Math.max(this.timeoutMs, 120_000)
+      : this.timeoutMs;
     return this.request(
       'POST',
       '/control/v1/commands/work',

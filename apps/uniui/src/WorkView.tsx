@@ -26,6 +26,7 @@ import { IconCalendar, IconClipboardList, IconPlus, IconRefresh } from '@tabler/
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ApiError, api, gateway } from './api';
 import { useFrameworkContext } from './FrameworkContext';
+import { InventoryControls, ProjectSelectionFields, TaskAgentSelect, useWorkInventory, validSelections } from './WorkSelections';
 import type { Collection, FederationLease, MutationRequest, UnifiedResource } from './types';
 
 type WorkPage =
@@ -93,6 +94,7 @@ export function WorkView({ canManage }: { canManage: boolean }) {
   const [federationLoading, setFederationLoading] = useState(false);
   const [federationFailure, setFederationFailure] = useState<string>();
   const loadGeneration = useRef(0);
+  const previousWorkFramework = useRef('');
   const selectedFramework = useRef(frameworkId);
   selectedFramework.current = frameworkId;
 
@@ -151,10 +153,12 @@ export function WorkView({ canManage }: { canManage: boolean }) {
 
   useEffect(() => {
     setData({ items: [] });
-    setSelectedProject('');
     setNotice(undefined);
     const url = new URL(window.location.href);
-    url.searchParams.delete('project');
+    const switching = previousWorkFramework.current && previousWorkFramework.current !== frameworkId;
+    if (frameworkId) previousWorkFramework.current = frameworkId;
+    if (switching) url.searchParams.delete('project');
+    setSelectedProject(url.searchParams.get('project') ?? '');
     window.history.replaceState(window.history.state, '', url);
     void load();
     return () => {
@@ -352,6 +356,8 @@ export function WorkView({ canManage }: { canManage: boolean }) {
           )}
           {page === 'details' && (
             <ProjectDetails
+              key={frameworkId}
+              frameworkId={frameworkId}
               project={selected}
               projects={projects}
               onSelect={setSelectedProject}
@@ -362,6 +368,8 @@ export function WorkView({ canManage }: { canManage: boolean }) {
           )}
           {page === 'add' && (
             <AddNew
+              key={frameworkId}
+              frameworkId={frameworkId}
               projects={projects}
               selectedProject={selected?.slug ?? ''}
               onMutate={mutate}
@@ -730,6 +738,7 @@ function TaskCard({
 }
 
 function ProjectDetails({
+  frameworkId,
   project,
   projects,
   onSelect,
@@ -737,6 +746,7 @@ function ProjectDetails({
   canManage,
   busy,
 }: {
+  frameworkId: string;
   project: ProjectView | undefined;
   projects: ProjectView[];
   onSelect: (slug: string) => void;
@@ -744,14 +754,16 @@ function ProjectDetails({
   canManage: boolean;
   busy: boolean;
 }) {
+  const inventory = useWorkInventory(frameworkId);
   const [form, setForm] = useState<ProjectForm>(() => projectForm(project));
-  useEffect(() => setForm(projectForm(project)), [project?.slug]);
+  useEffect(() => setForm(projectForm(project)), [project?.slug, project?.sourceVersion]);
   if (!project) return <Empty text="No Kanban project selected." />;
   const update = (key: keyof ProjectForm, value: string) =>
     setForm((current) => ({ ...current, [key]: value }));
   const save = () =>
     onMutate(
-      mutation('work.project.rename', 'project', project.slug, {
+      mutation('work.project.configure', 'project', project.slug, {
+        ...projectPayload(form, false),
         name: form.name.trim(),
         expectedSourceVersion: project.sourceVersion,
       }),
@@ -783,26 +795,9 @@ function ProjectDetails({
             minRows={4}
             className="work-form-wide"
           />
-          <TextInput
-            label="Default workspace path"
-            value={form.workspace}
-            disabled
-            onChange={(event) => update('workspace', event.currentTarget.value)}
-          />
-          <TextInput
-            label="Project manager agent"
-            value={form.projectManager}
-            disabled
-            onChange={(event) => update('projectManager', event.currentTarget.value)}
-          />
-          <TextInput
-            label="Project agents"
-            description="Comma-separated agent profiles"
-            value={form.agents}
-            disabled
-            onChange={(event) => update('agents', event.currentTarget.value)}
-          />
+          <ProjectSelectionFields inventory={inventory} value={form} onChange={update} disabled={!canManage || busy || project.status === 'archived'} />
         </SimpleGrid>
+        <InventoryControls inventory={inventory} />
         <Divider my="lg" />
         <SimpleGrid cols={{ base: 1, md: 3 }}>
           <Paper withBorder p="md">
@@ -824,7 +819,7 @@ function ProjectDetails({
         </SimpleGrid>
         {canManage && (
           <Group mt="lg">
-            <Button loading={busy} onClick={() => void save()}>
+            <Button loading={busy} disabled={!form.name.trim() || !validSelections(inventory, form) || project.status === 'archived'} onClick={() => void save()}>
               Save project setup
             </Button>
             <Button
@@ -854,6 +849,7 @@ function ProjectDetails({
 }
 
 function AddNew({
+  frameworkId,
   projects,
   selectedProject,
   onMutate,
@@ -861,6 +857,7 @@ function AddNew({
   canManage,
   busy,
 }: {
+  frameworkId: string;
   projects: ProjectView[];
   selectedProject: string;
   onMutate: Mutate;
@@ -868,6 +865,7 @@ function AddNew({
   canManage: boolean;
   busy: boolean;
 }) {
+  const inventory = useWorkInventory(frameworkId);
   const [kind, setKind] = useState<'project' | 'task'>('project');
   const [project, setProject] = useState<ProjectForm>({
     slug: '',
@@ -897,7 +895,7 @@ function AddNew({
     );
   const saveProject = async (start: boolean) => {
     const slug = project.slug.trim() || slugify(project.name);
-    if (!project.name.trim()) return;
+    if (!project.name.trim() || !validSelections(inventory, project)) return;
     if (start && (!project.goal.trim() || !project.projectManager.trim() || !project.agents.trim()))
       return;
     const result = await onMutate(
@@ -907,7 +905,7 @@ function AddNew({
     if (result) onCreated(slug);
   };
   const saveTask = async (start: boolean) => {
-    if (!task.title.trim() || !task.project) return;
+    if (!task.title.trim() || !task.project || !inventory.ready || (task.agent && !inventory.agents.some(a => a.value === task.agent))) return;
     const result = await onMutate(
       mutation('work.task.create', 'task', slugify(task.title), {
         title: task.title,
@@ -936,6 +934,7 @@ function AddNew({
         </Box>
         <IconPlus size={26} />
       </Group>
+      <InventoryControls inventory={inventory} />
       <SegmentedControl
         mt="lg"
         value={kind}
@@ -975,37 +974,14 @@ function AddNew({
                 setProject((current) => ({ ...current, goal: value }));
               }}
             />
-            <TextInput
-              label="Default workspace path"
-              value={project.workspace}
-              onChange={(event) => {
-                const value = event.currentTarget.value;
-                setProject((current) => ({ ...current, workspace: value }));
-              }}
-            />
-            <TextInput
-              label="Project manager agent"
-              value={project.projectManager}
-              onChange={(event) => {
-                const value = event.currentTarget.value;
-                setProject((current) => ({ ...current, projectManager: value }));
-              }}
-            />
-            <TextInput
-              label="Project agents"
-              description="Comma-separated profiles"
-              value={project.agents}
-              onChange={(event) => {
-                const value = event.currentTarget.value;
-                setProject((current) => ({ ...current, agents: value }));
-              }}
-            />
+            <ProjectSelectionFields inventory={inventory} value={project} disabled={busy}
+              onChange={(key, value) => setProject(current => ({ ...current, [key]: value }))} />
           </SimpleGrid>
           <Group>
             <Button
               variant="light"
               loading={busy}
-              disabled={!project.name.trim()}
+              disabled={!project.name.trim() || !validSelections(inventory, project)}
               onClick={() => void saveProject(false)}
             >
               Save
@@ -1013,6 +989,7 @@ function AddNew({
             <Button
               loading={busy}
               disabled={
+                !validSelections(inventory, project) ||
                 !project.name.trim() ||
                 !project.goal.trim() ||
                 !project.projectManager.trim() ||
@@ -1056,14 +1033,7 @@ function AddNew({
                 setTask((current) => ({ ...current, prompt: value }));
               }}
             />
-            <TextInput
-              label="Assigned agent"
-              value={task.agent}
-              onChange={(event) => {
-                const value = event.currentTarget.value;
-                setTask((current) => ({ ...current, agent: value }));
-              }}
-            />
+            <TaskAgentSelect inventory={inventory} value={task.agent} onChange={value => setTask(current => ({ ...current, agent: value }))} />
             <Select
               label="Priority"
               value={task.priority}
@@ -1737,12 +1707,12 @@ function nativeProjects(items: UnifiedResource[]): ProjectView[] {
     const counts = record(item.data.countsByLane);
     map.set(slug, {
       slug,
-      name: text(item.data.name) || item.title || current?.name || slug,
-      description: text(item.data.description) || current?.description || '',
+      name: current?.name || text(item.data.name) || item.title || slug,
+      description: current?.description || text(item.data.description) || '',
       status:
-        text(item.data.status) || text(item.data.lifecycleState) || current?.status || 'active',
+        current?.status || text(item.data.status) || text(item.data.lifecycleState) || 'active',
       counts: Object.keys(counts).length ? numberRecord(counts) : (current?.counts ?? {}),
-      data: { ...(current?.data ?? {}), ...item.data },
+      data: { ...item.data, ...(current?.data ?? {}) },
       sourceVersion: current?.sourceVersion ?? item.resource.sourceVersion ?? '',
     });
   }
@@ -1764,7 +1734,9 @@ function cronFailed(job: UnifiedResource): boolean {
   );
 }
 function projectForm(project?: ProjectView): ProjectForm {
-  const agents = Array.isArray(project?.data.agentTeam)
+  const agents = Array.isArray(project?.data.agents)
+    ? project!.data.agents.map(text).filter(Boolean)
+    : Array.isArray(project?.data.agentTeam)
     ? project!.data.agentTeam.map((item) => text(record(item).name)).filter(Boolean)
     : [];
   const defaults = record(project?.data.defaultAgents);
@@ -1773,7 +1745,7 @@ function projectForm(project?: ProjectView): ProjectForm {
     name: project?.name ?? '',
     goal: project?.description ?? '',
     workspace: text(project?.data.defaultWorkspacePath),
-    projectManager: text(defaults.pm) || agents[0] || '',
+    projectManager: text(project?.data.projectManager) || text(defaults.pm),
     agents: agents.join(', '),
   };
 }
@@ -1788,8 +1760,8 @@ function projectPayload(form: ProjectForm, startPmPlanning: boolean): Record<str
     name: form.name.trim(),
     description: form.goal.trim(),
     defaultWorkspacePath: form.workspace.trim() || undefined,
-    projectManager: pm || undefined,
-    agents: [...new Set([pm, ...agents].filter(Boolean))],
+    projectManager: pm,
+    agents: [...new Set(agents)],
     startPmPlanning,
   };
 }

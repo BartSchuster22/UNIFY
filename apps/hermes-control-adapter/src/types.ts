@@ -14,6 +14,7 @@ import type {
   HermesSession,
   HermesTask,
   HermesWorkCommand,
+  HermesWorkspace,
 } from '@aquiero/contracts';
 
 export type CapabilityFamily = 'profiles' | 'providers' | 'models' | 'work' | 'conversations';
@@ -29,6 +30,8 @@ export interface AdapterSource {
   providers(refresh?: boolean): Promise<Snapshot<HermesProvider>>;
   models(refresh?: boolean): Promise<Snapshot<HermesModel>>;
   executeModelManagement(command: HermesModelManagementCommand): Promise<Record<string, unknown>>;
+  workspaces?(): Promise<Snapshot<HermesWorkspace>>;
+  validateWorkSelections?(command: HermesWorkCommand): Promise<void>;
   projects(): Promise<Snapshot<HermesProject>>;
   boards(): Promise<Snapshot<HermesBoard>>;
   tasks(boardId: string): Promise<Snapshot<HermesTask>>;

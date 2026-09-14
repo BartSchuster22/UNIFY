@@ -136,6 +136,7 @@ export const workMutationDefinitions: Record<string, MutationDefinition> = {
     permission: 'work.manage',
     executionPath: 'hermes-control',
   },
+  'work.project.configure': { owner: 'hermes', kind: 'project', permission: 'work.manage', executionPath: 'hermes-control' },
   'work.project.rename': {
     owner: 'hermes',
     kind: 'project',

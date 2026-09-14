@@ -1,0 +1,3 @@
+FROM alica-work-selectors:build AS build
+FROM sha256:d1deea949af882649abcf84eadb9ba496be914db6598148f3c62edca918bb6de
+COPY --from=build --chown=65532:65532 /workspace/apps/gateway/dist /app/dist

@@ -60,6 +60,13 @@ class AdapterError extends Error {
 export function buildHermesControlAdapter(options: HermesControlAdapterOptions) {
   if (!options.bearerToken && !options.verifyBearerToken)
     throw new Error('A bearer token or rotating bearer token verifier is required');
+  let workQueue: Promise<void> = Promise.resolve();
+  const serializeWork = <T>(operation: string, action: () => Promise<T>): Promise<T> => {
+    if (!operation.startsWith('project.')) return action();
+    const next = workQueue.then(action);
+    workQueue = next.then(() => undefined, () => undefined);
+    return next;
+  };
   const app = Fastify({
     logger: false,
     bodyLimit: 2 * 1024 * 1024,
@@ -317,6 +324,12 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
       await options.source.models(query.refresh === 'true'),
       pageQuery(query),
     );
+  });
+
+  app.get('/control/v1/work/workspaces', async (request) => {
+    requireScope(scopes, 'control:read');
+    if (!options.source.workspaces) throw new AdapterError('source_unavailable', 503, 'Workspace inventory is unavailable');
+    return collection(options, await options.source.workspaces(), pageQuery(request.query));
   });
 
   app.get('/control/v1/work/projects', async (request) => {
@@ -653,12 +666,15 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
   app.post<{ Body: HermesWorkCommand }>(
     '/control/v1/commands/work',
     { schema: { body: HermesWorkCommandSchema } },
-    async (request) => {
+    async (request) => serializeWork(request.body.operation, async () => {
       requireScope(scopes, 'control:execute');
       const command = request.body;
       validateWorkPayload(command);
       const replay = await replayCommand(request, 'work.execute', command, sourceVersion(command));
       if (replay) return replay;
+      try { await options.source.validateWorkSelections?.(command); } catch {
+        throw new AdapterError('invalid_request', 400, 'Workspace or agent selection is invalid or unavailable in this framework');
+      }
       const beforeVersion = await workSourceVersion(options.source, command);
       if (command.expectedSourceVersion && command.expectedSourceVersion !== beforeVersion)
         throw new AdapterError(
@@ -722,7 +738,7 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
         committed.replayed ? 'replayed' : 'completed',
       );
       return committed.response;
-    },
+    }),
   );
 
   app.post<{ Body: HermesConversationCommand }>(
@@ -974,6 +990,7 @@ function validateWorkPayload(command: HermesWorkCommand) {
   const required: Partial<Record<HermesWorkCommand['operation'], string[]>> = {
     'project.create': ['name'],
     'project.rename': ['name'],
+    'project.configure': ['name'],
     'task.create': ['boardId', 'title'],
     'task.start': ['boardId'],
     'task.block': ['boardId'],

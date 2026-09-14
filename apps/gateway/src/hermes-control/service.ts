@@ -74,6 +74,10 @@ export class HermesGatewayService {
     return projectCollection(await this.read(frameworkId, (client) => client.models(query)));
   }
 
+  async workspaces(frameworkId: string, query: PageQuery) {
+    return projectCollection(await this.read(frameworkId, (client) => client.workspaces(query)));
+  }
+
   async projects(frameworkId: string, query: PageQuery) {
     return projectCollection(await this.read(frameworkId, (client) => client.projects(query)));
   }

@@ -399,6 +399,7 @@ function validateWorkCommand(input: MutationInput, definition: MutationDefinitio
   const required: Record<string, string[]> = {
     'work.project.create': ['name'],
     'work.project.rename': ['name'],
+    'work.project.configure': ['name'],
     'work.task.create': ['boardId', 'title'],
     'work.task.start': ['boardId'],
     'work.task.block': ['boardId'],

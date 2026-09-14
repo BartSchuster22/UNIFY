@@ -76,7 +76,7 @@ const cronjobs = {
 
 function renderWork(canManage = true) {
   return render(
-    <MantineProvider>
+    <MantineProvider env="test">
       <FrameworkProvider>
         <WorkView canManage={canManage} />
       </FrameworkProvider>
@@ -109,6 +109,8 @@ describe('UNIFY Work & Kanban', () => {
         ],
       } as never;
     });
+    vi.spyOn(gateway, 'hermesWorkspaces').mockResolvedValue({ items: [{ id: '/qa/workspace', path: '/qa/workspace', root: '/qa/workspace', name: 'QA workspace' }], meta, page });
+    vi.spyOn(gateway, 'hermesProfiles').mockResolvedValue({ items: [{ id: 'default', displayName: 'Coordinator', description: 'Manages projects' }, { id: 'builder', displayName: 'Builder', description: 'Builds artifacts' }], meta, page });
     vi.spyOn(gateway, 'hermesProjects').mockResolvedValue(projects);
     vi.spyOn(gateway, 'hermesBoards').mockResolvedValue(boards);
     vi.spyOn(gateway, 'hermesTasks').mockResolvedValue(tasks);
@@ -134,9 +136,8 @@ describe('UNIFY Work & Kanban', () => {
 
   it.each([
     ['project', 'Project name'], ['project', 'Project slug optional'],
-    ['project', 'Project goal'], ['project', 'Default workspace path'],
-    ['project', 'Project manager agent'], ['project', 'Project agents'],
-    ['task', 'Task name'], ['task', 'Prompt'], ['task', 'Assigned agent'],
+    ['project', 'Project goal'],
+    ['task', 'Task name'], ['task', 'Prompt'],
     ['cron', 'Cronjob name'], ['cron', 'Title'], ['cron', 'Prompt'], ['cron', 'Repeat interval'],
   ])('retains repeated input in %s / %s without retaining the event or submitting', async (kind, label) => {
     window.history.replaceState(null, '', '/?view=work&workPage=' + (kind === 'cron' ? 'cronjobs' : 'add'));
@@ -148,6 +149,50 @@ describe('UNIFY Work & Kanban', () => {
       fireEvent.change(field, { target: { value } });
       expect(field).toHaveValue(value);
     }
+    expect(gateway.mutate).not.toHaveBeenCalled();
+  });
+
+  it('selects real workspace, manager and worker selections without manual IDs or activation', async () => {
+    window.history.replaceState(null, '', '/work?workPage=add&framework=hermes-alica');
+    renderWork();
+    await waitFor(() => expect(screen.getByLabelText('Default workspace path', { selector: 'input' })).toBeEnabled());
+    fireEvent.change(screen.getByRole('textbox', { name: /Project name/ }), { target: { value: 'QA selectors' } });
+    fireEvent.click(screen.getByLabelText('Default workspace path', { selector: 'input' }));
+    fireEvent.click(await screen.findByRole('option', { name: '/qa/workspace' }));
+    fireEvent.click(screen.getByLabelText('Project manager agent', { selector: 'input' }));
+    fireEvent.click(await screen.findByRole('option', { name: /Coordinator/ }));
+    fireEvent.click(screen.getByLabelText('Worker agents', { selector: 'input' }));
+    fireEvent.click(await screen.findByRole('option', { name: /Builder/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(gateway.mutate).toHaveBeenCalledWith(expect.objectContaining({
+      operationType: 'work.project.create', target: expect.objectContaining({ frameworkId: 'hermes-alica' }),
+      payload: expect.objectContaining({ defaultWorkspacePath: '/qa/workspace', projectManager: 'default', agents: ['builder'], startPmPlanning: false }),
+    }), expect.any(String)));
+    expect(gateway.hermesWorkspaces).toHaveBeenCalledWith('hermes-alica');
+  });
+
+  it('reopens the URL-selected project with persisted workspace/team and project-owned name', async () => {
+    window.history.replaceState(null, '', '/work?workPage=details&framework=hermes-alica&project=beta');
+    vi.mocked(gateway.hermesProjects).mockResolvedValue({ ...projects, items: [...projects.items, {
+      id: 'beta', name: 'Beta', boardId: 'beta', archived: false,
+      defaultWorkspacePath: '/qa/workspace', projectManager: 'default', agents: ['builder'],
+    }] } as never);
+    vi.mocked(gateway.hermesBoards).mockResolvedValue({ ...boards, items: [...boards.items, { id: 'beta', name: 'Board title must not override project', archived: false, counts: {}, total: 0 }] } as never);
+    renderWork();
+    await waitFor(() => expect(screen.getByLabelText('Default workspace path', { selector: 'input' })).toHaveValue('/qa/workspace'));
+    expect(screen.getByLabelText('Project manager agent', { selector: 'input' })).toHaveValue('Coordinator (default) — Manages projects');
+    expect(document.querySelector('.mantine-MultiSelect-root .mantine-Pill-label')?.textContent).toContain('Builder');
+    expect(new URLSearchParams(window.location.search).get('project')).toBe('beta');
+    expect(screen.getByRole('textbox', { name: /Project name/ })).toHaveValue('Beta');
+  });
+
+  it('fails closed when workspace inventory is unavailable', async () => {
+    window.history.replaceState(null, '', '/work?workPage=add');
+    vi.spyOn(gateway, 'hermesWorkspaces').mockRejectedValue(new Error('unavailable'));
+    renderWork();
+    expect(await screen.findByText(/Workspace or agent inventory unavailable/)).toBeInTheDocument();
+    fireEvent.change(screen.getByRole('textbox', { name: /Project name/ }), { target: { value: 'QA blocked' } });
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
     expect(gateway.mutate).not.toHaveBeenCalled();
   });
 
@@ -209,7 +254,7 @@ describe('UNIFY Work & Kanban', () => {
     renderWork();
     const name = await screen.findByRole('textbox', { name: /Project name/ });
     fireEvent.change(name, { target: { value: 'Beta Project' } });
-    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled());
     expect(screen.getByRole('button', { name: 'Save and Start' })).toBeDisabled();
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
     await waitFor(() => expect(gateway.mutate).toHaveBeenCalled());

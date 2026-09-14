@@ -1,3 +1,4 @@
+import { ProjectSetupStore } from './project-setup.js';
 import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { join } from 'node:path';
@@ -66,17 +67,20 @@ export interface HermesNativeSourceOptions {
   apiToken?: string;
   managementBaseUrl?: string;
   managementToken?: string;
+  projectSetupStore?: ProjectSetupStore;
   fetchImpl?: typeof fetch;
 }
 
 export class HermesNativeSource implements AdapterSource {
   private readonly fetchImpl: typeof fetch;
+  private readonly projectSetup: ProjectSetupStore;
   private readonly apiBaseUrl: string | undefined;
   private readonly management: HermesManagementApi | undefined;
   private readonly baseProfileDisplayName: string;
 
   constructor(private readonly options: HermesNativeSourceOptions) {
     this.baseProfileDisplayName = validateBaseProfileDisplayName(options.baseProfileDisplayName);
+    this.projectSetup = options.projectSetupStore ?? new ProjectSetupStore();
     this.fetchImpl = options.fetchImpl ?? fetch;
     this.apiBaseUrl = options.apiBaseUrl ? validateApiBaseUrl(options.apiBaseUrl) : undefined;
     this.management = options.managementBaseUrl
@@ -526,6 +530,39 @@ export class HermesNativeSource implements AdapterSource {
     }
   }
 
+  async workspaces() { return snapshot(await this.projectSetup.workspaces()); }
+
+  async validateWorkSelections(command: HermesWorkCommand): Promise<void> {
+    const p = record(command.payload);
+    if (!['project.create', 'project.configure', 'task.create'].includes(command.operation)) return;
+    if ('defaultWorkspacePath' in p) await this.projectSetup.validateWorkspace(p.defaultWorkspacePath);
+    if ('agents' in p && (!Array.isArray(p.agents) || p.agents.length > 50 || p.agents.some(x => typeof x !== 'string'))) throw new Error('Invalid worker selection');
+    if ('projectManager' in p && typeof p.projectManager !== 'string') throw new Error('Invalid manager selection');
+    const selected = [p.projectManager, p.assignee, ...(Array.isArray(p.agents) ? p.agents : [])].filter(x => x !== undefined && x !== '');
+    if (selected.length) {
+      const ids = new Set((await this.profiles()).items.map(profile => profile.id));
+      if (selected.some(id => typeof id !== 'string' || !ids.has(id))) throw new Error('Selected agent is not available in this Hermes framework');
+    }
+  }
+
+  private async saveProjectSelections(id: string, p: Record<string, unknown>, boardId = id) {
+    if (typeof p.defaultWorkspacePath === 'string' && p.defaultWorkspacePath) {
+      if (!boardId) throw new Error('Project needs a native board binding before workspace configuration');
+      assertNativeId(boardId);
+      await this.projectSetup.validateWorkspace(p.defaultWorkspacePath);
+      await this.options.runner.run(['project', 'add-folder', id, p.defaultWorkspacePath, '--primary']);
+      await this.options.runner.run(['kanban', 'boards', 'set-default-workdir', boardId, p.defaultWorkspacePath]);
+    }
+    if ('projectManager' in p || 'agents' in p) {
+      const current = await this.projectSetup.read(id);
+      await this.projectSetup.write(id, {
+        projectManager: typeof p.projectManager === 'string' ? p.projectManager : current?.projectManager ?? '',
+        agents: Array.isArray(p.agents) ? [...new Set(p.agents as string[])] : current?.agents ?? [],
+        teamConfigurationOwner: 'dsh-hermes-adapter',
+      });
+    }
+  }
+
   async projects(): Promise<Snapshot<HermesProject>> {
     const output = stripAnsi(await this.options.runner.run(['project', 'list', '--all']));
     const summaries = output
@@ -549,9 +586,11 @@ export class HermesNativeSource implements AdapterSource {
       items.push({
         id: summary.id,
         name: /^\s*name:\s*(.*)$/m.exec(detail)?.[1]?.trim() || summary.name,
-        archived: summary.archived,
+        archived: summary.archived || /\(archived\)\s*$/.test(detail.split('\n')[0] ?? ''),
         ...(description ? { description } : {}),
         ...(boardId ? { boardId } : {}),
+        ...(/^\s*primary:\s*(.*)$/m.exec(detail)?.[1]?.trim() ? { defaultWorkspacePath: /^\s*primary:\s*(.*)$/m.exec(detail)![1]!.trim() } : {}),
+        ...(await this.projectSetup.read(summary.id) ?? {}),
       });
     }
     return snapshot(items);
@@ -651,6 +690,7 @@ export class HermesNativeSource implements AdapterSource {
 
   async executeWork(command: HermesWorkCommand): Promise<Record<string, unknown>> {
     assertNativeId(command.targetId);
+    await this.validateWorkSelections(command);
     const payload = record(command.payload);
     switch (command.operation) {
       case 'project.create': {
@@ -678,6 +718,7 @@ export class HermesNativeSource implements AdapterSource {
           command.targetId,
           command.targetId,
         ]);
+        await this.saveProjectSelections(command.targetId, payload);
         let planningTask: Record<string, unknown> | undefined;
         if (payload.startPmPlanning === true) {
           const pm = payloadString(payload, 'projectManager', 200);
@@ -713,6 +754,14 @@ export class HermesNativeSource implements AdapterSource {
           project: { id: command.targetId, name },
           ...(planningTask ? { planningTask } : {}),
         };
+      }
+      case 'project.configure': {
+        const current = (await this.projects()).items.find(p => p.id === command.targetId);
+        if (!current || current.archived) throw new SourceUnavailableError('Active project was not found');
+        const name = payloadString(payload, 'name', 500);
+        await this.saveProjectSelections(command.targetId, payload, current.boardId ?? '');
+        if (name !== current.name) await this.options.runner.run(['project', 'rename', command.targetId, name]);
+        return { project: (await this.projects()).items.find(p => p.id === command.targetId) };
       }
       case 'project.rename': {
         const name = payloadString(payload, 'name', 500);

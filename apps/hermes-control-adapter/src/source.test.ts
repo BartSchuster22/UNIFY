@@ -288,6 +288,7 @@ describe('HermesNativeSource', () => {
   it('adapts Hermes projects and cronjobs and executes idempotent native task creation', async () => {
     const source = new HermesNativeSource({
       runner: new FixtureRunner({
+        'profile list': ' herman gpt-test stopped —\n',
         'project list --all':
           '  alpha                    Alpha Project  [0 folder(s)]\nphase-14-5-hermes-herman Phase 14.5 hermes-herman  [0 folder(s)]\n',
         'project show alpha':

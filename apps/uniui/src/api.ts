@@ -79,6 +79,8 @@ export const gateway = {
     }),
   logout: () => api<void>('/auth/logout', { method: 'POST' }),
 
+  hermesWorkspaces: (frameworkId: string) =>
+    api<HermesCollection<Record<string, unknown>>>(`/frameworks/${encodeURIComponent(frameworkId)}/work/workspaces?limit=500`),
   hermesProjects: (frameworkId: string) =>
     api<HermesCollection<Record<string, unknown>>>(
       `/frameworks/${encodeURIComponent(frameworkId)}/work/projects?limit=500`,
