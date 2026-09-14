@@ -6,5 +6,5 @@ COPY integrations ./integrations
 COPY apps/uniui ./apps/uniui
 RUN pnpm install --frozen-lockfile --ignore-scripts --filter @aquiero/hermes-control-adapter...
 RUN pnpm --filter @aquiero/contracts build && pnpm --filter @aquiero/hermes-control-adapter build && pnpm --filter @aquiero/gateway build && pnpm --filter @aquiero/uniui typecheck
-RUN if command -v apk >/dev/null; then apk add --no-cache python3; else apt-get update && apt-get install -y --no-install-recommends python3; fi
-RUN pnpm --filter @aquiero/hermes-control-adapter exec vitest run src && pnpm --filter @aquiero/gateway exec vitest run src && pnpm --filter @aquiero/uniui exec vitest run src/WorkView.test.tsx && pnpm --filter @aquiero/uniui build
+RUN if command -v apk >/dev/null; then apk add --no-cache python3 py3-yaml; else apt-get update && apt-get install -y --no-install-recommends python3 python3-yaml; fi
+RUN pnpm --filter @aquiero/hermes-control-adapter exec vitest run src && pnpm --filter @aquiero/gateway exec vitest run src && pnpm --filter @aquiero/uniui exec vitest run src/WorkView.test.tsx src/ProfilesView.test.tsx && pnpm --filter @aquiero/uniui build

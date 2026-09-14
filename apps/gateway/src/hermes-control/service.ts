@@ -62,6 +62,10 @@ export class HermesGatewayService {
     return projectEnvelope(response);
   }
 
+  async agentConfiguration(frameworkId: string, id: string) {
+    return projectCollection(await this.read(frameworkId, client => client.agentConfiguration(id)));
+  }
+
   async profiles(frameworkId: string, query: PageQuery) {
     return projectCollection(await this.read(frameworkId, (client) => client.profiles(query)));
   }

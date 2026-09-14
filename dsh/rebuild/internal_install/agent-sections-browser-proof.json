@@ -1,0 +1,15 @@
+{
+  "createDryRunNoFiles": true,
+  "createAndReadback": true,
+  "nativeSoulLoaded": true,
+  "nativeMemoryEntriesLoaded": true,
+  "nativeMemoryEditBetweenReviewAndSave": true,
+  "staleSave": 409,
+  "draftPreserved": true,
+  "explicitReloadAndMerge": true,
+  "editAndBrowserReload": true,
+  "configuredLimitRejection": 400,
+  "unauthenticatedRead": 401,
+  "javascriptErrors": [],
+  "qaProfile": "qa-agent-sections-proof-final"
+}

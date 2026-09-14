@@ -1,3 +1,4 @@
+import { AgentConfigurationStore, AgentConfigurationError } from './agent-configuration.js';
 import { ProjectSetupStore } from './project-setup.js';
 import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
@@ -72,6 +73,23 @@ export interface HermesNativeSourceOptions {
 }
 
 export class HermesNativeSource implements AdapterSource {
+  private agentConfigurationStore = new AgentConfigurationStore();
+  async agentConfiguration(id: string) {
+    assertNativeId(id);
+    const item = await this.agentConfigurationStore.run(id, 'read');
+    return { items: [item], sourceVersion: String(item.revision) };
+  }
+  async validateAgentConfiguration(command: HermesProfileCommand) {
+    const sections = command.payload.configuration;
+    if (sections === undefined) return;
+    if (!['profile.create','profile.update'].includes(command.operation) || !sections || typeof sections !== 'object' || Array.isArray(sections)) throw new AgentConfigurationError(false, 'Invalid Agent sections');
+    const values = sections as Record<string, unknown>;
+    if (command.payload.description !== undefined && (typeof command.payload.description !== 'string' || command.payload.description.length > 5000)) throw new AgentConfigurationError(false, 'Invalid Agent description');
+    if (Object.keys(values).sort().join(',') !== 'instructions,memory,userMemory' || Object.values(values).some(x => typeof x !== 'string' || x.length > 65536 || x.includes('\0'))) throw new AgentConfigurationError(false, 'Invalid Agent sections');
+    if (command.operation === 'profile.update') await this.agentConfigurationStore.run(command.targetId, 'validate', { revision: command.payload.configurationRevision, values: { ...values, description: command.payload.description ?? '' } });
+    else if (String(values.memory).length > 2200 || String(values.userMemory).length > 1375) throw new AgentConfigurationError(false, 'Agent section exceeds its configured limit');
+  }
+
   private readonly fetchImpl: typeof fetch;
   private readonly projectSetup: ProjectSetupStore;
   private readonly apiBaseUrl: string | undefined;
@@ -139,9 +157,21 @@ export class HermesNativeSource implements AdapterSource {
 
   async executeProfile(command: HermesProfileCommand): Promise<Record<string, unknown>> {
     assertNativeId(command.targetId);
+    await this.validateAgentConfiguration(command);
     const payload = record(command.payload);
     const profiles = (await this.profiles()).items;
     const current = profiles.find((item) => item.id === command.targetId);
+    if (payload.configuration !== undefined) {
+      if (command.operation === 'profile.create') {
+        if (current) throw new SourceConflictError('Agent ID already exists');
+        await this.options.runner.run(['profile','create',command.targetId,'--no-alias']);
+      } else if (!current) throw new SourceUnavailableError('Agent was not found');
+      const result = await this.agentConfigurationStore.run(command.targetId, command.operation === 'profile.create' ? 'initialize' : 'write', {
+        revision: payload.configurationRevision,
+        values: { ...record(payload.configuration), description: optionalPayloadString(payload, 'description', 5000) ?? '' },
+      });
+      return { profile: { id: command.targetId, configurationRevision: result.revision, verified: true } };
+    }
     switch (command.operation) {
       case 'profile.create': {
         if (!current) {

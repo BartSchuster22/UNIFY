@@ -23,6 +23,7 @@ const capabilities = {
   meta,
   data: {
     capabilities: {
+      'profiles.configuration': { status: 'supported' },
       'profiles.read': { status: 'supported' },
       'profiles.execute': {
         status: 'unsupported',
@@ -34,7 +35,7 @@ const capabilities = {
 
 function renderProfiles(canManage = true) {
   return render(
-    <MantineProvider>
+    <MantineProvider env="test">
       <FrameworkProvider>
         <ProfilesView canManage={canManage} />
       </FrameworkProvider>
@@ -79,6 +80,7 @@ describe('Profiles Hermes cutover', () => {
         const url = String(request);
         if (url.endsWith('/api/v1/frameworks')) return Response.json({ items: [framework] });
         if (url.includes('/capabilities')) return Response.json(capabilities);
+        if (url.endsWith('/configuration')) return Response.json(response([{ id: 'default', description: 'Original description', instructions: 'Original instructions', memory: 'Original memory', userMemory: 'Original user', revision: 'sha256:document-v1', limits: { instructions: 65536, memory: 2200, userMemory: 1375 } }]));
         if (url.includes('/profiles')) return Response.json(response([herman]));
         return Response.json({ error: { message: 'not found' } }, { status: 404 });
       }),
@@ -113,6 +115,7 @@ describe('Profiles Hermes cutover', () => {
               },
             ],
           });
+        if (url.endsWith('/configuration')) return Response.json(response([{ id: 'default', description: 'Original description', instructions: 'Original instructions', memory: 'Original memory', userMemory: 'Original user', revision: 'sha256:document-v1', limits: { instructions: 65536, memory: 2200, userMemory: 1375 } }]));
         if (url.includes('/profiles'))
           return Response.json(
             response([
@@ -139,7 +142,8 @@ describe('Profiles Hermes cutover', () => {
       if (url.includes('/capabilities')) return Response.json(capabilities);
       if (url.includes('cursor=next-safe'))
         return Response.json(response([{ ...herman, id: 'chatboard', displayName: 'Chatboard' }]));
-      if (url.includes('/profiles'))
+      if (url.endsWith('/configuration')) return Response.json(response([{ id: 'default', description: 'Original description', instructions: 'Original instructions', memory: 'Original memory', userMemory: 'Original user', revision: 'sha256:document-v1', limits: { instructions: 65536, memory: 2200, userMemory: 1375 } }]));
+        if (url.includes('/profiles'))
         return Response.json(response([herman], { hasMore: true, nextCursor: 'next-safe' }));
       return Response.json({}, { status: 404 });
     });
@@ -190,7 +194,7 @@ describe('Profiles Hermes cutover', () => {
     const hermanMeta = { ...meta, frameworkId: 'hermes-herman' };
     const supported = {
       meta: hermanMeta,
-      data: { capabilities: { 'profiles.execute': { status: 'supported' } } },
+      data: { capabilities: { 'profiles.configuration': { status: 'supported' }, 'profiles.execute': { status: 'supported' } } },
     };
     const seed = {
       ...herman,
@@ -301,8 +305,9 @@ describe('Profiles Hermes cutover', () => {
         if (url.includes('/capabilities'))
           return Response.json({
             ...capabilities,
-            data: { capabilities: { 'profiles.execute': { status: 'supported' } } },
+            data: { capabilities: { 'profiles.configuration': { status: 'supported' }, 'profiles.execute': { status: 'supported' } } },
           });
+        if (url.endsWith('/configuration')) return Response.json(response([{ id: 'default', description: 'Original description', instructions: 'Original instructions', memory: 'Original memory', userMemory: 'Original user', revision: 'sha256:document-v1', limits: { instructions: 65536, memory: 2200, userMemory: 1375 } }]));
         if (url.includes('/profiles')) return Response.json(response([named]));
         if (url.endsWith('/api/v1/mutations'))
           return Response.json(
@@ -331,7 +336,7 @@ describe('Profiles Hermes cutover', () => {
   it('creates and edits Agents through governed Hermes profile mutations', async () => {
     const supported = {
       ...capabilities,
-      data: { capabilities: { 'profiles.execute': { status: 'supported' } } },
+      data: { capabilities: { 'profiles.configuration': { status: 'supported' }, 'profiles.execute': { status: 'supported' } } },
     };
     const mutationCalls: Array<Record<string, unknown>> = [];
     vi.stubGlobal(
@@ -341,6 +346,7 @@ describe('Profiles Hermes cutover', () => {
         if (url.endsWith('/api/v1/frameworks')) return Response.json({ items: [framework] });
         if (url.includes('/capabilities')) return Response.json(supported);
         if (url.includes('/providers')) return Response.json({ items: [] });
+        if (url.endsWith('/configuration')) return Response.json(response([{ id: 'default', description: 'Original description', instructions: 'Original instructions', memory: 'Original memory', userMemory: 'Original user', revision: 'sha256:document-v1', limits: { instructions: 65536, memory: 2200, userMemory: 1375 } }]));
         if (url.includes('/profiles')) return Response.json(response([herman]));
         if (url.endsWith('/api/v1/mutations')) {
           const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
@@ -370,11 +376,13 @@ describe('Profiles Hermes cutover', () => {
     fireEvent.change(screen.getByLabelText('Agent description'), {
       target: { value: 'Researches production incidents.' },
     });
+    fireEvent.change(screen.getByLabelText('Agent instructions (SOUL.md)'), { target: { value: 'You are a research agent.' } });
+    fireEvent.change(screen.getByLabelText('Agent memory (MEMORY.md)'), { target: { value: 'Research facts.' } });
+    fireEvent.change(screen.getByLabelText('User memory (USER.md)'), { target: { value: 'Prefers citations.' } });
     fireEvent.click(screen.getByRole('checkbox'));
     fireEvent.click(screen.getByRole('button', { name: 'Validate and dry-run' }));
     expect(await screen.findByText(/Exact payload dry-run passed/)).toBeInTheDocument();
-    const createActions = screen.getAllByRole('button', { name: 'Create Agent' });
-    fireEvent.click(createActions[0]!);
+    fireEvent.click(screen.getAllByRole('button', { name: 'Create Agent' }).at(-1)!);
     await waitFor(() => expect(mutationCalls).toHaveLength(2));
     expect(mutationCalls).toEqual([
       expect.objectContaining({ operationType: 'profile.create', mode: 'dry-run' }),
@@ -382,6 +390,10 @@ describe('Profiles Hermes cutover', () => {
     ]);
 
     fireEvent.click(screen.getByRole('button', { name: 'Edit Herman' }));
+    await waitFor(() => expect(screen.getByLabelText('Agent instructions (SOUL.md)')).toHaveValue('Original instructions'));
+    expect(screen.getByLabelText('Agent memory (MEMORY.md)')).toHaveValue('Original memory');
+    expect(screen.getByLabelText('User memory (USER.md)')).toHaveValue('Original user');
+    fireEvent.change(screen.getByLabelText('Agent instructions (SOUL.md)'), { target: { value: 'Changed instructions' } });
     fireEvent.change(screen.getByLabelText('Agent description'), {
       target: { value: 'Herman base Agent for operations.' },
     });
@@ -391,7 +403,44 @@ describe('Profiles Hermes cutover', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save Agent' }));
     await waitFor(() => expect(mutationCalls).toHaveLength(4));
     expect(mutationCalls[2]).toMatchObject({ operationType: 'profile.update', mode: 'dry-run' });
-    expect(mutationCalls[3]).toMatchObject({ operationType: 'profile.update', mode: 'execute' });
+    expect(mutationCalls[3]).toMatchObject({ operationType: 'profile.update', mode: 'execute', payload: { configurationRevision: 'sha256:document-v1', configuration: { instructions: 'Changed instructions', memory: 'Original memory', userMemory: 'Original user' } } });
+    expect(mutationCalls[1]).toMatchObject({ payload: { configuration: { instructions: 'You are a research agent.', memory: 'Research facts.', userMemory: 'Prefers citations.' } } });
+  });
+
+  it.each(['unavailable', 'limit', 'changed'])('fails closed for %s sections and invalidates reviewed edits', async scenario => {
+    const keys: Array<string | null> = [];
+    vi.stubGlobal('fetch', vi.fn(async (request: string | URL | Request, init?: RequestInit) => {
+      const url = String(request);
+      if (url.endsWith('/api/v1/frameworks')) return Response.json({ items: [framework] });
+      if (url.includes('/capabilities')) return Response.json({ ...capabilities, data: { capabilities: { 'profiles.execute': { status: 'supported' }, 'profiles.configuration': { status: 'supported' } } } });
+      if (url.endsWith('/configuration')) return scenario === 'unavailable'
+        ? Response.json({ error: { message: 'Configuration unavailable' } }, { status: 503 })
+        : Response.json(response([{ id: 'default', description: '', instructions: 'Original instructions', memory: 'Original memory', userMemory: 'Original user', revision: 'sha256:document-v1', limits: { instructions: 65536, memory: 2200, userMemory: 1375 } }]));
+      if (url.includes('/profiles')) return Response.json(response([herman]));
+      if (url.endsWith('/api/v1/mutations')) { keys.push(new Headers(init?.headers).get('idempotency-key')); return Response.json({ replayed: false, operation: { state: 'verified', operationId: 'qa-review' }, result: {} }); }
+      return Response.json({ items: [] });
+    }));
+    renderProfiles(); fireEvent.click(await screen.findByRole('button', { name: 'Edit Herman' }));
+    if (scenario === 'unavailable') {
+      expect(await screen.findByText(/Configuration unavailable.*Saving is blocked/)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Validate and dry-run' })).toBeDisabled();
+    } else {
+      await waitFor(() => expect(screen.getByLabelText('Agent instructions (SOUL.md)')).toHaveValue('Original instructions'));
+      fireEvent.click(screen.getByRole('checkbox'));
+      if (scenario === 'limit') {
+        fireEvent.change(screen.getByLabelText('Agent memory (MEMORY.md)'), { target: { value: 'x'.repeat(2201) } });
+        expect(screen.getByRole('button', { name: 'Validate and dry-run' })).toBeDisabled();
+      } else {
+        fireEvent.click(screen.getByRole('button', { name: 'Validate and dry-run' }));
+        await waitFor(() => expect(screen.getByRole('button', { name: 'Save Agent' })).toBeEnabled());
+        fireEvent.change(screen.getByLabelText('Agent instructions (SOUL.md)'), { target: { value: 'New intent' } });
+        expect(screen.getByRole('button', { name: 'Save Agent' })).toBeDisabled();
+        expect(screen.getByLabelText('Agent memory (MEMORY.md)')).toHaveValue('Original memory');
+        fireEvent.click(screen.getByRole('button', { name: 'Validate and dry-run' }));
+        await waitFor(() => expect(keys).toHaveLength(2));
+        expect(keys[0]).not.toBe(keys[1]);
+      }
+    }
   });
 
   it('keeps profile writes unavailable for read-only roles and the built-in default', async () => {
@@ -403,8 +452,9 @@ describe('Profiles Hermes cutover', () => {
         if (url.includes('/capabilities'))
           return Response.json({
             ...capabilities,
-            data: { capabilities: { 'profiles.execute': { status: 'supported' } } },
+            data: { capabilities: { 'profiles.configuration': { status: 'supported' }, 'profiles.execute': { status: 'supported' } } },
           });
+        if (url.endsWith('/configuration')) return Response.json(response([{ id: 'default', description: 'Original description', instructions: 'Original instructions', memory: 'Original memory', userMemory: 'Original user', revision: 'sha256:document-v1', limits: { instructions: 65536, memory: 2200, userMemory: 1375 } }]));
         if (url.includes('/profiles')) return Response.json(response([herman]));
         return Response.json({}, { status: 404 });
       }),

@@ -16,6 +16,7 @@ import {
   HermesProfilesResponseSchema,
   HermesProjectsResponseSchema,
   HermesWorkspacesResponseSchema,
+  HermesAgentConfigurationResponseSchema,
   type HermesWorkspacesResponse,
   HermesProvidersResponseSchema,
   HermesReconcileResultSchema,
@@ -112,6 +113,10 @@ export class HermesControlClient {
 
   capabilities(): Promise<HermesCapabilitiesResponse> {
     return this.request('GET', '/control/v1/capabilities', HermesCapabilitiesResponseSchema);
+  }
+
+  agentConfiguration(id: string) {
+    return this.request('GET', '/control/v1/profiles/'+encodeURIComponent(id)+'/configuration', HermesAgentConfigurationResponseSchema);
   }
 
   profiles(query: PageQuery = {}): Promise<HermesProfilesResponse> {

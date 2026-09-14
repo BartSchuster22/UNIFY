@@ -1,0 +1,8 @@
+FROM alica-work-selectors:build AS overlay
+RUN mkdir -p /overlay/core/app/node_modules/.pnpm/@aquiero+contracts@file+packages+contracts/node_modules/@aquiero/contracts /overlay/hermes/opt/unify-adapter/node_modules/.pnpm/@aquiero+contracts@file+packages+contracts/node_modules/@aquiero/contracts && cp -a /workspace/apps/gateway/dist /overlay/core/app/ && cp -a /workspace/packages/contracts/dist /overlay/core/app/node_modules/.pnpm/@aquiero+contracts@file+packages+contracts/node_modules/@aquiero/contracts/ && cp -a /workspace/apps/hermes-control-adapter/dist /overlay/hermes/opt/unify-adapter/ && cp -a /workspace/packages/contracts/dist /overlay/hermes/opt/unify-adapter/node_modules/.pnpm/@aquiero+contracts@file+packages+contracts/node_modules/@aquiero/contracts/
+FROM sha256:2afd5dea9dcc658a7fee963df30f453a7ffae3355d92a4867ec700d8bd8c47a9 AS core
+COPY --from=overlay --chown=65532:65532 /overlay/core/ /
+FROM sha256:28733e0764f86bb17b966029a4e8478beb2c54c82eaf16b957de2779abda212b AS hermes
+COPY --from=overlay /overlay/hermes/ /
+FROM sha256:5cbee35e8cd19683247445a78bf87f5d5c6b61a6aa079613ecc53e657e1a4a45 AS ui
+COPY --from=overlay --chown=65532:65532 /workspace/apps/uniui/dist /app/public

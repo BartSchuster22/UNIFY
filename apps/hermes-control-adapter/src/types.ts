@@ -26,6 +26,8 @@ export interface Snapshot<T> {
 
 export interface AdapterSource {
   profiles(): Promise<Snapshot<HermesProfile>>;
+  agentConfiguration?(id: string): Promise<Snapshot<Record<string, any>>>;
+  validateAgentConfiguration?(command: HermesProfileCommand): Promise<void>;
   executeProfile(command: HermesProfileCommand): Promise<Record<string, unknown>>;
   providers(refresh?: boolean): Promise<Snapshot<HermesProvider>>;
   models(refresh?: boolean): Promise<Snapshot<HermesModel>>;

@@ -1042,6 +1042,11 @@ export function buildApp(options: AppOptions) {
       );
     },
   );
+  app.get<{ Params: { frameworkId: string; profileId: string } }>('/api/v1/frameworks/:frameworkId/profiles/:profileId/configuration', async request => {
+    const current = await session(request);
+    auth.requirePermission(current, 'profiles.manage');
+    return requireHermesGateway().agentConfiguration(request.params.frameworkId, request.params.profileId);
+  });
   type AgentCreateBody = AgentMutationBody & { id: string };
   type AgentRenameBody = AgentMutationBody & { newId: string; confirmed: true };
   type AgentDeleteBody = AgentMutationBody & { confirmed: true };

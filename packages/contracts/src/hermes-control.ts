@@ -369,6 +369,12 @@ export const HermesBoardsResponseSchema = controlCollectionResponse(
   HermesBoardSchema,
 );
 
+export const HermesAgentConfigurationSchema = Type.Object({
+  id: Type.String(), description: Type.String(), instructions: Type.String(), memory: Type.String(), userMemory: Type.String(), revision: Type.String(),
+  limits: Type.Object({ instructions: Type.Number(), memory: Type.Number(), userMemory: Type.Number() }),
+}, { additionalProperties: false });
+export const HermesAgentConfigurationResponseSchema = controlCollectionResponse('HermesAgentConfigurationResponse', HermesAgentConfigurationSchema);
+
 export const HermesWorkspaceSchema = Type.Object({
   id: Type.String({ maxLength: 4096 }), path: Type.String({ maxLength: 4096 }),
   root: Type.String({ maxLength: 4096 }), name: Type.String({ maxLength: 4096 }),

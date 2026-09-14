@@ -1,3 +1,4 @@
+import { AgentConfigurationError } from './agent-configuration.js';
 import { randomUUID, timingSafeEqual } from 'node:crypto';
 import Fastify, { type FastifyRequest } from 'fastify';
 import {
@@ -62,7 +63,7 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
     throw new Error('A bearer token or rotating bearer token verifier is required');
   let workQueue: Promise<void> = Promise.resolve();
   const serializeWork = <T>(operation: string, action: () => Promise<T>): Promise<T> => {
-    if (!operation.startsWith('project.')) return action();
+    if (!operation.startsWith('project.') && !operation.startsWith('profile.')) return action();
     const next = workQueue.then(action);
     workQueue = next.then(() => undefined, () => undefined);
     return next;
@@ -141,7 +142,7 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
   });
 
   app.setErrorHandler(async (error, request, reply) => {
-    let mapped = mapError(error);
+    let mapped = error instanceof AgentConfigurationError ? new AdapterError(error.conflict ? 'source_version_mismatch' : 'invalid_request', error.conflict ? 409 : 400, error.message) : mapError(error);
     if (request.url.startsWith('/control/v1/commands/')) {
       try {
         await auditCommand(
@@ -255,6 +256,7 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
           requiredScopes: ['control:execute'],
           ...(!scopes.has('control:execute') ? { reasonCode: 'SCOPE_NOT_CONFIGURED' } : {}),
         },
+        'profiles.configuration': options.source.agentConfiguration && options.source.validateAgentConfiguration ? { status: 'supported', modes: ['read','validate','dry-run','execute','verify'], requiredScopes: ['control:read','control:execute'] } : unsupported('AGENT_CONFIGURATION_UNAVAILABLE'),
         'profiles.execute': {
           status: scopes.has('control:execute') ? 'supported' : 'forbidden',
           modes: scopes.has('control:execute') ? ['validate', 'dry-run', 'execute', 'verify'] : [],
@@ -304,6 +306,12 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
   app.get('/control/v1/profiles', async (request) => {
     requireScope(scopes, 'control:read');
     return collection(options, await options.source.profiles(), pageQuery(request.query));
+  });
+
+  app.get<{ Params: { profileId: string } }>('/control/v1/profiles/:profileId/configuration', async (request) => {
+    requireScope(scopes, 'control:read');
+    if (!options.source.agentConfiguration) throw new AdapterError('source_unavailable',503,'Agent configuration unavailable');
+    return collection(options, await options.source.agentConfiguration(request.params.profileId), { limit: 1 });
   });
 
   app.get('/control/v1/providers', async (request) => {
@@ -479,6 +487,7 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
     async (request) => {
       requireScope(scopes, 'control:execute');
       const command = request.body;
+      return serializeWork(command.operation, async () => {
       const renameTargetId = validateProfilePayload(command);
       const replay = await replayCommand(
         request,
@@ -494,6 +503,9 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
           409,
           'Expected source version does not match current Hermes profiles',
         );
+      if (command.payload.configuration !== undefined && !options.source.validateAgentConfiguration) throw new AdapterError('source_unavailable',503,'Agent configuration edits are unavailable');
+      await options.source.validateAgentConfiguration?.(command);
+      if (command.payload.configuration && command.operation === 'profile.create' && before.items.some(item => item.id === command.targetId)) throw new AdapterError('source_version_mismatch',409,'Agent ID already exists');
       const operationId = randomUUID();
       if (command.mode !== 'execute') {
         const status = command.mode === 'validate' ? 'validated' : 'dry-run';
@@ -559,6 +571,7 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
         committed.replayed ? 'replayed' : 'completed',
       );
       return committed.response;
+      });
     },
   );
 
