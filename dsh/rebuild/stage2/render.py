@@ -7,7 +7,13 @@ import re
 
 def validate_request(r):
     required={'cell','origin','port','bind','owner'}
-    if set(r)!=required:raise ValueError('Unexpected or missing installation request fields')
+    if not required<=set(r) or set(r)-required-{'tls_mode','edge_network'}:raise ValueError('Unexpected or missing installation request fields')
+    mode=r.get('tls_mode','engineering')
+    if mode not in {'engineering','acme','proxy'}:raise ValueError('Unknown TLS mode')
+    if mode!='engineering' and (r['port']!=443 or r['origin'].endswith(':443')):raise ValueError('Managed TLS requires canonical HTTPS port 443')
+    if mode=='proxy':
+        if not re.fullmatch(r'dsh2-[a-z0-9-]{3,40}-edge',r.get('edge_network','')):raise ValueError('Dedicated proxy edge network required')
+    elif 'edge_network' in r:raise ValueError('Edge network is only valid in proxy mode')
     if not re.fullmatch(r'dsh2-[a-z0-9-]{3,40}',r['cell']):raise ValueError('Dedicated Stage 2 cell namespace required')
     if not re.fullmatch(r'[a-zA-Z0-9_-]{3,64}',r['owner']):raise ValueError('Invalid owner name')
     u=urlsplit(r['origin'])
@@ -44,6 +50,7 @@ def render(r):
     for v in d['networks'].values():v['labels']={'com.alica.stage2':r['cell']}
     d['networks']['model-egress']={'internal':False,'labels':{'com.alica.stage2':r['cell']}}
     d['name']=r['cell']
+    apply_tls(d,r)
     return d
 
 def realm(r,client_secret,owner_password):
@@ -64,8 +71,24 @@ def realm(r,client_secret,owner_password):
         'requiredActions':['UPDATE_PASSWORD'],'credentials':[{'type':'password','value':owner_password,'temporary':True}],
         'clientRoles':{'dsh-core':['dsh-owner']}}]}
 
+def apply_tls(d,r):
+    mode=r.get('tls_mode','engineering');c=d['services']['caddy']
+    if mode=='proxy':
+        c.pop('ports',None)
+        d['networks']['public-edge']={'external':True,'name':r['edge_network']}
+        c['networks']['public-edge']={'aliases':[r['cell']+'-edge']}
+    elif mode=='acme':
+        c['ports']=[{'target':8080,'published':'80','host_ip':r['bind'],'protocol':'tcp'},{'target':8443,'published':'443','host_ip':r['bind'],'protocol':'tcp'}]
+        d['networks']['acme-egress']={'internal':False,'labels':{'com.alica.stage2':r['cell']}}
+        c['networks']['acme-egress']={}
+
 def caddyfile(r):
-    u=validate_request(r)
-    return ('https://'+u.hostname+':8443 {\n request_body {\n  max_size 1MB\n }\n tls /run/secrets/edge.crt /run/secrets/edge.key\n'
+    u=validate_request(r);mode=r.get('tls_mode','engineering')
+    prefix=('http://'+u.hostname+':8080 {\n' if mode=='proxy' else '{\n http_port 8080\n https_port 8443\n}\nhttps://'+u.hostname+' {\n' if mode=='acme' else 'https://'+u.hostname+':8443 {\n tls /run/secrets/edge.crt /run/secrets/edge.key\n')
+    config=(prefix+' request_body {\n  max_size 1MB\n }\n'
       ' @private path /identity/admin /identity/admin/* /identity/realms/master /identity/realms/master/*\n respond @private 404\n'
       ' handle /identity/* {\n  reverse_proxy keycloak:8080\n }\n handle {\n  reverse_proxy uniui:3000\n }\n}\n')
+    if mode=='proxy':
+        for upstream in ['keycloak:8080','uniui:3000']:
+            config=config.replace('reverse_proxy '+upstream+'\n','reverse_proxy '+upstream+' {\n   header_up X-Forwarded-Proto https\n  }\n')
+    return config

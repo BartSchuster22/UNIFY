@@ -13,7 +13,8 @@ import signal
 import subprocess
 import time
 from transaction import Transaction,TransactionError,atomic_json,atomic_json
-from render import validate_request,realm,caddyfile
+from render import validate_request,realm,caddyfile,apply_tls
+from tls_lifecycle import ensure as ensure_pki
 
 SERVICES={'postgresql','keycloak','memory-v4','hermes','unify-core','uniui','caddy'}
 KEYS={'hermes':'ALICA_RUNTIME_IMAGE','unify-core':'UNIFY_CORE_IMAGE','uniui':'UNIUI_IMAGE','memory-v4':'MEMORY_V4_IMAGE','postgresql':'POSTGRESQL_IMAGE','keycloak':'KEYCLOAK_IMAGE','caddy':'CADDY_IMAGE'}
@@ -74,7 +75,11 @@ class Installer:
         if state['state']=='absent':
             mem=next(int(x.split()[1])*1024 for x in Path('/proc/meminfo').read_text().splitlines() if x.startswith('MemAvailable:'))
             if mem<4*1024**3:raise TransactionError('Less than 4 GiB available memory')
-            with socket.socket() as sock:sock.bind((self.r['bind'],self.r['port']))
+            if self.r.get('tls_mode')!='proxy':
+                for port in ([80,443] if self.r.get('tls_mode')=='acme' else [self.r['port']]):
+                    with socket.socket() as sock:sock.bind((self.r['bind'],port))
+            else:
+                self.docker('network','inspect',self.r['edge_network'])
         return {'schema':'dsh-stage2-plan/v1','state':state['state'],'cell':self.r['cell'],'release_sha256':sha(self.bundle/'release.json'),'mutations':False,'images_to_load':missing}
     def prepare(self):
         s=self.root/'secrets'
@@ -101,17 +106,7 @@ class Installer:
         text('secrets/realm.json',json.dumps(realm(self.r,values['oidc-client-secret'],values['owner-password'])))
         text('postgres-init.sql',"CREATE ROLE unify LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD '"+values['core-database-password']+"';\n"+"CREATE ROLE keycloak LOGIN PASSWORD '"+values['keycloak-database-password']+"';\nCREATE DATABASE keycloak OWNER keycloak;\nCREATE ROLE unify_alica_adapter LOGIN PASSWORD '"+values['alica-database-password']+"';\n")
         u=validate_request(self.r)
-        if not (s/'framework-ca.crt').exists():
-            command(['openssl','req','-x509','-newkey','rsa:2048','-nodes','-days','30','-subj','/CN=DSH Stage 2 Engineering CA','-addext','basicConstraints=critical,CA:TRUE','-addext','keyUsage=critical,keyCertSign,cRLSign','-keyout',str(s/'framework-ca.key'),'-out',str(s/'framework-ca.crt')])
-            (s/'framework-ca.key').chmod(0o400);(s/'framework-ca.crt').chmod(0o444)
-        for stem,dns in [('alica','hermes-adapter'),('edge',u.hostname)]:
-            if not (s/(stem+'.crt')).exists():
-                command(['openssl','req','-newkey','rsa:2048','-nodes','-subj','/CN='+dns,'-keyout',str(s/(stem+'.key')),'-out',str(s/(stem+'.csr'))])
-                text('secrets/'+stem+'.ext','subjectAltName=DNS:'+dns+'\nextendedKeyUsage=serverAuth\n')
-                command(['openssl','x509','-req','-in',str(s/(stem+'.csr')),'-CA',str(s/'framework-ca.crt'),'-CAkey',str(s/'framework-ca.key'),'-CAcreateserial','-days','30','-sha256','-extfile',str(s/(stem+'.ext')),'-out',str(s/(stem+'.crt'))])
-                for suffix in ['.key','.crt']:(s/(stem+suffix)).chmod(0o444)
-        for stem,dns in [('alica','hermes-adapter'),('edge',u.hostname)]:
-            command(['openssl','verify','-x509_strict','-purpose','sslserver','-verify_hostname',dns,'-CAfile',str(s/'framework-ca.crt'),str(s/(stem+'.crt'))])
+        ensure_pki(s,u.hostname)
         env={'ALICA_PROJECT':self.r['cell'],'ALICA_CELL_ID':self.r['cell'],'ALICA_RELEASE_ID':self.release['release'],'ALICA_PUBLIC_HOST':u.hostname,'ALICA_PUBLIC_ORIGIN':self.r['origin'],'KEYCLOAK_ADMIN_USERNAME':'recovery-admin'}
         for name,key in KEYS.items():env[key]=self.release['images'][name]['id']
         env['DSH_HERMES_OCI_REF']=self.release['images']['hermes']['oci_reference']
@@ -124,6 +119,7 @@ class Installer:
             if isinstance(v,dict):return {k:walk(x) for k,x in v.items()}
             return v
         d=walk(d);d['services']['caddy']['ports'][0].update(published=str(self.r['port']),host_ip=self.r['bind'])
+        apply_tls(d,self.r)
         for service in d['services'].values():service['pull_policy']='never'
         text('compose.json',json.dumps(d,indent=2));text('frameworks.json',(self.bundle/'frameworks.json').read_text());text('Caddyfile',caddyfile(self.r))
     def stop(self):

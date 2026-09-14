@@ -23,7 +23,7 @@ def enforce_wait_readiness(installer):
     installer.compose=checked
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('action',choices=['install','start','stop','uninstall','boot','enroll','maintenance-on','maintenance-off','ack','status']);p.add_argument('--bundle',required=True);p.add_argument('--release-sha256',required=True);p.add_argument('--root',required=True);p.add_argument('--request',required=True);p.add_argument('--service',choices=['hermes','unify-core','memory-v4']);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('action',choices=['install','start','stop','uninstall','boot','enroll','maintenance-on','maintenance-off','ack','status','renew-tls','force-renew-tls','recover-tls']);p.add_argument('--bundle',required=True);p.add_argument('--release-sha256',required=True);p.add_argument('--root',required=True);p.add_argument('--request',required=True);p.add_argument('--service',choices=['hermes','unify-core','memory-v4']);a=p.parse_args()
     if os.geteuid()!=0:raise RuntimeError('root operator required')
     bundle=Path(a.bundle).resolve();sys.path.insert(0,str(bundle))
     from install import Installer
@@ -53,8 +53,20 @@ def main():
         e=Engine(op/'ops.db')
         if a.action=='boot' and e.meta('maintenance',False):
             print(json.dumps({'state':'maintenance-retained','started':False}));return
+        if a.action in ('renew-tls','force-renew-tls') and e.meta('maintenance',False):
+            print(json.dumps({'tls':'maintenance-retained','renewed':False}));e.db.close();return
+        if a.action in ('install','start','boot') and (root/'secrets/.tls-renewal-recovery').exists():
+            raise RuntimeError('Interrupted TLS renewal: use recover-tls')
+        if a.action=='renew-tls':
+            from tls_lifecycle import due
+            if not due(root/'secrets'):
+                print(json.dumps({'tls':'not-due'}));e.db.close();return
         e.maintenance(True)
-        if a.action in ('install','start','boot'):
+        if a.action in ('renew-tls','force-renew-tls','recover-tls'):
+            from tls_lifecycle import renew,recover
+            result=recover(i) if a.action=='recover-tls' else renew(i,force=a.action=='force-renew-tls')
+            e.maintenance(False)
+        elif a.action in ('install','start','boot'):
             result=i.start();e.maintenance(False)
         elif a.action=='stop':
             with i.tx.locked():i.stop()
@@ -166,7 +178,27 @@ TasksMax=16
 [Install]
 WantedBy=multi-user.target
 ''')
+    unit(base+'-tls.service',f'''[Unit]
+Description=ALICA private certificate renewal {cell}
+After={base}-broker.service
+Requires={base}-broker.service
+[Service]
+Type=oneshot
+UMask=0077
+ExecStart=/usr/bin/python3 {Path(a.bundle).resolve()}/ops.py renew-tls {args}
+TimeoutStartSec=1000
+''')
+    unit(base+'-tls.timer',f'''[Unit]
+Description=ALICA daily private certificate expiry check {cell}
+[Timer]
+OnCalendar=daily
+RandomizedDelaySec=3600
+Persistent=true
+[Install]
+WantedBy=timers.target
+''')
     run(['/usr/bin/systemctl','daemon-reload'])
+    run(['/usr/bin/systemctl','enable','--now',base+'-tls.timer'])
     run(['/usr/bin/systemctl','enable',base+'-cell.service',base+'-broker.service',base+'-observer.service'])
     run(['/usr/bin/systemctl','start',base+'-cell.service',base+'-broker.service',base+'-observer.service'])
     print(json.dumps({'operations':'enrolled','owner':'doghouse-dsh','cell':cell,'rebootAcceptance':'not yet verified'}))

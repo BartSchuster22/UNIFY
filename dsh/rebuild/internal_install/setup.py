@@ -206,7 +206,19 @@ def request(a):
     require(a.bind in ('127.0.0.1', '0.0.0.0'), 'Unsupported bind')
     root = secure(a.root, existing=False)
     require(root.name == a.cell and not root.exists(), 'Fresh installation requires a new root matching the cell')
-    return {'cell': a.cell, 'origin': a.origin, 'owner': a.owner, 'port': a.port, 'bind': a.bind}
+    r = {'cell': a.cell, 'origin': a.origin, 'owner': a.owner, 'port': a.port, 'bind': a.bind}
+    mode = getattr(a, 'tls_mode', 'engineering')
+    network = getattr(a, 'edge_network', None)
+    require(mode in ('engineering', 'acme', 'proxy'), 'Unsupported TLS mode')
+    if mode != 'engineering':
+        require(a.port == 443 and not a.origin.endswith(':443'), 'Managed TLS requires canonical HTTPS port 443')
+        r['tls_mode'] = mode
+    if mode == 'proxy':
+        require(isinstance(network, str) and re.fullmatch(r'dsh2-[a-z0-9-]{3,40}-edge', network), 'Dedicated proxy edge network required')
+        r['edge_network'] = network
+    else:
+        require(network is None, 'Edge network is only valid with proxy TLS')
+    return r
 
 
 def install(a):
@@ -247,6 +259,8 @@ def main():
         ins.add_argument('--' + flag, required=True)
     ins.add_argument('--port', type=int, default=443)
     ins.add_argument('--bind', choices=('127.0.0.1', '0.0.0.0'), default='127.0.0.1')
+    ins.add_argument('--tls-mode', choices=('engineering', 'acme', 'proxy'), default='engineering')
+    ins.add_argument('--edge-network', help='Operator-provisioned dedicated dsh2-*-edge network for proxy TLS')
     a = p.parse_args()
     require(os.geteuid() == 0, 'Root operator required')
     if a.action == 'prepare':
