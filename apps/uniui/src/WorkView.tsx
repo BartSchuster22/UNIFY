@@ -952,47 +952,53 @@ function AddNew({
               label="Project name"
               required
               value={project.name}
-              onChange={(event) =>
-                setProject((current) => ({ ...current, name: event.currentTarget.value }))
-              }
+              onChange={(event) => {
+                const value = event.currentTarget.value;
+                setProject((current) => ({ ...current, name: value }));
+              }}
             />
             <TextInput
               label="Project slug optional"
               placeholder={slugify(project.name)}
               value={project.slug}
-              onChange={(event) =>
-                setProject((current) => ({ ...current, slug: event.currentTarget.value }))
-              }
+              onChange={(event) => {
+                const value = event.currentTarget.value;
+                setProject((current) => ({ ...current, slug: value }));
+              }}
             />
             <Textarea
               label="Project goal"
               minRows={4}
               value={project.goal}
-              onChange={(event) =>
-                setProject((current) => ({ ...current, goal: event.currentTarget.value }))
-              }
+              onChange={(event) => {
+                const value = event.currentTarget.value;
+                setProject((current) => ({ ...current, goal: value }));
+              }}
             />
             <TextInput
               label="Default workspace path"
               value={project.workspace}
-              onChange={(event) =>
-                setProject((current) => ({ ...current, workspace: event.currentTarget.value }))
-              }
+              onChange={(event) => {
+                const value = event.currentTarget.value;
+                setProject((current) => ({ ...current, workspace: value }));
+              }}
             />
             <TextInput
               label="Project manager agent"
               value={project.projectManager}
-              onChange={(event) =>
-                setProject((current) => ({ ...current, projectManager: event.currentTarget.value }))
-              }
+              onChange={(event) => {
+                const value = event.currentTarget.value;
+                setProject((current) => ({ ...current, projectManager: value }));
+              }}
             />
             <TextInput
               label="Project agents"
               description="Comma-separated profiles"
               value={project.agents}
-              onChange={(event) =>
-                setProject((current) => ({ ...current, agents: event.currentTarget.value }))
-              }
+              onChange={(event) => {
+                const value = event.currentTarget.value;
+                setProject((current) => ({ ...current, agents: value }));
+              }}
             />
           </SimpleGrid>
           <Group>
@@ -1029,9 +1035,10 @@ function AddNew({
               label="Task name"
               required
               value={task.title}
-              onChange={(event) =>
-                setTask((current) => ({ ...current, title: event.currentTarget.value }))
-              }
+              onChange={(event) => {
+                const value = event.currentTarget.value;
+                setTask((current) => ({ ...current, title: value }));
+              }}
             />
             <Select
               label="Project"
@@ -1044,16 +1051,18 @@ function AddNew({
               label="Prompt"
               minRows={4}
               value={task.prompt}
-              onChange={(event) =>
-                setTask((current) => ({ ...current, prompt: event.currentTarget.value }))
-              }
+              onChange={(event) => {
+                const value = event.currentTarget.value;
+                setTask((current) => ({ ...current, prompt: value }));
+              }}
             />
             <TextInput
               label="Assigned agent"
               value={task.agent}
-              onChange={(event) =>
-                setTask((current) => ({ ...current, agent: event.currentTarget.value }))
-              }
+              onChange={(event) => {
+                const value = event.currentTarget.value;
+                setTask((current) => ({ ...current, agent: value }));
+              }}
             />
             <Select
               label="Priority"
@@ -1265,26 +1274,29 @@ function Cronjobs({
             label="Cronjob name"
             required
             value={form.name}
-            onChange={(event) =>
-              setForm((current) => ({ ...current, name: event.currentTarget.value }))
-            }
+            onChange={(event) => {
+                const value = event.currentTarget.value;
+                setForm((current) => ({ ...current, name: value }));
+              }}
           />
           <TextInput
             label="Title"
             required
             value={form.title}
-            onChange={(event) =>
-              setForm((current) => ({ ...current, title: event.currentTarget.value }))
-            }
+            onChange={(event) => {
+                const value = event.currentTarget.value;
+                setForm((current) => ({ ...current, title: value }));
+              }}
           />
           <Textarea
             label="Prompt"
             required
             minRows={4}
             value={form.prompt}
-            onChange={(event) =>
-              setForm((current) => ({ ...current, prompt: event.currentTarget.value }))
-            }
+            onChange={(event) => {
+                const value = event.currentTarget.value;
+                setForm((current) => ({ ...current, prompt: value }));
+              }}
           />
           <Select
             label="Schedule mode"
@@ -1312,9 +1324,10 @@ function Cronjobs({
             }
             type={form.mode === 'at' ? 'datetime-local' : 'text'}
             value={form.schedule}
-            onChange={(event) =>
-              setForm((current) => ({ ...current, schedule: event.currentTarget.value }))
-            }
+            onChange={(event) => {
+                const value = event.currentTarget.value;
+                setForm((current) => ({ ...current, schedule: value }));
+              }}
           />
           <TextInput
             label="Timezone"

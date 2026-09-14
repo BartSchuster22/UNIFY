@@ -1,0 +1,5 @@
+FROM alica-session-fix:build AS build
+COPY apps/uniui/src/WorkView.tsx apps/uniui/src/WorkView.test.tsx ./apps/uniui/src/
+RUN pnpm --filter @aquiero/uniui exec vitest run src/WorkView.test.tsx && pnpm --filter @aquiero/uniui typecheck && pnpm --filter @aquiero/uniui build
+FROM sha256:9830542cd82284671a5c161ea05200ec834e31f85e8f5e449822c7e7953075d3
+COPY --from=build --chown=65532:65532 /workspace/apps/uniui/dist /app/public

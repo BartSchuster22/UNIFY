@@ -132,6 +132,25 @@ describe('UNIFY Work & Kanban', () => {
     localStorage.clear();
   });
 
+  it.each([
+    ['project', 'Project name'], ['project', 'Project slug optional'],
+    ['project', 'Project goal'], ['project', 'Default workspace path'],
+    ['project', 'Project manager agent'], ['project', 'Project agents'],
+    ['task', 'Task name'], ['task', 'Prompt'], ['task', 'Assigned agent'],
+    ['cron', 'Cronjob name'], ['cron', 'Title'], ['cron', 'Prompt'], ['cron', 'Repeat interval'],
+  ])('retains repeated input in %s / %s without retaining the event or submitting', async (kind, label) => {
+    window.history.replaceState(null, '', '/?view=work&workPage=' + (kind === 'cron' ? 'cronjobs' : 'add'));
+    renderWork();
+    if (kind === 'cron') fireEvent.click(await screen.findByRole('button', { name: 'New Cronjob' }));
+    if (kind === 'task') fireEvent.click(await screen.findByRole('radio', { name: 'Task' }));
+    const field = await screen.findByRole('textbox', { name: label });
+    for (const value of ['first pasted value', 'second pasted value', 'third edited value']) {
+      fireEvent.change(field, { target: { value } });
+      expect(field).toHaveValue(value);
+    }
+    expect(gateway.mutate).not.toHaveBeenCalled();
+  });
+
   it('routes all authoritative Work reads to the exact URL-selected framework', async () => {
     window.history.replaceState(null, '', '/?view=work&framework=hermes-herman');
     renderWork();
