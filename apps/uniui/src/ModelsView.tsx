@@ -20,6 +20,7 @@ import {
 import { IconAlertTriangle, IconRefresh, IconSparkles } from '@tabler/icons-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api, gateway } from './api';
+import { oauthStart, oauthStatus } from './oauthResult';
 import type { MutationResponse } from './types';
 import { useFrameworkContext } from './FrameworkContext';
 type Provider = {
@@ -304,20 +305,22 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
         mode: 'execute',
         confirmed: reconnect,
       });
-      const data = (result.result ?? {}) as Record<string, unknown>;
-      const expiresIn = Number(data.expires_in ?? 900);
+      if (selectedFramework.current !== requestedFramework) return;
+      const data = oauthStart(result);
       setOauth({
         provider,
-        sessionId: String(data.session_id ?? ''),
-        userCode: String(data.user_code ?? ''),
-        verificationUrl: String(data.verification_url ?? ''),
+        sessionId: data.sessionId,
+        userCode: data.userCode,
+        verificationUrl: data.verificationUrl,
         status: 'pending',
-        expiresAt: Date.now() + expiresIn * 1000,
+        expiresAt: Date.now() + data.expiresIn * 1000,
       });
     } catch (cause) {
+      if (selectedFramework.current !== requestedFramework) return;
+      setOauth(null);
       setError(cause instanceof Error ? cause.message : 'OAuth authorization could not start');
     } finally {
-      setBusy('');
+      if (selectedFramework.current === requestedFramework) setBusy('');
     }
   };
 
@@ -333,9 +336,8 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
             mode: 'execute',
             confirmed: false,
           });
-          const data = (result.result ?? {}) as Record<string, unknown>;
-          const status = String(data.status ?? 'pending') as OAuthSession['status'];
-          const errorMessage = String(data.error_message ?? '');
+          if (selectedFramework.current !== frameworkId) return;
+          const { status, error: errorMessage } = oauthStatus(result);
           setOauth((current) =>
             current
               ? {

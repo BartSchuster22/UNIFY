@@ -575,6 +575,7 @@ describe('Models/providers Hermes management', () => {
         const result =
           body.operationType === 'provider.oauth.start'
             ? {
+                status: 'pending',
                 session_id: 'session-1',
                 user_code: 'ABCD-EFGH',
                 verification_url: 'https://provider.example/device',
@@ -590,7 +591,7 @@ describe('Models/providers Hermes management', () => {
             mode: 'execute',
             updatedAt: new Date().toISOString(),
           },
-          result,
+          result: { meta: { owner: 'hermes', frameworkId: 'hermes-main' }, data: { status: 'succeeded', result } },
         });
       }
       return Response.json({}, { status: 404 });

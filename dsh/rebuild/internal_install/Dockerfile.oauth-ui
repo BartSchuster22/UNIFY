@@ -1,0 +1,2 @@
+FROM sha256:5e981ddd106e7c591850f6c7bda25ebe667d96b71db14afc085898c0b7b7e064
+COPY --from=alica-internal-ui-oauth:build --chown=65532:65532 /workspace/apps/uniui/dist /app/public
