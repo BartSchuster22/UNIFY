@@ -19,6 +19,15 @@ class Handoff(unittest.TestCase):
  def test_recovery_file_cannot_be_mistaken_for_valid_initial(self):
   (self.root/'secrets').mkdir();(self.root/'secrets/recovered-owner-password').touch()
   self.assertFalse(o.initial_available(self.root,{'temporaryPasswordRequired':True}))
+ def test_initial_is_delivered_only_once_even_if_password_change_required_again(self):
+  with self.mocks({'temporaryPasswordRequired':True}),patch.object(o,'confirm'),patch.object(o,'reveal') as reveal:
+   result=o.run(self.args(reveal=True));self.assertTrue(result['initialHandoffClaimed']);self.assertFalse(result['initialPasswordAvailable'])
+   with self.assertRaises(o.Denied):o.run(self.args(reveal=True))
+   reveal.assert_called_once()
+ def test_failed_display_remains_claimed(self):
+  with self.mocks({'temporaryPasswordRequired':True}),patch.object(o,'confirm'),patch.object(o,'reveal',side_effect=OSError('terminal unavailable')):
+   with self.assertRaises(OSError):o.run(self.args(reveal=True))
+   self.assertFalse(o.initial_available(self.root,{'temporaryPasswordRequired':True}))
  def test_pipe_denied(self):
   with patch.object(o.sys.stdin,'isatty',return_value=False),patch.object(o.sys.stdout,'isatty',return_value=True):
    with self.assertRaises(o.Denied):o.require_terminal()

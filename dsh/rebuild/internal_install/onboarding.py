@@ -48,7 +48,18 @@ def inspect_owner(bundle,pin,root,request_path):
 def initial_available(root,status):
  # A failed or previous recovery can leave a file whose credential was never
  # activated. Never infer its validity from file existence or reveal it here.
- return status['temporaryPasswordRequired'] and not (Path(root)/'secrets/recovered-owner-password').exists()
+ return status['temporaryPasswordRequired'] and not (Path(root)/'secrets/recovered-owner-password').exists() and not (Path(root)/'onboarding-initial-claimed.json').exists()
+
+def claim_initial(root):
+ # Claim before disclosure: repeated retrieval or terminal failure requires
+ # explicit recovery, never replay of an old initial credential after expiry.
+ p=Path(root)/'onboarding-initial-claimed.json'
+ fd=os.open(p,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+ with os.fdopen(fd,'w') as f:
+  f.write('{"initialHandoffClaimed":true}\n');f.flush();os.fsync(f.fileno())
+ directory=os.open(root,os.O_RDONLY|os.O_DIRECTORY)
+ try:os.fsync(directory)
+ finally:os.close(directory)
 
 def require_terminal():
  require(sys.stdin.isatty() and sys.stdout.isatty(),'Password access requires an interactive terminal; no pipe, redirection or routine log output')
@@ -82,7 +93,9 @@ def run(a):
  if a.action=='onboarding':
   if a.reveal_initial_password:
    require(result['initialPasswordAvailable'],'Initial password is no longer safely deliverable. Use your chosen password or explicit recover-owner; do not reuse the original file')
-   confirm('REVEAL');reveal(root/'secrets/owner-password')
+   confirm('REVEAL');claim_initial(root);reveal(root/'secrets/owner-password')
+   result['initialPasswordAvailable']=False
+   result['initialHandoffClaimed']=True
   return result
  require(a.action=='recover-owner','Unknown onboarding action')
  confirm('RESET '+r['owner'])

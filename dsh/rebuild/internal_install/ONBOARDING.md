@@ -29,6 +29,12 @@ not in JSON or ordinary stdout. Disable PuTTY/session recording first. A termina
 recorder or screen capture can still record what is displayed; this is not a
 claim that terminals are secret-proof. Pipes and output redirection are refused.
 
+The initial handoff is claimed durably before display and is available **once**.
+Save it securely before closing the terminal. Repeated retrieval, including after
+a terminal failure, requires explicit recovery. This prevents a later password
+expiry from causing the original password to be handed out again. Do not delete
+`onboarding-initial-claimed.json` to bypass this guard.
+
 Open the printed HTTPS URL in your browser, use the printed username and locally
 retrieved password, choose your own password, then complete your real profile.
 Continue with your chosen provider's normal consent flow. Never send passwords
