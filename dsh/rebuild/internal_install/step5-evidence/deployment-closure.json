@@ -1,0 +1,25 @@
+[
+  {
+    "ownerFilesAndAbsencesUnchanged": [
+      "config.yaml",
+      "profile.yaml",
+      "SOUL.md",
+      "memories/MEMORY.md",
+      "memories/USER.md",
+      ".env",
+      "auth.json"
+    ],
+    "qaRemoved": true,
+    "healthyServices": 7
+  },
+  {
+    "allTestedBuildFilesMatchDeployment": {
+      "unify-core": 336,
+      "hermes": 92,
+      "uniui": 3
+    }
+  },
+  {
+    "installerPlanState": "installed"
+  }
+]

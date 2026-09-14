@@ -1,0 +1,109 @@
+{
+  "qa": "qa-runtime-live-977d4eef",
+  "requests": [
+    {
+      "provider": "openai-codex",
+      "model": "gpt-5.6-sol",
+      "requestModel": "gpt-5.6-sol",
+      "toolNames": [
+        "memory",
+        "patch",
+        "read_file",
+        "search_files",
+        "skill_manage",
+        "skill_view",
+        "skills_list",
+        "write_file",
+        "tool_search",
+        "tool_describe",
+        "tool_call"
+      ],
+      "status": "returned"
+    },
+    {
+      "provider": "openai-codex",
+      "model": "gpt-5.6-sol",
+      "requestModel": "gpt-5.6-sol",
+      "toolNames": [
+        "memory",
+        "patch",
+        "read_file",
+        "search_files",
+        "skill_manage",
+        "skill_view",
+        "skills_list",
+        "write_file",
+        "tool_search",
+        "tool_describe",
+        "tool_call"
+      ],
+      "status": "returned"
+    },
+    {
+      "provider": "openai-codex",
+      "model": "gpt-5.6-sol",
+      "requestModel": "gpt-5.6-sol",
+      "toolNames": [
+        "memory",
+        "patch",
+        "read_file",
+        "search_files",
+        "skill_manage",
+        "skill_view",
+        "skills_list",
+        "write_file",
+        "tool_search",
+        "tool_describe",
+        "tool_call"
+      ],
+      "status": "returned"
+    }
+  ],
+  "tools": [
+    {
+      "name": "skill_view",
+      "tool_call_id": "call_M62Cp99Y3W8mQfauaAX6M4r8",
+      "content": "{\"success\": true, \"name\": \"qa-enabled-proof\", \"description\": \"Bounded QA file workflow and output schema.\", \"tags\": [], \"related_skills\": [], \"content\": \"---\\nname: qa-enabled-proof\\ndescription: Bounded QA file workflow and output schema.\\n---\\nSkill proof code: SKILL-STEP5-COBALT. Read input.csv, total each row quantity * unit_price using the available tools or careful reasoning, and write result.json with total_cents and codes. Only use files in the provided disposable workspace.\\n\", \"path\": \"qa-enabled-proof/SKILL.md\", \"skill_dir\": \"/opt/data/profiles/qa-runtime-live-977d4eef/skills/qa-enabled-proof\", \"org_provenance\": null, \"linked_files\": null, \"usage_hint\": null, \"required_environment_variables\": [], \"required_commands\": [], \"missing_required_environment_variables\": [], \"missing_credential_files\": [], \"missing_required_commands\": [], \"setup_needed\": false, \"setup_skipped\": false, \"readiness_status\": \"available\", \"_source_path\": \"/opt/data/profiles/qa-runtime-live-977d4eef/skills/qa-enabled-proof/SKILL.md\"}"
+    },
+    {
+      "name": "skills_list",
+      "tool_call_id": "call_MeGQQBpmBEOpXb8mjfl13Tzb",
+      "content": "{\"success\": true, \"skills\": [{\"name\": \"qa-enabled-proof\", \"description\": \"Bounded QA file workflow and output schema.\", \"category\": null}], \"categories\": [], \"count\": 1, \"hint\": \"Use skill_view(name) to see full content, tags, and linked files\"}"
+    },
+    {
+      "name": "tool_search",
+      "tool_call_id": "call_m2lwS5gOnHVa53ORWC2TXo8Z",
+      "content": "{\"query\": \"terminal\", \"total_available\": 5, \"matches\": [], \"available_sources\": [{\"name\": \"unify_memory\", \"tool_count\": 5}], \"hint\": \"No lexical match was found, but the sources above are connected and their tools remain available. Retry tool_search with the service name plus a concrete action or object before concluding the capability is unavailable.\"}"
+    }
+  ],
+  "systemPromptChecks": [
+    {
+      "instructions": true,
+      "memory": true,
+      "userMemory": true,
+      "enabledSkill": true,
+      "disabledSkill": false
+    }
+  ],
+  "sessions": [
+    {
+      "provider": "openai-codex",
+      "model": "gpt-5.6-sol",
+      "sessionId": "20260914_213453_0ec387"
+    }
+  ],
+  "toolAttributes": {
+    "_tool_worker_threads": "set()",
+    "enabled_toolsets": [
+      "bfl",
+      "file",
+      "kanban",
+      "memory",
+      "skills",
+      "unify_memory"
+    ],
+    "disabled_toolsets": [],
+    "valid_tool_names": "{'tool_describe', 'skills_list', 'read_file', 'skill_view', 'tool_search', 'skill_manage', 'search_files', 'patch', 'memory', 'tool_call', 'write_file'}",
+    "_context_engine_tool_names": "set()"
+  }
+}

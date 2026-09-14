@@ -1,0 +1,32 @@
+{
+  "artifactTotalCents": 1195,
+  "artifactSha256": "4d45969a79ba79051b1c13e69af0c2a6d079ae747b98200cac91d060d8a00917",
+  "primaryProvider": "openai-codex",
+  "primaryModel": "gpt-5.6-sol",
+  "successfulPrimaryRequests": 5,
+  "nativeToolsExecuted": [
+    "skill_view",
+    "read_file",
+    "write_file",
+    "memory",
+    "read_file"
+  ],
+  "terminalAbsentFromSchemasAndDiscovery": true,
+  "enabledSkillLoadedDisabledSkillExcluded": true,
+  "allFourContextCodesInArtifact": true,
+  "fallbackFaults": "Explicit process-local HTTP 429 injection; no real upstream outage claimed",
+  "fallbackTransitions": [
+    {
+      "before": "gpt-5.6-sol",
+      "after": "gpt-5.6-terra",
+      "activated": true
+    },
+    {
+      "before": "gpt-5.6-terra",
+      "after": "gpt-5.6-luna",
+      "activated": true
+    }
+  ],
+  "fallbackActualInferenceModel": "gpt-5.6-luna",
+  "fallbackConfigurationRestored": true
+}

@@ -1,0 +1,117 @@
+{
+  "qa": "qa-runtime-live-977d4eef",
+  "requests": [
+    {
+      "provider": "openai-codex",
+      "model": "gpt-5.6-sol",
+      "requestModel": "gpt-5.6-sol",
+      "toolNames": [
+        "memory",
+        "patch",
+        "read_file",
+        "search_files",
+        "skill_manage",
+        "skill_view",
+        "skills_list",
+        "write_file",
+        "tool_search",
+        "tool_describe",
+        "tool_call"
+      ],
+      "status": "error",
+      "faultInjection": "local-http-429; no upstream inference attempted",
+      "errorType": "RateLimitError"
+    },
+    {
+      "provider": "openai-codex",
+      "model": "gpt-5.6-terra",
+      "requestModel": "gpt-5.6-terra",
+      "toolNames": [
+        "memory",
+        "patch",
+        "read_file",
+        "search_files",
+        "skill_manage",
+        "skill_view",
+        "skills_list",
+        "write_file",
+        "tool_search",
+        "tool_describe",
+        "tool_call"
+      ],
+      "status": "error",
+      "faultInjection": "local-http-429; no upstream inference attempted",
+      "errorType": "RateLimitError"
+    },
+    {
+      "provider": "openai-codex",
+      "model": "gpt-5.6-terra",
+      "requestModel": "gpt-5.6-terra",
+      "toolNames": [
+        "memory",
+        "patch",
+        "read_file",
+        "search_files",
+        "skill_manage",
+        "skill_view",
+        "skills_list",
+        "write_file",
+        "tool_search",
+        "tool_describe",
+        "tool_call"
+      ],
+      "status": "error",
+      "faultInjection": "local-http-429; no upstream inference attempted",
+      "errorType": "RateLimitError"
+    },
+    {
+      "provider": "openai-codex",
+      "model": "gpt-5.6-luna",
+      "requestModel": "gpt-5.6-luna",
+      "toolNames": [
+        "memory",
+        "patch",
+        "read_file",
+        "search_files",
+        "skill_manage",
+        "skill_view",
+        "skills_list",
+        "write_file",
+        "tool_search",
+        "tool_describe",
+        "tool_call"
+      ],
+      "status": "returned"
+    }
+  ],
+  "tools": [],
+  "systemPromptChecks": [
+    {
+      "instructions": true,
+      "memory": true,
+      "userMemory": true,
+      "enabledSkill": true,
+      "disabledSkill": false
+    }
+  ],
+  "sessions": [
+    {
+      "provider": "openai-codex",
+      "model": "gpt-5.6-sol",
+      "sessionId": "20260914_213625_7365aa"
+    }
+  ],
+  "fallbackTransitions": [
+    {
+      "before": "gpt-5.6-sol",
+      "after": "gpt-5.6-terra",
+      "activated": true
+    },
+    {
+      "before": "gpt-5.6-terra",
+      "after": "gpt-5.6-luna",
+      "activated": true
+    }
+  ],
+  "configurationRestored": true
+}
