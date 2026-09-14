@@ -85,9 +85,9 @@ def apply_tls(d,r):
 def caddyfile(r):
     u=validate_request(r);mode=r.get('tls_mode','engineering')
     prefix=('http://'+u.hostname+':8080 {\n' if mode=='proxy' else '{\n http_port 8080\n https_port 8443\n}\nhttps://'+u.hostname+' {\n' if mode=='acme' else 'https://'+u.hostname+':8443 {\n tls /run/secrets/edge.crt /run/secrets/edge.key\n')
-    config=(prefix+' request_body {\n  max_size 1MB\n }\n'
+    config=(prefix+' route {\n request_body {\n  max_size 1MB\n }\n'
       ' @private path /identity/admin /identity/admin/* /identity/realms/master /identity/realms/master/*\n respond @private 404\n'
-      ' handle /identity/* {\n  reverse_proxy keycloak:8080\n }\n handle {\n  reverse_proxy uniui:3000\n }\n}\n')
+      ' handle /identity/* {\n  reverse_proxy keycloak:8080\n }\n handle {\n  reverse_proxy uniui:3000\n }\n }\n}\n')
     if mode=='proxy':
         for upstream in ['keycloak:8080','uniui:3000']:
             config=config.replace('reverse_proxy '+upstream+'\n','reverse_proxy '+upstream+' {\n   header_up X-Forwarded-Proto https\n  }\n')

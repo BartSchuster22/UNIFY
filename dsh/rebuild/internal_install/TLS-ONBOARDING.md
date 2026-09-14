@@ -103,6 +103,18 @@ Caddy restart with public health checks. This Caddy build has its admin API off.
 - Qualify exact-candidate lifecycle/recovery and day-scale operation. No host reboot
   or daemon restart is approved on this shared host. Do not transfer QA evidence.
 
+## Private identity-path follow-up
+
+A final request check found an inherited Caddy directive-order bug: the broad
+identity handler ran before the private-path response. The live development edge
+now explicitly returns 404 for identity admin/master paths; normal owner realm
+sign-in remains reachable. `deny_dev_admin.py` records that scoped transition.
+The renderer now uses an explicit `route` block; `stage2/check_caddy_order.py`
+checks real pinned-Caddy adaptation for all three TLS modes. This source fix is
+not silently backported into the already-admitted dev3 bundle. The running dev3
+candidate is protected by the verified outer-edge deny. A final candidate must
+be rebuilt from the corrected renderer before standalone qualification.
+
 Unit suites observed passing: stage2 installer/PKI (32), internal bootstrap/TLS
 request boundaries (27), stage5 lifecycle contracts (24). These tests are not a
 substitute for the pending human/provider/application acceptance above.
