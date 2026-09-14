@@ -1,0 +1,47 @@
+{
+  "qa": "qa-browser-work-0db5b665",
+  "boardText": "HERMES SOURCE OF TRUTH\n\nWork & Kanban\n\nProjects, Kanban cards, and schedules are read from and mutated through native Hermes.\n\nRefresh\nHermes framework\nHermes overview\nKanban overview\nKanban project\nProject details\nAdd new\nAlica \u2192 Herman\nCronjobs\nSettings\nHERMES \u00b7 CURRENT\nKanban project\n1 CARDS\nProject setup\n\nTRIAGE\n\n0\n\nNo cards\n\nTODO\n\n0\n\nNo cards\n\nREADY\n\n0\n\nNo cards\n\nRUNNING\n\n0\n\nNo cards\n\nBLOCKED\n\n0\n\nNo cards\n\nDONE\n\n1\n\nStep 6 browser file acceptance\n\nt_aba997f6 \u00b7 qa-browser-work-0db5b665\n\nRead input.csv in the project workspace /opt/data/workspace/qa-browser-work-0db5b665. Use the enabled qa-enabled-proof skill and write result.json with total_cents, the instruction/memory/user-memory/skill codes, and the three item names in rows. Reread and verify the generated file. Do not edit files outside this workspace, enable tools, spawn agents, or modify credentials. Report the actual output path and tool results. Mark this task complete only after verifying the file.\n\nARCHIVED\n\n0\n\nNo cards",
+  "taskVisible": true,
+  "cancelControlCount": 0,
+  "responses": [
+    {
+      "url": "https://dsh-dev.aquiero.com/api/v1/auth/me",
+      "status": 200
+    },
+    {
+      "url": "https://dsh-dev.aquiero.com/api/v1/frameworks",
+      "status": 200
+    },
+    {
+      "url": "https://dsh-dev.aquiero.com/api/v1/frameworks/hermes-alica/capabilities",
+      "status": 200
+    },
+    {
+      "url": "https://dsh-dev.aquiero.com/api/v1/frameworks/hermes-alica/work/cronjobs",
+      "status": 200
+    },
+    {
+      "url": "https://dsh-dev.aquiero.com/api/v1/frameworks/hermes-alica/work/boards",
+      "status": 200
+    },
+    {
+      "url": "https://dsh-dev.aquiero.com/api/v1/frameworks/hermes-alica/work/projects",
+      "status": 200
+    },
+    {
+      "url": "https://dsh-dev.aquiero.com/api/v1/frameworks/hermes-alica/work/boards/default/tasks",
+      "status": 200
+    },
+    {
+      "url": "https://dsh-dev.aquiero.com/api/v1/frameworks/hermes-alica/work/boards/qa-browser-work-0db5b665/tasks",
+      "status": 200
+    },
+    {
+      "url": "https://dsh-dev.aquiero.com/api/v1/frameworks/hermes-alica/work/boards/qa-runtime-live-977d4eef/tasks",
+      "status": 200
+    }
+  ],
+  "javascriptErrors": [],
+  "resultSummaryVisible": false,
+  "note": "result.json appears in the user prompt, not in a native result panel."
+}

@@ -1,0 +1,225 @@
+{
+  "qa": "qa-browser-work-0db5b665",
+  "events": [
+    {
+      "request": {
+        "operationType": "work.task.create",
+        "target": {
+          "owner": "hermes",
+          "kind": "task",
+          "nativeId": "step-6-controlled-missing-input",
+          "frameworkId": "hermes-alica"
+        },
+        "payload": {
+          "title": "Step 6 controlled missing input",
+          "body": "Bounded controlled-failure acceptance. Use read_file to read /opt/data/workspace/qa-browser-work-0db5b665/intentionally-missing.csv. It does not exist. Do not create it, substitute the existing input.csv, fabricate an output, or retry. After the real read error, use the native Kanban lifecycle to mark this task blocked with reason STEP6-MISSING-INPUT and explain that no result was produced. Do not mark it complete and do not change any other task or file.",
+          "boardId": "qa-browser-work-0db5b665",
+          "assignee": "qa-browser-work-0db5b665",
+          "priority": "normal",
+          "triage": false
+        },
+        "mode": "execute",
+        "confirmed": false
+      },
+      "status": 201,
+      "response": {
+        "replayed": false,
+        "operation": {
+          "operationId": "590d3bb5-c06e-4456-8ede-d18240430450",
+          "operationType": "work.task.create",
+          "actorId": "62d8832d-f886-4d9b-bd8e-a8f1431f9187",
+          "target": {
+            "canonicalId": "hermes-alica:task:c3RlcC02LWNvbnRyb2xsZWQtbWlzc2luZy1pbnB1dA",
+            "owner": "hermes-alica",
+            "frameworkId": "hermes-alica",
+            "kind": "task",
+            "nativeId": "step-6-controlled-missing-input",
+            "observedAt": "2026-09-14T22:06:08.474Z"
+          },
+          "payloadHash": "03515800eb4c8f7f63eebc543011d3cc2118b1ece3ea458ed766c6442a1d3db7",
+          "mode": "execute",
+          "idempotencyKey": "63833be5-177d-4363-b616-235ec4b1db1c",
+          "policyDecision": "allowed",
+          "state": "verified",
+          "createdAt": "2026-09-14T22:05:54.047Z",
+          "updatedAt": "2026-09-14T22:06:08.474Z",
+          "evidenceIds": []
+        },
+        "result": {
+          "meta": {
+            "owner": "hermes",
+            "frameworkId": "hermes-alica",
+            "frameworkVersion": "0.20.0",
+            "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+            "sourceVersion": "sha256:fdea7bdcfc949f9884bbdb555c397d2e29e0173519f9f04b8395e7012f4289b9",
+            "observedAt": "2026-09-14T22:06:08.462Z",
+            "freshness": "current"
+          },
+          "data": {
+            "operationId": "38e259e9-1de6-493b-b5b9-acb03b83d5c0",
+            "status": "completed",
+            "replayed": false,
+            "operation": "task.create",
+            "targetId": "step-6-controlled-missing-input",
+            "result": {
+              "task": {
+                "id": "t_bacfcc56",
+                "title": "Step 6 controlled missing input",
+                "body": "Bounded controlled-failure acceptance. Use read_file to read /opt/data/workspace/qa-browser-work-0db5b665/intentionally-missing.csv. It does not exist. Do not create it, substitute the existing input.csv, fabricate an output, or retry. After the real read error, use the native Kanban lifecycle to mark this task blocked with reason STEP6-MISSING-INPUT and explain that no result was produced. Do not mark it complete and do not change any other task or file.",
+                "assignee": "qa-browser-work-0db5b665",
+                "status": "ready",
+                "priority": 50,
+                "tenant": null,
+                "workspace_kind": "scratch",
+                "workspace_path": null,
+                "branch_name": null,
+                "project_id": null,
+                "created_by": "user",
+                "created_at": 1789423568,
+                "started_at": null,
+                "completed_at": null,
+                "result": null,
+                "skills": [],
+                "max_retries": null,
+                "model_override": null,
+                "provider_override": null,
+                "session_id": null,
+                "workflow_template_id": null,
+                "current_step_key": null
+              }
+            },
+            "emittedEvents": 1
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "operationType": "work.task.start",
+        "target": {
+          "owner": "hermes",
+          "kind": "task",
+          "nativeId": "t_bacfcc56",
+          "frameworkId": "hermes-alica"
+        },
+        "payload": {
+          "boardId": "qa-browser-work-0db5b665"
+        },
+        "mode": "execute",
+        "confirmed": false
+      },
+      "status": 201,
+      "response": {
+        "replayed": false,
+        "operation": {
+          "operationId": "55737508-25f9-45c2-8c07-9059a8410a22",
+          "operationType": "work.task.start",
+          "actorId": "62d8832d-f886-4d9b-bd8e-a8f1431f9187",
+          "target": {
+            "canonicalId": "hermes-alica:task:dF9iYWNmY2M1Ng",
+            "owner": "hermes-alica",
+            "frameworkId": "hermes-alica",
+            "kind": "task",
+            "nativeId": "t_bacfcc56",
+            "observedAt": "2026-09-14T22:06:35.211Z"
+          },
+          "payloadHash": "4304baa2bb8b52154fea3ae539a81c92cf2235a386f9e7148f06b7722d30f142",
+          "mode": "execute",
+          "idempotencyKey": "a1c63f8a-7bb0-4f23-9891-bd4562c57f15",
+          "policyDecision": "allowed",
+          "state": "verified",
+          "createdAt": "2026-09-14T22:06:26.196Z",
+          "updatedAt": "2026-09-14T22:06:35.211Z",
+          "evidenceIds": []
+        },
+        "result": {
+          "meta": {
+            "owner": "hermes",
+            "frameworkId": "hermes-alica",
+            "frameworkVersion": "0.20.0",
+            "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+            "sourceVersion": "sha256:205abe9d89282cd094063eda01e883bb70b2fb97b372932b291b1b1499087036",
+            "observedAt": "2026-09-14T22:06:35.150Z",
+            "freshness": "current"
+          },
+          "data": {
+            "operationId": "83551fb0-822f-467b-91d7-2b8978d13157",
+            "status": "completed",
+            "replayed": false,
+            "operation": "task.start",
+            "targetId": "t_bacfcc56",
+            "result": {
+              "task": {
+                "id": "t_bacfcc56",
+                "boardId": "qa-browser-work-0db5b665",
+                "title": "Step 6 controlled missing input",
+                "status": "ready",
+                "body": "Bounded controlled-failure acceptance. Use read_file to read /opt/data/workspace/qa-browser-work-0db5b665/intentionally-missing.csv. It does not exist. Do not create it, substitute the existing input.csv, fabricate an output, or retry. After the real read error, use the native Kanban lifecycle to mark this task blocked with reason STEP6-MISSING-INPUT and explain that no result was produced. Do not mark it complete and do not change any other task or file.",
+                "assignee": "qa-browser-work-0db5b665",
+                "priority": 50
+              }
+            },
+            "emittedEvents": 1
+          }
+        }
+      }
+    }
+  ],
+  "observations": [
+    {
+      "elapsed": 7.69,
+      "status": "ready",
+      "id": "t_bacfcc56"
+    },
+    {
+      "elapsed": 15.08,
+      "status": "ready",
+      "id": "t_bacfcc56"
+    },
+    {
+      "elapsed": 25.1,
+      "status": "ready",
+      "id": "t_bacfcc56"
+    },
+    {
+      "elapsed": 31.29,
+      "status": "ready",
+      "id": "t_bacfcc56"
+    },
+    {
+      "elapsed": 38.67,
+      "status": "running",
+      "id": "t_bacfcc56"
+    },
+    {
+      "elapsed": 44.88,
+      "status": "running",
+      "id": "t_bacfcc56"
+    },
+    {
+      "elapsed": 50.5,
+      "status": "running",
+      "id": "t_bacfcc56"
+    },
+    {
+      "elapsed": 56.08,
+      "status": "blocked",
+      "id": "t_bacfcc56"
+    }
+  ],
+  "task": {
+    "id": "t_bacfcc56",
+    "boardId": "qa-browser-work-0db5b665",
+    "title": "Step 6 controlled missing input",
+    "status": "blocked",
+    "body": "Bounded controlled-failure acceptance. Use read_file to read /opt/data/workspace/qa-browser-work-0db5b665/intentionally-missing.csv. It does not exist. Do not create it, substitute the existing input.csv, fabricate an output, or retry. After the real read error, use the native Kanban lifecycle to mark this task blocked with reason STEP6-MISSING-INPUT and explain that no result was produced. Do not mark it complete and do not change any other task or file.",
+    "assignee": "qa-browser-work-0db5b665",
+    "priority": 50,
+    "owner": "hermes",
+    "frameworkId": "hermes-alica",
+    "sourceVersion": "sha256:e9034c30b34c4a8f4a302a9e798a05308fb2dcf1a0dc5c564a803ca40ff2065c",
+    "observedAt": "2026-09-14T22:07:31.765Z"
+  },
+  "boardText": "HERMES SOURCE OF TRUTH\n\nWork & Kanban\n\nProjects, Kanban cards, and schedules are read from and mutated through native Hermes.\n\nRefresh\nHermes framework\nHermes overview\nKanban overview\nKanban project\nProject details\nAdd new\nAlica \u2192 Herman\nCronjobs\nSettings\nHERMES \u00b7 CURRENT\nKanban project\n2 CARDS\nProject setup\n\nTRIAGE\n\n0\n\nNo cards\n\nTODO\n\n0\n\nNo cards\n\nREADY\n\n0\n\nNo cards\n\nRUNNING\n\n0\n\nNo cards\n\nBLOCKED\n\n1\n\nStep 6 controlled missing input\n\nt_bacfcc56 \u00b7 qa-browser-work-0db5b665\n\nBounded controlled-failure acceptance. Use read_file to read /opt/data/workspace/qa-browser-work-0db5b665/intentionally-missing.csv. It does not exist. Do not create it, substitute the existing input.csv, fabricate an output, or retry. After the real read error, use the native Kanban lifecycle to mark this task blocked with reason STEP6-MISSING-INPUT and explain that no result was produced. Do not mark it complete and do not change any other task or file.\n\nUnblock\nComplete\n\nDONE\n\n1\n\nStep 6 browser file acceptance\n\nt_aba997f6 \u00b7 qa-browser-work-0db5b665\n\nRead input.csv in the project workspace /opt/data/workspace/qa-browser-work-0db5b665. Use the enabled qa-enabled-proof skill and write result.json with total_cents, the instruction/memory/user-memory/skill codes, and the three item names in rows. Reread and verify the generated file. Do not edit files outside this workspace, enable tools, spawn agents, or modify credentials. Report the actual output path and tool results. Mark this task complete only after verifying the file.\n\nARCHIVED\n\n0\n\nNo cards",
+  "cancelButtons": 0
+}

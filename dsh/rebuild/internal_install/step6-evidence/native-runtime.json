@@ -1,0 +1,254 @@
+{
+  "tasks": {
+    "t_aba997f6": {
+      "task": {
+        "id": "t_aba997f6",
+        "title": "Step 6 browser file acceptance",
+        "body": "Read input.csv in the project workspace /opt/data/workspace/qa-browser-work-0db5b665. Use the enabled qa-enabled-proof skill and write result.json with total_cents, the instruction/memory/user-memory/skill codes, and the three item names in rows. Reread and verify the generated file. Do not edit files outside this workspace, enable tools, spawn agents, or modify credentials. Report the actual output path and tool results. Mark this task complete only after verifying the file.",
+        "assignee": "qa-browser-work-0db5b665",
+        "status": "done",
+        "priority": 50,
+        "tenant": null,
+        "workspace_kind": "scratch",
+        "workspace_path": "/opt/data/kanban/boards/qa-browser-work-0db5b665/workspaces/t_aba997f6",
+        "branch_name": null,
+        "project_id": null,
+        "created_by": "user",
+        "created_at": 1789423132,
+        "started_at": 1789423144,
+        "completed_at": 1789423239,
+        "result": null,
+        "skills": [],
+        "max_retries": null,
+        "model_override": null,
+        "provider_override": null,
+        "session_id": null,
+        "workflow_template_id": null,
+        "current_step_key": null
+      },
+      "latest_summary": "Created and reread /opt/data/workspace/qa-browser-work-0db5b665/result.json. Verification confirmed valid JSON containing total_cents 1195, all four proof codes, and rows alpha, beta, gamma.",
+      "parents": [],
+      "children": [],
+      "comments": [],
+      "events": [
+        {
+          "kind": "created",
+          "payload": {
+            "assignee": "qa-browser-work-0db5b665",
+            "status": "ready",
+            "parents": [],
+            "tenant": null,
+            "workspace_kind": "scratch",
+            "workspace_path": null,
+            "branch_name": null,
+            "project_id": null,
+            "skills": null,
+            "goal_mode": null,
+            "model_override": null,
+            "provider_override": null
+          },
+          "created_at": 1789423132,
+          "run_id": null
+        },
+        {
+          "kind": "claimed",
+          "payload": {
+            "lock": "462236fa21f7:163",
+            "expires": 1789424044,
+            "run_id": 1
+          },
+          "created_at": 1789423144,
+          "run_id": 1
+        },
+        {
+          "kind": "tip_scratch_workspace",
+          "payload": {
+            "message": "scratch workspaces are ephemeral \u2014 they're deleted when the task completes. Use --workspace worktree: (git worktree) or --workspace dir:/abs/path (existing dir) to preserve worker output."
+          },
+          "created_at": 1789423145,
+          "run_id": null
+        },
+        {
+          "kind": "spawned",
+          "payload": {
+            "pid": 58375
+          },
+          "created_at": 1789423145,
+          "run_id": 1
+        },
+        {
+          "kind": "heartbeat",
+          "payload": null,
+          "created_at": 1789423192,
+          "run_id": 1
+        },
+        {
+          "kind": "completed",
+          "payload": {
+            "result_len": 0,
+            "summary": "Created and reread /opt/data/workspace/qa-browser-work-0db5b665/result.json. Verification confirmed valid JSON containing total_cents 1195, all four proof codes, and rows alpha, beta, gamma.",
+            "artifacts": [
+              "/opt/data/workspace/qa-browser-work-0db5b665/result.json"
+            ]
+          },
+          "created_at": 1789423239,
+          "run_id": 1
+        }
+      ],
+      "runs": [
+        {
+          "id": 1,
+          "profile": "qa-browser-work-0db5b665",
+          "step_key": null,
+          "status": "done",
+          "outcome": "completed",
+          "summary": "Created and reread /opt/data/workspace/qa-browser-work-0db5b665/result.json. Verification confirmed valid JSON containing total_cents 1195, all four proof codes, and rows alpha, beta, gamma.",
+          "error": null,
+          "metadata": {
+            "changed_files": [
+              "/opt/data/workspace/qa-browser-work-0db5b665/result.json"
+            ],
+            "input_read": "/opt/data/workspace/qa-browser-work-0db5b665/input.csv",
+            "verification": "write_file reported verified=true and JSON lint status=ok; read_file reread 242 bytes/12 content lines",
+            "calculation": "3*125 + 2*240 + 4*85 = 1195",
+            "artifacts": [
+              "/opt/data/workspace/qa-browser-work-0db5b665/result.json"
+            ],
+            "worker_session_id": "20260914_215917_654218"
+          },
+          "worker_pid": null,
+          "started_at": 1789423144,
+          "ended_at": 1789423239
+        }
+      ]
+    },
+    "t_bacfcc56": {
+      "task": {
+        "id": "t_bacfcc56",
+        "title": "Step 6 controlled missing input",
+        "body": "Bounded controlled-failure acceptance. Use read_file to read /opt/data/workspace/qa-browser-work-0db5b665/intentionally-missing.csv. It does not exist. Do not create it, substitute the existing input.csv, fabricate an output, or retry. After the real read error, use the native Kanban lifecycle to mark this task blocked with reason STEP6-MISSING-INPUT and explain that no result was produced. Do not mark it complete and do not change any other task or file.",
+        "assignee": "qa-browser-work-0db5b665",
+        "status": "blocked",
+        "priority": 50,
+        "tenant": null,
+        "workspace_kind": "scratch",
+        "workspace_path": "/opt/data/kanban/boards/qa-browser-work-0db5b665/workspaces/t_bacfcc56",
+        "branch_name": null,
+        "project_id": null,
+        "created_by": "user",
+        "created_at": 1789423568,
+        "started_at": 1789423627,
+        "completed_at": null,
+        "result": null,
+        "skills": [],
+        "max_retries": null,
+        "model_override": null,
+        "provider_override": null,
+        "session_id": null,
+        "workflow_template_id": null,
+        "current_step_key": null
+      },
+      "latest_summary": "STEP6-MISSING-INPUT \u2014 /opt/data/workspace/qa-browser-work-0db5b665/intentionally-missing.csv was not found, so no result was produced.",
+      "parents": [],
+      "children": [],
+      "comments": [],
+      "events": [
+        {
+          "kind": "created",
+          "payload": {
+            "assignee": "qa-browser-work-0db5b665",
+            "status": "ready",
+            "parents": [],
+            "tenant": null,
+            "workspace_kind": "scratch",
+            "workspace_path": null,
+            "branch_name": null,
+            "project_id": null,
+            "skills": null,
+            "goal_mode": null,
+            "model_override": null,
+            "provider_override": null
+          },
+          "created_at": 1789423568,
+          "run_id": null
+        },
+        {
+          "kind": "claimed",
+          "payload": {
+            "lock": "462236fa21f7:163",
+            "expires": 1789424527,
+            "run_id": 2
+          },
+          "created_at": 1789423627,
+          "run_id": 2
+        },
+        {
+          "kind": "spawned",
+          "payload": {
+            "pid": 60228
+          },
+          "created_at": 1789423627,
+          "run_id": 2
+        },
+        {
+          "kind": "heartbeat",
+          "payload": null,
+          "created_at": 1789423638,
+          "run_id": 2
+        },
+        {
+          "kind": "blocked",
+          "payload": {
+            "reason": "STEP6-MISSING-INPUT \u2014 /opt/data/workspace/qa-browser-work-0db5b665/intentionally-missing.csv was not found, so no result was produced.",
+            "kind": "capability",
+            "recurrences": 1
+          },
+          "created_at": 1789423651,
+          "run_id": 2
+        }
+      ],
+      "runs": [
+        {
+          "id": 2,
+          "profile": "qa-browser-work-0db5b665",
+          "step_key": null,
+          "status": "blocked",
+          "outcome": "blocked",
+          "summary": "STEP6-MISSING-INPUT \u2014 /opt/data/workspace/qa-browser-work-0db5b665/intentionally-missing.csv was not found, so no result was produced.",
+          "error": null,
+          "metadata": null,
+          "worker_pid": null,
+          "started_at": 1789423627,
+          "ended_at": 1789423651
+        }
+      ]
+    }
+  },
+  "sessions": [
+    {
+      "id": "20260914_215917_654218",
+      "source": "kanban",
+      "model": "gpt-5.6-sol",
+      "cwd": null,
+      "profile_name": "qa-browser-work-0db5b665",
+      "api_call_count": 7,
+      "tool_call_count": 6,
+      "input_tokens": 26295,
+      "output_tokens": 983,
+      "billing_provider": "openai-codex"
+    },
+    {
+      "id": "20260914_220712_eab436",
+      "source": "kanban",
+      "model": "gpt-5.6-sol",
+      "cwd": null,
+      "profile_name": "qa-browser-work-0db5b665",
+      "api_call_count": 5,
+      "tool_call_count": 4,
+      "input_tokens": 12732,
+      "output_tokens": 290,
+      "billing_provider": "openai-codex"
+    }
+  ],
+  "missingInputExists": false
+}
