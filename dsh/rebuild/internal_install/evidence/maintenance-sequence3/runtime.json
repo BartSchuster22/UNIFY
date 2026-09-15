@@ -1,0 +1,74 @@
+{
+  "authority": {
+    "highestAttempt": 3,
+    "releaseSha256": "5a8a7f4cfa818172d637492da81a64a9fbfac3dd212c43ea5609713c5a772971",
+    "sequence": 3
+  },
+  "runtime": {
+    "bootId": "b87a29f6-84ac-4da7-b3aa-b1bc4f5b58e8",
+    "cell": "dsh2-internal-onboarding1",
+    "dockerAvailable": true,
+    "memoryAvailableBytes": 6245429248,
+    "nativeWork": {
+      "active": 0,
+      "counts": {},
+      "observed": true,
+      "source": "native-kanban-readonly"
+    },
+    "observedAt": 1789498899.1681838,
+    "ownershipVerified": true,
+    "services": {
+      "caddy": {
+        "exitCode": 0,
+        "reason": "healthy",
+        "restartCount": 0,
+        "running": true,
+        "state": "healthy"
+      },
+      "hermes": {
+        "exitCode": 0,
+        "reason": "healthy",
+        "restartCount": 0,
+        "running": true,
+        "state": "healthy"
+      },
+      "keycloak": {
+        "exitCode": 0,
+        "reason": "healthy",
+        "restartCount": 0,
+        "running": true,
+        "state": "healthy"
+      },
+      "memory-v4": {
+        "exitCode": 0,
+        "reason": "healthy",
+        "restartCount": 0,
+        "running": true,
+        "state": "healthy"
+      },
+      "postgresql": {
+        "exitCode": 0,
+        "reason": "healthy",
+        "restartCount": 0,
+        "running": true,
+        "state": "healthy"
+      },
+      "unify-core": {
+        "exitCode": 0,
+        "reason": "healthy",
+        "restartCount": 0,
+        "running": true,
+        "state": "healthy"
+      },
+      "uniui": {
+        "exitCode": 0,
+        "reason": "healthy",
+        "restartCount": 0,
+        "running": true,
+        "state": "healthy"
+      }
+    },
+    "storageAvailableBytes": 25735086080,
+    "storagePressure": false
+  }
+}

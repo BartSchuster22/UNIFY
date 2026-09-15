@@ -1,0 +1,17 @@
+{
+  "timezonePersisted": true,
+  "timezoneEditedAndReloaded": true,
+  "historyBackReachedWork": true,
+  "workspaceCreated": "/opt/data/workspace/qa-maintenance-20807362002f4f87a408e918cab1dff7",
+  "smallAndOverOneMiBUploadsVerified": true,
+  "overwriteRequiredConfirmation": true,
+  "confirmedOverwriteVerified": true,
+  "memoryDisabledWithoutProject": true,
+  "pageErrors": [],
+  "workspaceSelectionVerified": true,
+  "disposableCoreSessionRevoked": true,
+  "logout": {
+    "logoutStatus": 204,
+    "unauthenticatedStatus": 401
+  }
+}

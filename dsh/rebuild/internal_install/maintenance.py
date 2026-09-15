@@ -75,6 +75,20 @@ def upgrade_caddy(text, fenced=False):
  if fenced:updated=updated.replace(' route {',' route {\n respond "DSH maintenance; retry shortly" 503',1)
  return updated
 
+def final_ingress_signature(before,after,fingerprint):
+ # Compose recreations can change these two bookkeeping labels only. All
+ # execution fields, the actual image, container name and mounts remain pinned.
+ projected=json.loads(json.dumps(after))
+ for key in ['com.docker.compose.depends_on','com.docker.compose.replace']:
+  prior=before['Config']['Labels']
+  if key in prior:projected['Config']['Labels'][key]=prior[key]
+  else:projected['Config']['Labels'].pop(key,None)
+ require(fingerprint(projected)==fingerprint(before),'Final ingress execution configuration changed')
+ require(before['Image']==after['Image'] and before['Name']==after['Name'],'Final ingress identity changed')
+ mounts=lambda r:sorted((m['Type'],m['Source'],m['Destination'],m['RW']) for m in r['Mounts'])
+ require(mounts(before)==mounts(after),'Final ingress mounts changed')
+ return fingerprint(after)
+
 def context(candidate):
  require(os.geteuid()==0 and socket.gethostname()=='DSH2','Designated DSH2 root operator required')
  candidate=private(candidate);private(ROOT);private(ANCHOR);private(BOOT/'release_trust.py')
@@ -102,6 +116,11 @@ def collect(c):
  b=Broker(ROOT/'operations/broker.json')
  try:return b.collect()
  finally:b.e.db.close()
+def verified_runtime(c):
+ s=collect(c)
+ require(s['ownershipVerified'] and set(s['services'])==SERVICES and all(x['state']=='healthy' for x in s['services'].values()),'Runtime ownership/health verification failed')
+ return s
+
 def maintenance(on):
  from doghouse_dsh.engine import Engine
  e=Engine(ROOT/'operations/ops.db');e.maintenance(on);e.db.close()
@@ -198,6 +217,12 @@ def apply(c):
   checkpoint(j,'committed')
   write(ROOT/'Caddyfile',ingress.encode(),0o644)
   c['new_i'].compose('up','-d','--no-deps','--force-recreate','--wait','--wait-timeout','120','caddy')
+  final_rows={r['Config']['Labels']['com.docker.compose.service']:r for r in c['new_i'].owned()}
+  for service in SERVICES-{'caddy'}:
+   require(canonical_signature(final_rows[service])==cfg['signatures'][service] and final_rows[service]['Image']==cfg['images'][service],'Non-ingress identity changed during ingress recreation')
+  cfg['signatures']['caddy']=final_ingress_signature(rows['caddy'],final_rows['caddy'],canonical_signature)
+  c['atomic_json'](ROOT/'operations/broker.json',cfg)
+  s=collect(c);require(s['ownershipVerified'] and all(x['state']=='healthy' for x in s['services'].values()),'Final ingress ownership/health failed')
   finish();healthy(c['new_i'])
   return {'phase':'committed','releaseSha256':c['admitted']['releaseSha256'],'images':cfg['images'],'ownerTransportSecretsPreserved':True,'mountsPreserved':True,'licensingReviewResumed':False}
  except BaseException:
@@ -245,7 +270,7 @@ def main():
   if a.action=='plan':
    c['old_i'].tx.inspect();validate_transition(c['old'],c['new'],load(ROOT/'owner.json'),c['old_i'].tx.identity['request']);result={'signedAdmission':c['admitted'],'runtimeMutations':False,'controlDirectoryCreatedIfAbsent':True,'changedServices':sorted(CHANGED),'runtime':collect(c)}
   elif a.action=='verify':
-   c['new_i'].tx.inspect();healthy(c['new_i']);result={'authority':load(CONTROL/'authority.json'),'runtime':collect(c)}
+   c['new_i'].tx.inspect();healthy(c['new_i']);result={'authority':load(CONTROL/'authority.json'),'runtime':verified_runtime(c)}
   else:result=globals()[a.action](c)
  print(json.dumps(result,sort_keys=True,indent=2))
 if __name__=='__main__':main()

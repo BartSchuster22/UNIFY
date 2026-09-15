@@ -1,0 +1,9 @@
+{
+  "executionConfigurationUnchanged": true,
+  "finalCaddySignature": "768744701e5e7491e3699701728697075b64f2edee2f61e89e180e539af885b3",
+  "healthyServices": 7,
+  "mountsAndImagesVerified": true,
+  "oldCaddySignature": "5cbe0ae54eeb03c5190adc7e2d9044e0d8e7306a5fe455c83530194971128851",
+  "onlyComposeMetadataChanged": true,
+  "ownershipVerified": true
+}

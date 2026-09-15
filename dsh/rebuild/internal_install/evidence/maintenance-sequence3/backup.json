@@ -1,0 +1,9 @@
+{
+  "encryptedArchiveSha256": "49cd5367ebb563403cb7c65aee886f08491449c32cca4534b065f4d155375895",
+  "encryptedBytes": 150411304,
+  "verifiedColdTrees": 10,
+  "backupHost": "ElioHermes1",
+  "installationHost": "DSH2",
+  "decryptionAndTreeVerificationCompletedBeforeApply": true,
+  "privateRecoveryMaterialExcludedFromRepository": true
+}
