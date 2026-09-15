@@ -458,7 +458,7 @@ function WorkOverview({
             Cronjobs
           </Text>
           <Title order={2} mt="xs">
-            {cronjobs.filter((job) => !cronPaused(job) && !cronFailed(job)).length} active
+            {cronjobs.filter((job) => cronActive(job)).length} active
           </Title>
           <Text c="dimmed">{cronAttention.length} paused or failed schedules</Text>
         </Card>
@@ -1127,7 +1127,7 @@ function Cronjobs({
     (job) =>
       filter === 'all' ||
       (filter === 'active'
-        ? !cronPaused(job) && !cronFailed(job)
+        ? cronActive(job)
         : filter === 'paused'
           ? cronPaused(job)
           : cronFailed(job)),
@@ -1179,7 +1179,7 @@ function Cronjobs({
           { value: 'all', label: `All ${jobs.length}` },
           {
             value: 'active',
-            label: `Active ${jobs.filter((job) => !cronPaused(job) && !cronFailed(job)).length}`,
+            label: `Active ${jobs.filter((job) => cronActive(job)).length}`,
           },
           { value: 'paused', label: `Paused ${jobs.filter(cronPaused).length}` },
           { value: 'failed', label: `Failed ${jobs.filter(cronFailed).length}` },
@@ -1753,6 +1753,9 @@ function nativeProjects(items: UnifiedResource[]): ProjectView[] {
 }
 function taskLane(task: UnifiedResource): string {
   return text(task.data.lane) || 'triage';
+}
+function cronActive(job: UnifiedResource): boolean {
+  return ['active', 'scheduled', 'running'].includes(text(job.data.status));
 }
 function cronPaused(job: UnifiedResource): boolean {
   return (

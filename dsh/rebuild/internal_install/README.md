@@ -2,6 +2,8 @@
 
 ## Current development acceptance checkpoints
 
+- [Step 7B — bounded scheduling and corrected cron activity: PASS](STEP7B_SCHEDULING_ACCEPTANCE.md).
+
 - [Step 6 — real native execution and browser cancellation: PASS](STEP6_FINAL_ACCEPTANCE.md).
 - [Step 7A — supported cell restart and interrupted-run recovery: PASS](STEP7A_FINAL_ACCEPTANCE.md), under an explicit per-task no-retry policy.
 

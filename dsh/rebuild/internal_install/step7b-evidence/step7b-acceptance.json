@@ -1,0 +1,13 @@
+{
+  "pausedRestartContinuity": true,
+  "activePendingRestartContinuity": true,
+  "freshOwnerLogin": true,
+  "scheduledScriptOnlyExecution": true,
+  "oneInvocation": true,
+  "noDuplicateAfter70Seconds": true,
+  "browserCreatePauseResumeRemove": true,
+  "nativeScriptBinding": true,
+  "activeClassificationFixedAndDeployed": true,
+  "healthyServices": 7,
+  "scope": "bounded script-only one-shot; no model-backed cron, recurring cadence, or in-flight cron recovery claim"
+}

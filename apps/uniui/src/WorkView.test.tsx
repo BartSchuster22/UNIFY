@@ -422,6 +422,27 @@ describe('UNIFY Work & Kanban', () => {
     expect(screen.getByRole('button', { name: 'Delegate exact card' })).toBeDisabled();
   });
 
+  it('excludes terminal and unknown cron states from Active without hiding them from All', async () => {
+    vi.spyOn(gateway, 'hermesCronjobs').mockResolvedValue({
+      ...cronjobs,
+      items: ['active', 'scheduled', 'running', 'completed', 'disabled', 'unknown'].map((status) => ({
+        id: 'cron-' + status, name: 'Job ' + status, status, schedule: 'once', deliver: ['local'],
+      })),
+    });
+    window.history.replaceState(null, '', '/?view=work&workPage=cronjobs');
+    renderWork();
+    expect(await screen.findByText('Job completed')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('radio', { name: 'Active 3' }));
+    expect(screen.queryByText('Job completed')).not.toBeInTheDocument();
+    expect(screen.queryByText('Job disabled')).not.toBeInTheDocument();
+    expect(screen.queryByText('Job unknown')).not.toBeInTheDocument();
+    expect(screen.getByText('Job active')).toBeInTheDocument();
+    expect(screen.getByText('Job scheduled')).toBeInTheDocument();
+    expect(screen.getByText('Job running')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('radio', { name: 'All 6' }));
+    expect(screen.getByText('Job completed')).toBeInTheDocument();
+  });
+
   it('shows native cron controls and refuses browser-owned notification fallback truth', async () => {
     renderWork();
     await screen.findByText('Blocked release');

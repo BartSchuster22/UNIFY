@@ -203,7 +203,7 @@ beforeEach(() => {
 });
 
 describe('Mantine UNIUI gates', () => {
-  it('presents an accessible named-user login when unauthenticated', async () => {
+  it('presents an accessible fail-closed login when identity discovery cannot be verified', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(() =>
@@ -214,8 +214,10 @@ describe('Mantine UNIUI gates', () => {
       ),
     );
     const { container } = render(<App />);
-    expect(await screen.findByRole('heading', { name: 'Welcome to UNIFY' })).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /Username/ })).toHaveFocus();
+    expect(await screen.findByRole('heading', { name: 'Sign in to DSH' })).toBeInTheDocument();
+    expect(await screen.findByRole('alert', { name: 'Sign-in unavailable' })).toHaveTextContent('Password fallback is disabled');
+    expect(screen.queryByRole('textbox', { name: /Username/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeEnabled();
     const results = await axe.run(container, { rules: { 'color-contrast': { enabled: false } } });
     expect(results.violations).toEqual([]);
   });

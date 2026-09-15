@@ -1,0 +1,70 @@
+{
+  "request": {
+    "operationType": "work.cron.create",
+    "target": {
+      "owner": "hermes",
+      "kind": "cronjob",
+      "nativeId": "qa-step7b-29bfc192",
+      "frameworkId": "hermes-alica"
+    },
+    "payload": {
+      "name": "qa-step7b-29bfc192",
+      "prompt": "Disposable scheduling probe. Do not use tools, schedule other jobs, or modify any owner data.",
+      "schedule": "2099-01-01T00:00:00.000Z",
+      "deliver": "local"
+    },
+    "mode": "execute",
+    "confirmed": false
+  },
+  "response": {
+    "replayed": false,
+    "operation": {
+      "operationId": "65d8a57f-66c8-4821-9845-2ad456c08faf",
+      "operationType": "work.cron.create",
+      "actorId": "62d8832d-f886-4d9b-bd8e-a8f1431f9187",
+      "target": {
+        "canonicalId": "hermes-alica:cronjob:cWEtc3RlcDdiLTI5YmZjMTky",
+        "owner": "hermes-alica",
+        "frameworkId": "hermes-alica",
+        "kind": "cronjob",
+        "nativeId": "qa-step7b-29bfc192",
+        "observedAt": "2026-09-15T10:34:50.428Z"
+      },
+      "payloadHash": "59e8b5e45812f786232b842b8482b31fb4a413876507a1265fd825e368b22995",
+      "mode": "execute",
+      "idempotencyKey": "65b22204-d8e0-45f6-b8d4-448160dc8324",
+      "policyDecision": "allowed",
+      "state": "verified",
+      "createdAt": "2026-09-15T10:34:44.494Z",
+      "updatedAt": "2026-09-15T10:34:50.428Z",
+      "evidenceIds": []
+    },
+    "result": {
+      "meta": {
+        "owner": "hermes",
+        "frameworkId": "hermes-alica",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "sha256:937ccc41ebe2466dc84e14f02913676435f7a2035823c81476c9d84cb7a8fa46",
+        "observedAt": "2026-09-15T10:34:50.349Z",
+        "freshness": "current"
+      },
+      "data": {
+        "operationId": "31465c83-3f90-4d37-8920-21a0bbdc6690",
+        "status": "completed",
+        "replayed": false,
+        "operation": "cron.create",
+        "targetId": "qa-step7b-29bfc192",
+        "result": {
+          "cronjob": {
+            "id": "5d0b913d48d8",
+            "name": "qa-step7b-29bfc192",
+            "schedule": "2099-01-01T00:00:00.000Z",
+            "status": "active"
+          }
+        },
+        "emittedEvents": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "observedAt": "2026-09-15T10:37:32.251679+00:00",
+  "qa": "qa-step7b-29bfc192",
+  "job": {
+    "id": "5d0b913d48d8",
+    "name": "qa-step7b-29bfc192",
+    "prompt": "Disposable scheduling probe. Do not use tools, schedule other jobs, or modify any owner data.",
+    "skills": [],
+    "skill": null,
+    "model": null,
+    "provider": null,
+    "provider_snapshot": null,
+    "model_snapshot": null,
+    "base_url": null,
+    "script": "qa-step7b-29bfc192.py",
+    "no_agent": true,
+    "context_from": null,
+    "schedule": {
+      "kind": "once",
+      "run_at": "2026-09-15T10:38:30.581503+00:00",
+      "display": "once in 1m"
+    },
+    "schedule_display": "once in 1m",
+    "repeat": {
+      "times": 1,
+      "completed": 0
+    },
+    "enabled": false,
+    "state": "paused",
+    "paused_at": "2026-09-15T10:35:03.945884+00:00",
+    "paused_reason": null,
+    "created_at": "2026-09-15T10:34:49.960352+00:00",
+    "next_run_at": "2099-01-01T00:00:00+00:00",
+    "last_run_at": null,
+    "last_status": null,
+    "last_error": null,
+    "last_delivery_error": null,
+    "deliver": "local",
+    "origin": null,
+    "enabled_toolsets": null,
+    "workdir": "/opt/data/workspace/qa-step7b-29bfc192",
+    "latest_execution": null
+  },
+  "attempts": [],
+  "savedOutputs": {},
+  "nativeHistory": "No cron execution attempts recorded.\n"
+}

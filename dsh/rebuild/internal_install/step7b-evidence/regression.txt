@@ -1,0 +1,102 @@
+RUN  v4.1.10 /home/herman/alica-work-selectors/apps/uniui
+
+ ✓ src/App.test.tsx (11 tests) 10712ms
+     ✓ presents an accessible fail-closed login when identity discovery cannot be verified  664ms
+     ✓ renders the permission-aware responsive shell  3840ms
+     ✓ shows Safety actions for an operation-specific framework grant  802ms
+     ✓ gates the MemoryV4 read surface with memory.read  1407ms
+     ✓ announces a truthful empty framework registry instead of hiding it  476ms
+     ✓ renders Hermes-native internal conversation evidence and excludes external sessions  959ms
+     ✓ preserves one verified framework selection across Models and Profiles  758ms
+     ✓ provides dedicated hyperlinks and restores views from browser history  652ms
+     ✓ passes profiles.manage through the shell to enable supported named-profile actions  601ms
+ ✓ src/WorkView.test.tsx (25 tests) 10280ms
+     ✓ renders native run results and cancels only the selected native run with confirmation  896ms
+     ✓ keeps last observed cards visible and disables mutations after a failed refresh  588ms
+     ✓ retains repeated input in project / Project name without retaining the event or submitting  450ms
+     ✓ retains repeated input in project / Project slug optional without retaining the event or submitting  354ms
+     ✓ retains repeated input in project / Project goal without retaining the event or submitting  384ms
+     ✓ retains repeated input in task / Task name without retaining the event or submitting  551ms
+     ✓ retains repeated input in task / Prompt without retaining the event or submitting  552ms
+     ✓ retains repeated input in cron / Cronjob name without retaining the event or submitting  460ms
+     ✓ retains repeated input in cron / Title without retaining the event or submitting  373ms
+     ✓ retains repeated input in cron / Prompt without retaining the event or submitting  406ms
+     ✓ retains repeated input in cron / Repeat interval without retaining the event or submitting  460ms
+     ✓ selects real workspace, manager and worker selections without manual IDs or activation  764ms
+     ✓ reopens the URL-selected project with persisted workspace/team and project-owned name  355ms
+     ✓ fails closed when workspace inventory is unavailable  314ms
+     ✓ provides project overview, a complete TTRRBDA project board, and editable setup  505ms
+     ✓ creates projects through governed Hermes mutations and enforces Save versus Save and Start fields  446ms
+     ✓ creates only the bounded Alica to Herman lease from an exact authoritative card version  454ms
+     ✓ fails the federation UI closed when Herman is selected as the source  302ms
+     ✓ excludes terminal and unknown cron states from Active without hiding them from All  307ms
+     ✓ shows native cron controls and refuses browser-owned notification fallback truth  351ms
+ ✓ src/ModelsView.test.tsx (10 tests) 7700ms
+     ✓ renders the real Hermes catalogue and role-gated management controls  636ms
+     ✓ guides a credential through confirmation, governed dry-run, execute, and secure clearing  1012ms
+     ✓ guides an exact premium model through acknowledgement, dry-run, and verified selection  1078ms
+     ✓ runs the unified persona-to-inference deployment wizard with exact governed evidence  1346ms
+     ✓ fails a stale model dry-run closed and retries with fresh governed operation keys  960ms
+     ✓ clears a credential and fails closed when the governed dry-run conflicts  740ms
+     ✓ routes every guided read and write to URL-selected Herman with Alica also registered  1313ms
+     ✓ runs a device-code OAuth authorization without receiving provider tokens  316ms
+ ✓ src/MemoryView.test.tsx (12 tests) 8252ms
+     ✓ renders connected read-only source status, visible counts and a governed record reader  1054ms
+     ✓ searches authoritative records with governance filters and opens the result reader  921ms
+     ✓ applies a descendant scope to all authoritative collection reads  678ms
+     ✓ edits the selected record with an exact version precondition and explicit confirmation  1613ms
+     ✓ rejects oversized source-reference input before a governed mutation  1741ms
+     ✓ gates promotion independently and requires a durable reason  800ms
+     ✓ reports version conflicts without silently overwriting authoritative memory  625ms
+ ✓ src/ProfilesView.test.tsx (12 tests) 5944ms
+     ✓ renders only Hermes-owned profile truth and disables unsupported writes  559ms
+     ✓ runs an isolated governed dry-run and safely retries uncertain execution with a new operation  596ms
+     ✓ fails a rename conflict closed and never enables execute without a successful dry-run  468ms
+     ✓ creates and edits Agents through governed Hermes profile mutations  1007ms
+     ✓ fails closed for limit sections and invalidates reviewed edits  415ms
+     ✓ fails closed for changed sections and invalidates reviewed edits  537ms
+     ✓ loads native runtime choices, invalidates review and sends only explicit profile runtime changes  1343ms
+ ✓ src/ChatView.test.tsx (5 tests) 1955ms
+     ✓ routes every Chat read to the exact URL-selected framework  583ms
+     ✓ renders only Hermes-native internal sessions with provenance  324ms
+     ✓ shows the truthful unsupported send capability without a fallback writer  317ms
+     ✓ creates and sends through verified exact-profile governed Hermes operations  472ms
+ ✓ src/ReadinessDashboard.test.tsx (4 tests) 1414ms
+     ✓ probes every readiness owner against the exact URL-selected framework  598ms
+     ✓ rechecks all authoritative probes on demand  326ms
+ ✓ src/FrameworkUpdatesView.test.tsx (2 tests) 1035ms
+     ✓ shows trusted release, deployed artifact, comparison and truthful compatibility state  611ms
+     ✓ runs the governed transition for an immutable plan and renders proof checks  422ms
+ ✓ src/FrameworksView.test.tsx (2 tests) 410ms
+ ✓ src/FrameworkContext.test.tsx (5 tests) 327ms
+ ✓ src/ExecutionFeedback.test.tsx (2 tests) 283ms
+ ✓ src/FunctionalityQA10.baseline.test.ts (4 tests) 28ms
+ ✓ src/navigation.test.ts (4 tests) 22ms
+ ✓ src/api.test.ts (1 test) 21ms
+ ✓ src/oauthResult.test.ts (20 tests) 13ms
+
+ Test Files  15 passed (15)
+      Tests  118 passed | 1 expected fail (119)
+   Start at  11:01:57
+   Duration  86.51s (transform 2.22s, setup 4.51s, import 12.48s, tests 48.40s, environment 17.30s)
+
+
+> @aquiero/uniui@0.1.0 typecheck /home/herman/alica-work-selectors/apps/uniui
+> tsc -p tsconfig.json --noEmit
+
+{
+  "evidence": "PASS",
+  "lifecycleCycles": 2,
+  "interruptedTaskRuns": 1,
+  "sideEffectAttempts": 1,
+  "artifactTotalCents": 1195,
+  "scope": "development cell restart; explicit per-task no-retry policy"
+}
+{
+  "evidence": "PASS",
+  "lifecycleCycles": 2,
+  "scheduledInvocations": 1,
+  "nativeOutcome": "completed/ok",
+  "delivery": "local",
+  "scope": "script-only one-shot; paused and active-pending restart continuity"
+}

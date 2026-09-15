@@ -1,0 +1,6 @@
+{
+  "nativeStatus": "completed",
+  "bodyBeforeFilter": "Skip to content\n\nUNIFY\n\nOperator console\n\nIN\nIN\n\nHERMES SOURCE OF TRUTH\n\nWork & Kanban\n\nProjects, Kanban cards, and schedules are read from and mutated through native Hermes.\n\nRefresh\nHermes framework\nHermes overview\nKanban overview\nKanban project\nProject details\nAdd new\nAlica \u2192 Herman\nCronjobs\nSettings\nHERMES \u00b7 CURRENT\nCronjobs\n\nSingle-task repeating or scheduled jobs owned by native Hermes cron.\n\nNew Cronjob\nAll 1\nActive 1\nPaused 0\nFailed 0\nJob\tSchedule\tStatus\tNext run\tActions\n\n\nqa-step7b-29bfc192\n\n5d0b913d48d8\n\n\tonce in 3m\t\nCOMPLETED\n\t\u2014\t\nRun now\nPause\nRemove",
+  "completedJobCountedActive": true,
+  "completedJobVisibleUnderActiveFilter": true
+}

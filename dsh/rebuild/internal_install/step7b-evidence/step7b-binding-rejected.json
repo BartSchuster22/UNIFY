@@ -1,0 +1,3 @@
+{
+  "nativeCLI": "Failed to update job: Script path must be relative to ~/.hermes/scripts/. Got absolute or home-relative path: '/opt/data/workspace/qa-step7b-29bfc192/probe.py'. Place scripts in ~/.hermes/scripts/ and use just the filename.\n"
+}

@@ -1,0 +1,55 @@
+{
+  "baselineCaptured": true,
+  "maintenanceCleared": true,
+  "brokerAndObserverActive": true,
+  "brokerIdentityVerified": true,
+  "ownerFilesUnchanged": true,
+  "preexistingBoardsAndRunsUnchanged": true,
+  "unrelatedContainersUnchanged": true,
+  "healthyServices": 7,
+  "installerState": "installed",
+  "identities": {
+    "/dsh2-internal-dev3-unify-core-1": {
+      "id": "e46cbd791cbbb0156e2190c3594450d223c5d469a87e0ab76cdf4d99b77de885",
+      "image": "sha256:3a41a231e143445c53ac971ba7ccab7730ecebbf804d49a02fd133e2e756f0e3",
+      "started": "2026-09-15T10:08:20.05342208Z",
+      "running": true
+    },
+    "/dsh2-internal-dev3-hermes-1": {
+      "id": "9a668a969246d576ab8214b92065e41a3c242bce9fbaa68b7bde9c59b01f4240",
+      "image": "sha256:47c317f5f06af9d730e68e4539b30622541135af12bba639d83065f10ee51d90",
+      "started": "2026-09-15T10:07:43.217729918Z",
+      "running": true
+    },
+    "/dsh2-internal-dev3-uniui-1": {
+      "id": "d9f9d0ff840e21313a2d95f5f927bef0170ad575010bec9476417066c9bdbee7",
+      "image": "sha256:e0dfbd47f3a5fc5567994ade5dbfb4761f79c3bd5ee6d6a833eb46019c291a1d",
+      "started": "2026-09-15T10:08:26.277696385Z",
+      "running": true
+    },
+    "/dsh2-internal-dev3-caddy-1": {
+      "id": "ba0035571c5a3ebad0710682f4614aa08be43b3bd057218ed37a21be376130c5",
+      "image": "sha256:6a107c5750be160c6b2b909d2329d73e6e4589b618dfcde00bc8145ddd20194f",
+      "started": "2026-09-15T10:08:33.569368882Z",
+      "running": true
+    },
+    "/dsh2-internal-dev3-keycloak-1": {
+      "id": "135b9f0b8aa5f72252dbb41d09944c9946d709ee5f9f92527385fc1443c32dc7",
+      "image": "sha256:b6fa492fadbe4b41fb70af150ccf665f6bae371c412bdeb4c27a0ee113158bec",
+      "started": "2026-09-15T10:07:43.212544148Z",
+      "running": true
+    },
+    "/dsh2-internal-dev3-memory-v4-1": {
+      "id": "7d2d944f1be0affc596e0f4e345e38bce7c8eb4329bac263c5d3da558d471065",
+      "image": "sha256:17c114de04013eedaf12be909730bc27a76fb605478e1f23dab509953093356d",
+      "started": "2026-09-15T10:07:37.56218231Z",
+      "running": true
+    },
+    "/dsh2-internal-dev3-postgresql-1": {
+      "id": "3d76c0c9667939742dcf4129b790884583fef63d1b1547871c0e3b6de71ba20d",
+      "image": "sha256:5c773214aed7adab0900cd0a05dbc468348f76fe1e4c2ca5b0e222e9531f7811",
+      "started": "2026-09-15T10:07:37.561197477Z",
+      "running": true
+    }
+  }
+}

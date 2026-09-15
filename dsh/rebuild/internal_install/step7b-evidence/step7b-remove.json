@@ -1,0 +1,65 @@
+{
+  "request": {
+    "operationType": "work.cron.delete",
+    "target": {
+      "owner": "hermes",
+      "kind": "cronjob",
+      "nativeId": "5d0b913d48d8",
+      "frameworkId": "hermes-alica"
+    },
+    "payload": {
+      "expectedSourceVersion": "sha256:a1114a95b599b1a50384a7341706f4e141808ac379b2c1e27b589506466d2456"
+    },
+    "mode": "execute",
+    "confirmed": true
+  },
+  "response": {
+    "replayed": false,
+    "operation": {
+      "operationId": "02448f3d-e885-499c-a0be-e78004b7ca9b",
+      "operationType": "work.cron.delete",
+      "actorId": "62d8832d-f886-4d9b-bd8e-a8f1431f9187",
+      "target": {
+        "canonicalId": "hermes-alica:cronjob:NWQwYjkxM2Q0OGQ4",
+        "owner": "hermes-alica",
+        "frameworkId": "hermes-alica",
+        "kind": "cronjob",
+        "nativeId": "5d0b913d48d8",
+        "observedAt": "2026-09-15T10:57:02.482Z"
+      },
+      "payloadHash": "dc33a07b35729c9fd8ce7428d30d4960101ead045b40ef37683025c09eeb5826",
+      "mode": "execute",
+      "idempotencyKey": "50bdf9ab-0607-44ab-8bbc-2ba0d78b02af",
+      "policyDecision": "allowed",
+      "state": "verified",
+      "createdAt": "2026-09-15T10:56:55.516Z",
+      "updatedAt": "2026-09-15T10:57:02.482Z",
+      "evidenceIds": []
+    },
+    "result": {
+      "meta": {
+        "owner": "hermes",
+        "frameworkId": "hermes-alica",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "sha256:51b64b3e1f7e41517a6e0cf7eb1c27efc9af3d75f267b85f5b35ad7be9d82469",
+        "observedAt": "2026-09-15T10:57:02.454Z",
+        "freshness": "current"
+      },
+      "data": {
+        "operationId": "91610f48-3151-4250-8cc3-ccc941de5828",
+        "status": "completed",
+        "replayed": false,
+        "operation": "cron.delete",
+        "targetId": "5d0b913d48d8",
+        "result": {
+          "cronjob": {
+            "id": "5d0b913d48d8",
+            "action": "remove"
+          }
+        },
+        "emittedEvents": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,3 @@
+{
+  "nativeCLI": "Updated job: 5d0b913d48d8\n  Name: qa-step7b-29bfc192\n  Schedule: once in 3m\n  Skills: none\n  Script: qa-step7b-29bfc192.py\n  Mode: no-agent (script stdout delivered directly)\n  Workdir: /opt/data/workspace/qa-step7b-29bfc192\n"
+}

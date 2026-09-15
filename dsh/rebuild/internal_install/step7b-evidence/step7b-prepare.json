@@ -1,0 +1,6 @@
+{
+  "qa": "qa-step7b-29bfc192",
+  "initialJobs": [],
+  "workspace": "/opt/data/workspace/qa-step7b-29bfc192",
+  "script": "from pathlib import Path\nimport json,datetime,os\nw=Path(__file__).parent\nassert os.getuid()==10000\nevent={'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'marker':'STEP7B-SCHEDULED-INVOCATION','pid':os.getpid()}\nwith (w/'attempts.jsonl').open('a') as f:f.write(json.dumps(event)+'\\n')\nprint(json.dumps(event))\n"
+}
