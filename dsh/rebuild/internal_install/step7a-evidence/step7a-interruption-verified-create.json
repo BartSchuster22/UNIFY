@@ -1,0 +1,31 @@
+{
+  "qa": "qa-step7a-bc19e389",
+  "createdThroughNativeCLI": true,
+  "explicitMaxRetries": 1,
+  "maxRuntimeSeconds": 420,
+  "created": {
+    "id": "t_64f83dc6",
+    "title": "Step 7A verified interrupted work",
+    "body": "Lifecycle interruption acceptance only. Use the terminal tool to execute exactly this bounded command in your project workspace: python -c \"from pathlib import Path; import time; p=Path('verified-interruption-attempts.txt'); p.open('a').write('attempt\\n'); Path('verified-interruption-started.txt').write_text('STEP7A-VERIFIED-LIFECYCLE-SLEEP'); time.sleep(240); Path('verified-interruption-finished.txt').write_text('finished')\". Set terminal timeout to 300 seconds. Do not background, repeat, shorten or skip the sleep, and never write verified-interruption-finished.txt separately. Do not load the CSV skill for this task. The owner will stop and start the development cell while the command sleeps. Do not mark this task complete unless the command returns and the finished file actually exists. Work only in this workspace.",
+    "assignee": "qa-step7a-bc19e389",
+    "status": "blocked",
+    "priority": 0,
+    "tenant": null,
+    "workspace_kind": "dir",
+    "workspace_path": "/opt/data/workspace/qa-step7a-bc19e389",
+    "branch_name": null,
+    "project_id": "p_42edc4d3",
+    "created_by": "user",
+    "created_at": 1789466738,
+    "started_at": null,
+    "completed_at": null,
+    "result": null,
+    "skills": [],
+    "max_retries": 1,
+    "model_override": null,
+    "provider_override": null,
+    "session_id": null,
+    "workflow_template_id": null,
+    "current_step_key": null
+  }
+}

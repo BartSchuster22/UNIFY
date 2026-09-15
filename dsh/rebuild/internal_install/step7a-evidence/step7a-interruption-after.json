@@ -1,0 +1,523 @@
+{
+  "qa": "qa-step7a-bc19e389",
+  "tasks": {
+    "t_65b0f9e6": {
+      "task": {
+        "id": "t_65b0f9e6",
+        "title": "Step 7A browser file acceptance",
+        "body": "Read input.csv in the project workspace /opt/data/workspace/qa-step7a-bc19e389. Use the enabled qa-enabled-proof skill and write result.json with total_cents, the instruction/memory/user-memory/skill codes, and the three item names in rows. Reread and verify the generated file. Do not edit files outside this workspace, enable tools, spawn agents, or modify credentials. Report the actual output path and tool results. Mark this task complete only after verifying the file.",
+        "assignee": "qa-step7a-bc19e389",
+        "status": "done",
+        "priority": 50,
+        "created_by": "user",
+        "created_at": 1789465557,
+        "started_at": 1789465596,
+        "completed_at": 1789465645,
+        "workspace_kind": "dir",
+        "workspace_path": "/opt/data/workspace/qa-step7a-bc19e389",
+        "claim_lock": null,
+        "claim_expires": null,
+        "tenant": null,
+        "branch_name": null,
+        "project_id": "p_42edc4d3",
+        "result": null,
+        "idempotency_key": "gw-1ea1288a10b3b171f78db2bbc05578dd29061ad232c693b50f23ff99e1db27b2",
+        "consecutive_failures": 0,
+        "worker_pid": null,
+        "last_failure_error": null,
+        "max_runtime_seconds": null,
+        "last_heartbeat_at": 1789465606,
+        "current_run_id": null,
+        "workflow_template_id": null,
+        "current_step_key": null,
+        "skills": null,
+        "model_override": null,
+        "provider_override": null,
+        "reasoning_effort": null,
+        "max_retries": null,
+        "goal_mode": false,
+        "goal_max_turns": null,
+        "session_id": null,
+        "block_kind": null,
+        "block_recurrences": 0
+      },
+      "runs": [
+        {
+          "id": 1,
+          "task_id": "t_65b0f9e6",
+          "profile": "qa-step7a-bc19e389",
+          "step_key": null,
+          "status": "done",
+          "claim_lock": null,
+          "claim_expires": null,
+          "worker_pid": null,
+          "max_runtime_seconds": null,
+          "last_heartbeat_at": 1789465606,
+          "started_at": 1789465596,
+          "ended_at": 1789465645,
+          "outcome": "completed",
+          "summary": "Created and verified /opt/data/workspace/qa-step7a-bc19e389/result.json from input.csv. Independent validation returned: VERIFIED total_cents=1195 rows=['alpha', 'beta', 'gamma'] codes=4.",
+          "metadata": {
+            "changed_files": [
+              "/opt/data/workspace/qa-step7a-bc19e389/result.json"
+            ],
+            "total_cents": 1195,
+            "rows": [
+              "alpha",
+              "beta",
+              "gamma"
+            ],
+            "verification_exit_code": 0,
+            "verification_result": "VERIFIED total_cents=1195 rows=['alpha', 'beta', 'gamma'] codes=4",
+            "artifacts": [
+              "/opt/data/workspace/qa-step7a-bc19e389/result.json"
+            ],
+            "worker_session_id": "20260915_094640_2fc419"
+          },
+          "error": null
+        }
+      ],
+      "events": [
+        {
+          "kind": "created",
+          "payload": "{\"assignee\": \"qa-step7a-bc19e389\", \"status\": \"ready\", \"parents\": [], \"tenant\": null, \"workspace_kind\": \"dir\", \"workspace_path\": \"/opt/data/workspace/qa-step7a-bc19e389\", \"branch_name\": null, \"project_id\": \"p_42edc4d3\", \"skills\": null, \"goal_mode\": null, \"model_override\": null, \"provider_override\": null}",
+          "created_at": 1789465557,
+          "run_id": null
+        },
+        {
+          "kind": "claimed",
+          "payload": "{\"lock\": \"9a668a969246:162\", \"expires\": 1789466496, \"run_id\": 1}",
+          "created_at": 1789465596,
+          "run_id": 1
+        },
+        {
+          "kind": "spawned",
+          "payload": "{\"pid\": 26300}",
+          "created_at": 1789465596,
+          "run_id": 1
+        },
+        {
+          "kind": "heartbeat",
+          "payload": null,
+          "created_at": 1789465606,
+          "run_id": 1
+        },
+        {
+          "kind": "completed",
+          "payload": "{\"result_len\": 0, \"summary\": \"Created and verified /opt/data/workspace/qa-step7a-bc19e389/result.json from input.csv. Independent validation returned: VERIFIED total_cents=1195 rows=['alpha', 'beta', 'gamma'] codes=4.\", \"artifacts\": [\"/opt/data/workspace/qa-step7a-bc19e389/result.json\"]}",
+          "created_at": 1789465645,
+          "run_id": 1
+        }
+      ]
+    },
+    "t_fa001583": {
+      "task": {
+        "id": "t_fa001583",
+        "title": "Step 7A verified cancellation",
+        "body": "Cancellation acceptance only. Use the enabled terminal tool to execute exactly this bounded Python command in your project workspace: python -c \"from pathlib import Path; import time; Path('cancel-verified-started.txt').write_text('STEP7A-VERIFIED-CANCEL-SLEEP'); time.sleep(180); Path('cancel-verified-finished.txt').write_text('finished')\". Set the terminal timeout to 240 seconds. Do not put it in the background, shorten or skip the sleep, use any other workspace, or create cancel-verified-finished.txt separately. The owner will cancel this task while the command is sleeping. Do not mark complete before the command returns.",
+        "assignee": "qa-step7a-bc19e389",
+        "status": "blocked",
+        "priority": 50,
+        "created_by": "user",
+        "created_at": 1789465685,
+        "started_at": 1789465716,
+        "completed_at": null,
+        "workspace_kind": "dir",
+        "workspace_path": "/opt/data/workspace/qa-step7a-bc19e389",
+        "claim_lock": null,
+        "claim_expires": null,
+        "tenant": null,
+        "branch_name": null,
+        "project_id": "p_42edc4d3",
+        "result": null,
+        "idempotency_key": "gw-fff33b286d7a385a2bc5236835bada698a86013a54c49dd139ba8fc51320dd42",
+        "consecutive_failures": 0,
+        "worker_pid": null,
+        "last_failure_error": null,
+        "max_runtime_seconds": null,
+        "last_heartbeat_at": 1789465734,
+        "current_run_id": null,
+        "workflow_template_id": null,
+        "current_step_key": null,
+        "skills": null,
+        "model_override": null,
+        "provider_override": null,
+        "reasoning_effort": null,
+        "max_retries": null,
+        "goal_mode": false,
+        "goal_max_turns": null,
+        "session_id": null,
+        "block_kind": null,
+        "block_recurrences": 0
+      },
+      "runs": [
+        {
+          "id": 2,
+          "task_id": "t_fa001583",
+          "profile": "qa-step7a-bc19e389",
+          "step_key": null,
+          "status": "blocked",
+          "claim_lock": null,
+          "claim_expires": null,
+          "worker_pid": null,
+          "max_runtime_seconds": null,
+          "last_heartbeat_at": 1789465734,
+          "started_at": 1789465716,
+          "ended_at": 1789465770,
+          "outcome": "cancelled",
+          "summary": "Cancelled by owner; worker termination verified",
+          "metadata": {
+            "cancelled": true,
+            "termination_verified": true,
+            "terminated_process_count": 3
+          },
+          "error": null
+        }
+      ],
+      "events": [
+        {
+          "kind": "created",
+          "payload": "{\"assignee\": \"qa-step7a-bc19e389\", \"status\": \"ready\", \"parents\": [], \"tenant\": null, \"workspace_kind\": \"dir\", \"workspace_path\": \"/opt/data/workspace/qa-step7a-bc19e389\", \"branch_name\": null, \"project_id\": \"p_42edc4d3\", \"skills\": null, \"goal_mode\": null, \"model_override\": null, \"provider_override\": null}",
+          "created_at": 1789465685,
+          "run_id": null
+        },
+        {
+          "kind": "claimed",
+          "payload": "{\"lock\": \"9a668a969246:162\", \"expires\": 1789466616, \"run_id\": 2}",
+          "created_at": 1789465716,
+          "run_id": 2
+        },
+        {
+          "kind": "spawned",
+          "payload": "{\"pid\": 26915}",
+          "created_at": 1789465716,
+          "run_id": 2
+        },
+        {
+          "kind": "heartbeat",
+          "payload": null,
+          "created_at": 1789465734,
+          "run_id": 2
+        },
+        {
+          "kind": "blocked",
+          "payload": "{\"reason\": \"Owner cancelled this run; explicit resume required\", \"kind\": \"needs_input\", \"cancelled\": true}",
+          "created_at": 1789465770,
+          "run_id": 2
+        },
+        {
+          "kind": "cancelled",
+          "payload": "{\"termination_verified\": true, \"run_id\": 2}",
+          "created_at": 1789465770,
+          "run_id": 2
+        }
+      ]
+    },
+    "t_903a737c": {
+      "task": {
+        "id": "t_903a737c",
+        "title": "Run the Step 7A lifecycle interruption acceptance command",
+        "body": "Work only in the assigned project workspace. Using the terminal tool, execute exactly this command with a terminal timeout of 300 seconds:\n\npython -c \"from pathlib import Path; import time; p=Path('interruption-attempts.txt'); p.open('a').write('attempt\\n'); Path('interruption-started.txt').write_text('STEP7A-LIFECYCLE-SLEEP'); time.sleep(240); Path('interruption-finished.txt').write_text('finished')\"\n\nDo not background, repeat, shorten, alter, or skip the sleep. Do not load the CSV skill. Never create or write interruption-finished.txt separately; it must be produced only by the exact command after the sleep. The owner will stop and start the development cell while the command is sleeping. Mark the task complete only after the command returns successfully and interruption-finished.txt actually exists.",
+        "assignee": "qa-step7a-bc19e389",
+        "status": "done",
+        "priority": 0,
+        "created_by": "user",
+        "created_at": 1789466208,
+        "started_at": 1789466241,
+        "completed_at": 1789466516,
+        "workspace_kind": "dir",
+        "workspace_path": "/opt/data/workspace/qa-step7a-bc19e389",
+        "claim_lock": null,
+        "claim_expires": null,
+        "tenant": null,
+        "branch_name": null,
+        "project_id": "p_42edc4d3",
+        "result": null,
+        "idempotency_key": "qa-step7a-bc19e389-interruption",
+        "consecutive_failures": 0,
+        "worker_pid": null,
+        "last_failure_error": null,
+        "max_runtime_seconds": 420,
+        "last_heartbeat_at": 1789466494,
+        "current_run_id": null,
+        "workflow_template_id": null,
+        "current_step_key": null,
+        "skills": null,
+        "model_override": null,
+        "provider_override": null,
+        "reasoning_effort": null,
+        "max_retries": 1,
+        "goal_mode": false,
+        "goal_max_turns": null,
+        "session_id": null,
+        "block_kind": null,
+        "block_recurrences": 0
+      },
+      "runs": [
+        {
+          "id": 3,
+          "task_id": "t_903a737c",
+          "profile": "qa-step7a-bc19e389",
+          "step_key": null,
+          "status": "done",
+          "claim_lock": null,
+          "claim_expires": null,
+          "worker_pid": null,
+          "max_runtime_seconds": 420,
+          "last_heartbeat_at": 1789466494,
+          "started_at": 1789466241,
+          "ended_at": 1789466516,
+          "outcome": "completed",
+          "summary": "Executed the exact Step 7A lifecycle command in the assigned workspace with a 300-second terminal timeout; it returned exit code 0 after the required sleep. Verified interruption-finished.txt exists and contains `finished`.",
+          "metadata": {
+            "command_exit_code": 0,
+            "verified_files": {
+              "interruption-started.txt": "STEP7A-LIFECYCLE-SLEEP",
+              "interruption-finished.txt": "finished",
+              "interruption-attempts.txt": "attempt\n"
+            },
+            "instruction_proof_code": "SOUL-STEP7A-ORCHID",
+            "worker_session_id": "20260915_095724_211acf"
+          },
+          "error": null
+        }
+      ],
+      "events": [
+        {
+          "kind": "created",
+          "payload": "{\"assignee\": \"qa-step7a-bc19e389\", \"status\": \"triage\", \"parents\": [], \"tenant\": null, \"workspace_kind\": \"dir\", \"workspace_path\": \"/opt/data/workspace/qa-step7a-bc19e389\", \"branch_name\": null, \"project_id\": \"p_42edc4d3\", \"skills\": null, \"goal_mode\": null, \"model_override\": null, \"provider_override\": null}",
+          "created_at": 1789466208,
+          "run_id": null
+        },
+        {
+          "kind": "specified",
+          "payload": "{\"changed_fields\": [\"title\", \"body\"]}",
+          "created_at": 1789466241,
+          "run_id": null
+        },
+        {
+          "kind": "promoted",
+          "payload": null,
+          "created_at": 1789466241,
+          "run_id": null
+        },
+        {
+          "kind": "claimed",
+          "payload": "{\"lock\": \"9a668a969246:163\", \"expires\": 1789467141, \"run_id\": 3}",
+          "created_at": 1789466241,
+          "run_id": 3
+        },
+        {
+          "kind": "spawned",
+          "payload": "{\"pid\": 1303}",
+          "created_at": 1789466241,
+          "run_id": 3
+        },
+        {
+          "kind": "heartbeat",
+          "payload": null,
+          "created_at": 1789466249,
+          "run_id": 3
+        },
+        {
+          "kind": "heartbeat",
+          "payload": null,
+          "created_at": 1789466313,
+          "run_id": 3
+        },
+        {
+          "kind": "heartbeat",
+          "payload": null,
+          "created_at": 1789466374,
+          "run_id": 3
+        },
+        {
+          "kind": "heartbeat",
+          "payload": null,
+          "created_at": 1789466434,
+          "run_id": 3
+        },
+        {
+          "kind": "heartbeat",
+          "payload": null,
+          "created_at": 1789466494,
+          "run_id": 3
+        },
+        {
+          "kind": "completed",
+          "payload": "{\"result_len\": 0, \"summary\": \"Executed the exact Step 7A lifecycle command in the assigned workspace with a 300-second terminal timeout; it returned exit code 0 after the required sleep. Verified interruption-finished.txt exists and contains `finished`.\"}",
+          "created_at": 1789466516,
+          "run_id": 3
+        }
+      ]
+    },
+    "t_64f83dc6": {
+      "task": {
+        "id": "t_64f83dc6",
+        "title": "Step 7A verified interrupted work",
+        "body": "Lifecycle interruption acceptance only. Use the terminal tool to execute exactly this bounded command in your project workspace: python -c \"from pathlib import Path; import time; p=Path('verified-interruption-attempts.txt'); p.open('a').write('attempt\\n'); Path('verified-interruption-started.txt').write_text('STEP7A-VERIFIED-LIFECYCLE-SLEEP'); time.sleep(240); Path('verified-interruption-finished.txt').write_text('finished')\". Set terminal timeout to 300 seconds. Do not background, repeat, shorten or skip the sleep, and never write verified-interruption-finished.txt separately. Do not load the CSV skill for this task. The owner will stop and start the development cell while the command sleeps. Do not mark this task complete unless the command returns and the finished file actually exists. Work only in this workspace.",
+        "assignee": "qa-step7a-bc19e389",
+        "status": "blocked",
+        "priority": 0,
+        "created_by": "user",
+        "created_at": 1789466738,
+        "started_at": 1789466787,
+        "completed_at": null,
+        "workspace_kind": "dir",
+        "workspace_path": "/opt/data/workspace/qa-step7a-bc19e389",
+        "claim_lock": null,
+        "claim_expires": null,
+        "tenant": null,
+        "branch_name": null,
+        "project_id": "p_42edc4d3",
+        "result": null,
+        "idempotency_key": "qa-step7a-bc19e389-verified-interruption",
+        "consecutive_failures": 1,
+        "worker_pid": null,
+        "last_failure_error": "pid 3328 not alive",
+        "max_runtime_seconds": 420,
+        "last_heartbeat_at": 1789466797,
+        "current_run_id": null,
+        "workflow_template_id": null,
+        "current_step_key": null,
+        "skills": null,
+        "model_override": null,
+        "provider_override": null,
+        "reasoning_effort": null,
+        "max_retries": 1,
+        "goal_mode": false,
+        "goal_max_turns": null,
+        "session_id": null,
+        "block_kind": null,
+        "block_recurrences": 0
+      },
+      "runs": [
+        {
+          "id": 4,
+          "task_id": "t_64f83dc6",
+          "profile": "qa-step7a-bc19e389",
+          "step_key": null,
+          "status": "crashed",
+          "claim_lock": null,
+          "claim_expires": null,
+          "worker_pid": null,
+          "max_runtime_seconds": 420,
+          "last_heartbeat_at": 1789466797,
+          "started_at": 1789466787,
+          "ended_at": 1789466893,
+          "outcome": "crashed",
+          "summary": null,
+          "metadata": {
+            "pid": 3328,
+            "claimer": "9a668a969246:163"
+          },
+          "error": "pid 3328 not alive"
+        }
+      ],
+      "events": [
+        {
+          "kind": "created",
+          "payload": "{\"assignee\": \"qa-step7a-bc19e389\", \"status\": \"blocked\", \"parents\": [], \"tenant\": null, \"workspace_kind\": \"dir\", \"workspace_path\": \"/opt/data/workspace/qa-step7a-bc19e389\", \"branch_name\": null, \"project_id\": \"p_42edc4d3\", \"skills\": null, \"goal_mode\": null, \"model_override\": null, \"provider_override\": null}",
+          "created_at": 1789466738,
+          "run_id": null
+        },
+        {
+          "kind": "promoted_manual",
+          "payload": "{\"actor\": \"default\", \"reason\": null, \"forced\": false}",
+          "created_at": 1789466743,
+          "run_id": null
+        },
+        {
+          "kind": "claimed",
+          "payload": "{\"lock\": \"9a668a969246:163\", \"expires\": 1789467687, \"run_id\": 4}",
+          "created_at": 1789466787,
+          "run_id": 4
+        },
+        {
+          "kind": "spawned",
+          "payload": "{\"pid\": 3328}",
+          "created_at": 1789466787,
+          "run_id": 4
+        },
+        {
+          "kind": "heartbeat",
+          "payload": null,
+          "created_at": 1789466797,
+          "run_id": 4
+        },
+        {
+          "kind": "crashed",
+          "payload": "{\"pid\": 3328, \"claimer\": \"9a668a969246:163\"}",
+          "created_at": 1789466893,
+          "run_id": 4
+        },
+        {
+          "kind": "gave_up",
+          "payload": "{\"failures\": 1, \"effective_limit\": 1, \"limit_source\": \"task\", \"error\": \"pid 3328 not alive\", \"trigger_outcome\": \"crashed\", \"pid\": 3328, \"claimer\": \"9a668a969246:163\"}",
+          "created_at": 1789466893,
+          "run_id": null
+        }
+      ]
+    }
+  },
+  "sessions": [
+    {
+      "id": "20260915_095724_211acf",
+      "source": "kanban",
+      "model": "gpt-5.6-sol",
+      "cwd": null,
+      "tool_call_count": 6,
+      "api_call_count": 5,
+      "billing_provider": "openai-codex",
+      "profile_name": "qa-step7a-bc19e389",
+      "started_at": 1789466249.501837,
+      "ended_at": null
+    },
+    {
+      "id": "20260915_094640_2fc419",
+      "source": "kanban",
+      "model": "gpt-5.6-sol",
+      "cwd": null,
+      "tool_call_count": 8,
+      "api_call_count": 8,
+      "billing_provider": "openai-codex",
+      "profile_name": "qa-step7a-bc19e389",
+      "started_at": 1789465606.024215,
+      "ended_at": null
+    }
+  ],
+  "missingFileAbsent": true,
+  "artifact": {
+    "total_cents": 1195,
+    "instruction_code": "SOUL-STEP7A-ORCHID",
+    "memory_code": "MEMORY-STEP7A-CEDAR",
+    "user_memory_code": "USER-STEP7A-AMBER",
+    "skill_code": "SKILL-STEP7A-COBALT",
+    "rows": [
+      "alpha",
+      "beta",
+      "gamma"
+    ]
+  },
+  "artifactSha256": "a41265fe710f3f468f8e553983dbc75dfbeb827c927b2195885fe79b28b39aef",
+  "independentlyCalculatedCents": 1195,
+  "profileHashes": {
+    "SOUL.md": "77783ed44ba1d89e92d05b55ad08c3a9bda9920b67835814d9303b18d1e0ac0c",
+    "profile.yaml": "f3cfc0edf34d653c3c638f3919bd0fd29d32dc42f536dcac38ce4010148ab5a8",
+    "config.yaml": "0c0edba6e1806adaf0fac4e90fe615a8913c75b46bfd21466a2da3f3a2e452c2",
+    "memories/USER.md": "6d0566ac88b651fff5faedac599a599890e89ecac07a9ec65d8f5599d627bcf8",
+    "memories/MEMORY.md": "346793f7890587c92d785e429bdae00527a50ae7374bdc65f6dd48e6e20d5ab0",
+    "skills/qa-enabled-proof/SKILL.md": "3e5ed8d30fced3a767186d78c11349726df861737527a7dfbbe4e8d355dfee73",
+    "skills/qa-disabled-proof/SKILL.md": "d5b2551b38a607548b4c98c3dac289a5e40640de256708421a5992f7f6fe7392"
+  },
+  "workspaceHashes": {
+    "verified-interruption-started.txt": "2db323421b32ddf897701ed9084c289e22aa6edc43f7e01dae72b501efb4f4fa",
+    "interruption-finished.txt": "05343e9845302eb730fa9d18ac7b28d5e509893daf1eb76ede8d6e82d47b2da9",
+    "interruption-started.txt": "85f178bedbee59ec4ed4f626e3a63abdcc7b003007d58cf61fd6fd920fb77246",
+    "interruption-attempts.txt": "1d566b34bf20c67837166d44cfb00f4b9a2a3fbaf3b31d67caf0dffba52f18a7",
+    "result.json": "a41265fe710f3f468f8e553983dbc75dfbeb827c927b2195885fe79b28b39aef",
+    "cancel-verified-started.txt": "ff29d246d23a361ab5629224dc4d776ff71c280c6bca9244c10aef722af090d8",
+    "verified-interruption-attempts.txt": "1d566b34bf20c67837166d44cfb00f4b9a2a3fbaf3b31d67caf0dffba52f18a7",
+    "input.csv": "2ef3ddbf6ca27d6f60ce71c917c15b31b3fa39b3f273118ea33adca06e1be96b"
+  }
+}

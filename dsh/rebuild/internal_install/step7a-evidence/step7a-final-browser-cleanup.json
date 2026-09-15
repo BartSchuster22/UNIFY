@@ -1,0 +1,19 @@
+{
+  "ownerSessionWorksWithoutDisposableAgent": true,
+  "profiles": [
+    {
+      "id": "default",
+      "displayName": "DSH",
+      "active": true,
+      "gatewayStatus": "running",
+      "model": "gpt-5.6-sol",
+      "owner": "hermes",
+      "frameworkId": "hermes-alica",
+      "sourceVersion": "sha256:c4ebb21a04a8bfeaa35a551338737251593e411ba6d592d88d5d0cb57f284669",
+      "observedAt": "2026-09-15T10:13:42.534Z"
+    }
+  ],
+  "projectArchived": true,
+  "workViewAndRefreshHealthyAfterCleanup": true,
+  "javascriptErrors": []
+}

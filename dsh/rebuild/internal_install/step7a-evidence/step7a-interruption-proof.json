@@ -1,0 +1,41 @@
+{
+  "before": {
+    "started": true,
+    "finished": false,
+    "workerPid": 3328,
+    "livePids": [
+      3328,
+      3467,
+      3469
+    ],
+    "sideEffectAttempts": 1
+  },
+  "after": {
+    "started": true,
+    "finished": false,
+    "workerPid": null,
+    "livePids": [],
+    "sideEffectAttempts": 1
+  },
+  "final": {
+    "started": true,
+    "finished": false,
+    "workerPid": null,
+    "livePids": [],
+    "sideEffectAttempts": 1
+  },
+  "recoveryStates": [
+    {
+      "status": "blocked",
+      "runs": 1
+    }
+  ],
+  "runOutcome": "crashed",
+  "oneNativeRun": true,
+  "oneSideEffectAttempt": true,
+  "noFalseCompletion": true,
+  "noOrphanWorkers": true,
+  "noRedispatchAfter70Seconds": true,
+  "settledTasksUnchanged": true,
+  "profileAndExistingArtifactsUnchanged": true
+}

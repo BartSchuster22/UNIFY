@@ -1,0 +1,123 @@
+{
+  "qa": "qa-step7a-bc19e389",
+  "before": {
+    "started": true,
+    "finished": false,
+    "workerPid": 26915,
+    "livePids": [
+      26915,
+      27068,
+      27070
+    ]
+  },
+  "after": {
+    "started": true,
+    "finished": false,
+    "workerPid": null,
+    "livePids": []
+  },
+  "request": {
+    "operationType": "work.task.cancel",
+    "target": {
+      "owner": "hermes",
+      "kind": "task",
+      "nativeId": "t_fa001583",
+      "frameworkId": "hermes-alica"
+    },
+    "payload": {
+      "boardId": "qa-step7a-bc19e389",
+      "expectedSourceVersion": "sha256:5c64b52bb70a4595561653dd2f5a555844c2e75344cdced11285be34d547d25e",
+      "runId": 2
+    },
+    "mode": "execute",
+    "confirmed": true
+  },
+  "response": {
+    "replayed": false,
+    "operation": {
+      "operationId": "483fc9ae-d8bd-4a50-bfda-e87e4b8ddb62",
+      "operationType": "work.task.cancel",
+      "actorId": "62d8832d-f886-4d9b-bd8e-a8f1431f9187",
+      "target": {
+        "canonicalId": "hermes-alica:task:dF9mYTAwMTU4Mw",
+        "owner": "hermes-alica",
+        "frameworkId": "hermes-alica",
+        "kind": "task",
+        "nativeId": "t_fa001583",
+        "observedAt": "2026-09-15T09:49:30.738Z"
+      },
+      "payloadHash": "838798ff33f652e9ed5ce4d7cbd118dbfb73aa962a478cf0946f9f84215467a9",
+      "mode": "execute",
+      "idempotencyKey": "4239d4d3-4d15-43f6-be59-d5241a5f1f25",
+      "policyDecision": "allowed",
+      "state": "verified",
+      "createdAt": "2026-09-15T09:49:23.235Z",
+      "updatedAt": "2026-09-15T09:49:30.738Z",
+      "evidenceIds": []
+    },
+    "result": {
+      "meta": {
+        "owner": "hermes",
+        "frameworkId": "hermes-alica",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "sha256:49eff16e880e5c2d0dd1a8af004c7c9693af91fa7f1c05ed5e3a66c6a7db7739",
+        "observedAt": "2026-09-15T09:49:30.715Z",
+        "freshness": "current"
+      },
+      "data": {
+        "operationId": "7aa524ba-9dbe-44ef-b195-5fe370f3f7e7",
+        "status": "completed",
+        "replayed": false,
+        "operation": "task.cancel",
+        "targetId": "t_fa001583",
+        "result": {
+          "task": {
+            "id": "t_fa001583",
+            "status": "blocked"
+          },
+          "runId": 2,
+          "cancelled": true,
+          "terminationVerified": true
+        },
+        "emittedEvents": 1
+      }
+    }
+  },
+  "task": {
+    "id": "t_fa001583",
+    "boardId": "qa-step7a-bc19e389",
+    "title": "Step 7A verified cancellation",
+    "status": "blocked",
+    "body": "Cancellation acceptance only. Use the enabled terminal tool to execute exactly this bounded Python command in your project workspace: python -c \"from pathlib import Path; import time; Path('cancel-verified-started.txt').write_text('STEP7A-VERIFIED-CANCEL-SLEEP'); time.sleep(180); Path('cancel-verified-finished.txt').write_text('finished')\". Set the terminal timeout to 240 seconds. Do not put it in the background, shorten or skip the sleep, use any other workspace, or create cancel-verified-finished.txt separately. The owner will cancel this task while the command is sleeping. Do not mark complete before the command returns.",
+    "assignee": "qa-step7a-bc19e389",
+    "priority": 50,
+    "projectId": "p_42edc4d3",
+    "workspacePath": "/opt/data/workspace/qa-step7a-bc19e389",
+    "runs": [
+      {
+        "id": 2,
+        "profile": "qa-step7a-bc19e389",
+        "status": "blocked",
+        "outcome": "cancelled",
+        "summary": "Cancelled by owner; worker termination verified"
+      }
+    ],
+    "owner": "hermes",
+    "frameworkId": "hermes-alica",
+    "sourceVersion": "sha256:ec757b8cd6d39db8ea709d1939f5ae993d9af3f5845eb5897f2af236a723992a",
+    "observedAt": "2026-09-15T09:50:12.732Z"
+  },
+  "postCancellationStates": [
+    "blocked",
+    "blocked",
+    "blocked",
+    "blocked",
+    "blocked",
+    "blocked",
+    "blocked"
+  ],
+  "inflightReloadPreservedTask": true,
+  "noRedispatch": true,
+  "cancelledSummaryVisible": true
+}

@@ -1,0 +1,156 @@
+{
+  "qa": "qa-step7a-bc19e389",
+  "tasks": {
+    "t_65b0f9e6": {
+      "task": {
+        "id": "t_65b0f9e6",
+        "title": "Step 7A browser file acceptance",
+        "body": "Read input.csv in the project workspace /opt/data/workspace/qa-step7a-bc19e389. Use the enabled qa-enabled-proof skill and write result.json with total_cents, the instruction/memory/user-memory/skill codes, and the three item names in rows. Reread and verify the generated file. Do not edit files outside this workspace, enable tools, spawn agents, or modify credentials. Report the actual output path and tool results. Mark this task complete only after verifying the file.",
+        "assignee": "qa-step7a-bc19e389",
+        "status": "done",
+        "priority": 50,
+        "created_by": "user",
+        "created_at": 1789465557,
+        "started_at": 1789465596,
+        "completed_at": 1789465645,
+        "workspace_kind": "dir",
+        "workspace_path": "/opt/data/workspace/qa-step7a-bc19e389",
+        "claim_lock": null,
+        "claim_expires": null,
+        "tenant": null,
+        "branch_name": null,
+        "project_id": "p_42edc4d3",
+        "result": null,
+        "idempotency_key": "gw-1ea1288a10b3b171f78db2bbc05578dd29061ad232c693b50f23ff99e1db27b2",
+        "consecutive_failures": 0,
+        "worker_pid": null,
+        "last_failure_error": null,
+        "max_runtime_seconds": null,
+        "last_heartbeat_at": 1789465606,
+        "current_run_id": null,
+        "workflow_template_id": null,
+        "current_step_key": null,
+        "skills": null,
+        "model_override": null,
+        "provider_override": null,
+        "reasoning_effort": null,
+        "max_retries": null,
+        "goal_mode": false,
+        "goal_max_turns": null,
+        "session_id": null,
+        "block_kind": null,
+        "block_recurrences": 0
+      },
+      "runs": [
+        {
+          "id": 1,
+          "task_id": "t_65b0f9e6",
+          "profile": "qa-step7a-bc19e389",
+          "step_key": null,
+          "status": "done",
+          "claim_lock": null,
+          "claim_expires": null,
+          "worker_pid": null,
+          "max_runtime_seconds": null,
+          "last_heartbeat_at": 1789465606,
+          "started_at": 1789465596,
+          "ended_at": 1789465645,
+          "outcome": "completed",
+          "summary": "Created and verified /opt/data/workspace/qa-step7a-bc19e389/result.json from input.csv. Independent validation returned: VERIFIED total_cents=1195 rows=['alpha', 'beta', 'gamma'] codes=4.",
+          "metadata": {
+            "changed_files": [
+              "/opt/data/workspace/qa-step7a-bc19e389/result.json"
+            ],
+            "total_cents": 1195,
+            "rows": [
+              "alpha",
+              "beta",
+              "gamma"
+            ],
+            "verification_exit_code": 0,
+            "verification_result": "VERIFIED total_cents=1195 rows=['alpha', 'beta', 'gamma'] codes=4",
+            "artifacts": [
+              "/opt/data/workspace/qa-step7a-bc19e389/result.json"
+            ],
+            "worker_session_id": "20260915_094640_2fc419"
+          },
+          "error": null
+        }
+      ],
+      "events": [
+        {
+          "kind": "created",
+          "payload": "{\"assignee\": \"qa-step7a-bc19e389\", \"status\": \"ready\", \"parents\": [], \"tenant\": null, \"workspace_kind\": \"dir\", \"workspace_path\": \"/opt/data/workspace/qa-step7a-bc19e389\", \"branch_name\": null, \"project_id\": \"p_42edc4d3\", \"skills\": null, \"goal_mode\": null, \"model_override\": null, \"provider_override\": null}",
+          "created_at": 1789465557,
+          "run_id": null
+        },
+        {
+          "kind": "claimed",
+          "payload": "{\"lock\": \"9a668a969246:162\", \"expires\": 1789466496, \"run_id\": 1}",
+          "created_at": 1789465596,
+          "run_id": 1
+        },
+        {
+          "kind": "spawned",
+          "payload": "{\"pid\": 26300}",
+          "created_at": 1789465596,
+          "run_id": 1
+        },
+        {
+          "kind": "heartbeat",
+          "payload": null,
+          "created_at": 1789465606,
+          "run_id": 1
+        },
+        {
+          "kind": "completed",
+          "payload": "{\"result_len\": 0, \"summary\": \"Created and verified /opt/data/workspace/qa-step7a-bc19e389/result.json from input.csv. Independent validation returned: VERIFIED total_cents=1195 rows=['alpha', 'beta', 'gamma'] codes=4.\", \"artifacts\": [\"/opt/data/workspace/qa-step7a-bc19e389/result.json\"]}",
+          "created_at": 1789465645,
+          "run_id": 1
+        }
+      ]
+    }
+  },
+  "sessions": [
+    {
+      "id": "20260915_094640_2fc419",
+      "source": "kanban",
+      "model": "gpt-5.6-sol",
+      "cwd": null,
+      "tool_call_count": 8,
+      "api_call_count": 8,
+      "billing_provider": "openai-codex",
+      "profile_name": "qa-step7a-bc19e389",
+      "started_at": 1789465606.024215,
+      "ended_at": null
+    }
+  ],
+  "missingFileAbsent": true,
+  "artifact": {
+    "total_cents": 1195,
+    "instruction_code": "SOUL-STEP7A-ORCHID",
+    "memory_code": "MEMORY-STEP7A-CEDAR",
+    "user_memory_code": "USER-STEP7A-AMBER",
+    "skill_code": "SKILL-STEP7A-COBALT",
+    "rows": [
+      "alpha",
+      "beta",
+      "gamma"
+    ]
+  },
+  "artifactSha256": "a41265fe710f3f468f8e553983dbc75dfbeb827c927b2195885fe79b28b39aef",
+  "independentlyCalculatedCents": 1195,
+  "profileHashes": {
+    "SOUL.md": "77783ed44ba1d89e92d05b55ad08c3a9bda9920b67835814d9303b18d1e0ac0c",
+    "profile.yaml": "f3cfc0edf34d653c3c638f3919bd0fd29d32dc42f536dcac38ce4010148ab5a8",
+    "config.yaml": "7c96db512b0ef043eb193220bcb6964b969666c16bbebc7abd12317a39f3cac1",
+    "memories/USER.md": "6d0566ac88b651fff5faedac599a599890e89ecac07a9ec65d8f5599d627bcf8",
+    "memories/MEMORY.md": "346793f7890587c92d785e429bdae00527a50ae7374bdc65f6dd48e6e20d5ab0",
+    "skills/qa-enabled-proof/SKILL.md": "3e5ed8d30fced3a767186d78c11349726df861737527a7dfbbe4e8d355dfee73",
+    "skills/qa-disabled-proof/SKILL.md": "d5b2551b38a607548b4c98c3dac289a5e40640de256708421a5992f7f6fe7392"
+  },
+  "workspaceHashes": {
+    "result.json": "a41265fe710f3f468f8e553983dbc75dfbeb827c927b2195885fe79b28b39aef",
+    "input.csv": "2ef3ddbf6ca27d6f60ce71c917c15b31b3fa39b3f273118ea33adca06e1be96b"
+  }
+}

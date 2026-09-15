@@ -1,5 +1,12 @@
 # Clean-user installation bootstrap — development preview
 
+## Current development acceptance checkpoints
+
+- [Step 6 — real native execution and browser cancellation: PASS](STEP6_FINAL_ACCEPTANCE.md).
+- [Step 7A — supported cell restart and interrupted-run recovery: PASS](STEP7A_FINAL_ACCEPTANCE.md), under an explicit per-task no-retry policy.
+
+These are bounded development acceptance results, not fresh-install, recovery/restore, day-scale or release-freeze qualification. Earlier failed checkpoint reports remain historical evidence.
+
 This is the first implementation checkpoint of internal-user installation readiness,
 not a completed internal release. ALICA-v1 develops/builds; DSH2 is the clean user
 installation target; ElioHermes coordinates. No restored QA state or coordinator

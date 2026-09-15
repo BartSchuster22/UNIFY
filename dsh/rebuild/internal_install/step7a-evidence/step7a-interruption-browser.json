@@ -1,0 +1,30 @@
+{
+  "label": "interruption",
+  "ownerAuthenticatedAfterRestart": true,
+  "workspaceAndTeamRetained": true,
+  "modelMemoryToolsSkillsRetained": true,
+  "taskTitlesAndRunFeedbackVisible": true,
+  "taskRunCounts": {
+    "t_64f83dc6": 1,
+    "t_65b0f9e6": 1,
+    "t_903a737c": 1,
+    "t_fa001583": 1
+  },
+  "project": {
+    "id": "qa-step7a-bc19e389",
+    "name": "Step 7A disposable runtime acceptance",
+    "archived": false,
+    "description": "One bounded CSV-to-JSON file task with native tool, skill and memory evidence. No background planning.",
+    "boardId": "qa-step7a-bc19e389",
+    "defaultWorkspacePath": "/opt/data/workspace/qa-step7a-bc19e389",
+    "projectManager": "qa-step7a-bc19e389",
+    "agents": [
+      "qa-step7a-bc19e389"
+    ],
+    "teamConfigurationOwner": "dsh-hermes-adapter",
+    "owner": "hermes",
+    "frameworkId": "hermes-alica",
+    "sourceVersion": "sha256:1214733ac502097de4668f8f68ea44b1756f1e9b3cc287de2dd0049821817df7",
+    "observedAt": "2026-09-15T10:10:18.143Z"
+  }
+}
