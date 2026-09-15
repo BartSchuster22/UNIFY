@@ -12,7 +12,7 @@ sys.dont_write_bytecode=True
 CELL='dsh2-internal-onboarding1'
 ROOT=Path('/opt')/CELL
 ORIGIN=Path('/var/lib/alica/dsh2-internal-onboarding1/candidate')
-CONTROL=Path('/var/lib/alica/dsh2-internal-maintenance1/control')
+CONTROL=Path('/var/lib/alica/dsh2-internal-maintenance1/control3')
 BOOT=Path('/usr/local/lib/alica-setup-onboarding1')
 ANCHOR=Path('/etc/alica/release-trust/onboarding1/candidate-trust.json')
 OLD_SHA='8fecaecb87f92a47a9ea427965f79525095f9b9567e92dedf6d03d403147b204'
@@ -83,7 +83,8 @@ def context(candidate):
  prior=rt.verify(load(ORIGIN/'candidate-envelope.json'),load(ANCHOR),ORIGIN/'bundle','0'*64,0,'qa')
  require(prior['releaseSha256']==OLD_SHA and prior['sequence']==1,'Unexpected installed admission')
  CONTROL.mkdir(parents=True,exist_ok=True,mode=0o700)
- state=load(CONTROL/'authority.json') if (CONTROL/'authority.json').exists() else {'releaseSha256':OLD_SHA,'sequence':1,'highestAttempt':1}
+ state=load(private(CONTROL/'authority.json'))
+ require(state['highestAttempt']>=2,'Previous attempt authority must be retained')
  env=load(candidate/'candidate-envelope.json')
  # Read-only re-verification uses the installed predecessor; apply additionally consumes the sequence.
  admitted=rt.verify(env,load(ANCHOR),candidate/'bundle',OLD_SHA,1,'qa')
@@ -174,7 +175,7 @@ def apply(c):
   c['new_i'].deadline=time.monotonic()+600
   c['new_i'].compose('up','-d','--wait','--wait-timeout','120','postgresql')
   c['new_i'].compose('--profile','jobs','run','--rm','--no-deps','migrate')
-  run(['docker','exec',CELL+'-postgresql-1','psql','-v','ON_ERROR_STOP=1','-U','unify_bootstrap','-d','unify','-c','GRANT SELECT, INSERT, UPDATE, DELETE ON user_preferences TO unify;'])
+  run(['docker','exec',CELL+'-postgresql-1','psql','-v','ON_ERROR_STOP=1','-U','unify_bootstrap','-d','unify','-c','GRANT SELECT, INSERT, UPDATE, DELETE ON user_time_preferences TO unify;'])
   checkpoint(j,'migrated')
   c['new_i'].compose('up','-d','--wait','--wait-timeout','240')
   c['new_i'].compose('--profile','jobs','run','--rm','--no-deps','reconcile-frameworks')

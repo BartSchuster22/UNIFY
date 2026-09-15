@@ -1,1 +1,1 @@
-DROP TABLE user_preferences;
+DROP TABLE user_time_preferences;

@@ -7,8 +7,8 @@ import argparse,hashlib,json,os,shlex,shutil,subprocess,tarfile,tempfile
 from pathlib import Path
 REPO=Path(__file__).resolve().parents[1]
 SRC=REPO/'dsh/rebuild/internal_install'
-BUILD='/var/lib/alica-dsh-internal/maintenance1-build'
-DEST='/var/lib/alica/dsh2-internal-maintenance1/candidate'
+BUILD='/var/lib/alica-dsh-internal/maintenance3-build'
+DEST='/var/lib/alica/dsh2-internal-maintenance1/candidate3'
 OLD='/var/lib/alica/dsh2-internal-onboarding1/candidate'
 PUB='/var/lib/alica-dsh-internal/onboarding1-publisher'
 KEY='/home/herman/.ssh/alica_v1_deploy_ed25519'
@@ -52,7 +52,7 @@ for role in ['unify-core','hermes','uniui']:
  assert record['Id']==ids[role] and record['RepoTags'],'Named local immutable base required'
  base_refs[role]=record['RepoTags'][0]
 for role,target in [('unify-core','core'),('hermes','hermes'),('uniui','ui')]:
- tag='alica-internal-maintenance1:'+target
+ tag='alica-internal-maintenance3:'+target
  assert subprocess.run(['docker','image','inspect',tag],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode!=0,'Tag already exists'
  cmd=['docker','build','--network=none','--target',target,'-t',tag]
  for arg,key in [('BASE_CORE','unify-core'),('BASE_HERMES','hermes'),('BASE_UI','uniui')]:cmd+=['--build-arg',arg+'='+base_refs[key]]
@@ -97,7 +97,7 @@ release['source_revisions']={{**old.get('source_revisions',{{}}),'maintenance':{
 release['files']={{q.name:digest(q) for q in sorted(b.iterdir()) if q.name not in ['release.json','release.sha256']}}
 (b/'release.json').write_text(json.dumps(release,sort_keys=True,indent=2)+'\\n');pin=digest(b/'release.json');(b/'release.sha256').write_text(pin+'  release.json\\n')
 sys.path.insert(0,'/usr/local/lib/alica-setup-onboarding1');import release_trust as rt
-now=int(time.time());payload={{'schema':'alica-release-admission/v1','scope':'qa','sequence':2,'issuedAt':now,'expiresAt':now+7*86400,'platform':'linux/amd64','acceptedPredecessors':[{BASESHA!r}],'artifacts':rt.inventory(b),'releaseSha256':pin}}
+now=int(time.time());payload={{'schema':'alica-release-admission/v1','scope':'qa','sequence':3,'issuedAt':now,'expiresAt':now+7*86400,'platform':'linux/amd64','acceptedPredecessors':[{BASESHA!r}],'artifacts':rt.inventory(b),'releaseSha256':pin}}
 (p/'admission-payload.json').write_text(json.dumps(payload));print(json.dumps(payload))
 '''
  payload=remote('dsh',assemble,timeout=600)
@@ -110,6 +110,10 @@ sys.path.insert(0,'/usr/local/lib/alica-setup-onboarding1');import release_trust
 verified=rt.verify(envelope,rt.load('/etc/alica/release-trust/onboarding1/candidate-trust.json'),p/'bundle',{BASESHA!r},1,'qa')
 s=json.loads((Path({OLD!r})/'preparation.json').read_text());s.update(admission=verified,maintenanceAdmission={{'predecessorDestination':{OLD!r},'releaseSha256':{BASESHA!r},'sequence':1}},archive=None,archiveSha256=None,downloadedBytes=0)
 (p/'preparation.json').write_text(json.dumps(s,indent=2));shutil.copyfile(Path({OLD!r})/'request.json',p/'request.json')
+previous=Path('/var/lib/alica/dsh2-internal-maintenance1/control');control=previous.with_name('control3')
+assert not control.exists() and json.loads((previous/'journal.json').read_text())['phase']=='rolled-back'
+authority=json.loads((previous/'authority.json').read_text());assert authority['highestAttempt']==2 and authority['releaseSha256']=={BASESHA!r}
+control.mkdir(mode=0o700);shutil.copyfile(previous/'authority.json',control/'authority.json');(control/'authority.json').chmod(0o600)
 (p/'build-receipt.json').write_text(json.dumps({{'sourceRevision':{args.revision!r},'imageIds':{ids!r},'admission':verified,'allExportedConfigsAndLayersVerified':True,'existingALICAContainersUnchanged':True,'deployed':False}},indent=2));print(json.dumps(verified))
 '''
  print(remote('dsh',finish,envelope,timeout=600),flush=True)
