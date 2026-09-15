@@ -1,5 +1,7 @@
 # DSH2 onboarding candidate — Step 2 completed (2026-09-15)
 
+**Subsequent checkpoint:** [Step 3 installation completed](DSH2_INSTALLED.md): seven services healthy and public standalone HTTPS verified. The root-absence and unchanged-bootstrap statements below record Step 2; Step 3 includes a documented bootstrap bytecode fix. Private owner onboarding remains pending.
+
 **Prepared and authenticated; NOT installed or started.** Scope explicitly stops
 before installation, image import, service startup and human owner/provider setup.
 

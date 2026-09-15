@@ -1,0 +1,18 @@
+{
+  "alica-dsh2-internal-onboarding1-broker.service": {
+    "active": "active",
+    "enabled": "enabled"
+  },
+  "alica-dsh2-internal-onboarding1-cell.service": {
+    "active": "active",
+    "enabled": "enabled"
+  },
+  "alica-dsh2-internal-onboarding1-observer.service": {
+    "active": "active",
+    "enabled": "enabled"
+  },
+  "alica-dsh2-internal-onboarding1-tls.timer": {
+    "active": "active",
+    "enabled": "enabled"
+  }
+}

@@ -2,7 +2,7 @@
 
 ## Current development acceptance checkpoints
 
-- [DSH2 separate onboarding preparation](DSH2_ONBOARDING_PREPARATION.md): host/bootstrap prepared; fresh-install runtime package pending. Stage 7.4 licensing and supporting originals preserved.
+- [DSH2 isolated installation: Step 3 complete](DSH2_INSTALLED.md): seven services healthy, public standalone HTTPS and browser sign-in entry verified. Private owner/provider onboarding remains pending. Stage 7.4 licensing and supporting originals preserved.
 
 - [Step 7B — bounded scheduling and corrected cron activity: PASS](STEP7B_SCHEDULING_ACCEPTANCE.md).
 

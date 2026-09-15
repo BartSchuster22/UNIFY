@@ -1,0 +1,31 @@
+{
+  "archiveSha256": "37ac2bbf89ef0b37bfd80b92d14e013b5b7b6244d8b0cdf44f42c3873c4dcaf0",
+  "bind": "0.0.0.0",
+  "blockedReasons": [
+    "Private owner/provider onboarding and real task acceptance pending."
+  ],
+  "bootstrap": "/usr/local/lib/alica-setup-onboarding1/setup.py",
+  "bootstrapSha256": "ebcf54e7a821a03275abed1ffd0f4c692b49b12e0e50a980e4d381321afd97a2",
+  "bootstrapSourceRevision": "7843dee6f9c5b81e7aefb7cf1f3dbf8d757b9073",
+  "candidateAdmissionVerified": true,
+  "cell": "dsh2-internal-onboarding1",
+  "copiedOwnerProviderOrQAState": false,
+  "destination": "/var/lib/alica/dsh2-internal-onboarding1/candidate",
+  "initialBootstrapSourceRevision": "f57ed263f49f0f87a61cc69aa9ba2f1be3299f52",
+  "installationPerformed": true,
+  "origin": "https://dsh-next.aquiero.com",
+  "owner": "owner",
+  "port": 443,
+  "privateOwnerOnboardingPending": true,
+  "productionAccepted": false,
+  "protectedLicensing": "Stage7.4 candidate/evidence/original bundle/containers/images remain in place; do not use or modify for onboarding.",
+  "publicHttpsVerified": true,
+  "root": "/opt/dsh2-internal-onboarding1",
+  "runtimeBuildSourceRevision": "599b70981c30779b3383dc5e625b97775723994b",
+  "runtimeImported": true,
+  "runtimeRelease": "8fecaecb87f92a47a9ea427965f79525095f9b9567e92dedf6d03d403147b204",
+  "servicesStarted": true,
+  "status": "INSTALLED_HTTPS_VERIFIED_OWNER_ONBOARDING_PENDING",
+  "tls_mode": "acme",
+  "trustDirectory": "/etc/alica/release-trust/onboarding1"
+}

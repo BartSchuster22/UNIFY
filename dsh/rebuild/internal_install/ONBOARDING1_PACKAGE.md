@@ -1,5 +1,7 @@
 # Onboarding1 fresh-install package — Step 1 completed
 
+**Current deployment checkpoint:** [Step 3 installation completed](DSH2_INSTALLED.md); all seven services and public HTTPS verified. Private owner/provider onboarding remains pending. Below is the original packaging checkpoint.
+
 **Subsequent checkpoint:** Step 2 delivery and bootstrap admission on DSH2 have now completed; see [DSH2_CANDIDATE_PREPARED.md](DSH2_CANDIDATE_PREPARED.md). The scope/next-boundary statements below record the Step 1 checkpoint. Installation and service startup are still pending.
 
 Built and verified on ALICA-v1 on 2026-09-15. No DSH2 transfer, installation,

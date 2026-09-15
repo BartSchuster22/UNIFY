@@ -1,0 +1,33 @@
+{
+  "bootstrapArchiveSha256": "f7bf3d77921112a734ae506a35a87d94a10195212fe794723dfca1c81e80e6bb",
+  "bootstrapSha256": "ebcf54e7a821a03275abed1ffd0f4c692b49b12e0e50a980e4d381321afd97a2",
+  "bootstrapSource": "7843dee6f9c5b81e7aefb7cf1f3dbf8d757b9073",
+  "candidateReauthenticationPassed": true,
+  "cellOnlySystemdDropins": [
+    "alica-dsh2-internal-onboarding1-cell.service",
+    "alica-dsh2-internal-onboarding1-tls.service"
+  ],
+  "removedGeneratedCacheFiles": [
+    {
+      "name": "transaction.cpython-314.pyc",
+      "sha256": "f8a18f859f364f1c7a638d11a5fc4d3ca267c8b2a70c62b20f4c90a1ff4185a5"
+    },
+    {
+      "name": "install.cpython-314.pyc",
+      "sha256": "0bd013c7a7d05dbe3bb293ef9469245c1af0f6eee508848c8cf31446b29fa82a"
+    },
+    {
+      "name": "tls_lifecycle.cpython-314.pyc",
+      "sha256": "544cee1a879843bf1866625be85f39f5deccd6ce1fd7b46073509cdacc871117"
+    },
+    {
+      "name": "render.cpython-314.pyc",
+      "sha256": "786de00a919b91d43238f1e5ede3da5827540fe5dee338b96eeb6208b9914740"
+    }
+  ],
+  "runtimeSignedMembersUnmodified": true,
+  "schema": "dsh-bytecode-inventory-fix/v1",
+  "servicesRestarted": false,
+  "tlsServiceExecutedWithoutCacheWrites": true,
+  "verifierUnchanged": true
+}

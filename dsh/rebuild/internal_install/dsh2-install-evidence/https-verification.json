@@ -1,0 +1,62 @@
+{
+  "schema": "dsh2-public-https-verification/v1",
+  "origin": "https://dsh-next.aquiero.com",
+  "externalCheck": true,
+  "normalSystemTrust": true,
+  "hostnameVerified": true,
+  "tls": "TLSv1.3",
+  "issuer": [
+    [
+      [
+        "countryName",
+        "US"
+      ]
+    ],
+    [
+      [
+        "organizationName",
+        "Let's Encrypt"
+      ]
+    ],
+    [
+      [
+        "commonName",
+        "YE1"
+      ]
+    ]
+  ],
+  "subjectAltName": [
+    [
+      "DNS",
+      "dsh-next.aquiero.com"
+    ]
+  ],
+  "notAfter": "Dec 14 12:57:37 2026 GMT",
+  "httpRedirect": {
+    "status": 308,
+    "location": "https://dsh-next.aquiero.com/"
+  },
+  "checks": [
+    {
+      "path": "/",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "path": "/identity/realms/alica/.well-known/openid-configuration",
+      "status": 200,
+      "contentType": "application/json;charset=UTF-8",
+      "issuer": "https://dsh-next.aquiero.com/identity/realms/alica"
+    },
+    {
+      "path": "/identity/admin/",
+      "status": 404,
+      "contentType": null
+    },
+    {
+      "path": "/identity/realms/master/",
+      "status": 404,
+      "contentType": null
+    }
+  ]
+}

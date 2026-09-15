@@ -1,0 +1,12 @@
+{
+  "browser": "Chromium",
+  "trustedHttps": true,
+  "initialStatus": 200,
+  "signInLandingRendered": true,
+  "oidcRedirectToSameOrigin": true,
+  "identityPath": "/identity/realms/alica/protocol/openid-connect/auth",
+  "emptyUsernameAndPasswordInputs": true,
+  "credentialsEntered": false,
+  "ownerLoginPerformed": false,
+  "pageErrors": []
+}
