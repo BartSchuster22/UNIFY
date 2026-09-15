@@ -1,5 +1,7 @@
 # Onboarding1 fresh-install package — Step 1 completed
 
+**Subsequent checkpoint:** Step 2 delivery and bootstrap admission on DSH2 have now completed; see [DSH2_CANDIDATE_PREPARED.md](DSH2_CANDIDATE_PREPARED.md). The scope/next-boundary statements below record the Step 1 checkpoint. Installation and service startup are still pending.
+
 Built and verified on ALICA-v1 on 2026-09-15. No DSH2 transfer, installation,
 service start, public distribution, or licensing review was performed.
 

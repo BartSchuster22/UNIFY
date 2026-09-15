@@ -1,0 +1,32 @@
+{
+  "admission": {
+    "artifactsVerified": 20,
+    "installationPerformed": false,
+    "keyId": "7364e0d72df271459710ace4f4682609ed7818830a9d4728a3ac32c865b64f20",
+    "releaseSha256": "8fecaecb87f92a47a9ea427965f79525095f9b9567e92dedf6d03d403147b204",
+    "sbomProvenanceGateComplete": false,
+    "schemaCompatibilityProven": false,
+    "scope": "qa",
+    "sequence": 1,
+    "signatureVerified": true,
+    "wholeStage6Accepted": false
+  },
+  "archive": "internal-onboarding1-599b7098-linux-amd64.tar.gz",
+  "archiveSha256": "37ac2bbf89ef0b37bfd80b92d14e013b5b7b6244d8b0cdf44f42c3873c4dcaf0",
+  "distributionApproved": false,
+  "downloadedBytes": 1649300836,
+  "extraction": {
+    "expandedBytes": 4118900164,
+    "members": 20
+  },
+  "installationPerformed": false,
+  "prepared": true,
+  "releaseBase": "https://127.0.0.1:40395",
+  "schema": "alica-user-preparation/v1",
+  "scope": "qa",
+  "trust": "/etc/alica/release-trust/onboarding1/candidate-trust.json",
+  "trustSha256": "ac6d836bb5cd3efa6ab15832e574f1b5455aabff4273bc99331dfa7f43b5e1ac",
+  "userJourneyAccepted": false,
+  "verifier": "/usr/local/lib/alica-setup-onboarding1/release_trust.py",
+  "verifierSha256": "62f39860a259a76721068b23140eca846def5acca5b728fbab26518576722547"
+}

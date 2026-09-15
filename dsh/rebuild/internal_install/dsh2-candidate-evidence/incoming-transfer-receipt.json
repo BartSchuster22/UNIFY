@@ -1,0 +1,8 @@
+{
+  "archive": "/var/lib/alica/dsh2-internal-onboarding1/incoming/internal-onboarding1-599b7098-linux-amd64.tar.gz",
+  "bytes": 1649300836,
+  "destinationReadbackVerified": true,
+  "sha256": "37ac2bbf89ef0b37bfd80b92d14e013b5b7b6244d8b0cdf44f42c3873c4dcaf0",
+  "signingPrivateKeyTransferred": false,
+  "sshHostVerification": true
+}

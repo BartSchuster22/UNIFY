@@ -1,0 +1,26 @@
+{
+  "archiveSha256": "37ac2bbf89ef0b37bfd80b92d14e013b5b7b6244d8b0cdf44f42c3873c4dcaf0",
+  "bind": "0.0.0.0",
+  "blockedReasons": [
+    "Installation/service startup and standalone ACME live qualification pending.",
+    "Human owner/provider onboarding and real task acceptance pending."
+  ],
+  "bootstrap": "/usr/local/lib/alica-setup-onboarding1/setup.py",
+  "candidateAdmissionVerified": true,
+  "cell": "dsh2-internal-onboarding1",
+  "copiedOwnerProviderOrQAState": false,
+  "destination": "/var/lib/alica/dsh2-internal-onboarding1/candidate",
+  "origin": "https://dsh-next.aquiero.com",
+  "owner": "owner",
+  "port": 443,
+  "productionAccepted": false,
+  "protectedLicensing": "Stage7.4 candidate/evidence/original bundle/containers/images remain in place; do not use or modify for onboarding.",
+  "root": "/opt/dsh2-internal-onboarding1",
+  "runtimeImported": false,
+  "runtimeRelease": "8fecaecb87f92a47a9ea427965f79525095f9b9567e92dedf6d03d403147b204",
+  "servicesStarted": false,
+  "sourceRevision": "f57ed263f49f0f87a61cc69aa9ba2f1be3299f52",
+  "status": "CANDIDATE_PREPARED_NOT_INSTALLED",
+  "tls_mode": "acme",
+  "trustDirectory": "/etc/alica/release-trust/onboarding1"
+}

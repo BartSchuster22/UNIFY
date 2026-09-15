@@ -1,5 +1,7 @@
 # DSH2 separate onboarding preparation — 2026-09-15
 
+**Latest checkpoint:** Step 2 completed; candidate prepared and authenticated on DSH2, not installed or started. See [DSH2_CANDIDATE_PREPARED.md](DSH2_CANDIDATE_PREPARED.md). The target/trust-absence statements below describe the earlier initial-preparation checkpoint.
+
 **Host/bootstrap prepared. Runtime package subsequently built and verified on ALICA-v1; DSH2 delivery/admission and installation still pending.** See [ONBOARDING1_PACKAGE.md](ONBOARDING1_PACKAGE.md) for Step 1 completion and immutable identities. This document retains the original host-preparation evidence below.
 
 ## Separate target
