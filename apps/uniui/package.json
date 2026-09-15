@@ -8,6 +8,7 @@
     "start": "node server.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
+    "test:browser": "pnpm build && python3 ../../scripts/test-uniui-navigation-browser.py",
     "clean": "rm -rf dist"
   },
   "dependencies": {

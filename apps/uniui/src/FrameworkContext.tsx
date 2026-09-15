@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react';
 import { api } from './api';
+import { NAVIGATION_EVENT } from './internalNavigation';
 
 export type Framework = {
   frameworkId: string;
@@ -42,6 +43,7 @@ function writeFrameworkToUrl(frameworkId: string, mode: 'push' | 'replace' = 're
   if (href === current) return;
   if (mode === 'push') window.history.pushState({ frameworkId }, '', href);
   else window.history.replaceState(window.history.state, '', href);
+  window.dispatchEvent(new CustomEvent(NAVIGATION_EVENT, { detail: { source: 'framework' } }));
 }
 
 export function FrameworkProvider({ children }: { children: React.ReactNode }) {
@@ -91,7 +93,8 @@ export function FrameworkProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!frameworks.length) return;
-    const restoreFromHistory = () => {
+    const restoreFromHistory = (event: Event) => {
+      if (event instanceof CustomEvent && event.detail?.source === 'framework') return;
       const requested = requestedFramework();
       if (requested && frameworks.some((item) => item.frameworkId === requested)) {
         frameworkIdRef.current = requested;
@@ -114,7 +117,11 @@ export function FrameworkProvider({ children }: { children: React.ReactNode }) {
       writeFrameworkToUrl(fallback);
     };
     window.addEventListener('popstate', restoreFromHistory);
-    return () => window.removeEventListener('popstate', restoreFromHistory);
+    window.addEventListener(NAVIGATION_EVENT, restoreFromHistory);
+    return () => {
+      window.removeEventListener('popstate', restoreFromHistory);
+      window.removeEventListener(NAVIGATION_EVENT, restoreFromHistory);
+    };
   }, [frameworks]);
 
   const selectFramework = useCallback(

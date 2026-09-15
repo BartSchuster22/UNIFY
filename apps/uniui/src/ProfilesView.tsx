@@ -558,9 +558,15 @@ export function ProfilesView({ canManage }: { canManage: boolean }) {
         <Alert color="blue">Profile changes are read-only for your role.</Alert>
       ) : null}
       {loading && !collection ? (
-        <Group>
-          <Loader size="sm" />
-          <Text>Loading Hermes profiles…</Text>
+        <Group
+          mih={140}
+          align="flex-start"
+          className="page-loading"
+          role="status"
+          aria-live="polite"
+        >
+          <Loader size="xs" />
+          <Text c="dimmed">Loading Hermes profiles…</Text>
         </Group>
       ) : null}
       {collection ? (

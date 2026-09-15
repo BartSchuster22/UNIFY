@@ -1,4 +1,5 @@
 import { formatUserDate } from './userTime';
+import { NAVIGATION_EVENT } from './internalNavigation';
 import {
   Alert,
   Badge,
@@ -167,7 +168,10 @@ export function WorkView({ canManage }: { canManage: boolean }) {
     if (frameworkId) previousWorkFramework.current = frameworkId;
     if (switching) url.searchParams.delete('project');
     setSelectedProject(url.searchParams.get('project') ?? '');
-    window.history.replaceState(window.history.state, '', url);
+    if (url.href !== window.location.href) {
+      window.history.replaceState(window.history.state, '', url);
+      window.dispatchEvent(new Event(NAVIGATION_EVENT));
+    }
     void load();
     return () => {
       loadGeneration.current += 1;
@@ -180,7 +184,11 @@ export function WorkView({ canManage }: { canManage: boolean }) {
       setSelectedProject(new URLSearchParams(window.location.search).get('project') ?? '');
     };
     window.addEventListener('popstate', restoreFromHistory);
-    return () => window.removeEventListener('popstate', restoreFromHistory);
+    window.addEventListener(NAVIGATION_EVENT, restoreFromHistory);
+    return () => {
+      window.removeEventListener('popstate', restoreFromHistory);
+      window.removeEventListener(NAVIGATION_EVENT, restoreFromHistory);
+    };
   }, []);
 
   useEffect(() => {
@@ -207,7 +215,10 @@ export function WorkView({ canManage }: { canManage: boolean }) {
     url.searchParams.set('workPage', next);
     if (project) url.searchParams.set('project', project);
     else url.searchParams.delete('project');
-    window.history.pushState({ workPage: next, project: project || null }, '', url);
+    if (url.href !== window.location.href) {
+      window.history.pushState({ workPage: next, project: project || null }, '', url);
+      window.dispatchEvent(new Event(NAVIGATION_EVENT));
+    }
   }
 
   // Reconcile native state without dispatching anything. Never overlap a read/mutation,

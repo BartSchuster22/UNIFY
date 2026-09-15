@@ -1,0 +1,16 @@
+{
+  "browser": "Chromium",
+  "productionBuild": true,
+  "api": "explicit read-only fixtures",
+  "dashboardAndSidebarNoReload": true,
+  "shellAndHeaderIdentityPreserved": true,
+  "backForwardAndFrameworkHistory": true,
+  "directLinkAndExplicitReload": true,
+  "nativeNewTab": true,
+  "mobileNavigation": true,
+  "accountMenuNavigation": true,
+  "cachedReadinessWhileRevalidating": true,
+  "documentRequestsInOriginalTab": 1,
+  "unexpectedApiRequests": [],
+  "pageErrors": []
+}

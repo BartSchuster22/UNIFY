@@ -974,9 +974,15 @@ export function ModelsView({ canManageCredentials, canManageModels }: Props) {
         <Alert color="blue">Model selection is read-only for your role.</Alert>
       ) : null}
       {loading && !providers ? (
-        <Group>
-          <Loader size="sm" />
-          <Text>Loading Hermes catalogue…</Text>
+        <Group
+          mih={140}
+          align="flex-start"
+          className="page-loading"
+          role="status"
+          aria-live="polite"
+        >
+          <Loader size="xs" />
+          <Text c="dimmed">Loading Hermes catalogue…</Text>
         </Group>
       ) : null}
       {providers && models ? (

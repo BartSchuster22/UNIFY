@@ -19,6 +19,13 @@ import {
 import { IconExternalLink, IconRefresh, IconShieldCheck } from '@tabler/icons-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api } from './api';
+import { viewHref, type ViewId } from './navigation';
+import {
+  clearNavigationCache,
+  navigationCacheEpoch,
+  readNavigationCache,
+  writeNavigationCache,
+} from './navigationCache';
 import { useFrameworkContext } from './FrameworkContext';
 import type { Principal } from './types';
 
@@ -96,18 +103,27 @@ export function ReadinessDashboard({ principal }: { principal: Principal }) {
     selectFramework,
     refreshFrameworks,
   } = useFrameworkContext();
-  const [snapshot, setSnapshot] = useState<Snapshot>(emptySnapshot);
+  const cacheKey = JSON.stringify([
+    principal.userId,
+    [...principal.permissions].sort(),
+    frameworkId,
+  ]);
+  type Display = { key: string; snapshot: Snapshot; checkedAt: string };
+  const [display, setDisplay] = useState<Display | undefined>();
+  const current = display?.key === cacheKey ? display : readNavigationCache<Display>(cacheKey);
+  const snapshot = current?.snapshot ?? emptySnapshot;
+  const checkedAt = current?.checkedAt ?? '';
   const [loading, setLoading] = useState(true);
-  const [checkedAt, setCheckedAt] = useState('');
   const generation = useRef(0);
   const selectedFramework = useRef(frameworkId);
   selectedFramework.current = frameworkId;
 
   const load = useCallback(async () => {
     const requestGeneration = ++generation.current;
+    const epoch = navigationCacheEpoch();
     const requestedFramework = frameworkId;
     if (!requestedFramework) {
-      setSnapshot(emptySnapshot);
+      setDisplay(undefined);
       setLoading(false);
       return;
     }
@@ -137,17 +153,24 @@ export function ReadinessDashboard({ principal }: { principal: Principal }) {
       selectedFramework.current !== requestedFramework
     )
       return;
-    setSnapshot({
-      health: probes[0],
-      capabilities: probes[1],
-      providers: probes[2],
-      models: probes[3],
-      profiles: probes[4],
-      memory: probes[5],
-    });
-    setCheckedAt(new Date().toISOString());
+    const next: Display = {
+      key: cacheKey,
+      checkedAt: new Date().toISOString(),
+      snapshot: {
+        health: probes[0],
+        capabilities: probes[1],
+        providers: probes[2],
+        models: probes[3],
+        profiles: probes[4],
+        memory: probes[5],
+      },
+    };
+    setDisplay(next);
+    // Always revalidate on entry. Never cache failed probes or an invalidated request.
+    if (!probes.some((probe) => 'failure' in probe)) writeNavigationCache(cacheKey, next, epoch);
+    else clearNavigationCache();
     setLoading(false);
-  }, [frameworkId, principal.permissions]);
+  }, [cacheKey, frameworkId, principal.permissions]);
 
   useEffect(() => {
     void load();
@@ -223,10 +246,19 @@ export function ReadinessDashboard({ principal }: { principal: Principal }) {
         allowDeselect={false}
       />
 
-      {!frameworkId ? (
+      {frameworksLoading && !frameworks.length ? (
+        <Text role="status">Loading framework registry…</Text>
+      ) : !frameworkId ? (
         <Alert color="red" title="Readiness blocked">
           Select an enabled, verified Hermes framework. No fallback framework is probed.
         </Alert>
+      ) : !checkedAt ? (
+        <Card withBorder mih={360} aria-busy="true">
+          <Group className="page-loading" role="status" aria-label="Checking readiness">
+            <Loader size="xs" />
+            <Text c="dimmed">Loading readiness…</Text>
+          </Group>
+        </Card>
       ) : (
         <>
           <Alert color={stateColor(overall)} title={`Overall readiness: ${stateLabel(overall)}`}>
@@ -252,7 +284,7 @@ export function ReadinessDashboard({ principal }: { principal: Principal }) {
             <Group justify="space-between" mb="sm">
               <Text fw={800}>Readiness checks</Text>
               {loading ? (
-                <span role="status" aria-label="Checking readiness">
+                <span className="page-loading" role="status" aria-label="Checking readiness">
                   <Loader size="xs" />
                 </span>
               ) : null}
@@ -594,12 +626,6 @@ function canOpenView(view: string, principal: Principal): boolean {
 
 function viewLink(view: string, frameworkId: string): string {
   const url = new URL(window.location.href);
-  url.pathname = view === 'overview' ? '/' : `/${encodeURIComponent(view)}`;
-  url.searchParams.delete('view');
-  if (view !== 'work') {
-    url.searchParams.delete('workPage');
-    url.searchParams.delete('project');
-  }
   url.searchParams.set('framework', frameworkId);
-  return `${url.pathname}${url.search}`;
+  return viewHref(view as ViewId, url.href);
 }

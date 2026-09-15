@@ -25,6 +25,10 @@ const PATH_VIEWS = new Map(
   Object.entries(VIEW_PATHS).map(([view, path]) => [path, view as ViewId]),
 );
 
+export function isViewPath(path: string): boolean {
+  return PATH_VIEWS.has(path.replace(/\/+$/, '') || '/');
+}
+
 export function viewFromLocation(location: Location = window.location): ViewId {
   const normalizedPath = location.pathname === '/' ? '/' : location.pathname.replace(/\/+$/g, '');
   const pathView = PATH_VIEWS.get(normalizedPath);

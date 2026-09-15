@@ -1,3 +1,26 @@
+/* Keep the shell and page canvas stable; only route content changes. */
+#main-content {
+  min-height: calc(100dvh - 64px);
+}
+.page-loading {
+  animation: page-loading-enter 150ms ease-in both;
+}
+@keyframes page-loading-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html:root {
+    scroll-behavior: auto;
+  }
+  .page-loading {
+    animation: none;
+  }
+}
 :root {
   color-scheme: light dark;
 }

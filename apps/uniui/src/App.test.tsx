@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -231,7 +231,12 @@ describe('Mantine UNIUI gates', () => {
     const { container } = render(<App />);
     expect(await screen.findByRole('heading', { name: 'Readiness dashboard' })).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'Primary navigation' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Readiness' })).toHaveAttribute('href', '/');
+    await waitFor(() =>
+      expect(screen.getByRole('link', { name: 'Readiness' })).toHaveAttribute(
+        'href',
+        '/?framework=hermes-main',
+      ),
+    );
     expect(screen.queryByRole('link', { name: 'Safety actions' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Open navigation menu' })).toHaveAttribute(
       'aria-expanded',

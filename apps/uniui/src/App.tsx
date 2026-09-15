@@ -62,15 +62,9 @@ import {
   IconUsers,
 } from '@tabler/icons-react';
 
-import {
-  useCallback,
-  useEffect,
-  useState,
-  type FormEvent,
-  type MouseEvent,
-  type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { ApiError, api, gateway } from './api';
+import { followInternalLink, NAVIGATION_EVENT } from './internalNavigation';
 import { WorkView } from './WorkView';
 import { ProfilesView } from './ProfilesView';
 import { ModelsView } from './ModelsView';
@@ -80,14 +74,7 @@ import { FrameworkUpdatesView } from './FrameworkUpdatesView';
 import { MemoryView } from './MemoryView';
 import { ReadinessDashboard } from './ReadinessDashboard';
 import { FrameworkProvider, useFrameworkContext } from './FrameworkContext';
-import {
-  canonicalizeCurrentView,
-  isPlainPrimaryClick,
-  pushView,
-  viewFromLocation,
-  viewHref,
-  type ViewId,
-} from './navigation';
+import { canonicalizeCurrentView, viewFromLocation, viewHref, type ViewId } from './navigation';
 import type {
   ApiFailure,
   Collection,
@@ -155,7 +142,11 @@ import { UserPreferencesProvider, UserTimezoneSettings } from './UserPreferences
 export function App() {
   const [principal, setPrincipal] = useState<Principal | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [view, setView] = useState<ViewId>(() => viewFromLocation());
+  const [route, setRoute] = useState(() => ({
+    view: viewFromLocation(),
+    href: window.location.href,
+  }));
+  const view = route.view;
   const [dark, setDark] = useState(() => localStorage.getItem('unify-color-scheme') === 'dark');
   const [opened, { toggle, close }] = useDisclosure(false);
   useEffect(() => {
@@ -167,20 +158,20 @@ export function App() {
   }, []);
   useEffect(() => {
     canonicalizeCurrentView(viewFromLocation());
-    const restoreFromHistory = () => setView(viewFromLocation());
+    const restoreFromHistory = () => {
+      setRoute({ view: viewFromLocation(), href: window.location.href });
+      close();
+    };
     window.addEventListener('popstate', restoreFromHistory);
-    return () => window.removeEventListener('popstate', restoreFromHistory);
+    window.addEventListener(NAVIGATION_EVENT, restoreFromHistory);
+    return () => {
+      window.removeEventListener('popstate', restoreFromHistory);
+      window.removeEventListener(NAVIGATION_EVENT, restoreFromHistory);
+    };
   }, []);
-  const changeView = (next: ViewId) => {
-    setView(next);
-    pushView(next);
-    close();
-  };
-  const followViewLink = (event: MouseEvent<HTMLElement>, next: ViewId) => {
-    if (!isPlainPrimaryClick(event)) return;
-    event.preventDefault();
-    changeView(next);
-  };
+  useEffect(() => {
+    document.title = `${NAV.find((item) => item.id === view)?.label ?? 'UNIFY'} · UNIFY`;
+  }, [view]);
 
   if (authLoading)
     return (
@@ -208,6 +199,9 @@ export function App() {
             Skip to content
           </a>
           <AppShell
+            onClick={(event) => {
+              if (followInternalLink(event)) close();
+            }}
             header={{ height: 64 }}
             navbar={{ width: 76, breakpoint: 'md', collapsed: { mobile: true } }}
             padding="md"
@@ -272,7 +266,6 @@ export function App() {
                         component="a"
                         href={viewHref('settings')}
                         leftSection={<IconSettings size={16} />}
-                        onClick={(event) => followViewLink(event, 'settings')}
                       >
                         Settings
                       </Menu.Item>
@@ -311,7 +304,6 @@ export function App() {
                       active={activeView === item.id}
                       label={item.label}
                       leftSection={<item.icon size={21} />}
-                      onClick={(event) => followViewLink(event, item.id)}
                       aria-current={activeView === item.id ? 'page' : undefined}
                       className="mobile-mega-menu-link"
                     />
@@ -337,7 +329,6 @@ export function App() {
                         radius="md"
                         variant={activeView === item.id ? 'light' : 'subtle'}
                         color={activeView === item.id ? 'ocean' : 'gray'}
-                        onClick={(event) => followViewLink(event, item.id)}
                         aria-label={item.label}
                         aria-current={activeView === item.id ? 'page' : undefined}
                         className="desktop-navbar-link"

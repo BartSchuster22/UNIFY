@@ -8,6 +8,8 @@ import type {
   Principal,
 } from './types';
 
+import { clearNavigationCache } from './navigationCache';
+
 export class ApiError extends Error {
   constructor(
     readonly status: number,
@@ -27,14 +29,24 @@ function csrfToken(): string | undefined {
 }
 
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const mutating = Boolean(init.method && !['GET', 'HEAD'].includes(init.method.toUpperCase()));
+  if (mutating) clearNavigationCache();
   const headers = new Headers(init.headers);
   headers.set('accept', 'application/json');
   if (init.body) headers.set('content-type', 'application/json');
   const csrf = csrfToken();
   if (csrf && init.method && init.method !== 'GET')
     headers.set('x-csrf-token', decodeURIComponent(csrf));
-  const response = await fetch(`/api/v1${path}`, { ...init, headers, credentials: 'include' });
+  const response = await fetch(`/api/v1${path}`, {
+    ...init,
+    headers,
+    credentials: 'include',
+  }).finally(() => {
+    // Also discard reads that completed while a write was in flight.
+    if (mutating) clearNavigationCache();
+  });
   if (!response.ok) {
+    if (response.status === 401 || response.status === 403) clearNavigationCache();
     const body = (await response.json().catch(() => ({}))) as { error?: ApiFailure };
     throw new ApiError(
       response.status,
@@ -80,7 +92,9 @@ export const gateway = {
   logout: () => api<void>('/auth/logout', { method: 'POST' }),
 
   hermesWorkspaces: (frameworkId: string) =>
-    api<HermesCollection<Record<string, unknown>>>(`/frameworks/${encodeURIComponent(frameworkId)}/work/workspaces?limit=500`),
+    api<HermesCollection<Record<string, unknown>>>(
+      `/frameworks/${encodeURIComponent(frameworkId)}/work/workspaces?limit=500`,
+    ),
   hermesProjects: (frameworkId: string) =>
     api<HermesCollection<Record<string, unknown>>>(
       `/frameworks/${encodeURIComponent(frameworkId)}/work/projects?limit=500`,
