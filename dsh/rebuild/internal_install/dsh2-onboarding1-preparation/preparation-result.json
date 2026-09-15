@@ -1,0 +1,16 @@
+{
+  "status": "HOST_AND_BOOTSTRAP_PREPARED_RUNTIME_PENDING",
+  "bootstrapVerifiedAgainstSource": true,
+  "bootstrapHelpSmoke": "PASS",
+  "missingRuntimeAdmissionDenied": true,
+  "protectedEntriesVerified": 9251,
+  "containersPreserved": 8,
+  "imageIdsPreserved": 16,
+  "runtimeRootAbsent": true,
+  "runtimeDestinationAbsent": true,
+  "trustDirectoryEmpty": true,
+  "noServiceStart": true,
+  "freeDiskGiB": 40.889,
+  "planPath": "/var/lib/alica/dsh2-internal-onboarding1/installation-plan.json",
+  "bootstrapArchiveSha256": "9a1d9b15d0087aeeb00029e78ad9a35bec554e027a3735b7c777dfbde6ce3492"
+}

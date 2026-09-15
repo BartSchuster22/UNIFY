@@ -1,0 +1,17 @@
+{
+  "schema": "alica-setup-kit/v1",
+  "sourceRevision": "f57ed263f49f0f87a61cc69aa9ba2f1be3299f52",
+  "archive": "alica-setup-preview.tar.gz",
+  "archiveSha256": "9a1d9b15d0087aeeb00029e78ad9a35bec554e027a3735b7c777dfbde6ce3492",
+  "files": {
+    "setup.py": "4f442e513e43d94c3a945edce9f13c4deaf8dae0c11707cb4f309989ca6959cc",
+    "onboarding.py": "a5daa820560be1e2eee97539a16030dcee17934306ad66149241a7219c5c8702",
+    "ONBOARDING.md": "e66f51dc37021987a66305083a5488f60a98482de1f359ab4f68b446d167f280",
+    "release_trust.py": "62f39860a259a76721068b23140eca846def5acca5b728fbab26518576722547",
+    "README.md": "5773b2027093a49e065faf67573005b171964295f6e50d278ab745d589540145"
+  },
+  "developmentPreview": true,
+  "containsRuntimeImages": false,
+  "internalReleaseAccepted": false,
+  "distributionApproved": false
+}

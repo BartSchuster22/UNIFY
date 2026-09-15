@@ -2,6 +2,8 @@
 
 ## Current development acceptance checkpoints
 
+- [DSH2 separate onboarding preparation](DSH2_ONBOARDING_PREPARATION.md): host/bootstrap prepared; fresh-install runtime package pending. Stage 7.4 licensing and supporting originals preserved.
+
 - [Step 7B — bounded scheduling and corrected cron activity: PASS](STEP7B_SCHEDULING_ACCEPTANCE.md).
 
 - [Step 6 — real native execution and browser cancellation: PASS](STEP6_FINAL_ACCEPTANCE.md).
@@ -44,7 +46,9 @@ Remaining before accepting an internal candidate:
 - Exercise new-owner login/recovery and provider setup using the supported UI,
   including the chosen provider's expiry/reauthorization path, not token injection.
 - Prove project/application onboarding without private QA provisioning scripts.
-- Verify DSH2 identity and backups, rebuild cleanly, install the exact final candidate,
+- Use a separate DSH2 namespace, preserving paused Stage 7.4 licensing and its
+  supporting originals. Identity, recovery archive integrity/decryption and host
+  preparation are verified; prepare/install the exact fresh-install candidate,
   then run full critical-path and day-scale acceptance.
 
 ## Prerequisites
