@@ -11,11 +11,12 @@ from pathlib import Path
 sys.dont_write_bytecode=True
 CELL='dsh2-internal-onboarding1'
 ROOT=Path('/opt')/CELL
-ORIGIN=Path('/var/lib/alica/dsh2-internal-onboarding1/candidate')
-CONTROL=Path('/var/lib/alica/dsh2-internal-maintenance1/control3')
+ORIGIN=Path('/var/lib/alica/dsh2-internal-maintenance1/candidate3')
+CONTROL=Path('/var/lib/alica/dsh2-internal-maintenance1/control4')
 BOOT=Path('/usr/local/lib/alica-setup-onboarding1')
 ANCHOR=Path('/etc/alica/release-trust/onboarding1/candidate-trust.json')
-OLD_SHA='8fecaecb87f92a47a9ea427965f79525095f9b9567e92dedf6d03d403147b204'
+OLD_SHA='5a8a7f4cfa818172d637492da81a64a9fbfac3dd212c43ea5609713c5a772971'
+PRIOR_PREDECESSOR_SHA='8fecaecb87f92a47a9ea427965f79525095f9b9567e92dedf6d03d403147b204'
 TRUST_SHA='ac6d836bb5cd3efa6ab15832e574f1b5455aabff4273bc99331dfa7f43b5e1ac'
 VERIFIER_SHA='62f39860a259a76721068b23140eca846def5acca5b728fbab26518576722547'
 SERVICES={'hermes','unify-core','uniui','postgresql','keycloak','memory-v4','caddy'}
@@ -71,6 +72,7 @@ def upgrade_caddy(text, fenced=False):
  pattern=r'request_body\s*\{\s*max_size 1MB\s*\}'
  replacement='@workspaceUploads path /api/frameworks/*/work/files /api/v1/frameworks/*/work/files\n request_body @workspaceUploads {\n  max_size 12MB\n }\n @otherRequests not path /api/frameworks/*/work/files /api/v1/frameworks/*/work/files\n request_body @otherRequests {\n  max_size 1MB\n }'
  updated,count=re.subn(pattern,replacement,text)
+ if count==0 and text.count(replacement)==1:updated=text;count=1
  require(count==1 and ' route {' in updated,'Unexpected ingress configuration; no broad body-limit change')
  if fenced:updated=updated.replace(' route {',' route {\n respond "DSH maintenance; retry shortly" 503',1)
  return updated
@@ -94,14 +96,14 @@ def context(candidate):
  candidate=private(candidate);private(ROOT);private(ANCHOR);private(BOOT/'release_trust.py')
  require(digest(ANCHOR)==TRUST_SHA and digest(BOOT/'release_trust.py')==VERIFIER_SHA,'External trust/verifier pin mismatch')
  rt=module('maintenance_release_trust',BOOT/'release_trust.py')
- prior=rt.verify(load(ORIGIN/'candidate-envelope.json'),load(ANCHOR),ORIGIN/'bundle','0'*64,0,'qa')
- require(prior['releaseSha256']==OLD_SHA and prior['sequence']==1,'Unexpected installed admission')
+ prior=rt.verify(load(ORIGIN/'candidate-envelope.json'),load(ANCHOR),ORIGIN/'bundle',PRIOR_PREDECESSOR_SHA,2,'qa')
+ require(prior['releaseSha256']==OLD_SHA and prior['sequence']==3,'Unexpected installed admission')
  CONTROL.mkdir(parents=True,exist_ok=True,mode=0o700)
  state=load(private(CONTROL/'authority.json'))
- require(state['highestAttempt']>=2,'Previous attempt authority must be retained')
+ require(state['highestAttempt']>=3,'Previous attempt authority must be retained')
  env=load(candidate/'candidate-envelope.json')
  # Read-only re-verification uses the installed predecessor; apply additionally consumes the sequence.
- admitted=rt.verify(env,load(ANCHOR),candidate/'bundle',OLD_SHA,1,'qa')
+ admitted=rt.verify(env,load(ANCHOR),candidate/'bundle',OLD_SHA,3,'qa')
  old=load(ORIGIN/'bundle/release.json');new=load(candidate/'bundle/release.json')
  sys.path.insert(0,str(ORIGIN/'bundle'));from install import Installer
  old_i=Installer(ORIGIN/'bundle',OLD_SHA,ROOT,load(ROOT/'operations/request.json'))

@@ -1,3 +1,8 @@
+import {
+  ProfileConversations,
+  conversationIdentity,
+  profileConversationId,
+} from './profile-conversations.js';
 import { AgentConfigurationStore, AgentConfigurationError } from './agent-configuration.js';
 import { ProjectSetupStore } from './project-setup.js';
 import { mapBounded } from './bounded-map.js';
@@ -5,6 +10,7 @@ import { cancelNativeTask } from './task-cancellation.js';
 import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { join } from 'node:path';
+import { homedir } from 'node:os';
 import { promisify } from 'node:util';
 import type {
   HermesBoard,
@@ -45,10 +51,13 @@ export class HermesCliRunner implements CommandRunner {
   ) {}
 
   async run(args: string[], options: CommandRunnerOptions = {}) {
+    const baseHome = this.home ?? process.env.HERMES_HOME ?? join(homedir(), '.hermes');
+    if (options.profileId && !/^[a-z0-9][a-z0-9_-]{0,127}$/.test(options.profileId))
+      throw new Error('Invalid profile');
     const selectedHome =
-      this.home && options.profileId && options.profileId !== 'default'
-        ? join(this.home, 'profiles', options.profileId)
-        : this.home;
+      options.profileId && options.profileId !== 'default'
+        ? join(baseHome, 'profiles', options.profileId)
+        : baseHome;
     const { stdout } = await execFileAsync(this.binary, args, {
       encoding: 'utf8',
       timeout: options.timeoutMs ?? 15_000,
@@ -77,6 +86,8 @@ export interface HermesNativeSourceOptions {
 
 export class HermesNativeSource implements AdapterSource {
   private agentConfigurationStore = new AgentConfigurationStore();
+  private profileConversations = new ProfileConversations();
+  private conversationRuns = new Set<string>();
   async agentConfiguration(id: string) {
     assertNativeId(id);
     const item = await this.agentConfigurationStore.run(id, 'read');
@@ -152,6 +163,9 @@ export class HermesNativeSource implements AdapterSource {
 
   async profiles(): Promise<Snapshot<HermesProfile>> {
     const output = stripAnsi(await this.options.runner.run(['profile', 'list']));
+    const effectiveModel = this.management
+      ? (await this.management.inventory(false)).model
+      : undefined;
     const items = await Promise.all(
       output.split('\n').map(async (line) => {
         const columns =
@@ -169,6 +183,15 @@ export class HermesNativeSource implements AdapterSource {
             gateway === 'running' ? 'running' : gateway === 'stopped' ? 'stopped' : 'unknown',
         };
         if (model && model !== '—') profile.model = model;
+        if (id === 'default' && effectiveModel) profile.model = effectiveModel;
+        if (id !== 'default' && !profile.model && id.toLowerCase() !== 'profile') {
+          try {
+            const cfg = await this.profileConversations.run(id, 'configuration');
+            if (typeof cfg.model === 'string' && cfg.model.trim()) profile.model = cfg.model;
+          } catch {
+            /* Creation fails closed if profile configuration is unavailable. */
+          }
+        }
         if (id.toLowerCase() !== 'profile') {
           try {
             const description = stripAnsi(
@@ -1165,6 +1188,20 @@ export class HermesNativeSource implements AdapterSource {
   async sessions(): Promise<Snapshot<HermesSession>> {
     const body = await this.api('/api/sessions');
     const rows = arrayFrom(body, ['sessions', 'items', 'data']);
+    const profiles = (await this.profiles()).items.filter((p) => p.id !== 'default');
+    for (const profile of profiles) {
+      const named = await this.profileConversations.run(profile.id, 'list');
+      for (const value of named) {
+        const row = record(value);
+        rows.push({
+          ...row,
+          id: profileConversationId(
+            profile.id,
+            requiredString(row.id ?? row.session_id, 'session id'),
+          ),
+        });
+      }
+    }
     const items = rows.filter(isInternalSession).map((value) => {
       const row = record(value);
       const item: HermesSession = { id: requiredString(row.id ?? row.session_id, 'session id') };
@@ -1183,11 +1220,19 @@ export class HermesNativeSource implements AdapterSource {
 
   async messages(sessionId: string): Promise<Snapshot<HermesMessage>> {
     assertNativeId(sessionId);
-    const sessionBody = record(await this.api(`/api/sessions/${encodeURIComponent(sessionId)}`));
+    const identity = conversationIdentity(sessionId);
+    const named = identity.profile !== 'default';
+    const sessionBody = record(
+      named
+        ? await this.profileConversations.run(identity.profile, 'get', { id: identity.nativeId })
+        : await this.api(`/api/sessions/${encodeURIComponent(sessionId)}`),
+    );
     const session = record(sessionBody.session ?? sessionBody.data ?? sessionBody);
     if (!isInternalSession(session))
       throw new SecondConsumerForbiddenError('External-channel sessions are excluded from UNIFY');
-    const body = await this.api(`/api/sessions/${encodeURIComponent(sessionId)}/messages`);
+    const body = named
+      ? await this.profileConversations.run(identity.profile, 'messages', { id: identity.nativeId })
+      : await this.api(`/api/sessions/${encodeURIComponent(sessionId)}/messages`);
     const rows = arrayFrom(body, ['messages', 'items', 'data']);
     const items = rows.map((value, index) => {
       const row = record(value);
@@ -1210,13 +1255,43 @@ export class HermesNativeSource implements AdapterSource {
   async executeConversation(command: HermesConversationCommand): Promise<Record<string, unknown>> {
     if (command.operation === 'session.create') {
       const title = requiredString(command.payload.title, 'session title');
-      const model = optionalString(command.payload.model);
-      const profileId = optionalString(command.payload.profileId);
+      const profileId = optionalString(command.payload.profileId) ?? 'default';
+      assertNativeId(profileId);
+      if (profileId !== 'default') {
+        if (!(await this.profiles()).items.some((p) => p.id === profileId))
+          throw new SourceUnavailableError('Agent profile was not found');
+        const result = record(
+          await this.profileConversations.run(profileId, 'create', {
+            title,
+            key: command.idempotencyKey,
+            model: command.payload.model,
+          }),
+        );
+        const row = record(result.session);
+        return {
+          session: {
+            ...row,
+            id: profileConversationId(
+              profileId,
+              requiredString(row.id ?? row.session_id, 'session id'),
+            ),
+          },
+        };
+      }
+      const selected = (await this.models()).items.find((item) => item.selected);
+      const model = optionalString(command.payload.model) ?? selected?.id;
+      if (!model || model === 'hermes-agent')
+        throw new SourceUnavailableError(
+          'Select a real model in Hermes before creating a conversation.',
+        );
       const result = record(
         await this.api('/api/sessions', 'POST', {
           title,
           ...(model ? { model } : {}),
-          ...(profileId ? { profile: profileId } : {}),
+          // Native API ignores body.profile; never claim isolated profile routing.
+          ...(selected?.id === model
+            ? { provider: selected.providerId, require_model_lock: true }
+            : {}),
         }),
       );
       const session = record(result.session);
@@ -1225,6 +1300,8 @@ export class HermesNativeSource implements AdapterSource {
       return { session };
     }
 
+    const identity = conversationIdentity(command.targetId);
+    if (identity.profile !== 'default') return this.executeProfileConversation(command, identity);
     const sessionBody = record(
       await this.api(`/api/sessions/${encodeURIComponent(command.targetId)}`),
     );
@@ -1237,15 +1314,78 @@ export class HermesNativeSource implements AdapterSource {
       (!Array.isArray(message) || message.length === 0)
     )
       throw new Error('Conversation message is required');
+    const before = await this.messages(command.targetId);
     const result = record(
       await this.api(`/api/sessions/${encodeURIComponent(command.targetId)}/chat`, 'POST', {
         message,
       }),
     );
+    const persisted = await this.messages(command.targetId);
+    const last = persisted.items.at(-1);
+    if (
+      !last ||
+      before.items.some((m) => m.id === last.id) ||
+      last.role !== 'assistant' ||
+      !last.content?.trim()
+    )
+      throw new SourceUnavailableError(
+        'Hermes did not persist an assistant response. Check runtime errors before retrying.',
+      );
     return {
       sessionId: requiredString(result.session_id ?? command.targetId, 'session id'),
       message: record(result.message),
     };
+  }
+
+  private async executeProfileConversation(
+    command: HermesConversationCommand,
+    identity: { profile: string; nativeId: string },
+  ) {
+    if (typeof command.payload.message !== 'string' || !command.payload.message.trim())
+      throw new SourceUnavailableError(
+        'Profile-isolated Chat currently requires a text message; no other runtime was used.',
+      );
+    if (this.conversationRuns.has(command.targetId))
+      throw new SourceConflictError('This profile conversation already has an active turn');
+    this.conversationRuns.add(command.targetId);
+    try {
+      // Readback validates the profile-owned native row and excludes external channels.
+      const before = await this.messages(command.targetId);
+      const ids = new Set(before.items.map((m) => m.id));
+      try {
+        await this.options.runner.run(
+          [
+            'chat',
+            '--resume',
+            identity.nativeId,
+            '--no-restore-cwd',
+            '--source',
+            'api_server',
+            '--quiet',
+            '-q',
+            command.payload.message,
+          ],
+          {
+            profileId: identity.profile,
+            timeoutMs: 180_000,
+            maxBuffer: 512 * 1024,
+          },
+        );
+      } catch {
+        throw new SourceUnavailableError(
+          'The selected profile did not complete its native turn. Check its model/provider configuration; no fallback profile was used.',
+        );
+      }
+      const after = await this.messages(command.targetId);
+      const last = after.items.at(-1);
+      if (!last || ids.has(last.id) || last.role !== 'assistant' || !last.content?.trim())
+        throw new SourceUnavailableError(
+          'The selected profile did not persist a new assistant response; no success is claimed.',
+        );
+      return { sessionId: command.targetId, message: last };
+    } finally {
+      this.conversationRuns.delete(command.targetId);
+    }
   }
 
   private async awaitAssistantInferenceMessage(sessionId: string) {

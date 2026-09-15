@@ -378,7 +378,7 @@ export function ChatView({ canUse }: { canUse: boolean }) {
           <Stack gap="xs">
             <Select
               label="Agent profile"
-              description="Hermes profile and model for the new internal session"
+              description="Select the agent for a new session. Existing sessions stay bound to their original native profile. Configure its model/provider first."
               value={selectedProfileId}
               onChange={(value) => setSelectedProfileId(value ?? '')}
               data={(profiles?.items ?? []).map((profile) => ({
@@ -463,6 +463,14 @@ export function ChatView({ canUse }: { canUse: boolean }) {
         <Card withBorder style={{ flex: 1, minWidth: 320 }}>
           <Group justify="space-between" mb="sm">
             <Text fw={800}>Conversation</Text>
+            {selectedSessionId && (
+              <Badge>
+                Agent:{' '}
+                {selectedSessionId.startsWith('p:')
+                  ? selectedSessionId.split(':')[1]
+                  : (profiles?.items.find((p) => p.id === 'default')?.displayName ?? 'default')}
+              </Badge>
+            )}
             {selectedSessionId ? <Code>{selectedSessionId}</Code> : null}
           </Group>
           <ScrollArea h={430}>
@@ -511,8 +519,14 @@ export function ChatView({ canUse }: { canUse: boolean }) {
               value={attachment}
               onChange={setAttachment}
               clearable
-              disabled={!canExecute || !selectedSessionId || mutating}
-              description="Images only, up to 1.5 MB"
+              disabled={
+                !canExecute || !selectedSessionId || mutating || selectedSessionId.startsWith('p:')
+              }
+              description={
+                selectedSessionId.startsWith('p:')
+                  ? 'This native profile transport currently supports text; images are not forwarded to another profile.'
+                  : 'Images only, up to 1.5 MB'
+              }
             />
             <Button
               onClick={() => void sendMessage()}

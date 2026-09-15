@@ -406,30 +406,47 @@ describe('HermesNativeSource', () => {
       return new Response('{}', { status: 404 });
     };
     const source = new HermesNativeSource({
-      runner: new FixtureRunner({}),
+      runner: new FixtureRunner({ 'profile list': '' }),
       apiBaseUrl: 'https://hermes.test',
       fetchImpl,
     });
     expect((await source.sessions()).items[0]?.id).toBe('s-1');
     expect((await source.messages('s-1')).items[0]?.content).toBe('hello');
 
-    const unavailable = new HermesNativeSource({ runner: new FixtureRunner({}) });
+    const unavailable = new HermesNativeSource({
+      runner: new FixtureRunner({ 'profile list': '' }),
+    });
     await expect(unavailable.sessions()).rejects.toThrow('not configured');
   });
 
-  it('routes profile-bound sessions and bounded inline messages to the native API', async () => {
+  it('routes the configured default model and bounded inline messages without claiming profile isolation', async () => {
+    let turn = 0;
     const fetchImpl = vi.fn(async (input: string | URL | Request) => {
       const url = String(input);
       if (url.endsWith('/api/sessions'))
         return Response.json({ session: { id: 's-new', source: 'api_server' } });
       if (url.endsWith('/api/sessions/s-1'))
         return Response.json({ session: { id: 's-1', source: 'api_server' } });
-      if (url.endsWith('/api/sessions/s-1/chat'))
+      if (url.endsWith('/api/sessions/s-1/chat')) {
+        turn++;
         return Response.json({ message: { id: 'm-new' } });
+      }
+      if (url.endsWith('/api/sessions/s-1/messages'))
+        return Response.json({
+          data: Array.from({ length: turn }, (_, i) => ({
+            id: 'm-new-' + i,
+            role: 'assistant',
+            content: 'fixture persisted response',
+          })),
+        });
       return new Response('{}', { status: 404 });
     });
     const source = new HermesNativeSource({
-      runner: new FixtureRunner({}),
+      runner: new FixtureRunner({
+        'profile list': '',
+        'status --all': 'Model: gpt-5.6-sol\nProvider: openrouter',
+        'fallback list': '',
+      }),
       apiBaseUrl: 'https://hermes.test',
       fetchImpl,
     });
@@ -439,16 +456,32 @@ describe('HermesNativeSource', () => {
       correlationId: 'correlation-chat',
       actor: { type: 'service' as const, id: 'unify-core' },
     };
+    await expect(
+      source.executeConversation({
+        ...base,
+        idempotencyKey: 'isolated',
+        operation: 'session.create',
+        targetId: 'new',
+        payload: { title: 'isolated', profileId: 'other' },
+      }),
+    ).rejects.toThrow('Agent profile was not found');
+    expect(fetchImpl).not.toHaveBeenCalled();
+    await expect(
+      source.executeConversation({
+        ...base,
+        idempotencyKey: 'placeholder',
+        operation: 'session.create',
+        targetId: 'new',
+        payload: { title: 'placeholder', model: 'hermes-agent' },
+      }),
+    ).rejects.toThrow('real model');
+    expect(fetchImpl).not.toHaveBeenCalled();
     await source.executeConversation({
       ...base,
       idempotencyKey: 'create-session-key',
       operation: 'session.create',
       targetId: 'new',
-      payload: {
-        title: 'Governed session',
-        profileId: 'default',
-        model: 'gpt-5.6-sol',
-      },
+      payload: { title: 'Governed session', profileId: 'default' },
     });
     await source.executeConversation({
       ...base,
@@ -465,22 +498,44 @@ describe('HermesNativeSource', () => {
     const calls = fetchImpl.mock.calls as unknown as Array<
       [string | URL | Request, RequestInit | undefined]
     >;
-    expect(JSON.parse(String(calls[0]?.[1]?.body))).toMatchObject({
+    const created = JSON.parse(String(calls[0]?.[1]?.body));
+    expect(created).toMatchObject({
       title: 'Governed session',
-      profile: 'default',
       model: 'gpt-5.6-sol',
+      provider: 'openrouter',
+      require_model_lock: true,
     });
-    expect(JSON.parse(String(calls[2]?.[1]?.body))).toEqual({
+    expect(created).not.toHaveProperty('profile');
+    const sent = calls.find(([url]) => String(url).endsWith('/chat'));
+    expect(JSON.parse(String(sent?.[1]?.body))).toEqual({
       message: [
         { type: 'text', text: 'Inspect this' },
         { type: 'image_url', image_url: { url: 'data:image/png;base64,AA==' } },
       ],
     });
+    fetchImpl.mockImplementation(async (input) =>
+      String(input).endsWith('/messages')
+        ? Response.json({ data: [{ id: 'user', role: 'user', content: 'unanswered' }] })
+        : String(input).endsWith('/chat')
+          ? Response.json({
+              message: { role: 'assistant', content: 'acknowledgement is not proof' },
+            })
+          : Response.json({ session: { id: 's-1', source: 'api_server' } }),
+    );
+    await expect(
+      source.executeConversation({
+        ...base,
+        idempotencyKey: 'failed-turn',
+        operation: 'message.send',
+        targetId: 's-1',
+        payload: { message: 'test' },
+      }),
+    ).rejects.toThrow('did not persist');
   });
 
   it('fails closed for external-channel session lists and message histories', async () => {
     const source = new HermesNativeSource({
-      runner: new FixtureRunner({}),
+      runner: new FixtureRunner({ 'profile list': '' }),
       apiBaseUrl: 'https://hermes.test',
       fetchImpl: async (input) => {
         const url = String(input);
@@ -502,7 +557,7 @@ describe('HermesNativeSource', () => {
 
   it('maps the existing Hermes management inventory and never exposes key environment names', async () => {
     const source = new HermesNativeSource({
-      runner: new FixtureRunner({}),
+      runner: new FixtureRunner({ 'profile list': '' }),
       managementBaseUrl: 'http://127.0.0.1:29119',
       managementToken: 'private-token',
       fetchImpl: async (input, init) => {
@@ -548,7 +603,7 @@ describe('HermesNativeSource', () => {
 
   it('exposes truthful setup contracts and fails closed for non-generic providers', async () => {
     const source = new HermesNativeSource({
-      runner: new FixtureRunner({}),
+      runner: new FixtureRunner({ 'profile list': '' }),
       managementBaseUrl: 'http://127.0.0.1:29119',
       managementToken: 'private-token',
       fetchImpl: async () =>

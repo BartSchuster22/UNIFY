@@ -11,7 +11,8 @@ describe('native timestamps', () => {
   it('maps real Hermes field names for existing sessions/messages', async () => {
     const source = new HermesNativeSource({
       runner: {
-        async run() {
+        async run(args: string[]) {
+          if (args.join(' ') === 'profile list') return '';
           throw Error('CLI not allowed');
         },
       },
