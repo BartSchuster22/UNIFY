@@ -84,6 +84,7 @@ PartOf=docker.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes
+Environment=PYTHONDONTWRITEBYTECODE=1
 ExecStart=/usr/bin/python3 {Path(bundle).resolve()}/ops.py boot {args}
 TimeoutStartSec=1000
 [Install]
@@ -185,6 +186,7 @@ Requires={base}-broker.service
 [Service]
 Type=oneshot
 UMask=0077
+Environment=PYTHONDONTWRITEBYTECODE=1
 ExecStart=/usr/bin/python3 {Path(a.bundle).resolve()}/ops.py renew-tls {args}
 TimeoutStartSec=1000
 ''')

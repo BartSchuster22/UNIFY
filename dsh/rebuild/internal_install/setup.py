@@ -19,6 +19,12 @@ import tarfile
 import urllib.parse
 import urllib.request
 
+# Authenticated bundle inventory must stay immutable during lifecycle/imports.
+# The flag protects this interpreter (including isolated mode); the environment
+# protects non-isolated lifecycle subprocesses launched through this bootstrap.
+sys.dont_write_bytecode = True
+os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
+
 GIB = 1024 ** 3
 MAX_ARCHIVE = 4 * GIB
 MAX_EXPANDED = 12 * GIB
