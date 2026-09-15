@@ -1,6 +1,6 @@
 # DSH2 separate onboarding preparation — 2026-09-15
 
-**Host/bootstrap prepared; runtime candidate pending. Not installed or installation-ready.**
+**Host/bootstrap prepared. Runtime package subsequently built and verified on ALICA-v1; DSH2 delivery/admission and installation still pending.** See [ONBOARDING1_PACKAGE.md](ONBOARDING1_PACKAGE.md) for Step 1 completion and immutable identities. This document retains the original host-preparation evidence below.
 
 ## Separate target
 
@@ -34,7 +34,9 @@ Live prerequisites: Linux x86_64, Python 3.14.4, isolated-mode cryptography impo
 
 The user explicitly paused Stage 7.4 licensing for later review. Candidate, licensing evidence/tools, original bundle, original containers/images and their supporting state are protected. Hash/metadata verification covered 9,251 retained filesystem entries against the cleanup protection baseline. Eight old containers and sixteen image IDs remained present; no containers were started. No owner/provider/QA state was copied into the new namespace.
 
-## Runtime-package gate
+## Runtime-package gate at initial preparation
+
+The assembly/image-verification/signing items below have since completed on ALICA-v1, as recorded in [ONBOARDING1_PACKAGE.md](ONBOARDING1_PACKAGE.md). Target prepare/verify and installation remain pending. No runtime destination or trust changes were made on DSH2 during Step 1.
 
 The live Step 7B development manifest explicitly contains `uiUpdate.freshInstallArtifact=false` and an ALICA-v1-only/no-DSH2 scope. It cannot be treated as the new installation release. The source guide also records a corrected Caddy private-path renderer not backported into the existing dev3 bundle.
 

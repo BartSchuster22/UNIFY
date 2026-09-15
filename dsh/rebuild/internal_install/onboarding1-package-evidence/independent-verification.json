@@ -1,0 +1,33 @@
+{
+  "actualBootstrapExtraction": {
+    "expandedBytes": 4118900164,
+    "members": 20
+  },
+  "archiveSha256": "37ac2bbf89ef0b37bfd80b92d14e013b5b7b6244d8b0cdf44f42c3873c4dcaf0",
+  "extractedArtifactAdmission": {
+    "artifactsVerified": 20,
+    "installationPerformed": false,
+    "keyId": "7364e0d72df271459710ace4f4682609ed7818830a9d4728a3ac32c865b64f20",
+    "releaseSha256": "8fecaecb87f92a47a9ea427965f79525095f9b9567e92dedf6d03d403147b204",
+    "sbomProvenanceGateComplete": false,
+    "schemaCompatibilityProven": false,
+    "scope": "qa",
+    "sequence": 1,
+    "signatureVerified": true,
+    "wholeStage6Accepted": false
+  },
+  "finalFreeBytes": 8700784640,
+  "freeBytesWithExtraExtractedCopy": 4581826560,
+  "installationPerformed": false,
+  "keyId": "7364e0d72df271459710ace4f4682609ed7818830a9d4728a3ac32c865b64f20",
+  "productionScopeRejected": true,
+  "pythonMembersCompile": true,
+  "qaIdentityTopologyAbsent": true,
+  "releaseSha256": "8fecaecb87f92a47a9ea427965f79525095f9b9567e92dedf6d03d403147b204",
+  "schema": "alica-onboarding-independent-verification/v1",
+  "signatureExpiresAt": "2026-09-22T13:28:37+00:00",
+  "sourceRevision": "599b70981c30779b3383dc5e625b97775723994b",
+  "tamperedEnvelopeRejected": true,
+  "temporaryExtractedCopyRemoved": true,
+  "trustSha256": "ac6d836bb5cd3efa6ab15832e574f1b5455aabff4273bc99331dfa7f43b5e1ac"
+}

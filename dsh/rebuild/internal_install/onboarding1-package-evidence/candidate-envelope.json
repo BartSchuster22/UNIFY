@@ -1,0 +1,39 @@
+{
+  "keyId": "7364e0d72df271459710ace4f4682609ed7818830a9d4728a3ac32c865b64f20",
+  "payload": {
+    "acceptedPredecessors": [
+      "0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "artifacts": {
+      "alicactl": "ec2b007be54690417eacff4114082a8f1857b4260e47f61c93110d9755fdd8d7",
+      "caddy.oci-manifest.json": "dcc40204b2aa1b404cd4aa3f8de3298533fcd1b0553ab2de4aedbb3cedb5c63d",
+      "compose.template.json": "2984dc97d843d833ade3b768b91378eb5766c80ae19360e590a84ce26493f7eb",
+      "doghouse-dsh.tar": "5fc9b4401957d970e5507cc737e0d26de4f0c8cada47167f9df7d4210a5343c7",
+      "frameworks.json": "f6fe746b780e05ac0714f5463347fbca04f0917501f30359b93dfdfbafee9f16",
+      "hermes.oci-manifest.json": "055d1ca0c8e4e2bffbc47ae502c11ddc11aa293198847becd0f101292089c239",
+      "images.tar": "7130273925bc1a5ebe174033cb8f3a53a0ff7a4c6b220d8f3df816e6cf9367ef",
+      "install.py": "0b3c8cee1052571d818d6043c2b6d1fc4feaab466b31b50d65e2eb5f724ebfc1",
+      "keycloak.oci-manifest.json": "4fc0c2fcfaaa0f40c9bc837da9bcb12064579ddd087ad18b4d518af6dfa3cfa8",
+      "memory-v4.oci-manifest.json": "095e60e1ac381b4f8efaa49aab83a0172169d066bccefefb5667f927a3144f32",
+      "ops.py": "4f133677951cd4cdf5e17894f0d20ae4b99ab5d8a430a1243ae8bb494d73a004",
+      "postgresql.oci-manifest.json": "4d42c80f1aa8939ec756d87b8fd00bb506784f22c9a0aa19f143a25953c04770",
+      "recover_owner.py": "81442e613828ee5efca4459d6063cd94bd381028afb05c00a278914e6d58beef",
+      "release.json": "8fecaecb87f92a47a9ea427965f79525095f9b9567e92dedf6d03d403147b204",
+      "release.sha256": "3c7de2015e753b51da8e5fb62b97941715d652b742be7c311b142f819384b0ca",
+      "render.py": "3ab1bf71d92ff7f83ba21b73f8b1fadb150d486aea4f5c89c9299e74d592d47b",
+      "tls_lifecycle.py": "9a7919e31f6dbb77c9725005572b08b5b4a16cbd26cc1dd5c4f1bd569cce54ec",
+      "transaction.py": "2866b6a6e0c75dae98029f191c2983cddce9428fd91c21c1060eb6d4ee9456a7",
+      "unify-core.oci-manifest.json": "3da1a5cf4a6128121e1ea7c86fa428ad56614176cd330fe76446bbcdde82be14",
+      "uniui.oci-manifest.json": "c7aafd8ad22260e4f368a93f85db533b0b5ee158c8f93aedf58c4d79357c06aa"
+    },
+    "expiresAt": 1790083717,
+    "issuedAt": 1789478917,
+    "platform": "linux/amd64",
+    "releaseSha256": "8fecaecb87f92a47a9ea427965f79525095f9b9567e92dedf6d03d403147b204",
+    "schema": "alica-release-admission/v1",
+    "scope": "qa",
+    "sequence": 1
+  },
+  "schema": "alica-release-envelope/v1",
+  "signature": "qFKtMdu0feJXxEO+RDg3CM8wYfovfV0W5vHbeqtkZRxTbUu1EyYG3G4xKc9CykDI+GxEzGwmDYdeeznKPaYEDA=="
+}
