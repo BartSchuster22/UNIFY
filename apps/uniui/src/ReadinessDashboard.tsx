@@ -1,3 +1,4 @@
+import { formatUserDate } from './userTime';
 import {
   Alert,
   Badge,
@@ -316,7 +317,7 @@ export function ReadinessDashboard({ principal }: { principal: Principal }) {
                 </Text>
                 <Text size="sm" c="dimmed" aria-live="polite">
                   {checkedAt
-                    ? `Last complete probe ${new Date(checkedAt).toLocaleString()}; automatic recheck every 30 seconds.`
+                    ? `Last complete probe ${formatUserDate(checkedAt)}; automatic recheck every 30 seconds.`
                     : 'No complete probe has been observed.'}
                 </Text>
               </Stack>

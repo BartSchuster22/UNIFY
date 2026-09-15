@@ -40,6 +40,8 @@ export interface NewSession {
   expiresAt: Date;
 }
 export interface AuthStore {
+  getTimezone?(userId: string): Promise<string | null>;
+  setTimezone?(userId: string, timezone: string): Promise<void>;
   ready(): Promise<boolean>;
   findUserByUsername(username: string): Promise<UserRecord | null>;
   getPrincipal(userId: string): Promise<PrincipalRecord | null>;

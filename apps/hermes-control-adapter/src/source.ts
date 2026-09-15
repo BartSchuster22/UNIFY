@@ -84,14 +84,45 @@ export class HermesNativeSource implements AdapterSource {
   }
   async validateAgentConfiguration(command: HermesProfileCommand) {
     const sections = command.payload.configuration;
-    if (command.payload.runtimeSettings !== undefined && (sections === undefined || command.operation !== 'profile.update')) throw new AgentConfigurationError(false, 'Runtime settings require an existing profile and a reviewed configuration snapshot');
+    if (
+      command.payload.runtimeSettings !== undefined &&
+      (sections === undefined || command.operation !== 'profile.update')
+    )
+      throw new AgentConfigurationError(
+        false,
+        'Runtime settings require an existing profile and a reviewed configuration snapshot',
+      );
     if (sections === undefined) return;
-    if (!['profile.create','profile.update'].includes(command.operation) || !sections || typeof sections !== 'object' || Array.isArray(sections)) throw new AgentConfigurationError(false, 'Invalid Agent sections');
+    if (
+      !['profile.create', 'profile.update'].includes(command.operation) ||
+      !sections ||
+      typeof sections !== 'object' ||
+      Array.isArray(sections)
+    )
+      throw new AgentConfigurationError(false, 'Invalid Agent sections');
     const values = sections as Record<string, unknown>;
-    if (command.payload.description !== undefined && (typeof command.payload.description !== 'string' || command.payload.description.length > 5000)) throw new AgentConfigurationError(false, 'Invalid Agent description');
-    if (Object.keys(values).sort().join(',') !== 'instructions,memory,userMemory' || Object.values(values).some(x => typeof x !== 'string' || x.length > 65536 || x.includes('\0'))) throw new AgentConfigurationError(false, 'Invalid Agent sections');
-    if (command.operation === 'profile.update') await this.agentConfigurationStore.run(command.targetId, 'validate', { revision: command.payload.configurationRevision, values: { ...values, description: command.payload.description ?? '' }, ...(command.payload.runtimeSettings !== undefined ? { runtime: command.payload.runtimeSettings } : {}) });
-    else if (String(values.memory).length > 2200 || String(values.userMemory).length > 1375) throw new AgentConfigurationError(false, 'Agent section exceeds its configured limit');
+    if (
+      command.payload.description !== undefined &&
+      (typeof command.payload.description !== 'string' || command.payload.description.length > 5000)
+    )
+      throw new AgentConfigurationError(false, 'Invalid Agent description');
+    if (
+      Object.keys(values).sort().join(',') !== 'instructions,memory,userMemory' ||
+      Object.values(values).some(
+        (x) => typeof x !== 'string' || x.length > 65536 || x.includes('\0'),
+      )
+    )
+      throw new AgentConfigurationError(false, 'Invalid Agent sections');
+    if (command.operation === 'profile.update')
+      await this.agentConfigurationStore.run(command.targetId, 'validate', {
+        revision: command.payload.configurationRevision,
+        values: { ...values, description: command.payload.description ?? '' },
+        ...(command.payload.runtimeSettings !== undefined
+          ? { runtime: command.payload.runtimeSettings }
+          : {}),
+      });
+    else if (String(values.memory).length > 2200 || String(values.userMemory).length > 1375)
+      throw new AgentConfigurationError(false, 'Agent section exceeds its configured limit');
   }
 
   private readonly fetchImpl: typeof fetch;
@@ -168,13 +199,23 @@ export class HermesNativeSource implements AdapterSource {
     if (payload.configuration !== undefined) {
       if (command.operation === 'profile.create') {
         if (current) throw new SourceConflictError('Agent ID already exists');
-        await this.options.runner.run(['profile','create',command.targetId,'--no-alias']);
+        await this.options.runner.run(['profile', 'create', command.targetId, '--no-alias']);
       } else if (!current) throw new SourceUnavailableError('Agent was not found');
-      const result = await this.agentConfigurationStore.run(command.targetId, command.operation === 'profile.create' ? 'initialize' : 'write', {
-        revision: payload.configurationRevision,
-        values: { ...record(payload.configuration), description: optionalPayloadString(payload, 'description', 5000) ?? '' }, ...(payload.runtimeSettings !== undefined ? { runtime: payload.runtimeSettings } : {}),
-      });
-      return { profile: { id: command.targetId, configurationRevision: result.revision, verified: true } };
+      const result = await this.agentConfigurationStore.run(
+        command.targetId,
+        command.operation === 'profile.create' ? 'initialize' : 'write',
+        {
+          revision: payload.configurationRevision,
+          values: {
+            ...record(payload.configuration),
+            description: optionalPayloadString(payload, 'description', 5000) ?? '',
+          },
+          ...(payload.runtimeSettings !== undefined ? { runtime: payload.runtimeSettings } : {}),
+        },
+      );
+      return {
+        profile: { id: command.targetId, configurationRevision: result.revision, verified: true },
+      };
     }
     switch (command.operation) {
       case 'profile.create': {
@@ -564,39 +605,76 @@ export class HermesNativeSource implements AdapterSource {
     }
   }
 
-  async workspaces() { return snapshot(await this.projectSetup.workspaces()); }
+  async workspaces() {
+    return snapshot(await this.projectSetup.workspaces());
+  }
 
   async validateWorkSelections(command: HermesWorkCommand): Promise<void> {
     const p = record(command.payload);
     if (command.operation === 'task.cancel') {
-      if (!Number.isSafeInteger(p.runId) || Number(p.runId) < 1) throw new Error('Exact native run ID is required');
-      await cancelNativeTask(payloadString(p, 'boardId', 200), command.targetId, Number(p.runId), 'validate');
+      if (!Number.isSafeInteger(p.runId) || Number(p.runId) < 1)
+        throw new Error('Exact native run ID is required');
+      await cancelNativeTask(
+        payloadString(p, 'boardId', 200),
+        command.targetId,
+        Number(p.runId),
+        'validate',
+      );
       return;
     }
     if (!['project.create', 'project.configure', 'task.create'].includes(command.operation)) return;
-    if ('defaultWorkspacePath' in p) await this.projectSetup.validateWorkspace(p.defaultWorkspacePath);
-    if ('agents' in p && (!Array.isArray(p.agents) || p.agents.length > 50 || p.agents.some(x => typeof x !== 'string'))) throw new Error('Invalid worker selection');
-    if ('projectManager' in p && typeof p.projectManager !== 'string') throw new Error('Invalid manager selection');
-    const selected = [p.projectManager, p.assignee, ...(Array.isArray(p.agents) ? p.agents : [])].filter(x => x !== undefined && x !== '');
+    if ('defaultWorkspacePath' in p)
+      await this.projectSetup.validateWorkspace(p.defaultWorkspacePath);
+    if (
+      'agents' in p &&
+      (!Array.isArray(p.agents) ||
+        p.agents.length > 50 ||
+        p.agents.some((x) => typeof x !== 'string'))
+    )
+      throw new Error('Invalid worker selection');
+    if ('projectManager' in p && typeof p.projectManager !== 'string')
+      throw new Error('Invalid manager selection');
+    const selected = [
+      p.projectManager,
+      p.assignee,
+      ...(Array.isArray(p.agents) ? p.agents : []),
+    ].filter((x) => x !== undefined && x !== '');
     if (selected.length) {
-      const ids = new Set((await this.profiles()).items.map(profile => profile.id));
-      if (selected.some(id => typeof id !== 'string' || !ids.has(id))) throw new Error('Selected agent is not available in this Hermes framework');
+      const ids = new Set((await this.profiles()).items.map((profile) => profile.id));
+      if (selected.some((id) => typeof id !== 'string' || !ids.has(id)))
+        throw new Error('Selected agent is not available in this Hermes framework');
     }
   }
 
   private async saveProjectSelections(id: string, p: Record<string, unknown>, boardId = id) {
     if (typeof p.defaultWorkspacePath === 'string' && p.defaultWorkspacePath) {
-      if (!boardId) throw new Error('Project needs a native board binding before workspace configuration');
+      if (!boardId)
+        throw new Error('Project needs a native board binding before workspace configuration');
       assertNativeId(boardId);
       await this.projectSetup.validateWorkspace(p.defaultWorkspacePath);
-      await this.options.runner.run(['project', 'add-folder', id, p.defaultWorkspacePath, '--primary']);
-      await this.options.runner.run(['kanban', 'boards', 'set-default-workdir', boardId, p.defaultWorkspacePath]);
+      await this.options.runner.run([
+        'project',
+        'add-folder',
+        id,
+        p.defaultWorkspacePath,
+        '--primary',
+      ]);
+      await this.options.runner.run([
+        'kanban',
+        'boards',
+        'set-default-workdir',
+        boardId,
+        p.defaultWorkspacePath,
+      ]);
     }
     if ('projectManager' in p || 'agents' in p) {
       const current = await this.projectSetup.read(id);
       await this.projectSetup.write(id, {
-        projectManager: typeof p.projectManager === 'string' ? p.projectManager : current?.projectManager ?? '',
-        agents: Array.isArray(p.agents) ? [...new Set(p.agents as string[])] : current?.agents ?? [],
+        projectManager:
+          typeof p.projectManager === 'string' ? p.projectManager : (current?.projectManager ?? ''),
+        agents: Array.isArray(p.agents)
+          ? [...new Set(p.agents as string[])]
+          : (current?.agents ?? []),
         teamConfigurationOwner: 'dsh-hermes-adapter',
       });
     }
@@ -605,14 +683,23 @@ export class HermesNativeSource implements AdapterSource {
   async projects(): Promise<Snapshot<HermesProject>> {
     if (this.options.nativeWorkRead) {
       const rows = await this.options.nativeWorkRead('projects');
-      return snapshot(await mapBounded(rows, 4, async value => {
-        const row=record(value);const id=requiredString(row.slug, 'project slug');
-        return {id,name:requiredString(row.name,'project name'),archived:Boolean(row.archived),
-          ...(optionalString(row.description)?{description:String(row.description)}:{}),
-          ...(optionalString(row.board_slug)?{boardId:String(row.board_slug)}:{}),
-          ...(optionalString(row.primary_path)?{defaultWorkspacePath:String(row.primary_path)}:{}),
-          ...(await this.projectSetup.read(id) ?? {})};
-      }));
+      return snapshot(
+        await mapBounded(rows, 4, async (value) => {
+          const row = record(value);
+          const id = requiredString(row.slug, 'project slug');
+          return {
+            id,
+            name: requiredString(row.name, 'project name'),
+            archived: Boolean(row.archived),
+            ...(optionalString(row.description) ? { description: String(row.description) } : {}),
+            ...(optionalString(row.board_slug) ? { boardId: String(row.board_slug) } : {}),
+            ...(optionalString(row.primary_path)
+              ? { defaultWorkspacePath: String(row.primary_path) }
+              : {}),
+            ...((await this.projectSetup.read(id)) ?? {}),
+          };
+        }),
+      );
     }
     const output = stripAnsi(await this.options.runner.run(['project', 'list', '--all']));
     const summaries = output
@@ -638,8 +725,10 @@ export class HermesNativeSource implements AdapterSource {
         archived: summary.archived || /\(archived\)\s*$/.test(detail.split('\n')[0] ?? ''),
         ...(description ? { description } : {}),
         ...(boardId ? { boardId } : {}),
-        ...(/^\s*primary:\s*(.*)$/m.exec(detail)?.[1]?.trim() ? { defaultWorkspacePath: /^\s*primary:\s*(.*)$/m.exec(detail)![1]!.trim() } : {}),
-        ...(await this.projectSetup.read(summary.id) ?? {}),
+        ...(/^\s*primary:\s*(.*)$/m.exec(detail)?.[1]?.trim()
+          ? { defaultWorkspacePath: /^\s*primary:\s*(.*)$/m.exec(detail)![1]!.trim() }
+          : {}),
+        ...((await this.projectSetup.read(summary.id)) ?? {}),
       };
     });
     return snapshot(items);
@@ -669,20 +758,29 @@ export class HermesNativeSource implements AdapterSource {
 
   async tasks(boardId: string): Promise<Snapshot<HermesTask>> {
     assertNativeId(boardId);
-    const nativeDetails = this.options.nativeWorkRead ? await this.options.nativeWorkRead('tasks', boardId) : undefined;
-    const detailsById = new Map(nativeDetails?.map(v=>{const d=record(v);return [requiredString(record(d.task).id,'task id'),d];}));
-    const raw = nativeDetails ? nativeDetails.map(v=>record(v).task) : JSON.parse(
-      await this.options.runner.run([
-        'kanban',
-        '--board',
-        boardId,
-        'list',
-        '--json',
-        '--archived',
-        '--sort',
-        'updated',
-      ]),
-    ) as unknown;
+    const nativeDetails = this.options.nativeWorkRead
+      ? await this.options.nativeWorkRead('tasks', boardId)
+      : undefined;
+    const detailsById = new Map(
+      nativeDetails?.map((v) => {
+        const d = record(v);
+        return [requiredString(record(d.task).id, 'task id'), d];
+      }),
+    );
+    const raw = nativeDetails
+      ? nativeDetails.map((v) => record(v).task)
+      : (JSON.parse(
+          await this.options.runner.run([
+            'kanban',
+            '--board',
+            boardId,
+            'list',
+            '--json',
+            '--archived',
+            '--sort',
+            'updated',
+          ]),
+        ) as unknown);
     if (!Array.isArray(raw)) throw new Error('Hermes tasks output was not an array');
     const items = await mapBounded(raw, 4, async (value) => {
       const row = record(value);
@@ -701,27 +799,50 @@ export class HermesNativeSource implements AdapterSource {
       assignOptional(task, 'projectId', optionalString(row.project_id));
       assignOptional(task, 'workspacePath', optionalString(row.workspace_path));
       assignOptional(task, 'sessionId', optionalString(row.session_id));
-      if (row.started_at || row.session_id || ['running', 'blocked', 'done'].includes(task.status)) {
+      if (
+        row.started_at ||
+        row.session_id ||
+        ['running', 'blocked', 'done'].includes(task.status)
+      ) {
         try {
           assertNativeId(task.id);
-          const detail = detailsById.get(task.id) ?? record(JSON.parse(await this.options.runner.run(['kanban', '--board', boardId, 'show', task.id, '--json'])));
+          const detail =
+            detailsById.get(task.id) ??
+            record(
+              JSON.parse(
+                await this.options.runner.run([
+                  'kanban',
+                  '--board',
+                  boardId,
+                  'show',
+                  task.id,
+                  '--json',
+                ]),
+              ),
+            );
           const nativeTask = record(detail.task);
           if (nativeTask.id !== task.id) throw new Error('Native task identity mismatch');
           // The detailed observation is newer than the board list; never pair a stale lane with a newer run.
           task.status = requiredString(nativeTask.status, 'task status');
           assignOptional(task, 'sessionId', optionalString(nativeTask.session_id));
           if (!Array.isArray(detail.runs)) throw new Error('Native run history is unavailable');
-          task.runs = detail.runs.slice(-10).map(value => {
+          task.runs = detail.runs.slice(-10).map((value) => {
             const run = record(value);
             if (!Number.isInteger(run.id)) throw new Error('Invalid native run identity');
-            const result: NonNullable<HermesTask['runs']>[number] = {id: Number(run.id)};
-            for (const key of ['profile', 'status', 'outcome', 'summary', 'error'] as const) assignOptional(result, key, optionalString(run[key]));
+            const result: NonNullable<HermesTask['runs']>[number] = { id: Number(run.id) };
+            for (const key of ['profile', 'status', 'outcome', 'summary', 'error'] as const)
+              assignOptional(result, key, optionalString(run[key]));
             const metadata = recordOrEmpty(run.metadata);
             assignOptional(result, 'sessionId', optionalString(metadata.worker_session_id));
-            if (Array.isArray(metadata.artifacts)) result.artifacts = metadata.artifacts.filter((p): p is string => typeof p === 'string').slice(0, 100);
+            if (Array.isArray(metadata.artifacts))
+              result.artifacts = metadata.artifacts
+                .filter((p): p is string => typeof p === 'string')
+                .slice(0, 100);
             return result;
           });
-        } catch { task.executionUnavailable = true; }
+        } catch {
+          task.executionUnavailable = true;
+        }
       }
       return task;
     });
@@ -832,12 +953,14 @@ export class HermesNativeSource implements AdapterSource {
         };
       }
       case 'project.configure': {
-        const current = (await this.projects()).items.find(p => p.id === command.targetId);
-        if (!current || current.archived) throw new SourceUnavailableError('Active project was not found');
+        const current = (await this.projects()).items.find((p) => p.id === command.targetId);
+        if (!current || current.archived)
+          throw new SourceUnavailableError('Active project was not found');
         const name = payloadString(payload, 'name', 500);
         await this.saveProjectSelections(command.targetId, payload, current.boardId ?? '');
-        if (name !== current.name) await this.options.runner.run(['project', 'rename', command.targetId, name]);
-        return { project: (await this.projects()).items.find(p => p.id === command.targetId) };
+        if (name !== current.name)
+          await this.options.runner.run(['project', 'rename', command.targetId, name]);
+        return { project: (await this.projects()).items.find((p) => p.id === command.targetId) };
       }
       case 'project.rename': {
         const name = payloadString(payload, 'name', 500);
@@ -883,7 +1006,12 @@ export class HermesNativeSource implements AdapterSource {
         return { task: { id: command.targetId, status: 'ready' } };
       }
       case 'task.cancel':
-        return cancelNativeTask(payloadString(payload, 'boardId', 200), command.targetId, Number(payload.runId), 'execute');
+        return cancelNativeTask(
+          payloadString(payload, 'boardId', 200),
+          command.targetId,
+          Number(payload.runId),
+          'execute',
+        );
       case 'task.block':
         await this.options.runner.run([
           'kanban',
@@ -1000,8 +1128,10 @@ export class HermesNativeSource implements AdapterSource {
     const projects = (await this.projects()).items.filter((project) => project.boardId === boardId);
     if (projects.length > 1) throw new SourceConflictError('Board is bound to multiple projects');
     const project = projects[0];
-    if (project?.archived) throw new SourceConflictError('Cannot create tasks for an archived project');
-    if (project?.defaultWorkspacePath) await this.projectSetup.validateWorkspace(project.defaultWorkspacePath);
+    if (project?.archived)
+      throw new SourceConflictError('Cannot create tasks for an archived project');
+    if (project?.defaultWorkspacePath)
+      await this.projectSetup.validateWorkspace(project.defaultWorkspacePath);
     const output = await this.options.runner.run([
       'kanban',
       '--board',
@@ -1009,7 +1139,9 @@ export class HermesNativeSource implements AdapterSource {
       'create',
       title,
       ...(project ? ['--project', project.id] : []),
-      ...(project?.defaultWorkspacePath ? ['--workspace', `dir:${project.defaultWorkspacePath}`] : []),
+      ...(project?.defaultWorkspacePath
+        ? ['--workspace', `dir:${project.defaultWorkspacePath}`]
+        : []),
       ...(body ? ['--body', body] : []),
       ...(assignee ? ['--assignee', assignee] : []),
       ...(triage ? ['--triage'] : []),
@@ -1030,7 +1162,11 @@ export class HermesNativeSource implements AdapterSource {
       const item: HermesSession = { id: requiredString(row.id ?? row.session_id, 'session id') };
       assignOptional(item, 'title', optionalString(row.title ?? row.name));
       assignOptional(item, 'source', optionalString(row.source ?? row.platform));
-      assignOptional(item, 'createdAt', dateString(row.created_at ?? row.createdAt));
+      assignOptional(
+        item,
+        'createdAt',
+        dateString(row.created_at ?? row.createdAt ?? row.timestamp ?? row.started_at),
+      );
       assignOptional(item, 'updatedAt', dateString(row.updated_at ?? row.updatedAt));
       return item;
     });
@@ -1053,7 +1189,11 @@ export class HermesNativeSource implements AdapterSource {
         role: optionalString(row.role) ?? 'unknown',
       };
       assignOptional(item, 'content', safeContent(row.content));
-      assignOptional(item, 'createdAt', dateString(row.created_at ?? row.createdAt));
+      assignOptional(
+        item,
+        'createdAt',
+        dateString(row.created_at ?? row.createdAt ?? row.timestamp ?? row.started_at),
+      );
       return item;
     });
     return snapshot(items);
@@ -1324,7 +1464,13 @@ function optionalString(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : undefined;
 }
 
-function dateString(value: unknown) {
+export function dateString(value: unknown) {
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) return undefined;
+    // Hermes stores Unix seconds (including fractional seconds); also accept milliseconds.
+    const date = new Date(Math.abs(value) < 100_000_000_000 ? value * 1000 : value);
+    return Number.isNaN(date.valueOf()) ? undefined : date.toISOString();
+  }
   const text = optionalString(value);
   if (!text) return undefined;
   const date = new Date(text);

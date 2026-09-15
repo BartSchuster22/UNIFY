@@ -1,3 +1,4 @@
+import { formatUserDate } from './userTime';
 import {
   Alert,
   Badge,
@@ -2086,5 +2087,5 @@ function formatContractValue(value: string) {
 function formatDate(value?: string) {
   if (!value) return 'unknown';
   const date = new Date(value);
-  return Number.isNaN(date.valueOf()) ? value : date.toLocaleString();
+  return Number.isNaN(date.valueOf()) ? value : formatUserDate(date);
 }

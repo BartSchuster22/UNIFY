@@ -441,6 +441,27 @@ export function buildApp(options: AppOptions) {
         return projects.items.some((project) => project.id === projectId);
       },
     );
+  app.get('/api/v1/auth/preferences', async (request) => {
+    const current = await session(request);
+    return auth.preferences(current.userId);
+  });
+  app.put<{ Body: { timezone: string } }>(
+    '/api/v1/auth/preferences',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['timezone'],
+          properties: { timezone: { type: 'string', minLength: 1, maxLength: 100 } },
+        },
+      },
+    },
+    async (request) => {
+      const current = await mutationSession(request);
+      return auth.setTimezone(current.userId, request.body.timezone);
+    },
+  );
   app.get('/api/v1/auth/me', async (request) => {
     const current = await session(request);
     return {
@@ -1042,11 +1063,17 @@ export function buildApp(options: AppOptions) {
       );
     },
   );
-  app.get<{ Params: { frameworkId: string; profileId: string } }>('/api/v1/frameworks/:frameworkId/profiles/:profileId/configuration', async request => {
-    const current = await session(request);
-    auth.requirePermission(current, 'profiles.manage');
-    return requireHermesGateway().agentConfiguration(request.params.frameworkId, request.params.profileId);
-  });
+  app.get<{ Params: { frameworkId: string; profileId: string } }>(
+    '/api/v1/frameworks/:frameworkId/profiles/:profileId/configuration',
+    async (request) => {
+      const current = await session(request);
+      auth.requirePermission(current, 'profiles.manage');
+      return requireHermesGateway().agentConfiguration(
+        request.params.frameworkId,
+        request.params.profileId,
+      );
+    },
+  );
   type AgentCreateBody = AgentMutationBody & { id: string };
   type AgentRenameBody = AgentMutationBody & { newId: string; confirmed: true };
   type AgentDeleteBody = AgentMutationBody & { confirmed: true };
@@ -1226,7 +1253,10 @@ export function buildApp(options: AppOptions) {
     async (request) => {
       const current = await session(request);
       auth.requirePermission(current, 'work.read');
-      return requireHermesGateway().workspaces(request.params.frameworkId, frameworkPageQuery(request.query));
+      return requireHermesGateway().workspaces(
+        request.params.frameworkId,
+        frameworkPageQuery(request.query),
+      );
     },
   );
   app.get<{ Params: { frameworkId: string }; Querystring: FrameworkPageQuery }>(

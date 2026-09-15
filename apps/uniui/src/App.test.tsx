@@ -64,6 +64,7 @@ function response(body: unknown, status = 200) {
 
 function authenticatedFetch(input: RequestInfo | URL): Promise<Response> {
   const url = String(input);
+  if (url.endsWith('/auth/preferences')) return response({ timezone: 'UTC' });
   if (url.endsWith('/auth/me')) return response(principal);
   if (url.endsWith('/memory/status'))
     return response({ status: 'ready', contractVersion: '1.0.0' });
@@ -158,6 +159,7 @@ function authenticatedFetch(input: RequestInfo | URL): Promise<Response> {
 
 function twoFrameworkFetch(input: RequestInfo | URL): Promise<Response> {
   const url = String(input);
+  if (url.endsWith('/auth/preferences')) return response({ timezone: 'UTC' });
   if (url.endsWith('/auth/me')) return response(principal);
   if (url.endsWith('/frameworks')) return response({ items: twoFrameworks });
   const selectedMeta = { ...hermesMeta, owner: 'hermes', frameworkId: 'hermes-herman' };
@@ -215,7 +217,9 @@ describe('Mantine UNIUI gates', () => {
     );
     const { container } = render(<App />);
     expect(await screen.findByRole('heading', { name: 'Sign in to DSH' })).toBeInTheDocument();
-    expect(await screen.findByRole('alert', { name: 'Sign-in unavailable' })).toHaveTextContent('Password fallback is disabled');
+    expect(await screen.findByRole('alert', { name: 'Sign-in unavailable' })).toHaveTextContent(
+      'Password fallback is disabled',
+    );
     expect(screen.queryByRole('textbox', { name: /Username/ })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Retry' })).toBeEnabled();
     const results = await axe.run(container, { rules: { 'color-contrast': { enabled: false } } });

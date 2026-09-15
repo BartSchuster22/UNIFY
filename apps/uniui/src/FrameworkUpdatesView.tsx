@@ -1,3 +1,4 @@
+import { formatUserDate } from './userTime';
 import {
   Accordion,
   Alert,
@@ -808,7 +809,7 @@ function Row({ label, value, code = false }: { label: string; value: string; cod
 }
 
 function formatDate(value?: string): string {
-  return value ? new Date(value).toLocaleString() : 'Not available';
+  return value ? formatUserDate(value) : 'Not available';
 }
 
 function relationLabel(relation?: string): string {

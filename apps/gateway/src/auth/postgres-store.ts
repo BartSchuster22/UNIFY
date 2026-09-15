@@ -10,6 +10,18 @@ import type {
 } from './types.js';
 export class PostgresAuthStore implements AuthStore {
   constructor(private readonly pool: Pool) {}
+  async getTimezone(userId: string): Promise<string | null> {
+    const r = await this.pool.query('SELECT timezone FROM user_preferences WHERE user_id=$1', [
+      userId,
+    ]);
+    return r.rows[0]?.timezone ?? null;
+  }
+  async setTimezone(userId: string, timezone: string): Promise<void> {
+    await this.pool.query(
+      'INSERT INTO user_preferences(user_id,timezone) VALUES($1,$2) ON CONFLICT(user_id) DO UPDATE SET timezone=EXCLUDED.timezone,updated_at=now()',
+      [userId, timezone],
+    );
+  }
   async ready(): Promise<boolean> {
     try {
       await this.pool.query('SELECT 1');

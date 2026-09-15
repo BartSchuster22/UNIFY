@@ -1,3 +1,4 @@
+import { formatUserDate } from './userTime';
 import {
   Alert,
   Badge,
@@ -977,7 +978,7 @@ function sampleCount(count: number, next: string | null) {
 }
 function formatDate(value: string) {
   const parsed = new Date(value);
-  return Number.isNaN(parsed.valueOf()) ? value : parsed.toLocaleString();
+  return Number.isNaN(parsed.valueOf()) ? value : formatUserDate(parsed);
 }
 function failureMessage(cause: unknown) {
   if (cause instanceof ApiError) {

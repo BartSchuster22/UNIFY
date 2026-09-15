@@ -38,6 +38,24 @@ export class AuthService {
     this.#ttl = options.sessionTtlMs ?? 8 * 60 * 60 * 1000;
     this.#now = options.now ?? (() => new Date());
   }
+  async preferences(userId: string) {
+    if (!this.#store.getTimezone)
+      throw new AuthError('PREFERENCES_UNAVAILABLE', 503, 'Preferences unavailable');
+    return { timezone: await this.#store.getTimezone(userId) };
+  }
+  async setTimezone(userId: string, value: string) {
+    let timezone: string;
+    try {
+      if (!value || value.length > 100 || /^[+-]/.test(value)) throw new Error('Invalid timezone');
+      timezone = new Intl.DateTimeFormat('en', { timeZone: value }).resolvedOptions().timeZone;
+    } catch {
+      throw new AuthError('INVALID_TIMEZONE', 422, 'Choose a valid named timezone');
+    }
+    if (!this.#store.setTimezone)
+      throw new AuthError('PREFERENCES_UNAVAILABLE', 503, 'Preferences unavailable');
+    await this.#store.setTimezone(userId, timezone);
+    return { timezone };
+  }
   async login(username: string, password: string, context: LoginContext): Promise<LoginResult> {
     const normalized = username.trim().toLowerCase();
     const subject = sha256(`${this.#pepper}:${normalized}:${context.ip}`);

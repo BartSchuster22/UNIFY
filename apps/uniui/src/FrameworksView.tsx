@@ -1,3 +1,4 @@
+import { formatUserDate } from './userTime';
 import {
   Alert,
   Badge,
@@ -132,8 +133,8 @@ export function FrameworksView() {
       </Group>
       {checkedAt ? (
         <Text size="xs" c="dimmed" aria-live="polite">
-          Last runtime check {new Date(checkedAt).toLocaleString()}; automatic reconnect probe every
-          30 seconds.
+          Last runtime check {formatUserDate(checkedAt)}; automatic reconnect probe every 30
+          seconds.
         </Text>
       ) : null}
       {failure ? (
@@ -243,8 +244,7 @@ export function FrameworksView() {
                   Source <Code>{provenance?.sourceVersion ?? 'not observed'}</Code>
                 </Text>
                 <Text size="xs" c="dimmed">
-                  Observed{' '}
-                  {provenance?.observedAt ? new Date(provenance.observedAt).toLocaleString() : '—'}
+                  Observed {provenance?.observedAt ? formatUserDate(provenance.observedAt) : '—'}
                 </Text>
               </Stack>
             </Card>

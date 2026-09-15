@@ -20,6 +20,13 @@ import type { FrameworkRegistrationRecord } from './framework-registry/types.js'
 import type { HermesGatewayService } from './hermes-control/service.js';
 
 class MemoryAuthStore implements AuthStore {
+  readonly timezones = new Map<string, string>();
+  async getTimezone(userId: string) {
+    return this.timezones.get(userId) ?? null;
+  }
+  async setTimezone(userId: string, timezone: string) {
+    this.timezones.set(userId, timezone);
+  }
   readonly users = new Map<string, UserRecord>();
   readonly principals = new Map<string, PrincipalRecord>();
   readonly throttles = new Map<string, LoginThrottle>();
@@ -148,6 +155,51 @@ async function login(app: ReturnType<typeof buildApp>, username = 'viewer') {
 }
 
 describe('named-user session security', () => {
+  it('protects self-service preferences with authentication, CSRF and account isolation', async () => {
+    const store = fixtureStore();
+    const app = buildApp({ authStore: store, authPepper: pepper, secureCookies: false });
+    const url = '/api/v1/auth/preferences';
+    expect((await app.inject({ method: 'GET', url })).statusCode).toBe(401);
+    const viewer = await login(app);
+    const headers = {
+      cookie: `aquiero_session=${viewer.session}; aquiero_csrf=${viewer.csrf}`,
+      'x-csrf-token': viewer.csrf,
+    };
+    expect((await app.inject({ method: 'GET', url, headers })).json()).toEqual({ timezone: null });
+    expect(
+      (
+        await app.inject({
+          method: 'PUT',
+          url,
+          headers: { cookie: headers.cookie },
+          payload: { timezone: 'UTC' },
+        })
+      ).statusCode,
+    ).toBe(403);
+    expect(
+      (await app.inject({ method: 'PUT', url, headers, payload: { timezone: 'Atlantic/Canary' } }))
+        .statusCode,
+    ).toBe(200);
+    expect((await app.inject({ method: 'GET', url, headers })).json()).toEqual({
+      timezone: 'Atlantic/Canary',
+    });
+    expect(store.timezones.has('admin')).toBe(false);
+    expect(
+      (await app.inject({ method: 'PUT', url, headers, payload: { timezone: 'invalid-zone' } }))
+        .statusCode,
+    ).toBe(422);
+    const other = await login(app, 'admin');
+    expect(
+      (
+        await app.inject({
+          method: 'GET',
+          url,
+          headers: { cookie: `aquiero_session=${other.session}` },
+        })
+      ).json(),
+    ).toEqual({ timezone: null });
+    await app.close();
+  });
   it('enforces framework registration RBAC/CSRF and never returns service-auth references', async () => {
     const records = new Map<string, FrameworkRegistrationRecord>();
     const meta = {

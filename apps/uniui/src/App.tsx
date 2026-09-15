@@ -1,3 +1,4 @@
+import { userDateFormatter } from './userTime';
 import { HostOperations } from './HostOperations';
 import {
   ActionIcon,
@@ -149,6 +150,8 @@ const theme = createTheme({
   defaultRadius: 'md',
 });
 
+import { UserPreferencesProvider, UserTimezoneSettings } from './UserPreferences';
+
 export function App() {
   const [principal, setPrincipal] = useState<Principal | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -199,168 +202,170 @@ export function App() {
   const activeView = visible.some((item) => item.id === view) ? view : 'overview';
   return (
     <MantineProvider theme={theme} forceColorScheme={dark ? 'dark' : 'light'}>
-      <FrameworkProvider>
-        <a className="skip-link" href="#main-content">
-          Skip to content
-        </a>
-        <AppShell
-          header={{ height: 64 }}
-          navbar={{ width: 76, breakpoint: 'md', collapsed: { mobile: true } }}
-          padding="md"
-        >
-          <AppShell.Header className="ui-header">
-            <Group h="100%" px="md" justify="space-between" wrap="nowrap">
-              <Group wrap="nowrap">
-                <Burger
-                  opened={opened}
-                  onClick={toggle}
-                  hiddenFrom="md"
-                  size="sm"
-                  aria-label="Open navigation menu"
-                  aria-expanded={opened}
-                  aria-controls="mobile-primary-navigation"
-                />
-                <Group gap="xs" wrap="nowrap">
-                  <ThemeIcon
-                    size="lg"
-                    variant="gradient"
-                    gradient={{ from: 'ocean.7', to: 'cyan.5' }}
-                  >
-                    <IconNetwork size={20} />
-                  </ThemeIcon>
-                  <Box>
-                    <Text fw={800} lh={1}>
-                      UNIFY
-                    </Text>
-                    <Text size="xs" c="dimmed">
-                      Operator console
-                    </Text>
-                  </Box>
-                </Group>
-              </Group>
-
-              <Group gap="xs" wrap="nowrap">
-                <Tooltip label={`Use ${dark ? 'light' : 'dark'} theme`}>
-                  <ActionIcon
-                    variant="subtle"
-                    size="lg"
-                    onClick={() => {
-                      const next = !dark;
-                      setDark(next);
-                      localStorage.setItem('unify-color-scheme', next ? 'dark' : 'light');
-                    }}
-                    aria-label={`Use ${dark ? 'light' : 'dark'} theme`}
-                  >
-                    {dark ? <IconSun size={19} /> : <IconMoon size={19} />}
-                  </ActionIcon>
-                </Tooltip>
-                <Menu position="bottom-end">
-                  <Menu.Target>
-                    <ActionIcon variant="subtle" size="lg" aria-label="User menu">
-                      <Avatar size={30} color="ocean">
-                        {principal.displayName.slice(0, 2).toUpperCase()}
-                      </Avatar>
-                    </ActionIcon>
-                  </Menu.Target>
-                  <Menu.Dropdown>
-                    <Menu.Label>{principal.displayName}</Menu.Label>
-                    <Menu.Item
-                      component="a"
-                      href={viewHref('settings')}
-                      leftSection={<IconSettings size={16} />}
-                      onClick={(event) => followViewLink(event, 'settings')}
-                    >
-                      Settings
-                    </Menu.Item>
-                    <Menu.Item
-                      color="red"
-                      leftSection={<IconLogout size={16} />}
-                      onClick={() => void gateway.logout().finally(() => setPrincipal(null))}
-                    >
-                      Sign out
-                    </Menu.Item>
-                  </Menu.Dropdown>
-                </Menu>
-              </Group>
-            </Group>
-          </AppShell.Header>
-          {opened ? (
-            <Paper
-              hiddenFrom="md"
-              component="nav"
-              id="mobile-primary-navigation"
-              aria-label="Mobile primary navigation"
-              className="mobile-mega-menu"
-              shadow="md"
-              p="md"
-              radius={0}
-            >
-              <Text fw={700} mb="sm">
-                Navigate UNIFY
-              </Text>
-              <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="xs">
-                {visible.map((item) => (
-                  <NavLink
-                    component="a"
-                    key={item.id}
-                    href={viewHref(item.id)}
-                    active={activeView === item.id}
-                    label={item.label}
-                    leftSection={<item.icon size={21} />}
-                    onClick={(event) => followViewLink(event, item.id)}
-                    aria-current={activeView === item.id ? 'page' : undefined}
-                    className="mobile-mega-menu-link"
+      <UserPreferencesProvider key={principal.userId}>
+        <FrameworkProvider>
+          <a className="skip-link" href="#main-content">
+            Skip to content
+          </a>
+          <AppShell
+            header={{ height: 64 }}
+            navbar={{ width: 76, breakpoint: 'md', collapsed: { mobile: true } }}
+            padding="md"
+          >
+            <AppShell.Header className="ui-header">
+              <Group h="100%" px="md" justify="space-between" wrap="nowrap">
+                <Group wrap="nowrap">
+                  <Burger
+                    opened={opened}
+                    onClick={toggle}
+                    hiddenFrom="md"
+                    size="sm"
+                    aria-label="Open navigation menu"
+                    aria-expanded={opened}
+                    aria-controls="mobile-primary-navigation"
                   />
-                ))}
-              </SimpleGrid>
-            </Paper>
-          ) : null}
-          <AppShell.Navbar p="xs" aria-label="Primary navigation">
-            <AppShell.Section grow component={ScrollArea}>
-              <Stack gap={5} align="center">
-                {visible.map((item) => (
-                  <Tooltip
-                    key={item.id}
-                    label={item.label}
-                    position="right"
-                    withArrow
-                    openDelay={250}
-                  >
-                    <ActionIcon
-                      component="a"
-                      href={viewHref(item.id)}
-                      size={48}
-                      radius="md"
-                      variant={activeView === item.id ? 'light' : 'subtle'}
-                      color={activeView === item.id ? 'ocean' : 'gray'}
-                      onClick={(event) => followViewLink(event, item.id)}
-                      aria-label={item.label}
-                      aria-current={activeView === item.id ? 'page' : undefined}
-                      className="desktop-navbar-link"
+                  <Group gap="xs" wrap="nowrap">
+                    <ThemeIcon
+                      size="lg"
+                      variant="gradient"
+                      gradient={{ from: 'ocean.7', to: 'cyan.5' }}
                     >
-                      <item.icon size={22} stroke={1.7} />
+                      <IconNetwork size={20} />
+                    </ThemeIcon>
+                    <Box>
+                      <Text fw={800} lh={1}>
+                        UNIFY
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        Operator console
+                      </Text>
+                    </Box>
+                  </Group>
+                </Group>
+
+                <Group gap="xs" wrap="nowrap">
+                  <Tooltip label={`Use ${dark ? 'light' : 'dark'} theme`}>
+                    <ActionIcon
+                      variant="subtle"
+                      size="lg"
+                      onClick={() => {
+                        const next = !dark;
+                        setDark(next);
+                        localStorage.setItem('unify-color-scheme', next ? 'dark' : 'light');
+                      }}
+                      aria-label={`Use ${dark ? 'light' : 'dark'} theme`}
+                    >
+                      {dark ? <IconSun size={19} /> : <IconMoon size={19} />}
                     </ActionIcon>
                   </Tooltip>
-                ))}
-              </Stack>
-            </AppShell.Section>
-            <AppShell.Section>
-              <Divider mb="xs" />
-              <Tooltip
-                label={`${principal.displayName} · ${principal.roles.join(', ')}`}
-                position="right"
+                  <Menu position="bottom-end">
+                    <Menu.Target>
+                      <ActionIcon variant="subtle" size="lg" aria-label="User menu">
+                        <Avatar size={30} color="ocean">
+                          {principal.displayName.slice(0, 2).toUpperCase()}
+                        </Avatar>
+                      </ActionIcon>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      <Menu.Label>{principal.displayName}</Menu.Label>
+                      <Menu.Item
+                        component="a"
+                        href={viewHref('settings')}
+                        leftSection={<IconSettings size={16} />}
+                        onClick={(event) => followViewLink(event, 'settings')}
+                      >
+                        Settings
+                      </Menu.Item>
+                      <Menu.Item
+                        color="red"
+                        leftSection={<IconLogout size={16} />}
+                        onClick={() => void gateway.logout().finally(() => setPrincipal(null))}
+                      >
+                        Sign out
+                      </Menu.Item>
+                    </Menu.Dropdown>
+                  </Menu>
+                </Group>
+              </Group>
+            </AppShell.Header>
+            {opened ? (
+              <Paper
+                hiddenFrom="md"
+                component="nav"
+                id="mobile-primary-navigation"
+                aria-label="Mobile primary navigation"
+                className="mobile-mega-menu"
+                shadow="md"
+                p="md"
+                radius={0}
               >
-                <Avatar mx="auto" size={42} color="ocean" aria-label="Signed-in operator">
-                  {principal.displayName.slice(0, 2).toUpperCase()}
-                </Avatar>
-              </Tooltip>
-            </AppShell.Section>
-          </AppShell.Navbar>
-          <AppShell.Main id="main-content" tabIndex={-1}>
-            <View view={activeView} principal={principal} />
-          </AppShell.Main>
-        </AppShell>
-      </FrameworkProvider>
+                <Text fw={700} mb="sm">
+                  Navigate UNIFY
+                </Text>
+                <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="xs">
+                  {visible.map((item) => (
+                    <NavLink
+                      component="a"
+                      key={item.id}
+                      href={viewHref(item.id)}
+                      active={activeView === item.id}
+                      label={item.label}
+                      leftSection={<item.icon size={21} />}
+                      onClick={(event) => followViewLink(event, item.id)}
+                      aria-current={activeView === item.id ? 'page' : undefined}
+                      className="mobile-mega-menu-link"
+                    />
+                  ))}
+                </SimpleGrid>
+              </Paper>
+            ) : null}
+            <AppShell.Navbar p="xs" aria-label="Primary navigation">
+              <AppShell.Section grow component={ScrollArea}>
+                <Stack gap={5} align="center">
+                  {visible.map((item) => (
+                    <Tooltip
+                      key={item.id}
+                      label={item.label}
+                      position="right"
+                      withArrow
+                      openDelay={250}
+                    >
+                      <ActionIcon
+                        component="a"
+                        href={viewHref(item.id)}
+                        size={48}
+                        radius="md"
+                        variant={activeView === item.id ? 'light' : 'subtle'}
+                        color={activeView === item.id ? 'ocean' : 'gray'}
+                        onClick={(event) => followViewLink(event, item.id)}
+                        aria-label={item.label}
+                        aria-current={activeView === item.id ? 'page' : undefined}
+                        className="desktop-navbar-link"
+                      >
+                        <item.icon size={22} stroke={1.7} />
+                      </ActionIcon>
+                    </Tooltip>
+                  ))}
+                </Stack>
+              </AppShell.Section>
+              <AppShell.Section>
+                <Divider mb="xs" />
+                <Tooltip
+                  label={`${principal.displayName} · ${principal.roles.join(', ')}`}
+                  position="right"
+                >
+                  <Avatar mx="auto" size={42} color="ocean" aria-label="Signed-in operator">
+                    {principal.displayName.slice(0, 2).toUpperCase()}
+                  </Avatar>
+                </Tooltip>
+              </AppShell.Section>
+            </AppShell.Navbar>
+            <AppShell.Main id="main-content" tabIndex={-1}>
+              <View view={activeView} principal={principal} />
+            </AppShell.Main>
+          </AppShell>
+        </FrameworkProvider>
+      </UserPreferencesProvider>
     </MantineProvider>
   );
 }
@@ -1131,6 +1136,7 @@ function Settings({ principal }: { principal: Principal }) {
         title="Settings"
         description="Account, accessibility, appearance, and active browser sessions."
       />
+      <UserTimezoneSettings />
       <SimpleGrid cols={{ base: 1, lg: 2 }}>
         <Card withBorder>
           <Group>
@@ -1213,5 +1219,5 @@ function formatDate(value: string) {
   const date = new Date(value);
   return Number.isNaN(date.getTime())
     ? value
-    : new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
+    : userDateFormatter(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
 }

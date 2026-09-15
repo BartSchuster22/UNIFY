@@ -1,3 +1,4 @@
+import { formatUserDate } from './userTime';
 import {
   Alert,
   Badge,
@@ -66,8 +67,16 @@ export function ChatView({ canUse }: { canUse: boolean }) {
   const [selectedSessionId, setSelectedSessionId] = useState('');
   const [loading, setLoading] = useState(true);
   const [mutating, setMutating] = useState(false);
-  const [execution, setExecution] = useState<{ framework: string; session: string; startedAt: number; uncertain: boolean } | null>(null);
-  const currentExecution = execution && execution.framework === frameworkId && execution.session === selectedSessionId ? execution : null;
+  const [execution, setExecution] = useState<{
+    framework: string;
+    session: string;
+    startedAt: number;
+    uncertain: boolean;
+  } | null>(null);
+  const currentExecution =
+    execution && execution.framework === frameworkId && execution.session === selectedSessionId
+      ? execution
+      : null;
   const [failure, setFailure] = useState('');
   const [notice, setNotice] = useState('');
   const [title, setTitle] = useState('');
@@ -220,7 +229,12 @@ export function ChatView({ canUse }: { canUse: boolean }) {
       return;
     const requestedFramework = frameworkId;
     const requestedSession = selectedSessionId;
-    setExecution({ framework: requestedFramework, session: requestedSession, startedAt: Date.now(), uncertain: false });
+    setExecution({
+      framework: requestedFramework,
+      session: requestedSession,
+      startedAt: Date.now(),
+      uncertain: false,
+    });
     setMutating(true);
     setFailure('');
     setNotice('');
@@ -275,9 +289,19 @@ export function ChatView({ canUse }: { canUse: boolean }) {
         selectedSession.current === requestedSession
       )
         setFailure(cause instanceof Error ? cause.message : 'Message send failed');
-      setExecution((current) => current?.framework === requestedFramework && current?.session === requestedSession ? { ...current, uncertain: true } : current);
+      setExecution((current) =>
+        current?.framework === requestedFramework && current?.session === requestedSession
+          ? { ...current, uncertain: true }
+          : current,
+      );
     } finally {
-      setExecution((current) => current?.framework === requestedFramework && current?.session === requestedSession && !current.uncertain ? null : current);
+      setExecution((current) =>
+        current?.framework === requestedFramework &&
+        current?.session === requestedSession &&
+        !current.uncertain
+          ? null
+          : current,
+      );
       if (selectedFramework.current === requestedFramework) setMutating(false);
     }
   }
@@ -421,8 +445,8 @@ export function ChatView({ canUse }: { canUse: boolean }) {
                   </Text>
                   <Text size="xs" c="dimmed">
                     {session.source ?? 'internal'} ·{' '}
-                    {session.updatedAt
-                      ? new Date(session.updatedAt).toLocaleString()
+                    {session.updatedAt || session.createdAt
+                      ? formatUserDate((session.updatedAt || session.createdAt)!)
                       : 'time unavailable'}
                   </Text>
                 </Stack>
@@ -448,9 +472,7 @@ export function ChatView({ canUse }: { canUse: boolean }) {
                   <Group justify="space-between" mb="xs">
                     <Badge variant="light">{message.role}</Badge>
                     <Text size="xs" c="dimmed">
-                      {message.createdAt
-                        ? new Date(message.createdAt).toLocaleString()
-                        : 'time unavailable'}
+                      {message.createdAt ? formatUserDate(message.createdAt) : 'time unavailable'}
                     </Text>
                   </Group>
                   <Text style={{ whiteSpace: 'pre-wrap' }}>
@@ -467,8 +489,13 @@ export function ChatView({ canUse }: { canUse: boolean }) {
             </Stack>
           </ScrollArea>
           <Stack gap="xs" mt="md">
-      {currentExecution && <ExecutionFeedback startedAt={currentExecution.startedAt} uncertain={currentExecution.uncertain}
-        onChecked={() => setExecution(null)} />}
+            {currentExecution && (
+              <ExecutionFeedback
+                startedAt={currentExecution.startedAt}
+                uncertain={currentExecution.uncertain}
+                onChecked={() => setExecution(null)}
+              />
+            )}
 
             <Textarea
               label="Message"
@@ -489,7 +516,12 @@ export function ChatView({ canUse }: { canUse: boolean }) {
             />
             <Button
               onClick={() => void sendMessage()}
-              disabled={!canExecute || !selectedSessionId || !!currentExecution?.uncertain || (!draft.trim() && !attachment)}
+              disabled={
+                !canExecute ||
+                !selectedSessionId ||
+                !!currentExecution?.uncertain ||
+                (!draft.trim() && !attachment)
+              }
               loading={mutating}
             >
               Send message
@@ -499,7 +531,7 @@ export function ChatView({ canUse }: { canUse: boolean }) {
             <Text size="xs" c="dimmed" mt="md">
               Framework <Code>{observed.frameworkId}</Code> · commit{' '}
               <Code>{observed.frameworkCommit}</Code> · source <Code>{observed.sourceVersion}</Code>{' '}
-              · observed {new Date(observed.observedAt).toLocaleString()}
+              · observed {formatUserDate(observed.observedAt)}
             </Text>
           ) : null}
         </Card>

@@ -1,3 +1,4 @@
+import { formatUserDate } from './userTime';
 import {
   Alert,
   Badge,
@@ -26,7 +27,13 @@ import { IconCalendar, IconClipboardList, IconPlus, IconRefresh } from '@tabler/
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ApiError, api, gateway } from './api';
 import { useFrameworkContext } from './FrameworkContext';
-import { InventoryControls, ProjectSelectionFields, TaskAgentSelect, useWorkInventory, validSelections } from './WorkSelections';
+import {
+  InventoryControls,
+  ProjectSelectionFields,
+  TaskAgentSelect,
+  useWorkInventory,
+  validSelections,
+} from './WorkSelections';
 import type { Collection, FederationLease, MutationRequest, UnifiedResource } from './types';
 
 type WorkPage =
@@ -155,7 +162,8 @@ export function WorkView({ canManage }: { canManage: boolean }) {
     setData({ items: [] });
     setNotice(undefined);
     const url = new URL(window.location.href);
-    const switching = previousWorkFramework.current && previousWorkFramework.current !== frameworkId;
+    const switching =
+      previousWorkFramework.current && previousWorkFramework.current !== frameworkId;
     if (frameworkId) previousWorkFramework.current = frameworkId;
     if (switching) url.searchParams.delete('project');
     setSelectedProject(url.searchParams.get('project') ?? '');
@@ -212,7 +220,8 @@ export function WorkView({ canManage }: { canManage: boolean }) {
     return () => window.clearInterval(timer);
   }, [frameworkId, loading, busy, page, load]);
 
-  const canExecuteWork = canManage && workCapability?.status === 'supported' && !failure && !loading;
+  const canExecuteWork =
+    canManage && workCapability?.status === 'supported' && !failure && !loading;
 
   async function mutate(request: MutationRequest, success: string) {
     if (request.confirmed && !window.confirm('Confirm this destructive Hermes work operation.'))
@@ -309,7 +318,12 @@ export function WorkView({ canManage }: { canManage: boolean }) {
       {data.meta?.freshness && (
         <Group gap="xs">
           <Badge color={data.meta.freshness === 'current' ? 'teal' : 'orange'} variant="light">
-            Hermes · {failure ? 'last observation — refresh failed' : loading ? 'refreshing' : data.meta.freshness}
+            Hermes ·{' '}
+            {failure
+              ? 'last observation — refresh failed'
+              : loading
+                ? 'refreshing'
+                : data.meta.freshness}
           </Badge>
           {data.meta.observedAt && (
             <Text size="xs" c="dimmed">
@@ -328,7 +342,11 @@ export function WorkView({ canManage }: { canManage: boolean }) {
           {notice}
         </Alert>
       )}
-      {loading && data.items.length > 0 && <Text size="sm" c="dimmed">Refreshing native state; mutation controls are temporarily locked.</Text>}
+      {loading && data.items.length > 0 && (
+        <Text size="sm" c="dimmed">
+          Refreshing native state; mutation controls are temporarily locked.
+        </Text>
+      )}
       {loading && data.items.length === 0 ? (
         <Paper withBorder p="xl">
           <Group justify="center">
@@ -677,15 +695,23 @@ function TaskCard({
 }) {
   const lane = taskLane(task);
   const id = text(task.data.nativeId) || task.resource.nativeId;
-  const latestRun = Array.isArray(task.data.runs) ? task.data.runs.at(-1) as Record<string, unknown> | undefined : undefined;
+  const latestRun = Array.isArray(task.data.runs)
+    ? (task.data.runs.at(-1) as Record<string, unknown> | undefined)
+    : undefined;
   const action = async (name: 'start' | 'block' | 'unblock' | 'complete' | 'cancel') => {
     await onMutate(
-      mutation(`work.task.${name}`, 'task', id, {
-        boardId: text(task.data.boardId) || text(task.data.projectSlug),
-        expectedSourceVersion: task.resource.sourceVersion,
-        ...(name === 'block' ? { reason: 'Blocked from UNIFY Work & Kanban' } : {}),
-        ...(name === 'cancel' ? { runId: latestRun?.id } : {}),
-      }, name === 'cancel'),
+      mutation(
+        `work.task.${name}`,
+        'task',
+        id,
+        {
+          boardId: text(task.data.boardId) || text(task.data.projectSlug),
+          expectedSourceVersion: task.resource.sourceVersion,
+          ...(name === 'block' ? { reason: 'Blocked from UNIFY Work & Kanban' } : {}),
+          ...(name === 'cancel' ? { runId: latestRun?.id } : {}),
+        },
+        name === 'cancel',
+      ),
       `${name} succeeded for ${id}.`,
     );
   };
@@ -700,20 +726,46 @@ function TaskCard({
           {text(task.data.description)}
         </Text>
       )}
-      {text(task.data.workspacePath) && <Text size="xs">Workspace: <Code>{text(task.data.workspacePath)}</Code></Text>}
-      {task.data.executionUnavailable === true && <Text size="sm" c="orange">Native execution details unavailable. Refresh to retry; no result is inferred.</Text>}
+      {text(task.data.workspacePath) && (
+        <Text size="xs">
+          Workspace: <Code>{text(task.data.workspacePath)}</Code>
+        </Text>
+      )}
+      {task.data.executionUnavailable === true && (
+        <Text size="sm" c="orange">
+          Native execution details unavailable. Refresh to retry; no result is inferred.
+        </Text>
+      )}
       {Array.isArray(task.data.runs) && task.data.runs.length > 0 && (
         <details>
           <summary>Native execution history ({task.data.runs.length} attempts)</summary>
           {task.data.runs.map((value: unknown) => {
             const run = value as Record<string, unknown>;
-            return <Paper withBorder p="xs" mt="xs" key={String(run.id)}>
-              <Text size="sm" fw={700}>Run {String(run.id)} · {text(run.outcome) || text(run.status)} · {text(run.profile)}</Text>
-              {text(run.sessionId) && <Text size="xs">Session: <Code>{text(run.sessionId)}</Code></Text>}
-              {text(run.summary) && <Text size="sm">{text(run.summary)}</Text>}
-              {text(run.error) && <Text size="sm" c="red">{text(run.error)}</Text>}
-              {Array.isArray(run.artifacts) && run.artifacts.map((path: unknown) => <Text size="xs" key={String(path)}>Native artifact: <Code>{String(path)}</Code></Text>)}
-            </Paper>;
+            return (
+              <Paper withBorder p="xs" mt="xs" key={String(run.id)}>
+                <Text size="sm" fw={700}>
+                  Run {String(run.id)} · {text(run.outcome) || text(run.status)} ·{' '}
+                  {text(run.profile)}
+                </Text>
+                {text(run.sessionId) && (
+                  <Text size="xs">
+                    Session: <Code>{text(run.sessionId)}</Code>
+                  </Text>
+                )}
+                {text(run.summary) && <Text size="sm">{text(run.summary)}</Text>}
+                {text(run.error) && (
+                  <Text size="sm" c="red">
+                    {text(run.error)}
+                  </Text>
+                )}
+                {Array.isArray(run.artifacts) &&
+                  run.artifacts.map((path: unknown) => (
+                    <Text size="xs" key={String(path)}>
+                      Native artifact: <Code>{String(path)}</Code>
+                    </Text>
+                  ))}
+              </Paper>
+            );
           })}
         </details>
       )}
@@ -729,9 +781,19 @@ function TaskCard({
               Promote to ready
             </Button>
           )}
-          {lane === 'running' && latestRun && latestRun.status === 'running' && task.data.executionUnavailable !== true && (
-            <Button size="compact-xs" color="red" loading={busy} onClick={() => void action('cancel')}>Cancel run</Button>
-          )}
+          {lane === 'running' &&
+            latestRun &&
+            latestRun.status === 'running' &&
+            task.data.executionUnavailable !== true && (
+              <Button
+                size="compact-xs"
+                color="red"
+                loading={busy}
+                onClick={() => void action('cancel')}
+              >
+                Cancel run
+              </Button>
+            )}
           {!['running', 'blocked', 'done', 'archived'].includes(lane) && (
             <Button
               size="compact-xs"
@@ -828,7 +890,12 @@ function ProjectDetails({
             minRows={4}
             className="work-form-wide"
           />
-          <ProjectSelectionFields inventory={inventory} value={form} onChange={update} disabled={!canManage || busy || project.status === 'archived'} />
+          <ProjectSelectionFields
+            inventory={inventory}
+            value={form}
+            onChange={update}
+            disabled={!canManage || busy || project.status === 'archived'}
+          />
         </SimpleGrid>
         <InventoryControls inventory={inventory} />
         <Divider my="lg" />
@@ -852,7 +919,15 @@ function ProjectDetails({
         </SimpleGrid>
         {canManage && (
           <Group mt="lg">
-            <Button loading={busy} disabled={!form.name.trim() || !validSelections(inventory, form) || project.status === 'archived'} onClick={() => void save()}>
+            <Button
+              loading={busy}
+              disabled={
+                !form.name.trim() ||
+                !validSelections(inventory, form) ||
+                project.status === 'archived'
+              }
+              onClick={() => void save()}
+            >
               Save project setup
             </Button>
             <Button
@@ -938,7 +1013,13 @@ function AddNew({
     if (result) onCreated(slug);
   };
   const saveTask = async (start: boolean) => {
-    if (!task.title.trim() || !task.project || !inventory.ready || (task.agent && !inventory.agents.some(a => a.value === task.agent))) return;
+    if (
+      !task.title.trim() ||
+      !task.project ||
+      !inventory.ready ||
+      (task.agent && !inventory.agents.some((a) => a.value === task.agent))
+    )
+      return;
     const result = await onMutate(
       mutation('work.task.create', 'task', slugify(task.title), {
         title: task.title,
@@ -1007,8 +1088,12 @@ function AddNew({
                 setProject((current) => ({ ...current, goal: value }));
               }}
             />
-            <ProjectSelectionFields inventory={inventory} value={project} disabled={busy}
-              onChange={(key, value) => setProject(current => ({ ...current, [key]: value }))} />
+            <ProjectSelectionFields
+              inventory={inventory}
+              value={project}
+              disabled={busy}
+              onChange={(key, value) => setProject((current) => ({ ...current, [key]: value }))}
+            />
           </SimpleGrid>
           <Group>
             <Button
@@ -1066,7 +1151,11 @@ function AddNew({
                 setTask((current) => ({ ...current, prompt: value }));
               }}
             />
-            <TaskAgentSelect inventory={inventory} value={task.agent} onChange={value => setTask(current => ({ ...current, agent: value }))} />
+            <TaskAgentSelect
+              inventory={inventory}
+              value={task.agent}
+              onChange={(value) => setTask((current) => ({ ...current, agent: value }))}
+            />
             <Select
               label="Priority"
               value={task.priority}
@@ -1278,18 +1367,18 @@ function Cronjobs({
             required
             value={form.name}
             onChange={(event) => {
-                const value = event.currentTarget.value;
-                setForm((current) => ({ ...current, name: value }));
-              }}
+              const value = event.currentTarget.value;
+              setForm((current) => ({ ...current, name: value }));
+            }}
           />
           <TextInput
             label="Title"
             required
             value={form.title}
             onChange={(event) => {
-                const value = event.currentTarget.value;
-                setForm((current) => ({ ...current, title: value }));
-              }}
+              const value = event.currentTarget.value;
+              setForm((current) => ({ ...current, title: value }));
+            }}
           />
           <Textarea
             label="Prompt"
@@ -1297,9 +1386,9 @@ function Cronjobs({
             minRows={4}
             value={form.prompt}
             onChange={(event) => {
-                const value = event.currentTarget.value;
-                setForm((current) => ({ ...current, prompt: value }));
-              }}
+              const value = event.currentTarget.value;
+              setForm((current) => ({ ...current, prompt: value }));
+            }}
           />
           <Select
             label="Schedule mode"
@@ -1328,9 +1417,9 @@ function Cronjobs({
             type={form.mode === 'at' ? 'datetime-local' : 'text'}
             value={form.schedule}
             onChange={(event) => {
-                const value = event.currentTarget.value;
-                setForm((current) => ({ ...current, schedule: value }));
-              }}
+              const value = event.currentTarget.value;
+              setForm((current) => ({ ...current, schedule: value }));
+            }}
           />
           <TextInput
             label="Timezone"
@@ -1773,8 +1862,8 @@ function projectForm(project?: ProjectView): ProjectForm {
   const agents = Array.isArray(project?.data.agents)
     ? project!.data.agents.map(text).filter(Boolean)
     : Array.isArray(project?.data.agentTeam)
-    ? project!.data.agentTeam.map((item) => text(record(item).name)).filter(Boolean)
-    : [];
+      ? project!.data.agentTeam.map((item) => text(record(item).name)).filter(Boolean)
+      : [];
   const defaults = record(project?.data.defaultAgents);
   return {
     slug: project?.slug ?? '',
@@ -1862,7 +1951,7 @@ function slugify(value: string): string {
 function formatDate(value?: string): string {
   if (!value) return '—';
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+  return Number.isNaN(date.getTime()) ? value : formatUserDate(date);
 }
 function errorMessage(error: unknown): string {
   return error instanceof ApiError
