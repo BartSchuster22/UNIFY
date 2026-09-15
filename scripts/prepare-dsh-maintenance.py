@@ -46,13 +46,21 @@ def state():
  return {{r['Id']:{{'name':r['Name'],'image':r['Image'],'running':r['State']['Running'],'started':r['State']['StartedAt'],'restartCount':r['RestartCount']}} for r in rows}}
 before=state();(p/'protection-before.json').write_text(json.dumps(before))
 ids={{s:r['id'] for s,r in old['images'].items()}}
+base_refs={{}}
+for role in ['unify-core','hermes','uniui']:
+ record=json.loads(subprocess.check_output(['docker','image','inspect',ids[role]]))[0]
+ assert record['Id']==ids[role] and record['RepoTags'],'Named local immutable base required'
+ base_refs[role]=record['RepoTags'][0]
 for role,target in [('unify-core','core'),('hermes','hermes'),('uniui','ui')]:
  tag='alica-internal-maintenance1:'+target
  assert subprocess.run(['docker','image','inspect',tag],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode!=0,'Tag already exists'
  cmd=['docker','build','--network=none','--target',target,'-t',tag]
- for arg,key in [('BASE_CORE','unify-core'),('BASE_HERMES','hermes'),('BASE_UI','uniui')]:cmd+=['--build-arg',arg+'='+old['images'][key]['id']]
+ for arg,key in [('BASE_CORE','unify-core'),('BASE_HERMES','hermes'),('BASE_UI','uniui')]:cmd+=['--build-arg',arg+'='+base_refs[key]]
  subprocess.run(cmd+[str(p)],check=True,stdout=subprocess.DEVNULL)
- ids[role]=json.loads(subprocess.check_output(['docker','image','inspect',tag]))[0]['Id']
+ built=json.loads(subprocess.check_output(['docker','image','inspect',tag]))[0]
+ base=json.loads(subprocess.check_output(['docker','image','inspect',base_refs[role]]))[0]
+ assert base['Id']==old['images'][role]['id'] and built['RootFS']['Layers'][:len(base['RootFS']['Layers'])]==base['RootFS']['Layers'],'Base image changed'
+ ids[role]=built['Id']
 assert before==state(),'Existing container state changed'
 (p/'images.json').write_text(json.dumps(ids));print(json.dumps(ids))
 '''
