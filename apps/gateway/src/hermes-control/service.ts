@@ -63,7 +63,9 @@ export class HermesGatewayService {
   }
 
   async agentConfiguration(frameworkId: string, id: string) {
-    return projectCollection(await this.read(frameworkId, client => client.agentConfiguration(id)));
+    return projectCollection(
+      await this.read(frameworkId, (client) => client.agentConfiguration(id)),
+    );
   }
 
   async profiles(frameworkId: string, query: PageQuery) {
@@ -76,6 +78,18 @@ export class HermesGatewayService {
 
   async models(frameworkId: string, query: PageQuery) {
     return projectCollection(await this.read(frameworkId, (client) => client.models(query)));
+  }
+
+  async workspaceFiles(frameworkId: string, input: Record<string, unknown>) {
+    return this.call(
+      frameworkId,
+      ['list', 'read'].includes(String(input.action)) ? 'control:read' : 'control:execute',
+      async (client) => {
+        const result = await client.workspaceFiles(input);
+        assertProvenance(frameworkId, result);
+        return result.data;
+      },
+    );
   }
 
   async workspaces(frameworkId: string, query: PageQuery) {

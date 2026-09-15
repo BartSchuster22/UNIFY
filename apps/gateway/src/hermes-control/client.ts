@@ -16,6 +16,7 @@ import {
   HermesProfilesResponseSchema,
   HermesProjectsResponseSchema,
   HermesWorkspacesResponseSchema,
+  HermesWorkspaceFilesResponseSchema,
   HermesAgentConfigurationResponseSchema,
   type HermesWorkspacesResponse,
   HermesProvidersResponseSchema,
@@ -116,7 +117,11 @@ export class HermesControlClient {
   }
 
   agentConfiguration(id: string) {
-    return this.request('GET', '/control/v1/profiles/'+encodeURIComponent(id)+'/configuration', HermesAgentConfigurationResponseSchema);
+    return this.request(
+      'GET',
+      '/control/v1/profiles/' + encodeURIComponent(id) + '/configuration',
+      HermesAgentConfigurationResponseSchema,
+    );
   }
 
   profiles(query: PageQuery = {}): Promise<HermesProfilesResponse> {
@@ -139,8 +144,21 @@ export class HermesControlClient {
     return this.request('GET', pagePath('/control/v1/models', query), HermesModelsResponseSchema);
   }
 
+  workspaceFiles(input: Record<string, unknown>) {
+    return this.request(
+      'POST',
+      '/control/v1/work/files',
+      HermesWorkspaceFilesResponseSchema,
+      input,
+    );
+  }
+
   workspaces(query: PageQuery = {}): Promise<HermesWorkspacesResponse> {
-    return this.request('GET', pagePath('/control/v1/work/workspaces', query), HermesWorkspacesResponseSchema);
+    return this.request(
+      'GET',
+      pagePath('/control/v1/work/workspaces', query),
+      HermesWorkspacesResponseSchema,
+    );
   }
 
   projects(query: PageQuery = {}): Promise<HermesProjectsResponse> {
@@ -196,9 +214,12 @@ export class HermesControlClient {
   }
 
   work(command: HermesWorkCommand): Promise<Static<typeof HermesWorkResultSchema>> {
-    const timeoutMs = command.operation === 'task.run' ? 3_700_000
-      : ['project.create', 'project.configure'].includes(command.operation) ? Math.max(this.timeoutMs, 120_000)
-      : this.timeoutMs;
+    const timeoutMs =
+      command.operation === 'task.run'
+        ? 3_700_000
+        : ['project.create', 'project.configure'].includes(command.operation)
+          ? Math.max(this.timeoutMs, 120_000)
+          : this.timeoutMs;
     return this.request(
       'POST',
       '/control/v1/commands/work',

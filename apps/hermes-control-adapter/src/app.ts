@@ -1,3 +1,4 @@
+import { WorkspaceFileError } from './workspace-files.js';
 import { AgentConfigurationError } from './agent-configuration.js';
 import { randomUUID, timingSafeEqual } from 'node:crypto';
 import Fastify, { type FastifyRequest } from 'fastify';
@@ -27,7 +28,11 @@ import {
 import { IdempotencyBusyError, IdempotencyConflictError } from './event-store.js';
 import type { AdapterEventStore, AdapterSource, CapabilityFamily } from './types.js';
 
-import {ApplicationRuntime,validateApplicationRequest,type ApplicationAction} from './application-runtime.js';
+import {
+  ApplicationRuntime,
+  validateApplicationRequest,
+  type ApplicationAction,
+} from './application-runtime.js';
 
 export interface HermesControlAdapterOptions {
   applicationRuntime?: ApplicationRuntime;
@@ -65,7 +70,10 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
   const serializeWork = <T>(operation: string, action: () => Promise<T>): Promise<T> => {
     if (!operation.startsWith('project.') && !operation.startsWith('profile.')) return action();
     const next = workQueue.then(action);
-    workQueue = next.then(() => undefined, () => undefined);
+    workQueue = next.then(
+      () => undefined,
+      () => undefined,
+    );
     return next;
   };
   const app = Fastify({
@@ -142,7 +150,16 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
   });
 
   app.setErrorHandler(async (error, request, reply) => {
-    let mapped = error instanceof AgentConfigurationError ? new AdapterError(error.conflict ? 'source_version_mismatch' : 'invalid_request', error.conflict ? 409 : 400, error.message) : mapError(error);
+    let mapped =
+      error instanceof WorkspaceFileError
+        ? new AdapterError('invalid_request', error.statusCode, error.message)
+        : error instanceof AgentConfigurationError
+          ? new AdapterError(
+              error.conflict ? 'source_version_mismatch' : 'invalid_request',
+              error.conflict ? 409 : 400,
+              error.message,
+            )
+          : mapError(error);
     if (request.url.startsWith('/control/v1/commands/')) {
       try {
         await auditCommand(
@@ -178,15 +195,43 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
       .send({ status, checks: { ...checks, eventStore } });
   });
 
-  if(options.applicationRuntime){
-    const applicationEnvelope=(data:unknown)=>({contractVersion:'alica-native-application/v1',frameworkId:options.frameworkId,frameworkCommit:options.frameworkCommit??PINNED_HERMES_COMMIT,frameworkVersion:options.frameworkRelease??PINNED_HERMES_RELEASE,instanceId:options.instanceId,data});
-    app.get('/control/v1/applications/capabilities',async()=>{if(!scopes.has('control:execute'))throw new AdapterError('forbidden',403,'Execution scope required');return applicationEnvelope({supported:true});});
-    for(const action of ['execute','lookup','cancel','erase'] as ApplicationAction[]){
-      app.post('/control/v1/applications/'+action,{bodyLimit:98304},async(request)=>{
-        if(!scopes.has('control:execute'))throw new AdapterError('forbidden',403,'Execution scope required');
-        try{validateApplicationRequest(action,request.body);}catch{throw new AdapterError('invalid_request',422,'Restricted application contract rejected');}
-        const result=await options.applicationRuntime!.run(action,request.body);
-        await options.events.audit({frameworkId:options.frameworkId,eventType:'hermes.adapter.application.'+action,outcome:'success',operationId:request.body.receiptId,requestId:request.id,correlationId:request.body.receiptId,safeMetadata:{state:result.state,applicationId:request.body.applicationId}});
+  if (options.applicationRuntime) {
+    const applicationEnvelope = (data: unknown) => ({
+      contractVersion: 'alica-native-application/v1',
+      frameworkId: options.frameworkId,
+      frameworkCommit: options.frameworkCommit ?? PINNED_HERMES_COMMIT,
+      frameworkVersion: options.frameworkRelease ?? PINNED_HERMES_RELEASE,
+      instanceId: options.instanceId,
+      data,
+    });
+    app.get('/control/v1/applications/capabilities', async () => {
+      if (!scopes.has('control:execute'))
+        throw new AdapterError('forbidden', 403, 'Execution scope required');
+      return applicationEnvelope({ supported: true });
+    });
+    for (const action of ['execute', 'lookup', 'cancel', 'erase'] as ApplicationAction[]) {
+      app.post('/control/v1/applications/' + action, { bodyLimit: 98304 }, async (request) => {
+        if (!scopes.has('control:execute'))
+          throw new AdapterError('forbidden', 403, 'Execution scope required');
+        try {
+          validateApplicationRequest(action, request.body);
+        } catch {
+          throw new AdapterError(
+            'invalid_request',
+            422,
+            'Restricted application contract rejected',
+          );
+        }
+        const result = await options.applicationRuntime!.run(action, request.body);
+        await options.events.audit({
+          frameworkId: options.frameworkId,
+          eventType: 'hermes.adapter.application.' + action,
+          outcome: 'success',
+          operationId: request.body.receiptId,
+          requestId: request.id,
+          correlationId: request.body.receiptId,
+          safeMetadata: { state: result.state, applicationId: request.body.applicationId },
+        });
         return applicationEnvelope(result);
       });
     }
@@ -256,7 +301,14 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
           requiredScopes: ['control:execute'],
           ...(!scopes.has('control:execute') ? { reasonCode: 'SCOPE_NOT_CONFIGURED' } : {}),
         },
-        'profiles.configuration': options.source.agentConfiguration && options.source.validateAgentConfiguration ? { status: 'supported', modes: ['read','validate','dry-run','execute','verify'], requiredScopes: ['control:read','control:execute'] } : unsupported('AGENT_CONFIGURATION_UNAVAILABLE'),
+        'profiles.configuration':
+          options.source.agentConfiguration && options.source.validateAgentConfiguration
+            ? {
+                status: 'supported',
+                modes: ['read', 'validate', 'dry-run', 'execute', 'verify'],
+                requiredScopes: ['control:read', 'control:execute'],
+              }
+            : unsupported('AGENT_CONFIGURATION_UNAVAILABLE'),
         'profiles.execute': {
           status: scopes.has('control:execute') ? 'supported' : 'forbidden',
           modes: scopes.has('control:execute') ? ['validate', 'dry-run', 'execute', 'verify'] : [],
@@ -308,11 +360,19 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
     return collection(options, await options.source.profiles(), pageQuery(request.query));
   });
 
-  app.get<{ Params: { profileId: string } }>('/control/v1/profiles/:profileId/configuration', async (request) => {
-    requireScope(scopes, 'control:read');
-    if (!options.source.agentConfiguration) throw new AdapterError('source_unavailable',503,'Agent configuration unavailable');
-    return collection(options, await options.source.agentConfiguration(request.params.profileId), { limit: 1 });
-  });
+  app.get<{ Params: { profileId: string } }>(
+    '/control/v1/profiles/:profileId/configuration',
+    async (request) => {
+      requireScope(scopes, 'control:read');
+      if (!options.source.agentConfiguration)
+        throw new AdapterError('source_unavailable', 503, 'Agent configuration unavailable');
+      return collection(
+        options,
+        await options.source.agentConfiguration(request.params.profileId),
+        { limit: 1 },
+      );
+    },
+  );
 
   app.get('/control/v1/providers', async (request) => {
     requireScope(scopes, 'control:read');
@@ -334,9 +394,55 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
     );
   });
 
+  app.post<{ Body: { action: string; directory: string; [key: string]: unknown } }>(
+    '/control/v1/work/files',
+    { bodyLimit: 12 * 1024 * 1024 },
+    async (request) => {
+      const body = request.body;
+      if (!body || !['list', 'read', 'mkdir', 'upload'].includes(body.action))
+        throw new AdapterError('invalid_request', 400, 'Invalid workspace action');
+      const mutation = ['mkdir', 'upload'].includes(body.action);
+      requireScope(scopes, mutation ? 'control:execute' : 'control:read');
+      if (!options.source.workspaceFiles)
+        throw new AdapterError('source_unavailable', 503, 'Workspace file operations unavailable');
+      if (mutation && body.confirmed !== true)
+        throw new AdapterError('invalid_request', 428, 'Explicit confirmation required');
+      // Metadata-only audit; never retain file contents in command journals.
+      if (mutation)
+        await options.events.audit({
+          frameworkId: options.frameworkId,
+          eventType: 'hermes.workspace.' + body.action,
+          outcome: 'inconclusive',
+          requestId: request.id,
+          correlationId:
+            typeof body.correlationId === 'string' ? body.correlationId.slice(0, 200) : request.id,
+          ...(typeof body.actorUserId === 'string'
+            ? { actorType: 'user', actorId: body.actorUserId.slice(0, 200) }
+            : {}),
+          safeMetadata: { phase: 'admitted' },
+        });
+      const result = await options.source.workspaceFiles(body.action, body);
+      if (mutation)
+        await options.events.audit({
+          frameworkId: options.frameworkId,
+          eventType: 'hermes.workspace.' + body.action,
+          outcome: 'success',
+          requestId: request.id,
+          correlationId:
+            typeof body.correlationId === 'string' ? body.correlationId.slice(0, 200) : request.id,
+          ...(typeof body.actorUserId === 'string'
+            ? { actorType: 'user', actorId: body.actorUserId.slice(0, 200) }
+            : {}),
+          safeMetadata: { phase: 'completed' },
+        });
+      return response(options, sourceVersion(result), result);
+    },
+  );
+
   app.get('/control/v1/work/workspaces', async (request) => {
     requireScope(scopes, 'control:read');
-    if (!options.source.workspaces) throw new AdapterError('source_unavailable', 503, 'Workspace inventory is unavailable');
+    if (!options.source.workspaces)
+      throw new AdapterError('source_unavailable', 503, 'Workspace inventory is unavailable');
     return collection(options, await options.source.workspaces(), pageQuery(request.query));
   });
 
@@ -488,89 +594,102 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
       requireScope(scopes, 'control:execute');
       const command = request.body;
       return serializeWork(command.operation, async () => {
-      const renameTargetId = validateProfilePayload(command);
-      const replay = await replayCommand(
-        request,
-        'profiles.execute',
-        command,
-        sourceVersion(command),
-      );
-      if (replay) return replay;
-      const before = await options.source.profiles();
-      if (command.expectedSourceVersion && command.expectedSourceVersion !== before.sourceVersion)
-        throw new AdapterError(
-          'source_version_mismatch',
-          409,
-          'Expected source version does not match current Hermes profiles',
+        const renameTargetId = validateProfilePayload(command);
+        const replay = await replayCommand(
+          request,
+          'profiles.execute',
+          command,
+          sourceVersion(command),
         );
-      if (command.payload.configuration !== undefined && !options.source.validateAgentConfiguration) throw new AdapterError('source_unavailable',503,'Agent configuration edits are unavailable');
-      await options.source.validateAgentConfiguration?.(command);
-      if (command.payload.configuration && command.operation === 'profile.create' && before.items.some(item => item.id === command.targetId)) throw new AdapterError('source_version_mismatch',409,'Agent ID already exists');
-      const operationId = randomUUID();
-      if (command.mode !== 'execute') {
-        const status = command.mode === 'validate' ? 'validated' : 'dry-run';
-        const result = response(options, before.sourceVersion, {
+        if (replay) return replay;
+        const before = await options.source.profiles();
+        if (command.expectedSourceVersion && command.expectedSourceVersion !== before.sourceVersion)
+          throw new AdapterError(
+            'source_version_mismatch',
+            409,
+            'Expected source version does not match current Hermes profiles',
+          );
+        if (
+          command.payload.configuration !== undefined &&
+          !options.source.validateAgentConfiguration
+        )
+          throw new AdapterError(
+            'source_unavailable',
+            503,
+            'Agent configuration edits are unavailable',
+          );
+        await options.source.validateAgentConfiguration?.(command);
+        if (
+          command.payload.configuration &&
+          command.operation === 'profile.create' &&
+          before.items.some((item) => item.id === command.targetId)
+        )
+          throw new AdapterError('source_version_mismatch', 409, 'Agent ID already exists');
+        const operationId = randomUUID();
+        if (command.mode !== 'execute') {
+          const status = command.mode === 'validate' ? 'validated' : 'dry-run';
+          const result = response(options, before.sourceVersion, {
+            operationId,
+            status,
+            replayed: false,
+            operation: command.operation,
+            targetId: command.targetId,
+            result: {
+              exists: before.items.some((item) => item.id === command.targetId),
+              ...(renameTargetId
+                ? { destinationExists: before.items.some((item) => item.id === renameTargetId) }
+                : {}),
+            },
+            emittedEvents: 0,
+          });
+          await auditCommand(request, 'success', operationId, status);
+          return result;
+        }
+        const ownerResult = await options.source.executeProfile(command);
+        const after = await options.source.profiles();
+        verifyProfileResult(command, after.items, renameTargetId);
+        const result = response(options, after.sourceVersion, {
           operationId,
-          status,
+          status: 'completed',
           replayed: false,
           operation: command.operation,
           targetId: command.targetId,
-          result: {
-            exists: before.items.some((item) => item.id === command.targetId),
-            ...(renameTargetId
-              ? { destinationExists: before.items.some((item) => item.id === renameTargetId) }
-              : {}),
-          },
+          result: ownerResult,
           emittedEvents: 0,
         });
-        await auditCommand(request, 'success', operationId, status);
-        return result;
-      }
-      const ownerResult = await options.source.executeProfile(command);
-      const after = await options.source.profiles();
-      verifyProfileResult(command, after.items, renameTargetId);
-      const result = response(options, after.sourceVersion, {
-        operationId,
-        status: 'completed',
-        replayed: false,
-        operation: command.operation,
-        targetId: command.targetId,
-        result: ownerResult,
-        emittedEvents: 0,
-      });
-      const committed = await options.events.commit({
-        frameworkId: options.frameworkId,
-        capability: 'profiles.execute',
-        idempotencyKey: command.idempotencyKey,
-        requestHash: sourceVersion(command),
-        command,
-        response: result,
-        events: [
-          {
-            family: 'profiles',
-            type: command.operation,
-            sourceVersion: after.sourceVersion,
-            correlationId: command.correlationId,
-            operationId,
-            payload: {
-              targetId: command.targetId,
-              ...(renameTargetId ? { newId: renameTargetId } : {}),
+        const committed = await options.events.commit({
+          frameworkId: options.frameworkId,
+          capability: 'profiles.execute',
+          idempotencyKey: command.idempotencyKey,
+          requestHash: sourceVersion(command),
+          command,
+          response: result,
+          events: [
+            {
+              family: 'profiles',
+              type: command.operation,
+              sourceVersion: after.sourceVersion,
+              correlationId: command.correlationId,
+              operationId,
+              payload: {
+                targetId: command.targetId,
+                ...(renameTargetId ? { newId: renameTargetId } : {}),
+              },
             },
-          },
-        ],
-      });
-      if (committed.replayed) {
-        const data = committed.response.data;
-        if (data && typeof data === 'object' && !Array.isArray(data))
-          (data as Record<string, unknown>).replayed = true;
-      }
-      await auditCommand(
-        request,
-        'success',
-        operationId,
-        committed.replayed ? 'replayed' : 'completed',
-      );
-      return committed.response;
+          ],
+        });
+        if (committed.replayed) {
+          const data = committed.response.data;
+          if (data && typeof data === 'object' && !Array.isArray(data))
+            (data as Record<string, unknown>).replayed = true;
+        }
+        await auditCommand(
+          request,
+          'success',
+          operationId,
+          committed.replayed ? 'replayed' : 'completed',
+        );
+        return committed.response;
       });
     },
   );
@@ -679,79 +798,91 @@ export function buildHermesControlAdapter(options: HermesControlAdapterOptions) 
   app.post<{ Body: HermesWorkCommand }>(
     '/control/v1/commands/work',
     { schema: { body: HermesWorkCommandSchema } },
-    async (request) => serializeWork(request.body.operation, async () => {
-      requireScope(scopes, 'control:execute');
-      const command = request.body;
-      validateWorkPayload(command);
-      const replay = await replayCommand(request, 'work.execute', command, sourceVersion(command));
-      if (replay) return replay;
-      try { await options.source.validateWorkSelections?.(command); } catch {
-        throw new AdapterError('invalid_request', 400, 'Workspace or agent selection is invalid or unavailable in this framework');
-      }
-      const beforeVersion = await workSourceVersion(options.source, command);
-      if (command.expectedSourceVersion && command.expectedSourceVersion !== beforeVersion)
-        throw new AdapterError(
-          'source_version_mismatch',
-          409,
-          'Expected source version does not match current Hermes work state',
+    async (request) =>
+      serializeWork(request.body.operation, async () => {
+        requireScope(scopes, 'control:execute');
+        const command = request.body;
+        validateWorkPayload(command);
+        const replay = await replayCommand(
+          request,
+          'work.execute',
+          command,
+          sourceVersion(command),
         );
-      const operationId = randomUUID();
-      if (command.mode !== 'execute') {
-        const status = command.mode === 'validate' ? 'validated' : 'dry-run';
-        const result = response(options, sourceVersion(command), {
+        if (replay) return replay;
+        try {
+          await options.source.validateWorkSelections?.(command);
+        } catch {
+          throw new AdapterError(
+            'invalid_request',
+            400,
+            'Workspace or agent selection is invalid or unavailable in this framework',
+          );
+        }
+        const beforeVersion = await workSourceVersion(options.source, command);
+        if (command.expectedSourceVersion && command.expectedSourceVersion !== beforeVersion)
+          throw new AdapterError(
+            'source_version_mismatch',
+            409,
+            'Expected source version does not match current Hermes work state',
+          );
+        const operationId = randomUUID();
+        if (command.mode !== 'execute') {
+          const status = command.mode === 'validate' ? 'validated' : 'dry-run';
+          const result = response(options, sourceVersion(command), {
+            operationId,
+            status,
+            replayed: false,
+            operation: command.operation,
+            targetId: command.targetId,
+            result: {},
+            emittedEvents: 0,
+          });
+          await auditCommand(request, 'success', operationId, status);
+          return result;
+        }
+        const ownerResult = await options.source.executeWork(command);
+        const version = sourceVersion(ownerResult);
+        const result = response(options, version, {
           operationId,
-          status,
+          status: 'completed',
           replayed: false,
           operation: command.operation,
           targetId: command.targetId,
-          result: {},
+          result: ownerResult,
           emittedEvents: 0,
         });
-        await auditCommand(request, 'success', operationId, status);
-        return result;
-      }
-      const ownerResult = await options.source.executeWork(command);
-      const version = sourceVersion(ownerResult);
-      const result = response(options, version, {
-        operationId,
-        status: 'completed',
-        replayed: false,
-        operation: command.operation,
-        targetId: command.targetId,
-        result: ownerResult,
-        emittedEvents: 0,
-      });
-      const committed = await options.events.commit({
-        frameworkId: options.frameworkId,
-        capability: 'work.execute',
-        idempotencyKey: command.idempotencyKey,
-        requestHash: sourceVersion(command),
-        command,
-        response: result,
-        events: [
-          {
-            family: 'work',
-            type: `work.${command.operation}`,
-            sourceVersion: version,
-            correlationId: command.correlationId,
-            operationId,
-            payload: { targetId: command.targetId },
-          },
-        ],
-      });
-      if (committed.replayed) {
-        const data = committed.response.data;
-        if (data && typeof data === 'object' && !Array.isArray(data))
-          (data as Record<string, unknown>).replayed = true;
-      }
-      await auditCommand(
-        request,
-        'success',
-        operationId,
-        committed.replayed ? 'replayed' : 'completed',
-      );
-      return committed.response;
-    }),
+        const committed = await options.events.commit({
+          frameworkId: options.frameworkId,
+          capability: 'work.execute',
+          idempotencyKey: command.idempotencyKey,
+          requestHash: sourceVersion(command),
+          command,
+          response: result,
+          events: [
+            {
+              family: 'work',
+              type: `work.${command.operation}`,
+              sourceVersion: version,
+              correlationId: command.correlationId,
+              operationId,
+              payload: { targetId: command.targetId },
+            },
+          ],
+        });
+        if (committed.replayed) {
+          const data = committed.response.data;
+          if (data && typeof data === 'object' && !Array.isArray(data))
+            (data as Record<string, unknown>).replayed = true;
+        }
+        await auditCommand(
+          request,
+          'success',
+          operationId,
+          committed.replayed ? 'replayed' : 'completed',
+        );
+        return committed.response;
+      }),
   );
 
   app.post<{ Body: HermesConversationCommand }>(
@@ -1000,7 +1131,10 @@ function validateConversationPayload(command: HermesConversationCommand) {
 }
 
 function validateWorkPayload(command: HermesWorkCommand) {
-  if (command.operation === 'task.cancel' && (!Number.isSafeInteger(command.payload.runId) || Number(command.payload.runId) < 1))
+  if (
+    command.operation === 'task.cancel' &&
+    (!Number.isSafeInteger(command.payload.runId) || Number(command.payload.runId) < 1)
+  )
     throw new AdapterError('invalid_request', 400, 'Exact native run ID is required');
   const required: Partial<Record<HermesWorkCommand['operation'], string[]>> = {
     'project.create': ['name'],

@@ -137,6 +137,61 @@ function command(overrides: Partial<HermesControlCommand> = {}): HermesControlCo
 }
 
 describe('Hermes control adapter', () => {
+  it('guards workspace reads and writes with adapter scopes and confirmation', async () => {
+    const workspaceFiles = vi.fn(async () => ({ directory: '/workspace', created: true }));
+    const readonly = create({ ...source, workspaceFiles }, ['control:read']);
+    expect(
+      (
+        await readonly.inject({
+          method: 'POST',
+          url: '/control/v1/work/files',
+          headers: auth,
+          payload: { action: 'mkdir', directory: '/workspace', name: 'qa', confirmed: true },
+        })
+      ).statusCode,
+    ).toBe(403);
+    expect(workspaceFiles).not.toHaveBeenCalled();
+    const writable = create({ ...source, workspaceFiles });
+    expect(
+      (
+        await writable.inject({
+          method: 'POST',
+          url: '/control/v1/work/files',
+          headers: auth,
+          payload: { action: 'mkdir', directory: '/workspace', name: 'qa' },
+        })
+      ).statusCode,
+    ).toBe(428);
+    expect(
+      (
+        await writable.inject({
+          method: 'POST',
+          url: '/control/v1/work/files',
+          headers: auth,
+          payload: { action: 'mkdir', directory: '/workspace', name: 'qa', confirmed: true },
+        })
+      ).statusCode,
+    ).toBe(200);
+    expect(workspaceFiles).toHaveBeenCalledTimes(1);
+  });
+  it('does not mutate workspace when admission audit fails', async () => {
+    const workspaceFiles = vi.fn(async () => ({ directory: '/workspace', saved: true }));
+    const events = new MemoryAdapterEventStore();
+    vi.spyOn(events, 'audit').mockRejectedValue(new Error('audit down'));
+    const app = create({ ...source, workspaceFiles }, ['control:read', 'control:execute'], events);
+    expect(
+      (
+        await app.inject({
+          method: 'POST',
+          url: '/control/v1/work/files',
+          headers: auth,
+          payload: { action: 'upload', directory: '/workspace', confirmed: true },
+        })
+      ).statusCode,
+    ).toBe(500);
+    expect(workspaceFiles).not.toHaveBeenCalled();
+  });
+
   it('authenticates every control route and emits frozen identity/version/capabilities', async () => {
     const app = create();
     const denied = await app.inject({ method: 'GET', url: '/control/v1/identity' });

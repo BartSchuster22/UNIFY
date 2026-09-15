@@ -1,6 +1,6 @@
 import cookie from '@fastify/cookie';
 import Fastify, { type FastifyReply, type FastifyRequest } from 'fastify';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, createHash } from 'node:crypto';
 import { AuthError, AuthService } from './auth/service.js';
 import type { AuthStore, SessionRecord } from './auth/types.js';
 import type { OidcService } from './auth/oidc.js';
@@ -582,6 +582,168 @@ export function buildApp(options: AppOptions) {
       return mutationReply(current, request, reply, input);
     },
   );
+  app.post<{ Params: { frameworkId: string }; Body: Record<string, unknown> }>(
+    '/api/v1/frameworks/:frameworkId/work/files',
+    { bodyLimit: 12 * 1024 * 1024 },
+    async (request) => {
+      const current = await mutationSession(request);
+      const input = request.body;
+      if (!input || !['list', 'mkdir', 'upload'].includes(String(input.action)))
+        throw new GovernanceError('INVALID_REQUEST', 400, 'Invalid workspace action');
+      const mutation = input.action !== 'list';
+      auth.requirePermission(current, mutation ? 'work.manage' : 'work.read');
+      if (mutation && input.confirmed !== true)
+        throw new GovernanceError('CONFIRMATION_REQUIRED', 428, 'Explicit confirmation required');
+      if (mutation && !governance)
+        throw new GovernanceError(
+          'AUDIT_UNAVAILABLE',
+          503,
+          'Audited workspace mutations unavailable',
+        );
+      const audit = async (outcome: 'success' | 'failure' | 'inconclusive') => {
+        if (mutation)
+          await governance!.audit({
+            actorUserId: current.userId,
+            sessionId: current.sessionId,
+            action: 'workspace.' + input.action,
+            outcome,
+            requestId: request.id,
+            target: { frameworkId: request.params.frameworkId },
+            details: {},
+          });
+      };
+      await audit('inconclusive');
+      try {
+        const result = await requireHermesGateway().workspaceFiles(request.params.frameworkId, {
+          ...input,
+          actorUserId: current.userId,
+          correlationId: request.id,
+        });
+        await audit('success');
+        return result;
+      } catch (error) {
+        await audit('failure');
+        throw error;
+      }
+    },
+  );
+
+  app.post<{ Params: { frameworkId: string }; Body: Record<string, unknown> }>(
+    '/api/v1/frameworks/:frameworkId/work/files/memory',
+    async (request, reply) => {
+      const current = await mutationSession(request);
+      auth.requirePermission(current, 'work.read');
+      auth.requirePermission(current, 'memory.write');
+      const b = request.body;
+      if (
+        !b ||
+        b.confirmed !== true ||
+        typeof b.projectId !== 'string' ||
+        typeof b.directory !== 'string' ||
+        typeof b.name !== 'string' ||
+        typeof b.expectedVersion !== 'string'
+      )
+        throw new GovernanceError(
+          'INVALID_REQUEST',
+          400,
+          'Confirm a saved project and exact source file',
+        );
+      const memory = options.memoryV4Adapter;
+      if (!memory || !governance)
+        throw new GovernanceError(
+          'MEMORY_UNAVAILABLE',
+          503,
+          'Audited project memory is unavailable',
+        );
+      const frameworkId = request.params.frameworkId;
+      const projects = await requireHermesGateway().projects(frameworkId, { limit: 500 });
+      const project = projects.items.find((p) => p.id === b.projectId);
+      const workspace = project?.defaultWorkspacePath;
+      if (!workspace || !(b.directory === workspace || b.directory.startsWith(workspace + '/')))
+        throw new GovernanceError(
+          'PROJECT_WORKSPACE_MISMATCH',
+          403,
+          'Save this workspace on the selected project before adding its files to memory',
+        );
+      const source = await requireHermesGateway().workspaceFiles(frameworkId, {
+        action: 'read',
+        directory: b.directory,
+        name: b.name,
+        expectedVersion: b.expectedVersion,
+      });
+      if (typeof source.text !== 'string' || !source.sha256)
+        throw new GovernanceError('SOURCE_INVALID', 502, 'Text source unavailable');
+      const idempotencyKey = createHash('sha256')
+        .update(
+          JSON.stringify([
+            current.userId,
+            frameworkId,
+            b.projectId,
+            b.directory,
+            b.name,
+            source.sha256,
+          ]),
+        )
+        .digest('hex');
+      const audit = async (outcome: 'success' | 'failure' | 'inconclusive') =>
+        governance.audit({
+          actorUserId: current.userId,
+          sessionId: current.sessionId,
+          action: 'workspace.memory.import',
+          outcome,
+          requestId: request.id,
+          target: { frameworkId, projectId: b.projectId },
+          details: { sourceSha256: source.sha256 },
+        });
+      await audit('inconclusive');
+      try {
+        const result = await memory.execute({
+          method: 'POST',
+          path: '/records',
+          route: memoryRoute('POST', '/records')!,
+          actorUserId: current.userId,
+          requestId: request.id,
+          idempotencyKey,
+          body: {
+            title: b.name,
+            content: source.text,
+            role: 'evidence',
+            lifecycle: 'working',
+            write_policy: 'author_only',
+            scope_path: memory.projectScope(frameworkId, b.projectId),
+            source_refs: [
+              'workspace://' +
+                encodeURIComponent(frameworkId) +
+                '/' +
+                encodeURIComponent(b.directory) +
+                '/' +
+                encodeURIComponent(b.name) +
+                '#sha256=' +
+                source.sha256,
+            ],
+            provenance: {
+              source_kind: 'workspace-file',
+              framework_id: frameworkId,
+              project_id: b.projectId,
+              source_sha256: source.sha256,
+            },
+            attrs: {
+              workspace_path: b.directory,
+              filename: b.name,
+              source_version: source.version,
+            },
+            tags: ['workspace-file', 'untrusted-source'],
+          },
+        });
+        await audit('success');
+        return reply.status(result.statusCode).send(result.body);
+      } catch (error) {
+        await audit('failure');
+        throw error;
+      }
+    },
+  );
+
   app.get('/api/v1/memory/status', async (request) => {
     const current = await session(request);
     auth.requirePermission(current, 'memory.read');

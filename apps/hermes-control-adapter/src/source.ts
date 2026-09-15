@@ -127,6 +127,7 @@ export class HermesNativeSource implements AdapterSource {
 
   private readonly fetchImpl: typeof fetch;
   private readonly projectSetup: ProjectSetupStore;
+  private filesStore?: Promise<import('./workspace-files.js').WorkspaceFiles>;
   private readonly apiBaseUrl: string | undefined;
   private readonly management: HermesManagementApi | undefined;
   private readonly baseProfileDisplayName: string;
@@ -603,6 +604,13 @@ export class HermesNativeSource implements AdapterSource {
       if (error instanceof HermesManagementError) throw new SourceUnavailableError(error.message);
       throw error;
     }
+  }
+
+  async workspaceFiles(action: string, input: Record<string, unknown>) {
+    this.filesStore ??= import('./workspace-files.js').then(
+      ({ WorkspaceFiles }) => new WorkspaceFiles(this.projectSetup),
+    );
+    return (await this.filesStore).perform(action, input);
   }
 
   async workspaces() {

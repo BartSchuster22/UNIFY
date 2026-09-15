@@ -1,0 +1,12 @@
+ARG BASE_CORE
+ARG BASE_HERMES
+ARG BASE_UI
+FROM ${BASE_CORE} AS core
+COPY --chown=65532:65532 core/ /app/dist/
+COPY --chown=65532:65532 migrations/ /app/migrations/
+COPY --chown=65532:65532 contracts/ /app/node_modules/.pnpm/@aquiero+contracts@file+packages+contracts/node_modules/@aquiero/contracts/dist/
+FROM ${BASE_HERMES} AS hermes
+COPY hermes/ /opt/unify-adapter/dist/
+COPY contracts/ /opt/unify-adapter/node_modules/.pnpm/@aquiero+contracts@file+packages+contracts/node_modules/@aquiero/contracts/dist/
+FROM ${BASE_UI} AS ui
+COPY --chown=65532:65532 ui/ /app/public/

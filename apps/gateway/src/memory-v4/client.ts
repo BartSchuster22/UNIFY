@@ -101,6 +101,22 @@ export class MemoryV4Adapter {
     this.sleep = options.sleep ?? ((milliseconds) => delay(milliseconds));
   }
 
+  projectScope(frameworkId: string, projectId: string): string {
+    if (this.scopePath === 'public')
+      throw new MemoryV4AdapterError(
+        'MEMORY_SCOPE_FORBIDDEN',
+        403,
+        'Project files cannot be ingested into public memory',
+      );
+    return validateScopePath(
+      (this.scopePath === 'global' ? 'org:unify' : this.scopePath) +
+        '/framework:' +
+        encodeURIComponent(frameworkId) +
+        '/project:' +
+        encodeURIComponent(projectId),
+    );
+  }
+
   async probe(
     actorUserId: string,
     requestId: string,

@@ -56,6 +56,70 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   return response.status === 204 ? (undefined as T) : ((await response.json()) as T);
 }
 
+/** Upload transport reports bytes sent separately from server confirmation. */
+export function apiUpload<T>(
+  path: string,
+  body: unknown,
+  progress: (percent: number) => void,
+  signal?: AbortSignal,
+): Promise<T> {
+  clearNavigationCache();
+  return new Promise<T>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/v1' + path);
+    xhr.withCredentials = true;
+    xhr.timeout = 120000;
+    xhr.setRequestHeader('content-type', 'application/json');
+    const csrf = csrfToken();
+    if (csrf) xhr.setRequestHeader('x-csrf-token', decodeURIComponent(csrf));
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) progress(Math.round((100 * e.loaded) / e.total));
+    };
+    const abort = () => xhr.abort();
+    signal?.addEventListener('abort', abort, { once: true });
+    const cleanup = () => {
+      clearNavigationCache();
+      signal?.removeEventListener('abort', abort);
+    };
+    xhr.onload = () => {
+      cleanup();
+      try {
+        const value = JSON.parse(xhr.responseText);
+        if (xhr.status < 200 || xhr.status >= 300)
+          reject(
+            new ApiError(
+              xhr.status,
+              value.error ?? {
+                code: 'UPLOAD_FAILED',
+                message: 'Upload failed; refresh to check the destination',
+              },
+            ),
+          );
+        else resolve(value);
+      } catch {
+        reject(new Error('Upload response invalid; refresh to inspect the destination'));
+      }
+    };
+    xhr.onerror =
+      xhr.ontimeout =
+      xhr.onabort =
+        () => {
+          cleanup();
+          reject(
+            new Error(
+              'Upload response lost or cancelled. Refresh the destination before retrying; the file may have been saved.',
+            ),
+          );
+        };
+    if (signal?.aborted) {
+      cleanup();
+      reject(new Error('Upload cancelled'));
+      return;
+    }
+    xhr.send(JSON.stringify(body));
+  });
+}
+
 export function memoryMutation<T>(
   path: string,
   method: 'POST' | 'PATCH',

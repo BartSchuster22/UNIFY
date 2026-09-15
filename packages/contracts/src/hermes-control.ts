@@ -369,17 +369,76 @@ export const HermesBoardsResponseSchema = controlCollectionResponse(
   HermesBoardSchema,
 );
 
-export const HermesAgentConfigurationSchema = Type.Object({
-  id: Type.String(), description: Type.String(), instructions: Type.String(), memory: Type.String(), userMemory: Type.String(), revision: Type.String(), runtime: Type.Optional(Type.Unknown()),
-  limits: Type.Object({ instructions: Type.Number(), memory: Type.Number(), userMemory: Type.Number() }),
-}, { additionalProperties: false });
-export const HermesAgentConfigurationResponseSchema = controlCollectionResponse('HermesAgentConfigurationResponse', HermesAgentConfigurationSchema);
+export const HermesAgentConfigurationSchema = Type.Object(
+  {
+    id: Type.String(),
+    description: Type.String(),
+    instructions: Type.String(),
+    memory: Type.String(),
+    userMemory: Type.String(),
+    revision: Type.String(),
+    runtime: Type.Optional(Type.Unknown()),
+    limits: Type.Object({
+      instructions: Type.Number(),
+      memory: Type.Number(),
+      userMemory: Type.Number(),
+    }),
+  },
+  { additionalProperties: false },
+);
+export const HermesAgentConfigurationResponseSchema = controlCollectionResponse(
+  'HermesAgentConfigurationResponse',
+  HermesAgentConfigurationSchema,
+);
 
-export const HermesWorkspaceSchema = Type.Object({
-  id: Type.String({ maxLength: 4096 }), path: Type.String({ maxLength: 4096 }),
-  root: Type.String({ maxLength: 4096 }), name: Type.String({ maxLength: 4096 }),
-}, { $id: 'HermesWorkspace', additionalProperties: false });
-export const HermesWorkspacesResponseSchema = controlCollectionResponse('HermesWorkspacesResponse', HermesWorkspaceSchema);
+export const HermesWorkspaceFilesResponseSchema = controlResponse(
+  'HermesWorkspaceFilesResponse',
+  Type.Object(
+    {
+      directory: Type.String({ maxLength: 4096 }),
+      root: Type.Optional(Type.String({ maxLength: 4096 })),
+      items: Type.Optional(
+        Type.Array(
+          Type.Object(
+            {
+              name: Type.String(),
+              kind: Type.Union([Type.Literal('file'), Type.Literal('directory')]),
+              size: Type.Number(),
+              version: Type.String(),
+            },
+            { additionalProperties: false },
+          ),
+          { maxItems: 1000 },
+        ),
+      ),
+      selectable: Type.Optional(Type.Boolean()),
+      maxUploadBytes: Type.Optional(Type.Number()),
+      created: Type.Optional(Type.Boolean()),
+      saved: Type.Optional(Type.Boolean()),
+      previousVersionRetained: Type.Optional(Type.Boolean()),
+      name: Type.Optional(Type.String()),
+      size: Type.Optional(Type.Number()),
+      sha256: Type.Optional(Type.String()),
+      version: Type.Optional(Type.String()),
+      text: Type.Optional(Type.String({ maxLength: 262144 })),
+    },
+    { additionalProperties: false },
+  ),
+);
+
+export const HermesWorkspaceSchema = Type.Object(
+  {
+    id: Type.String({ maxLength: 4096 }),
+    path: Type.String({ maxLength: 4096 }),
+    root: Type.String({ maxLength: 4096 }),
+    name: Type.String({ maxLength: 4096 }),
+  },
+  { $id: 'HermesWorkspace', additionalProperties: false },
+);
+export const HermesWorkspacesResponseSchema = controlCollectionResponse(
+  'HermesWorkspacesResponse',
+  HermesWorkspaceSchema,
+);
 export type HermesWorkspace = Static<typeof HermesWorkspaceSchema>;
 export type HermesWorkspacesResponse = Static<typeof HermesWorkspacesResponseSchema>;
 
@@ -415,11 +474,23 @@ export const HermesTaskSchema = Type.Object(
     workspacePath: Type.Optional(Type.String()),
     sessionId: Type.Optional(Type.String()),
     executionUnavailable: Type.Optional(Type.Boolean()),
-    runs: Type.Optional(Type.Array(Type.Object({
-      id: Type.Integer(), sessionId: Type.Optional(Type.String()), profile: Type.Optional(Type.String()), status: Type.Optional(Type.String()),
-      outcome: Type.Optional(Type.String()), summary: Type.Optional(Type.String()), error: Type.Optional(Type.String()),
-      artifacts: Type.Optional(Type.Array(Type.String())),
-    }, {additionalProperties:false}))),
+    runs: Type.Optional(
+      Type.Array(
+        Type.Object(
+          {
+            id: Type.Integer(),
+            sessionId: Type.Optional(Type.String()),
+            profile: Type.Optional(Type.String()),
+            status: Type.Optional(Type.String()),
+            outcome: Type.Optional(Type.String()),
+            summary: Type.Optional(Type.String()),
+            error: Type.Optional(Type.String()),
+            artifacts: Type.Optional(Type.Array(Type.String())),
+          },
+          { additionalProperties: false },
+        ),
+      ),
+    ),
     updatedAt: Type.Optional(Type.String({ format: 'date-time' })),
   },
   { $id: 'HermesTask', additionalProperties: false },

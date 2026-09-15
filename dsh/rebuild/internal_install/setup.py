@@ -148,10 +148,26 @@ def admission(state, destination):
     destination = secure(destination)
     require(destination not in trust.parents and destination not in verifier.parents,
             'Trust and verifier must be external to preparation directory')
+    current, sequence = ZERO, 0
+    chain = state.get('maintenanceAdmission')
+    if chain is not None:
+        require(isinstance(chain, dict) and set(chain) == {'predecessorDestination', 'releaseSha256', 'sequence'},
+                'Invalid maintenance predecessor receipt')
+        previous = secure(chain['predecessorDestination'])
+        require(previous != destination, 'Maintenance predecessor must be separate')
+        previous_state = json.loads(secure(previous / 'preparation.json').read_text())
+        require(previous_state.get('maintenanceAdmission') is None,
+                'This bounded maintenance reader accepts one authenticated fresh-install predecessor')
+        require(previous_state['trust'] == state['trust'] and previous_state['trustSha256'] == state['trustSha256'],
+                'Maintenance cannot replace publisher trust')
+        prior = admission(previous_state, previous)
+        require(prior['releaseSha256'] == chain['releaseSha256'] and prior['sequence'] == chain['sequence'],
+                'Maintenance predecessor admission mismatch')
+        current, sequence = prior['releaseSha256'], prior['sequence']
     result = subprocess.run([
         sys.executable, '-I', str(verifier), 'verify', '--bundle', str(destination / 'bundle'),
         '--trust', str(trust), '--envelope', str(destination / 'candidate-envelope.json'),
-        '--scope', state['scope'], '--installed-sequence', '0', '--current', ZERO,
+        '--scope', state['scope'], '--installed-sequence', str(sequence), '--current', current,
     ], capture_output=True, text=True, timeout=600)
     require(result.returncode == 0, 'Release admission denied; check expiry, signature, scope and inventory (no bypass)')
     data = json.loads(result.stdout)
