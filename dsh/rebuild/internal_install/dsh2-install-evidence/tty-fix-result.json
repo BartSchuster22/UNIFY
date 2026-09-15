@@ -1,0 +1,27 @@
+{
+  "receipt": {
+    "sourceCommit": "4bef63a3",
+    "onboardingSha256": "1545438c36f0446bd83196159d6a9eea64c6a23736e4c7902d177633e3ccf1f4",
+    "realPtyTestsPassed": 3,
+    "python": "Python 3.14.4",
+    "initialPasswordStillAvailable": true,
+    "realPasswordRetrieved": false,
+    "passwordResetPerformed": false,
+    "runtimeOrLicensingFilesChanged": false
+  },
+  "tests": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.439s\n\nOK\n",
+  "status": {
+    "identityStatus": {
+      "enabled": true,
+      "requiredActions": [
+        "UPDATE_PASSWORD"
+      ],
+      "temporaryPasswordRequired": true
+    },
+    "initialPasswordAvailable": true,
+    "instructions": "Sign in, replace the temporary password if prompted, complete your own profile, then authorize your provider. Do not send passwords or tokens to support.",
+    "onboardingAccepted": false,
+    "signInUrl": "https://dsh-next.aquiero.com",
+    "username": "owner"
+  }
+}

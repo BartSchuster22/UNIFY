@@ -79,6 +79,18 @@ units, use `PYTHONDONTWRITEBYTECODE=1` (or Python `-B`) to preserve its strict
 inventory. Raw unguarded imports into this original signed bundle remain unsafe
 for inventory. The signed runtime was NOT silently replaced with updated source.
 
+## Terminal handoff correction
+
+The first real PuTTY handoff exposed `UnsupportedOperation: File or stream is
+not seekable`: buffered text `r+` cannot open `/dev/tty`. The confirmation helper
+now uses separate read/write streams. Three regression cases (actual PTY
+confirmation, actual PTY cancellation, and pipe rejection) passed on DSH2's
+Python 3.14.4. The original helper was backed up and only the external bootstrap's
+`onboarding.py` updated from commit `4bef63a3`; no signed runtime member changed.
+The real password was neither retrieved nor reset, and the initial handoff was
+still available after the fix. See `dsh2-install-evidence/tty-fix-result.json` for
+the deployed helper hash and actual results.
+
 ## Remaining boundary
 
 Private owner onboarding and a real authorized task remain pending. The scoped
