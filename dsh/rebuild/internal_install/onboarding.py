@@ -66,9 +66,10 @@ def require_terminal():
 
 def confirm(word):
  require_terminal()
- with open('/dev/tty','r+') as tty:
-  tty.write('Disable terminal recording. Type '+word+' to proceed, or Enter to cancel: ');tty.flush()
-  require(tty.readline().strip()==word,'Cancelled; credentials unchanged')
+ # A terminal is non-seekable: buffered text update mode (r+) is invalid.
+ with open('/dev/tty','w') as output, open('/dev/tty','r') as input_tty:
+  output.write('Disable terminal recording. Type '+word+' to proceed, or Enter to cancel: ');output.flush()
+  require(input_tty.readline().strip()==word,'Cancelled; credentials unchanged')
 
 def reveal(path):
  require_terminal();p=secure(path);s=p.stat()
