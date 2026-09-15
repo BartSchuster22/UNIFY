@@ -13,6 +13,7 @@ import {
 import { buildHermesControlAdapter } from './app.js';
 import { PostgresAdapterEventStore } from './event-store.js';
 import { HermesCliRunner, HermesNativeSource } from './source.js';
+import {readNativeWork} from './native-work-read.js';
 import { startPrivateHermesManagement } from './management-process.js';
 import { FileRotatingBearerTokenVerifier } from './token-credentials.js';
 
@@ -89,6 +90,7 @@ const pythonVersion = (
 const pool = new Pool({ connectionString: databaseUrl, max: 8 });
 const frameworkDisplayName = process.env.HERMES_DISPLAY_NAME ?? 'Hermes Agent';
 const source = new HermesNativeSource({
+  nativeWorkRead:readNativeWork,
   runner: new HermesCliRunner(hermesBin, process.env.HERMES_HOME),
   baseProfileDisplayName: process.env.HERMES_BASE_PROFILE_DISPLAY_NAME ?? frameworkDisplayName,
   ...(process.env.HERMES_API_BASE_URL ? { apiBaseUrl: process.env.HERMES_API_BASE_URL } : {}),

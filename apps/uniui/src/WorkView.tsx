@@ -202,7 +202,17 @@ export function WorkView({ canManage }: { canManage: boolean }) {
     window.history.pushState({ workPage: next, project: project || null }, '', url);
   }
 
-  const canExecuteWork = canManage && workCapability?.status === 'supported';
+  // Reconcile native state without dispatching anything. Never overlap a read/mutation,
+  // and keep the last observation visible (read-only) when refresh fails.
+  useEffect(() => {
+    if (!frameworkId || loading || busy || page === 'federation') return;
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === 'visible') void load();
+    }, 15_000);
+    return () => window.clearInterval(timer);
+  }, [frameworkId, loading, busy, page, load]);
+
+  const canExecuteWork = canManage && workCapability?.status === 'supported' && !failure && !loading;
 
   async function mutate(request: MutationRequest, success: string) {
     if (request.confirmed && !window.confirm('Confirm this destructive Hermes work operation.'))
@@ -299,7 +309,7 @@ export function WorkView({ canManage }: { canManage: boolean }) {
       {data.meta?.freshness && (
         <Group gap="xs">
           <Badge color={data.meta.freshness === 'current' ? 'teal' : 'orange'} variant="light">
-            Hermes · {data.meta.freshness}
+            Hermes · {failure ? 'last observation — refresh failed' : loading ? 'refreshing' : data.meta.freshness}
           </Badge>
           {data.meta.observedAt && (
             <Text size="xs" c="dimmed">
@@ -318,7 +328,8 @@ export function WorkView({ canManage }: { canManage: boolean }) {
           {notice}
         </Alert>
       )}
-      {loading ? (
+      {loading && data.items.length > 0 && <Text size="sm" c="dimmed">Refreshing native state; mutation controls are temporarily locked.</Text>}
+      {loading && data.items.length === 0 ? (
         <Paper withBorder p="xl">
           <Group justify="center">
             <Loader size="sm" />
@@ -666,13 +677,15 @@ function TaskCard({
 }) {
   const lane = taskLane(task);
   const id = text(task.data.nativeId) || task.resource.nativeId;
-  const action = async (name: 'start' | 'block' | 'unblock' | 'complete') => {
+  const latestRun = Array.isArray(task.data.runs) ? task.data.runs.at(-1) as Record<string, unknown> | undefined : undefined;
+  const action = async (name: 'start' | 'block' | 'unblock' | 'complete' | 'cancel') => {
     await onMutate(
       mutation(`work.task.${name}`, 'task', id, {
         boardId: text(task.data.boardId) || text(task.data.projectSlug),
         expectedSourceVersion: task.resource.sourceVersion,
         ...(name === 'block' ? { reason: 'Blocked from UNIFY Work & Kanban' } : {}),
-      }),
+        ...(name === 'cancel' ? { runId: latestRun?.id } : {}),
+      }, name === 'cancel'),
       `${name} succeeded for ${id}.`,
     );
   };
@@ -687,6 +700,23 @@ function TaskCard({
           {text(task.data.description)}
         </Text>
       )}
+      {text(task.data.workspacePath) && <Text size="xs">Workspace: <Code>{text(task.data.workspacePath)}</Code></Text>}
+      {task.data.executionUnavailable === true && <Text size="sm" c="orange">Native execution details unavailable. Refresh to retry; no result is inferred.</Text>}
+      {Array.isArray(task.data.runs) && task.data.runs.length > 0 && (
+        <details>
+          <summary>Native execution history ({task.data.runs.length} attempts)</summary>
+          {task.data.runs.map((value: unknown) => {
+            const run = value as Record<string, unknown>;
+            return <Paper withBorder p="xs" mt="xs" key={String(run.id)}>
+              <Text size="sm" fw={700}>Run {String(run.id)} · {text(run.outcome) || text(run.status)} · {text(run.profile)}</Text>
+              {text(run.sessionId) && <Text size="xs">Session: <Code>{text(run.sessionId)}</Code></Text>}
+              {text(run.summary) && <Text size="sm">{text(run.summary)}</Text>}
+              {text(run.error) && <Text size="sm" c="red">{text(run.error)}</Text>}
+              {Array.isArray(run.artifacts) && run.artifacts.map((path: unknown) => <Text size="xs" key={String(path)}>Native artifact: <Code>{String(path)}</Code></Text>)}
+            </Paper>;
+          })}
+        </details>
+      )}
       {canManage && (
         <Group mt="sm" gap="xs">
           {lane === 'todo' && (
@@ -699,7 +729,10 @@ function TaskCard({
               Promote to ready
             </Button>
           )}
-          {lane !== 'blocked' && lane !== 'done' && lane !== 'archived' && (
+          {lane === 'running' && latestRun && latestRun.status === 'running' && task.data.executionUnavailable !== true && (
+            <Button size="compact-xs" color="red" loading={busy} onClick={() => void action('cancel')}>Cancel run</Button>
+          )}
+          {!['running', 'blocked', 'done', 'archived'].includes(lane) && (
             <Button
               size="compact-xs"
               color="red"
@@ -720,7 +753,7 @@ function TaskCard({
               Unblock
             </Button>
           )}
-          {!['done', 'archived'].includes(lane) && (
+          {!['running', 'done', 'archived'].includes(lane) && (
             <Button
               size="compact-xs"
               color="teal"

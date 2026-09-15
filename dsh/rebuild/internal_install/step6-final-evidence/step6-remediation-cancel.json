@@ -1,0 +1,123 @@
+{
+  "qa": "qa-browser-work-6764edb3",
+  "before": {
+    "started": true,
+    "finished": false,
+    "workerPid": 8550,
+    "livePids": [
+      8550,
+      8731,
+      8733
+    ]
+  },
+  "after": {
+    "started": true,
+    "finished": false,
+    "workerPid": null,
+    "livePids": []
+  },
+  "request": {
+    "operationType": "work.task.cancel",
+    "target": {
+      "owner": "hermes",
+      "kind": "task",
+      "nativeId": "t_cba03315",
+      "frameworkId": "hermes-alica"
+    },
+    "payload": {
+      "boardId": "qa-browser-work-6764edb3",
+      "expectedSourceVersion": "sha256:01b9566569100df4340d17ad2ace08da30c6c5aea50d7a1ad0297875c45a3204",
+      "runId": 4
+    },
+    "mode": "execute",
+    "confirmed": true
+  },
+  "response": {
+    "replayed": false,
+    "operation": {
+      "operationId": "295c7d74-4233-4ad4-afb2-b158994d5eac",
+      "operationType": "work.task.cancel",
+      "actorId": "62d8832d-f886-4d9b-bd8e-a8f1431f9187",
+      "target": {
+        "canonicalId": "hermes-alica:task:dF9jYmEwMzMxNQ",
+        "owner": "hermes-alica",
+        "frameworkId": "hermes-alica",
+        "kind": "task",
+        "nativeId": "t_cba03315",
+        "observedAt": "2026-09-15T08:06:15.847Z"
+      },
+      "payloadHash": "9bbec905a1f7aec1a38881ed465bbb501096150d4e4c4406b163244fd651a683",
+      "mode": "execute",
+      "idempotencyKey": "cd997f1d-5968-49ed-96fc-351b267a099c",
+      "policyDecision": "allowed",
+      "state": "verified",
+      "createdAt": "2026-09-15T08:06:09.253Z",
+      "updatedAt": "2026-09-15T08:06:15.847Z",
+      "evidenceIds": []
+    },
+    "result": {
+      "meta": {
+        "owner": "hermes",
+        "frameworkId": "hermes-alica",
+        "frameworkVersion": "0.20.0",
+        "frameworkCommit": "b8b17b8cee50b85adb7fba6ea332dc06731b86f4",
+        "sourceVersion": "sha256:2eca1a1998dc7cb737be2e35e731d79b72158e53d1bdeece08c4fbff2ac16339",
+        "observedAt": "2026-09-15T08:06:15.833Z",
+        "freshness": "current"
+      },
+      "data": {
+        "operationId": "2fd4da69-c968-47b5-8f1d-555f79ff2102",
+        "status": "completed",
+        "replayed": false,
+        "operation": "task.cancel",
+        "targetId": "t_cba03315",
+        "result": {
+          "task": {
+            "id": "t_cba03315",
+            "status": "blocked"
+          },
+          "runId": 4,
+          "cancelled": true,
+          "terminationVerified": true
+        },
+        "emittedEvents": 1
+      }
+    }
+  },
+  "task": {
+    "id": "t_cba03315",
+    "boardId": "qa-browser-work-6764edb3",
+    "title": "Step 6 verified cancellation",
+    "status": "blocked",
+    "body": "Cancellation acceptance only. Use the enabled terminal tool to execute exactly this bounded Python command in your project workspace: python -c \"from pathlib import Path; import time; Path('cancel-verified-started.txt').write_text('STEP6-VERIFIED-CANCEL-SLEEP'); time.sleep(180); Path('cancel-verified-finished.txt').write_text('finished')\". Set the terminal timeout to 240 seconds. Do not put it in the background, shorten or skip the sleep, use any other workspace, or create cancel-verified-finished.txt separately. The owner will cancel this task while the command is sleeping. Do not mark complete before the command returns.",
+    "assignee": "qa-browser-work-6764edb3",
+    "priority": 50,
+    "projectId": "p_cce9dfdd",
+    "workspacePath": "/opt/data/workspace/qa-browser-work-6764edb3",
+    "runs": [
+      {
+        "id": 4,
+        "profile": "qa-browser-work-6764edb3",
+        "status": "blocked",
+        "outcome": "cancelled",
+        "summary": "Cancelled by owner; worker termination verified"
+      }
+    ],
+    "owner": "hermes",
+    "frameworkId": "hermes-alica",
+    "sourceVersion": "sha256:1663714db431ea58d0c33996dfc4fc97585314a34574d701a6dd1599a0fbe726",
+    "observedAt": "2026-09-15T08:06:58.739Z"
+  },
+  "postCancellationStates": [
+    "blocked",
+    "blocked",
+    "blocked",
+    "blocked",
+    "blocked",
+    "blocked",
+    "blocked"
+  ],
+  "inflightReloadPreservedTask": true,
+  "noRedispatch": true,
+  "cancelledSummaryVisible": true
+}

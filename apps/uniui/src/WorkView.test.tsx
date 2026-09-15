@@ -134,6 +134,34 @@ describe('UNIFY Work & Kanban', () => {
     localStorage.clear();
   });
 
+  it('renders native run results and cancels only the selected native run with confirmation', async () => {
+    window.history.replaceState(null, '', '/work?workPage=board&project=alpha');
+    vi.mocked(gateway.hermesTasks).mockResolvedValue({ ...tasks, items: [{ id: 'TASK-2', boardId: 'alpha', title: 'Running proof', status: 'running', runs: [{ id: 42, status: 'running', profile: 'builder', summary: 'Native progress proof', sessionId: 'session-proof', artifacts: ['/qa/output.json'] }] }] } as never);
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    renderWork();
+    await screen.findByText('Native progress proof');
+    expect(screen.getByText('session-proof')).toBeTruthy();
+    expect(screen.getByText('/qa/output.json')).toBeTruthy();
+    expect(screen.queryByRole('button', {name:'Block'})).toBeNull();
+    fireEvent.click(await screen.findByRole('button', {name:'Cancel run'}));
+    await waitFor(() => expect(gateway.mutate).toHaveBeenCalledWith(expect.objectContaining({ operationType:'work.task.cancel', confirmed:true, target:expect.objectContaining({frameworkId:'hermes-alica',nativeId:'TASK-2'}), payload:expect.objectContaining({boardId:'alpha',runId:42,expectedSourceVersion:'sha256:test'}) }), expect.any(String)));
+    expect(confirm).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps last observed cards visible and disables mutations after a failed refresh', async () => {
+    window.history.replaceState(null, '', '/work?workPage=board&project=alpha');
+    renderWork();
+    await screen.findByText('Running checks');
+    vi.mocked(gateway.hermesTasks).mockRejectedValueOnce(new Error('Native temporarily unavailable'));
+    fireEvent.click(screen.getByRole('button',{name:'Refresh'}));
+    await screen.findByText('Native temporarily unavailable');
+    expect(screen.getByText('Running checks')).toBeTruthy();
+    expect(screen.queryByRole('button',{name:'Unblock'})).toBeNull();
+    fireEvent.click(screen.getByRole('button',{name:'Refresh'}));
+    await screen.findByRole('button',{name:'Unblock'});
+    expect(gateway.mutate).not.toHaveBeenCalled();
+  });
+
   it.each([
     ['project', 'Project name'], ['project', 'Project slug optional'],
     ['project', 'Project goal'],

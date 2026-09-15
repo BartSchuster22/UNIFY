@@ -162,6 +162,7 @@ export const workMutationDefinitions: Record<string, MutationDefinition> = {
     permission: 'work.manage',
     executionPath: 'hermes-control',
   },
+  'work.task.cancel': { owner: 'hermes', kind: 'task', permission: 'work.manage', executionPath: 'hermes-control', destructive: true },
   'work.task.block': {
     owner: 'hermes',
     kind: 'task',

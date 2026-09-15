@@ -380,6 +380,8 @@ function validateModelCommand(input: MutationInput, definition: MutationDefiniti
 }
 
 function validateWorkCommand(input: MutationInput, definition: MutationDefinition) {
+  if (input.operationType === 'work.task.cancel' && (!Number.isSafeInteger(input.payload.runId) || Number(input.payload.runId) < 1))
+    throw new GovernanceError('MUTATION_PAYLOAD_INVALID', 422, 'Exact native run ID is required');
   if (
     input.target.owner !== 'hermes' ||
     input.target.kind !== definition.kind ||
@@ -403,6 +405,7 @@ function validateWorkCommand(input: MutationInput, definition: MutationDefinitio
     'work.task.create': ['boardId', 'title'],
     'work.task.start': ['boardId'],
     'work.task.block': ['boardId'],
+    'work.task.cancel': ['boardId'],
     'work.task.unblock': ['boardId'],
     'work.task.complete': ['boardId'],
     'work.task.run': ['profileId', 'prompt'],

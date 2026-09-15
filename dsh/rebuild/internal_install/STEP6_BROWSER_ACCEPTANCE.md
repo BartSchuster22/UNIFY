@@ -1,5 +1,7 @@
 # Step 6 — browser dispatch and execution-feedback acceptance
 
+> Historical failed acceptance, retained for traceability. Superseded by [Step 6 final acceptance — PASS](STEP6_FINAL_ACCEPTANCE.md).
+
 ## Verdict: NOT QUALIFIED — implementation gaps found
 
 The development acceptance run exercised two real browser-created Kanban tasks. It did not satisfy all Step 6 criteria. Do not treat this report as a completion/freeze approval. No application code or running service was changed to hide the failures.

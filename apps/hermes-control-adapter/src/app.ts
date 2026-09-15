@@ -1000,6 +1000,8 @@ function validateConversationPayload(command: HermesConversationCommand) {
 }
 
 function validateWorkPayload(command: HermesWorkCommand) {
+  if (command.operation === 'task.cancel' && (!Number.isSafeInteger(command.payload.runId) || Number(command.payload.runId) < 1))
+    throw new AdapterError('invalid_request', 400, 'Exact native run ID is required');
   const required: Partial<Record<HermesWorkCommand['operation'], string[]>> = {
     'project.create': ['name'],
     'project.rename': ['name'],
@@ -1007,6 +1009,7 @@ function validateWorkPayload(command: HermesWorkCommand) {
     'task.create': ['boardId', 'title'],
     'task.start': ['boardId'],
     'task.block': ['boardId'],
+    'task.cancel': ['boardId'],
     'task.unblock': ['boardId'],
     'task.complete': ['boardId'],
     'task.run': ['profileId', 'prompt'],

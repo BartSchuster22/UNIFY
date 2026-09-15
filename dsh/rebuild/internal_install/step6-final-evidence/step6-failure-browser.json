@@ -1,0 +1,37 @@
+{
+  "qa": "qa-browser-work-6764edb3",
+  "events": [],
+  "observations": [
+    {
+      "elapsed": 0.72,
+      "status": "blocked",
+      "id": "t_6fea3b3b"
+    }
+  ],
+  "task": {
+    "id": "t_6fea3b3b",
+    "boardId": "qa-browser-work-6764edb3",
+    "title": "Step 6 controlled missing input",
+    "status": "blocked",
+    "body": "Bounded controlled-failure acceptance. Use read_file to read /opt/data/workspace/qa-browser-work-6764edb3/intentionally-missing.csv. It does not exist. Do not create it, substitute the existing input.csv, fabricate an output, or retry. After the real read error, use the native Kanban lifecycle to mark this task blocked with reason STEP6-MISSING-INPUT and explain that no result was produced. Do not mark it complete and do not change any other task or file.",
+    "assignee": "qa-browser-work-6764edb3",
+    "priority": 50,
+    "projectId": "p_cce9dfdd",
+    "workspacePath": "/opt/data/workspace/qa-browser-work-6764edb3",
+    "runs": [
+      {
+        "id": 2,
+        "profile": "qa-browser-work-6764edb3",
+        "status": "blocked",
+        "outcome": "blocked",
+        "summary": "STEP6-MISSING-INPUT \u2014 /opt/data/workspace/qa-browser-work-6764edb3/intentionally-missing.csv was not found; no result was produced."
+      }
+    ],
+    "owner": "hermes",
+    "frameworkId": "hermes-alica",
+    "sourceVersion": "sha256:fc0b4a632c9e35f7c5a8fb65b3bf1bb23f4488a7c9578c3151e16d459612e6eb",
+    "observedAt": "2026-09-15T07:57:38.939Z"
+  },
+  "boardText": "HERMES SOURCE OF TRUTH\n\nWork & Kanban\n\nProjects, Kanban cards, and schedules are read from and mutated through native Hermes.\n\nRefresh\nHermes framework\nHermes overview\nKanban overview\nKanban project\nProject details\nAdd new\nAlica \u2192 Herman\nCronjobs\nSettings\nHERMES \u00b7 CURRENT\nKanban project\n2 CARDS\nProject setup\n\nTRIAGE\n\n0\n\nNo cards\n\nTODO\n\n0\n\nNo cards\n\nREADY\n\n0\n\nNo cards\n\nRUNNING\n\n0\n\nNo cards\n\nBLOCKED\n\n1\n\nStep 6 controlled missing input\n\nt_6fea3b3b \u00b7 qa-browser-work-6764edb3\n\nBounded controlled-failure acceptance. Use read_file to read /opt/data/workspace/qa-browser-work-6764edb3/intentionally-missing.csv. It does not exist. Do not create it, substitute the existing input.csv, fabricate an output, or retry. After the real read error, use the native Kanban lifecycle to mark this task blocked with reason STEP6-MISSING-INPUT and explain that no result was produced. Do not mark it complete and do not change any other task or file.\n\nWorkspace: /opt/data/workspace/qa-browser-work-6764edb3\n\nNative execution history (1 attempts)\n\nRun 2 \u00b7 blocked \u00b7 qa-browser-work-6764edb3\n\nSTEP6-MISSING-INPUT \u2014 /opt/data/workspace/qa-browser-work-6764edb3/intentionally-missing.csv was not found; no result was produced.\n\nUnblock\nComplete\n\nDONE\n\n1\n\nStep 6 browser file acceptance\n\nt_d7ae00e8 \u00b7 qa-browser-work-6764edb3\n\nRead input.csv in the project workspace /opt/data/workspace/qa-browser-work-6764edb3. Use the enabled qa-enabled-proof skill and write result.json with total_cents, the instruction/memory/user-memory/skill codes, and the three item names in rows. Reread and verify the generated file. Do not edit files outside this workspace, enable tools, spawn agents, or modify credentials. Report the actual output path and tool results. Mark this task complete only after verifying the file.\n\nWorkspace: /opt/data/workspace/qa-browser-work-6764edb3\n\nNative execution history (1 attempts)\n\nRun 1 \u00b7 completed \u00b7 qa-browser-work-6764edb3\n\nSession: 20260915_072917_ca94a1\n\nCreated and reread /opt/data/workspace/qa-browser-work-6764edb3/result.json. The verified JSON contains total_cents 1195, all four required proof codes, and rows [alpha, beta, gamma]; write_file reported 242 bytes with JSON lint OK, and read_file confirmed the persisted 12-line content.\n\nNative artifact: /opt/data/workspace/qa-browser-work-6764edb3/result.json\n\nARCHIVED\n\n0\n\nNo cards",
+  "cancelButtons": 0
+}

@@ -1,0 +1,472 @@
+{
+  "qa": "qa-browser-work-6764edb3",
+  "tasks": {
+    "t_d7ae00e8": {
+      "task": {
+        "id": "t_d7ae00e8",
+        "title": "Step 6 browser file acceptance",
+        "body": "Read input.csv in the project workspace /opt/data/workspace/qa-browser-work-6764edb3. Use the enabled qa-enabled-proof skill and write result.json with total_cents, the instruction/memory/user-memory/skill codes, and the three item names in rows. Reread and verify the generated file. Do not edit files outside this workspace, enable tools, spawn agents, or modify credentials. Report the actual output path and tool results. Mark this task complete only after verifying the file.",
+        "assignee": "qa-browser-work-6764edb3",
+        "status": "done",
+        "priority": 50,
+        "created_by": "user",
+        "created_at": 1789457304,
+        "started_at": 1789457351,
+        "completed_at": 1789457416,
+        "workspace_kind": "dir",
+        "workspace_path": "/opt/data/workspace/qa-browser-work-6764edb3",
+        "claim_lock": null,
+        "claim_expires": null,
+        "tenant": null,
+        "branch_name": null,
+        "project_id": "p_cce9dfdd",
+        "result": null,
+        "idempotency_key": "gw-307ac602904095c5f8e9b253af1121d525b2893b0f95dff69550a2f0336cf01a",
+        "consecutive_failures": 0,
+        "worker_pid": null,
+        "last_failure_error": null,
+        "max_runtime_seconds": null,
+        "last_heartbeat_at": 1789457372,
+        "current_run_id": null,
+        "workflow_template_id": null,
+        "current_step_key": null,
+        "skills": null,
+        "model_override": null,
+        "provider_override": null,
+        "reasoning_effort": null,
+        "max_retries": null,
+        "goal_mode": false,
+        "goal_max_turns": null,
+        "session_id": null,
+        "block_kind": null,
+        "block_recurrences": 0
+      },
+      "runs": [
+        {
+          "id": 1,
+          "task_id": "t_d7ae00e8",
+          "profile": "qa-browser-work-6764edb3",
+          "step_key": null,
+          "status": "done",
+          "claim_lock": null,
+          "claim_expires": null,
+          "worker_pid": null,
+          "max_runtime_seconds": null,
+          "last_heartbeat_at": 1789457372,
+          "started_at": 1789457351,
+          "ended_at": 1789457416,
+          "outcome": "completed",
+          "summary": "Created and reread /opt/data/workspace/qa-browser-work-6764edb3/result.json. The verified JSON contains total_cents 1195, all four required proof codes, and rows [alpha, beta, gamma]; write_file reported 242 bytes with JSON lint OK, and read_file confirmed the persisted 12-line content.",
+          "metadata": {
+            "changed_files": [
+              "/opt/data/workspace/qa-browser-work-6764edb3/result.json"
+            ],
+            "input_rows": [
+              {
+                "item": "alpha",
+                "quantity": 3,
+                "unit_price_cents": 125
+              },
+              {
+                "item": "beta",
+                "quantity": 2,
+                "unit_price_cents": 240
+              },
+              {
+                "item": "gamma",
+                "quantity": 4,
+                "unit_price_cents": 85
+              }
+            ],
+            "total_cents": 1195,
+            "verification": {
+              "write_verified": true,
+              "json_lint": "ok",
+              "reread": true,
+              "file_size_bytes": 242
+            },
+            "artifacts": [
+              "/opt/data/workspace/qa-browser-work-6764edb3/result.json"
+            ],
+            "worker_session_id": "20260915_072917_ca94a1"
+          },
+          "error": null
+        }
+      ],
+      "events": [
+        {
+          "kind": "created",
+          "payload": "{\"assignee\": \"qa-browser-work-6764edb3\", \"status\": \"ready\", \"parents\": [], \"tenant\": null, \"workspace_kind\": \"dir\", \"workspace_path\": \"/opt/data/workspace/qa-browser-work-6764edb3\", \"branch_name\": null, \"project_id\": \"p_cce9dfdd\", \"skills\": null, \"goal_mode\": null, \"model_override\": null, \"provider_override\": null}",
+          "created_at": 1789457304,
+          "run_id": null
+        },
+        {
+          "kind": "claimed",
+          "payload": "{\"lock\": \"9a668a969246:162\", \"expires\": 1789458251, \"run_id\": 1}",
+          "created_at": 1789457351,
+          "run_id": 1
+        },
+        {
+          "kind": "spawned",
+          "payload": "{\"pid\": 1347}",
+          "created_at": 1789457351,
+          "run_id": 1
+        },
+        {
+          "kind": "heartbeat",
+          "payload": null,
+          "created_at": 1789457372,
+          "run_id": 1
+        },
+        {
+          "kind": "completed",
+          "payload": "{\"result_len\": 0, \"summary\": \"Created and reread /opt/data/workspace/qa-browser-work-6764edb3/result.json. The verified JSON contains total_cents 1195, all four required proof codes, and rows [alpha, beta, gamma]; write_file reported 242 bytes with JSON lint OK, and read_file confirmed the persisted 12-line content.\", \"artifacts\": [\"/opt/data/workspace/qa-browser-work-6764edb3/result.json\"]}",
+          "created_at": 1789457416,
+          "run_id": 1
+        }
+      ]
+    },
+    "t_6fea3b3b": {
+      "task": {
+        "id": "t_6fea3b3b",
+        "title": "Step 6 controlled missing input",
+        "body": "Bounded controlled-failure acceptance. Use read_file to read /opt/data/workspace/qa-browser-work-6764edb3/intentionally-missing.csv. It does not exist. Do not create it, substitute the existing input.csv, fabricate an output, or retry. After the real read error, use the native Kanban lifecycle to mark this task blocked with reason STEP6-MISSING-INPUT and explain that no result was produced. Do not mark it complete and do not change any other task or file.",
+        "assignee": "qa-browser-work-6764edb3",
+        "status": "blocked",
+        "priority": 50,
+        "created_by": "user",
+        "created_at": 1789458824,
+        "started_at": 1789458856,
+        "completed_at": null,
+        "workspace_kind": "dir",
+        "workspace_path": "/opt/data/workspace/qa-browser-work-6764edb3",
+        "claim_lock": null,
+        "claim_expires": null,
+        "tenant": null,
+        "branch_name": null,
+        "project_id": "p_cce9dfdd",
+        "result": null,
+        "idempotency_key": "gw-1646e61cb7bb418013f5efcb4b5d68271ddbbab669ae852be7d6e371a180373b",
+        "consecutive_failures": 0,
+        "worker_pid": null,
+        "last_failure_error": null,
+        "max_runtime_seconds": null,
+        "last_heartbeat_at": 1789458877,
+        "current_run_id": null,
+        "workflow_template_id": null,
+        "current_step_key": null,
+        "skills": null,
+        "model_override": null,
+        "provider_override": null,
+        "reasoning_effort": null,
+        "max_retries": null,
+        "goal_mode": false,
+        "goal_max_turns": null,
+        "session_id": null,
+        "block_kind": "needs_input",
+        "block_recurrences": 1
+      },
+      "runs": [
+        {
+          "id": 2,
+          "task_id": "t_6fea3b3b",
+          "profile": "qa-browser-work-6764edb3",
+          "step_key": null,
+          "status": "blocked",
+          "claim_lock": null,
+          "claim_expires": null,
+          "worker_pid": null,
+          "max_runtime_seconds": null,
+          "last_heartbeat_at": 1789458877,
+          "started_at": 1789458856,
+          "ended_at": 1789458892,
+          "outcome": "blocked",
+          "summary": "STEP6-MISSING-INPUT \u2014 /opt/data/workspace/qa-browser-work-6764edb3/intentionally-missing.csv was not found; no result was produced.",
+          "metadata": null,
+          "error": null
+        }
+      ],
+      "events": [
+        {
+          "kind": "created",
+          "payload": "{\"assignee\": \"qa-browser-work-6764edb3\", \"status\": \"ready\", \"parents\": [], \"tenant\": null, \"workspace_kind\": \"dir\", \"workspace_path\": \"/opt/data/workspace/qa-browser-work-6764edb3\", \"branch_name\": null, \"project_id\": \"p_cce9dfdd\", \"skills\": null, \"goal_mode\": null, \"model_override\": null, \"provider_override\": null}",
+          "created_at": 1789458824,
+          "run_id": null
+        },
+        {
+          "kind": "claimed",
+          "payload": "{\"lock\": \"9a668a969246:162\", \"expires\": 1789459756, \"run_id\": 2}",
+          "created_at": 1789458856,
+          "run_id": 2
+        },
+        {
+          "kind": "spawned",
+          "payload": "{\"pid\": 5886}",
+          "created_at": 1789458856,
+          "run_id": 2
+        },
+        {
+          "kind": "heartbeat",
+          "payload": null,
+          "created_at": 1789458877,
+          "run_id": 2
+        },
+        {
+          "kind": "blocked",
+          "payload": "{\"reason\": \"STEP6-MISSING-INPUT \u2014 /opt/data/workspace/qa-browser-work-6764edb3/intentionally-missing.csv was not found; no result was produced.\", \"kind\": \"needs_input\", \"recurrences\": 1}",
+          "created_at": 1789458892,
+          "run_id": 2
+        }
+      ]
+    },
+    "t_90b70a12": {
+      "task": {
+        "id": "t_90b70a12",
+        "title": "Step 6 real cancellation",
+        "body": "Cancellation acceptance only. Use the enabled terminal tool to execute exactly this bounded Python command in your project workspace: python -c \"from pathlib import Path; import time; Path('cancel-started.txt').write_text('STEP6-CANCEL-SLEEP'); time.sleep(180); Path('cancel-finished.txt').write_text('finished')\". Set the terminal timeout to 240 seconds. Do not put it in the background, shorten or skip the sleep, use any other workspace, or create cancel-finished.txt separately. The owner will cancel this task while the command is sleeping. Do not mark complete before the command returns.",
+        "assignee": "qa-browser-work-6764edb3",
+        "status": "blocked",
+        "priority": 50,
+        "created_by": "user",
+        "created_at": 1789459103,
+        "started_at": 1789459158,
+        "completed_at": null,
+        "workspace_kind": "dir",
+        "workspace_path": "/opt/data/workspace/qa-browser-work-6764edb3",
+        "claim_lock": null,
+        "claim_expires": null,
+        "tenant": null,
+        "branch_name": null,
+        "project_id": "p_cce9dfdd",
+        "result": null,
+        "idempotency_key": "gw-d8e06c7c7dbd34469a06188da8f0c33497037a4f4b7bb0b49f381e7e5200507c",
+        "consecutive_failures": 0,
+        "worker_pid": null,
+        "last_failure_error": null,
+        "max_runtime_seconds": null,
+        "last_heartbeat_at": 1789459360,
+        "current_run_id": null,
+        "workflow_template_id": null,
+        "current_step_key": null,
+        "skills": null,
+        "model_override": null,
+        "provider_override": null,
+        "reasoning_effort": null,
+        "max_retries": null,
+        "goal_mode": false,
+        "goal_max_turns": null,
+        "session_id": null,
+        "block_kind": "needs_input",
+        "block_recurrences": 1
+      },
+      "runs": [
+        {
+          "id": 3,
+          "task_id": "t_90b70a12",
+          "profile": "qa-browser-work-6764edb3",
+          "step_key": null,
+          "status": "blocked",
+          "claim_lock": null,
+          "claim_expires": null,
+          "worker_pid": null,
+          "max_runtime_seconds": null,
+          "last_heartbeat_at": 1789459360,
+          "started_at": 1789459158,
+          "ended_at": 1789459393,
+          "outcome": "blocked",
+          "summary": "The required foreground command completed normally after its 180-second sleep because no owner cancellation arrived; cancellation acceptance cannot be claimed. Please decide whether to reset artifacts and retry the cancellation test.",
+          "metadata": null,
+          "error": null
+        }
+      ],
+      "events": [
+        {
+          "kind": "created",
+          "payload": "{\"assignee\": \"qa-browser-work-6764edb3\", \"status\": \"ready\", \"parents\": [], \"tenant\": null, \"workspace_kind\": \"dir\", \"workspace_path\": \"/opt/data/workspace/qa-browser-work-6764edb3\", \"branch_name\": null, \"project_id\": \"p_cce9dfdd\", \"skills\": null, \"goal_mode\": null, \"model_override\": null, \"provider_override\": null}",
+          "created_at": 1789459103,
+          "run_id": null
+        },
+        {
+          "kind": "claimed",
+          "payload": "{\"lock\": \"9a668a969246:162\", \"expires\": 1789460058, \"run_id\": 3}",
+          "created_at": 1789459158,
+          "run_id": 3
+        },
+        {
+          "kind": "spawned",
+          "payload": "{\"pid\": 7036}",
+          "created_at": 1789459158,
+          "run_id": 3
+        },
+        {
+          "kind": "heartbeat",
+          "payload": null,
+          "created_at": 1789459176,
+          "run_id": 3
+        },
+        {
+          "kind": "heartbeat",
+          "payload": null,
+          "created_at": 1789459240,
+          "run_id": 3
+        },
+        {
+          "kind": "heartbeat",
+          "payload": null,
+          "created_at": 1789459300,
+          "run_id": 3
+        },
+        {
+          "kind": "heartbeat",
+          "payload": null,
+          "created_at": 1789459360,
+          "run_id": 3
+        },
+        {
+          "kind": "commented",
+          "payload": "{\"author\": \"qa-browser-work-6764edb3\", \"len\": 308}",
+          "created_at": 1789459386,
+          "run_id": null
+        },
+        {
+          "kind": "blocked",
+          "payload": "{\"reason\": \"The required foreground command completed normally after its 180-second sleep because no owner cancellation arrived; cancellation acceptance cannot be claimed. Please decide whether to reset artifacts and retry the cancellation test.\", \"kind\": \"needs_input\", \"recurrences\": 1}",
+          "created_at": 1789459393,
+          "run_id": 3
+        }
+      ]
+    },
+    "t_cba03315": {
+      "task": {
+        "id": "t_cba03315",
+        "title": "Step 6 verified cancellation",
+        "body": "Cancellation acceptance only. Use the enabled terminal tool to execute exactly this bounded Python command in your project workspace: python -c \"from pathlib import Path; import time; Path('cancel-verified-started.txt').write_text('STEP6-VERIFIED-CANCEL-SLEEP'); time.sleep(180); Path('cancel-verified-finished.txt').write_text('finished')\". Set the terminal timeout to 240 seconds. Do not put it in the background, shorten or skip the sleep, use any other workspace, or create cancel-verified-finished.txt separately. The owner will cancel this task while the command is sleeping. Do not mark complete before the command returns.",
+        "assignee": "qa-browser-work-6764edb3",
+        "status": "blocked",
+        "priority": 50,
+        "created_by": "user",
+        "created_at": 1789459472,
+        "started_at": 1789459520,
+        "completed_at": null,
+        "workspace_kind": "dir",
+        "workspace_path": "/opt/data/workspace/qa-browser-work-6764edb3",
+        "claim_lock": null,
+        "claim_expires": null,
+        "tenant": null,
+        "branch_name": null,
+        "project_id": "p_cce9dfdd",
+        "result": null,
+        "idempotency_key": "gw-16c756db83f5a53bcf99ad5eb0654fd99c16e6cf0b099065855217582f8f1c8b",
+        "consecutive_failures": 0,
+        "worker_pid": null,
+        "last_failure_error": null,
+        "max_runtime_seconds": null,
+        "last_heartbeat_at": 1789459534,
+        "current_run_id": null,
+        "workflow_template_id": null,
+        "current_step_key": null,
+        "skills": null,
+        "model_override": null,
+        "provider_override": null,
+        "reasoning_effort": null,
+        "max_retries": null,
+        "goal_mode": false,
+        "goal_max_turns": null,
+        "session_id": null,
+        "block_kind": null,
+        "block_recurrences": 0
+      },
+      "runs": [
+        {
+          "id": 4,
+          "task_id": "t_cba03315",
+          "profile": "qa-browser-work-6764edb3",
+          "step_key": null,
+          "status": "blocked",
+          "claim_lock": null,
+          "claim_expires": null,
+          "worker_pid": null,
+          "max_runtime_seconds": null,
+          "last_heartbeat_at": 1789459534,
+          "started_at": 1789459520,
+          "ended_at": 1789459575,
+          "outcome": "cancelled",
+          "summary": "Cancelled by owner; worker termination verified",
+          "metadata": {
+            "cancelled": true,
+            "termination_verified": true,
+            "terminated_process_count": 3
+          },
+          "error": null
+        }
+      ],
+      "events": [
+        {
+          "kind": "created",
+          "payload": "{\"assignee\": \"qa-browser-work-6764edb3\", \"status\": \"ready\", \"parents\": [], \"tenant\": null, \"workspace_kind\": \"dir\", \"workspace_path\": \"/opt/data/workspace/qa-browser-work-6764edb3\", \"branch_name\": null, \"project_id\": \"p_cce9dfdd\", \"skills\": null, \"goal_mode\": null, \"model_override\": null, \"provider_override\": null}",
+          "created_at": 1789459472,
+          "run_id": null
+        },
+        {
+          "kind": "claimed",
+          "payload": "{\"lock\": \"9a668a969246:162\", \"expires\": 1789460420, \"run_id\": 4}",
+          "created_at": 1789459520,
+          "run_id": 4
+        },
+        {
+          "kind": "spawned",
+          "payload": "{\"pid\": 8550}",
+          "created_at": 1789459520,
+          "run_id": 4
+        },
+        {
+          "kind": "heartbeat",
+          "payload": null,
+          "created_at": 1789459534,
+          "run_id": 4
+        },
+        {
+          "kind": "blocked",
+          "payload": "{\"reason\": \"Owner cancelled this run; explicit resume required\", \"kind\": \"needs_input\", \"cancelled\": true}",
+          "created_at": 1789459575,
+          "run_id": 4
+        },
+        {
+          "kind": "cancelled",
+          "payload": "{\"termination_verified\": true, \"run_id\": 4}",
+          "created_at": 1789459575,
+          "run_id": 4
+        }
+      ]
+    }
+  },
+  "sessions": [
+    {
+      "id": "20260915_072917_ca94a1",
+      "source": "kanban",
+      "model": "gpt-5.6-sol",
+      "cwd": null,
+      "tool_call_count": 7,
+      "api_call_count": 8,
+      "billing_provider": "openai-codex",
+      "profile_name": "qa-browser-work-6764edb3",
+      "started_at": 1789457372.2968514,
+      "ended_at": null
+    }
+  ],
+  "missingFileAbsent": true,
+  "artifact": {
+    "total_cents": 1195,
+    "instruction_code": "SOUL-STEP6-ORCHID",
+    "memory_code": "MEMORY-STEP6-CEDAR",
+    "user_memory_code": "USER-STEP6-AMBER",
+    "skill_code": "SKILL-STEP6-COBALT",
+    "rows": [
+      "alpha",
+      "beta",
+      "gamma"
+    ]
+  },
+  "artifactSha256": "5c7e6e70445ed8dea33e580db54b973c73aa22ebb2afb7445e92d9bb039f10f4",
+  "independentlyCalculatedCents": 1195
+}
